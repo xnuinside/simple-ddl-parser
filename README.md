@@ -1,3 +1,7 @@
+#### Status of work
+
+Package is not released yet. Will be done soon.
+
 ## Simple DDL Parser
 
 Parser tested on DDL for PostgreSQL & Hive. If you have samples that cause an error - please open the issue, I will be glad to fix it.
