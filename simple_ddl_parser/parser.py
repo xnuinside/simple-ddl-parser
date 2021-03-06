@@ -28,7 +28,6 @@ class Parser:
             if line.replace("\n", "").replace("\t", ""):
                 _parse_result = yacc.parse(line)
                 if _parse_result:
-                    print(_parse_result)
                     if 'table_name' in _parse_result:
                         if previous_table_name is not None:
                             tables.append(table)
