@@ -1,0 +1,296 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    COMMA
+    ELSE
+    NEWLINE
+    THEN
+    USE
+    WHILE
+
+Grammar
+
+Rule 0     S' -> expr
+Rule 1     expr -> CREATE TABLE IF NOT EXISTS ID DOT ID
+Rule 2     expr -> CREATE TABLE IF NOT EXISTS ID
+Rule 3     expr -> CREATE TABLE ID
+Rule 4     expr -> CREATE TABLE ID DOT ID
+Rule 5     expr -> ID ID
+Rule 6     expr -> ID ID NOT NULL
+Rule 7     expr -> ID ID NULL
+Rule 8     expr -> ID ID INT NULL
+Rule 9     expr -> ID ID INT NOT NULL
+Rule 10    expr -> ID
+Rule 11    expr -> PRIMARY KEY ID
+Rule 12    expr -> PRIMARY KEY ID ID
+Rule 13    expr -> PRIMARY KEY ID ID ID
+
+Terminals, with rules where they appear
+
+COMMA                : 
+CREATE               : 1 2 3 4
+DOT                  : 1 4
+ELSE                 : 
+EXISTS               : 1 2
+ID                   : 1 1 2 3 4 4 5 5 6 6 7 7 8 8 9 9 10 11 12 12 13 13 13
+IF                   : 1 2
+INT                  : 8 9
+KEY                  : 11 12 13
+NEWLINE              : 
+NOT                  : 1 2 6 9
+NULL                 : 6 7 8 9
+PRIMARY              : 11 12 13
+TABLE                : 1 2 3 4
+THEN                 : 
+USE                  : 
+WHILE                : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+expr                 : 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . expr
+    (1) expr -> . CREATE TABLE IF NOT EXISTS ID DOT ID
+    (2) expr -> . CREATE TABLE IF NOT EXISTS ID
+    (3) expr -> . CREATE TABLE ID
+    (4) expr -> . CREATE TABLE ID DOT ID
+    (5) expr -> . ID ID
+    (6) expr -> . ID ID NOT NULL
+    (7) expr -> . ID ID NULL
+    (8) expr -> . ID ID INT NULL
+    (9) expr -> . ID ID INT NOT NULL
+    (10) expr -> . ID
+    (11) expr -> . PRIMARY KEY ID
+    (12) expr -> . PRIMARY KEY ID ID
+    (13) expr -> . PRIMARY KEY ID ID ID
+
+    CREATE          shift and go to state 2
+    ID              shift and go to state 3
+    PRIMARY         shift and go to state 4
+
+    expr                           shift and go to state 1
+
+state 1
+
+    (0) S' -> expr .
+
+
+
+state 2
+
+    (1) expr -> CREATE . TABLE IF NOT EXISTS ID DOT ID
+    (2) expr -> CREATE . TABLE IF NOT EXISTS ID
+    (3) expr -> CREATE . TABLE ID
+    (4) expr -> CREATE . TABLE ID DOT ID
+
+    TABLE           shift and go to state 5
+
+
+state 3
+
+    (5) expr -> ID . ID
+    (6) expr -> ID . ID NOT NULL
+    (7) expr -> ID . ID NULL
+    (8) expr -> ID . ID INT NULL
+    (9) expr -> ID . ID INT NOT NULL
+    (10) expr -> ID .
+
+    ID              shift and go to state 6
+    $end            reduce using rule 10 (expr -> ID .)
+
+
+state 4
+
+    (11) expr -> PRIMARY . KEY ID
+    (12) expr -> PRIMARY . KEY ID ID
+    (13) expr -> PRIMARY . KEY ID ID ID
+
+    KEY             shift and go to state 7
+
+
+state 5
+
+    (1) expr -> CREATE TABLE . IF NOT EXISTS ID DOT ID
+    (2) expr -> CREATE TABLE . IF NOT EXISTS ID
+    (3) expr -> CREATE TABLE . ID
+    (4) expr -> CREATE TABLE . ID DOT ID
+
+    IF              shift and go to state 8
+    ID              shift and go to state 9
+
+
+state 6
+
+    (5) expr -> ID ID .
+    (6) expr -> ID ID . NOT NULL
+    (7) expr -> ID ID . NULL
+    (8) expr -> ID ID . INT NULL
+    (9) expr -> ID ID . INT NOT NULL
+
+    $end            reduce using rule 5 (expr -> ID ID .)
+    NOT             shift and go to state 10
+    NULL            shift and go to state 11
+    INT             shift and go to state 12
+
+
+state 7
+
+    (11) expr -> PRIMARY KEY . ID
+    (12) expr -> PRIMARY KEY . ID ID
+    (13) expr -> PRIMARY KEY . ID ID ID
+
+    ID              shift and go to state 13
+
+
+state 8
+
+    (1) expr -> CREATE TABLE IF . NOT EXISTS ID DOT ID
+    (2) expr -> CREATE TABLE IF . NOT EXISTS ID
+
+    NOT             shift and go to state 14
+
+
+state 9
+
+    (3) expr -> CREATE TABLE ID .
+    (4) expr -> CREATE TABLE ID . DOT ID
+
+    $end            reduce using rule 3 (expr -> CREATE TABLE ID .)
+    DOT             shift and go to state 15
+
+
+state 10
+
+    (6) expr -> ID ID NOT . NULL
+
+    NULL            shift and go to state 16
+
+
+state 11
+
+    (7) expr -> ID ID NULL .
+
+    $end            reduce using rule 7 (expr -> ID ID NULL .)
+
+
+state 12
+
+    (8) expr -> ID ID INT . NULL
+    (9) expr -> ID ID INT . NOT NULL
+
+    NULL            shift and go to state 17
+    NOT             shift and go to state 18
+
+
+state 13
+
+    (11) expr -> PRIMARY KEY ID .
+    (12) expr -> PRIMARY KEY ID . ID
+    (13) expr -> PRIMARY KEY ID . ID ID
+
+    $end            reduce using rule 11 (expr -> PRIMARY KEY ID .)
+    ID              shift and go to state 19
+
+
+state 14
+
+    (1) expr -> CREATE TABLE IF NOT . EXISTS ID DOT ID
+    (2) expr -> CREATE TABLE IF NOT . EXISTS ID
+
+    EXISTS          shift and go to state 20
+
+
+state 15
+
+    (4) expr -> CREATE TABLE ID DOT . ID
+
+    ID              shift and go to state 21
+
+
+state 16
+
+    (6) expr -> ID ID NOT NULL .
+
+    $end            reduce using rule 6 (expr -> ID ID NOT NULL .)
+
+
+state 17
+
+    (8) expr -> ID ID INT NULL .
+
+    $end            reduce using rule 8 (expr -> ID ID INT NULL .)
+
+
+state 18
+
+    (9) expr -> ID ID INT NOT . NULL
+
+    NULL            shift and go to state 22
+
+
+state 19
+
+    (12) expr -> PRIMARY KEY ID ID .
+    (13) expr -> PRIMARY KEY ID ID . ID
+
+    $end            reduce using rule 12 (expr -> PRIMARY KEY ID ID .)
+    ID              shift and go to state 23
+
+
+state 20
+
+    (1) expr -> CREATE TABLE IF NOT EXISTS . ID DOT ID
+    (2) expr -> CREATE TABLE IF NOT EXISTS . ID
+
+    ID              shift and go to state 24
+
+
+state 21
+
+    (4) expr -> CREATE TABLE ID DOT ID .
+
+    $end            reduce using rule 4 (expr -> CREATE TABLE ID DOT ID .)
+
+
+state 22
+
+    (9) expr -> ID ID INT NOT NULL .
+
+    $end            reduce using rule 9 (expr -> ID ID INT NOT NULL .)
+
+
+state 23
+
+    (13) expr -> PRIMARY KEY ID ID ID .
+
+    $end            reduce using rule 13 (expr -> PRIMARY KEY ID ID ID .)
+
+
+state 24
+
+    (1) expr -> CREATE TABLE IF NOT EXISTS ID . DOT ID
+    (2) expr -> CREATE TABLE IF NOT EXISTS ID .
+
+    DOT             shift and go to state 25
+    $end            reduce using rule 2 (expr -> CREATE TABLE IF NOT EXISTS ID .)
+
+
+state 25
+
+    (1) expr -> CREATE TABLE IF NOT EXISTS ID DOT . ID
+
+    ID              shift and go to state 26
+
+
+state 26
+
+    (1) expr -> CREATE TABLE IF NOT EXISTS ID DOT ID .
+
+    $end            reduce using rule 1 (expr -> CREATE TABLE IF NOT EXISTS ID DOT ID .)
+
