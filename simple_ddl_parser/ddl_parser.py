@@ -151,13 +151,3 @@ def parse_from_file(file_path: str):
     """ get useful data from ddl """
     with open(file_path, 'r') as df:
         return DDLParser(df.read())
-
-print(DDLParser("""create table v2.data_sync_history(
-    data_sync_id bigint not null,
-    sync_count bigint not null,
-    sync_mark timestamp  not  null,
-    sync_start timestamp  not null,
-    sync_end timestamp  not null,
-    message varchar(2000) null,
-    primary key (data_sync_id, sync_start)
-); """).run(lower_case=True, dump=True))

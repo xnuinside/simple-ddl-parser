@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'COMMA CREATE DOT ELSE EXISTS ID IF INT KEY NEWLINE NOT NULL PRIMARY TABLE THEN USE WHILEexpr : CREATE TABLE IF NOT EXISTS ID DOT ID \n                | CREATE TABLE IF NOT EXISTS ID\n                | CREATE TABLE ID\n                | CREATE TABLE ID DOT ID\n                \n        expr : ID ID\n                | ID ID NOT NULL\n                | ID ID NULL\n                | ID ID INT NULL \n                | ID ID INT NOT NULL \n                | ID\n        expr : PRIMARY KEY ID\n                | PRIMARY KEY ID ID\n                | PRIMARY KEY ID ID ID\n        '
+_lr_signature = 'COMMA CREATE DOT ELSE EXISTS ID IF INT KEY NEWLINE NOT NULL PRIMARY TABLE THEN USE WHILEexpr : CREATE TABLE IF NOT EXISTS ID DOT ID \n                | CREATE TABLE IF NOT EXISTS ID\n                | CREATE TABLE ID\n                | CREATE TABLE ID DOT ID\n                \n        expr : ID ID\n                | ID ID NOT NULL\n                | ID ID NULL\n                | ID ID INT NULL \n                | ID ID INT NOT NULL \n                | ID\n        expr : PRIMARY KEY ID\n                | PRIMARY KEY ID ID\n                | PRIMARY KEY ID ID ID\n                | PRIMARY KEY ID ID ID ID \n                | PRIMARY KEY ID ID ID ID ID\n                | PRIMARY KEY ID ID ID ID ID ID\n        '
     
-_lr_action_items = {'CREATE':([0,],[2,]),'ID':([0,3,5,7,13,15,19,20,25,],[3,6,9,13,19,21,23,24,26,]),'PRIMARY':([0,],[4,]),'$end':([1,3,6,9,11,13,16,17,19,21,22,23,24,26,],[0,-10,-5,-3,-7,-11,-6,-8,-12,-4,-9,-13,-2,-1,]),'TABLE':([2,],[5,]),'KEY':([4,],[7,]),'IF':([5,],[8,]),'NOT':([6,8,12,],[10,14,18,]),'NULL':([6,10,12,18,],[11,16,17,22,]),'INT':([6,],[12,]),'DOT':([9,24,],[15,25,]),'EXISTS':([14,],[20,]),}
+_lr_action_items = {'CREATE':([0,],[2,]),'ID':([0,3,5,7,13,15,19,20,23,25,26,27,],[3,6,9,13,19,21,23,24,25,27,28,29,]),'PRIMARY':([0,],[4,]),'$end':([1,3,6,9,11,13,16,17,19,21,22,23,24,25,27,28,29,],[0,-10,-5,-3,-7,-11,-6,-8,-12,-4,-9,-13,-2,-14,-15,-1,-16,]),'TABLE':([2,],[5,]),'KEY':([4,],[7,]),'IF':([5,],[8,]),'NOT':([6,8,12,],[10,14,18,]),'NULL':([6,10,12,18,],[11,16,17,22,]),'INT':([6,],[12,]),'DOT':([9,24,],[15,26,]),'EXISTS':([14,],[20,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -37,7 +37,10 @@ _lr_productions = [
   ('expr -> ID ID INT NULL','expr',4,'p_expression_type','ddl_parser.py',81),
   ('expr -> ID ID INT NOT NULL','expr',5,'p_expression_type','ddl_parser.py',82),
   ('expr -> ID','expr',1,'p_expression_type','ddl_parser.py',83),
-  ('expr -> PRIMARY KEY ID','expr',3,'p_expression_primary_key','ddl_parser.py',101),
-  ('expr -> PRIMARY KEY ID ID','expr',4,'p_expression_primary_key','ddl_parser.py',102),
-  ('expr -> PRIMARY KEY ID ID ID','expr',5,'p_expression_primary_key','ddl_parser.py',103),
+  ('expr -> PRIMARY KEY ID','expr',3,'p_expression_primary_key','ddl_parser.py',105),
+  ('expr -> PRIMARY KEY ID ID','expr',4,'p_expression_primary_key','ddl_parser.py',106),
+  ('expr -> PRIMARY KEY ID ID ID','expr',5,'p_expression_primary_key','ddl_parser.py',107),
+  ('expr -> PRIMARY KEY ID ID ID ID','expr',6,'p_expression_primary_key','ddl_parser.py',108),
+  ('expr -> PRIMARY KEY ID ID ID ID ID','expr',7,'p_expression_primary_key','ddl_parser.py',109),
+  ('expr -> PRIMARY KEY ID ID ID ID ID ID','expr',8,'p_expression_primary_key','ddl_parser.py',110),
 ]
