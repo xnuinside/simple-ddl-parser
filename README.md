@@ -1,5 +1,7 @@
 ## Simple DDL Parser
 
+![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) 
+
 Parser tested on DDL for PostgreSQL & Hive.
 
 If you have samples that cause an error - please open the issue, I will be glad to fix it.
