@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'CREATE DEFAULT DOT ELSE EXISTS ID IF KEY NEWLINE NOT NULL NUM_VALUE_SDP PRIMARY TABLE THEN USE WHILEexpr : CREATE TABLE IF NOT EXISTS ID DOT ID \n                | CREATE TABLE IF NOT EXISTS ID\n                | CREATE TABLE ID\n                | CREATE TABLE ID DOT ID\n                \n        column : ID ID\n                  | ID ID NUM_VALUE_SDP\n                  | ID NUM_VALUE_SDP\n        expr : column NOT NULL\n                | column\n                | column NULL\n                | column PRIMARY KEY\n                | column DEFAULT NUM_VALUE_SDP\n                | column DEFAULT ID\n                | column NOT NULL PRIMARY KEY\n                | column NULL PRIMARY KEY\n        expr : PRIMARY KEY ID\n                | PRIMARY KEY ID ID\n                | PRIMARY KEY ID ID ID\n                | PRIMARY KEY ID ID ID ID \n                | PRIMARY KEY ID ID ID ID ID\n                | PRIMARY KEY ID ID ID ID ID ID\n        '
+_lr_signature = 'CREATE DEFAULT DOT ELSE EXISTS ID IF KEY NEWLINE NOT NULL NUM_VALUE_SDP PRIMARY TABLE THEN USE WHILEexpr : table ID DOT ID\n                | table ID     \n        table : CREATE TABLE IF NOT EXISTS\n                | CREATE TABLE\n                \n        column : ID ID\n                  | ID ID NUM_VALUE_SDP\n                  | ID NUM_VALUE_SDP\n         expr : column\n                | column DEFAULT NUM_VALUE_SDP\n                | column NOT NULL\n                | column NULL\n                | column PRIMARY KEY\n                | column DEFAULT ID\n        expr : PRIMARY KEY ID\n                | PRIMARY KEY ID ID\n                | PRIMARY KEY ID ID ID\n                | PRIMARY KEY ID ID ID ID\n                | PRIMARY KEY ID ID ID ID ID\n        '
     
-_lr_action_items = {'CREATE':([0,],[2,]),'PRIMARY':([0,4,7,8,10,16,17,],[5,11,-5,-7,18,-6,25,]),'ID':([0,3,6,12,13,22,24,27,28,31,33,34,35,],[3,7,15,21,22,27,29,31,32,33,35,36,37,]),'$end':([1,4,7,8,10,15,16,17,19,20,21,22,26,27,29,30,31,32,33,35,36,37,],[0,-9,-5,-7,-10,-3,-6,-8,-11,-12,-13,-16,-15,-17,-4,-14,-18,-2,-19,-20,-1,-21,]),'TABLE':([2,],[6,]),'NUM_VALUE_SDP':([3,7,12,],[8,16,20,]),'NOT':([4,7,8,14,16,],[9,-5,-7,23,-6,]),'NULL':([4,7,8,9,16,],[10,-5,-7,17,-6,]),'DEFAULT':([4,7,8,16,],[12,-5,-7,-6,]),'KEY':([5,11,18,25,],[13,19,26,30,]),'IF':([6,],[14,]),'DOT':([15,32,],[24,34,]),'EXISTS':([23,],[28,]),}
+_lr_action_items = {'PRIMARY':([0,4,8,9,17,],[5,13,-5,-7,-6,]),'CREATE':([0,],[6,]),'ID':([0,2,3,10,14,15,16,22,25,27,28,29,],[3,7,8,19,22,-4,24,25,27,29,-3,30,]),'$end':([1,4,7,8,9,12,17,18,19,20,21,22,24,25,27,29,30,],[0,-8,-2,-5,-7,-11,-6,-9,-13,-10,-12,-14,-1,-15,-16,-17,-18,]),'NUM_VALUE_SDP':([3,8,10,],[9,17,18,]),'DEFAULT':([4,8,9,17,],[10,-5,-7,-6,]),'NOT':([4,8,9,17,23,],[11,-5,-7,-6,26,]),'NULL':([4,8,9,11,17,],[12,-5,-7,20,-6,]),'KEY':([5,13,],[14,21,]),'TABLE':([6,],[15,]),'DOT':([7,],[16,]),'IF':([15,],[23,]),'EXISTS':([26,],[28,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'expr':([0,],[1,]),'column':([0,],[4,]),}
+_lr_goto_items = {'expr':([0,],[1,]),'table':([0,],[2,]),'column':([0,],[4,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,25 +27,22 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> expr","S'",1,None,None,None),
-  ('expr -> CREATE TABLE IF NOT EXISTS ID DOT ID','expr',8,'p_expression_table_name','ddl_parser.py',67),
-  ('expr -> CREATE TABLE IF NOT EXISTS ID','expr',6,'p_expression_table_name','ddl_parser.py',68),
-  ('expr -> CREATE TABLE ID','expr',3,'p_expression_table_name','ddl_parser.py',69),
-  ('expr -> CREATE TABLE ID DOT ID','expr',5,'p_expression_table_name','ddl_parser.py',70),
-  ('column -> ID ID','column',2,'p_column','ddl_parser.py',84),
-  ('column -> ID ID NUM_VALUE_SDP','column',3,'p_column','ddl_parser.py',85),
-  ('column -> ID NUM_VALUE_SDP','column',2,'p_column','ddl_parser.py',86),
-  ('expr -> column NOT NULL','expr',3,'p_expression_type','ddl_parser.py',101),
-  ('expr -> column','expr',1,'p_expression_type','ddl_parser.py',102),
-  ('expr -> column NULL','expr',2,'p_expression_type','ddl_parser.py',103),
-  ('expr -> column PRIMARY KEY','expr',3,'p_expression_type','ddl_parser.py',104),
-  ('expr -> column DEFAULT NUM_VALUE_SDP','expr',3,'p_expression_type','ddl_parser.py',105),
-  ('expr -> column DEFAULT ID','expr',3,'p_expression_type','ddl_parser.py',106),
-  ('expr -> column NOT NULL PRIMARY KEY','expr',5,'p_expression_type','ddl_parser.py',107),
-  ('expr -> column NULL PRIMARY KEY','expr',4,'p_expression_type','ddl_parser.py',108),
-  ('expr -> PRIMARY KEY ID','expr',3,'p_expression_primary_key','ddl_parser.py',123),
-  ('expr -> PRIMARY KEY ID ID','expr',4,'p_expression_primary_key','ddl_parser.py',124),
-  ('expr -> PRIMARY KEY ID ID ID','expr',5,'p_expression_primary_key','ddl_parser.py',125),
-  ('expr -> PRIMARY KEY ID ID ID ID','expr',6,'p_expression_primary_key','ddl_parser.py',126),
-  ('expr -> PRIMARY KEY ID ID ID ID ID','expr',7,'p_expression_primary_key','ddl_parser.py',127),
-  ('expr -> PRIMARY KEY ID ID ID ID ID ID','expr',8,'p_expression_primary_key','ddl_parser.py',128),
+  ('expr -> table ID DOT ID','expr',4,'p_expression_table_name','ddl_parser.py',67),
+  ('expr -> table ID','expr',2,'p_expression_table_name','ddl_parser.py',68),
+  ('table -> CREATE TABLE IF NOT EXISTS','table',5,'p_ttable','ddl_parser.py',83),
+  ('table -> CREATE TABLE','table',2,'p_ttable','ddl_parser.py',84),
+  ('column -> ID ID','column',2,'p_column','ddl_parser.py',90),
+  ('column -> ID ID NUM_VALUE_SDP','column',3,'p_column','ddl_parser.py',91),
+  ('column -> ID NUM_VALUE_SDP','column',2,'p_column','ddl_parser.py',92),
+  ('expr -> column','expr',1,'p_defcolumn','ddl_parser.py',107),
+  ('expr -> column DEFAULT NUM_VALUE_SDP','expr',3,'p_defcolumn','ddl_parser.py',108),
+  ('expr -> column NOT NULL','expr',3,'p_defcolumn','ddl_parser.py',109),
+  ('expr -> column NULL','expr',2,'p_defcolumn','ddl_parser.py',110),
+  ('expr -> column PRIMARY KEY','expr',3,'p_defcolumn','ddl_parser.py',111),
+  ('expr -> column DEFAULT ID','expr',3,'p_defcolumn','ddl_parser.py',112),
+  ('expr -> PRIMARY KEY ID','expr',3,'p_expression_primary_key','ddl_parser.py',130),
+  ('expr -> PRIMARY KEY ID ID','expr',4,'p_expression_primary_key','ddl_parser.py',131),
+  ('expr -> PRIMARY KEY ID ID ID','expr',5,'p_expression_primary_key','ddl_parser.py',132),
+  ('expr -> PRIMARY KEY ID ID ID ID','expr',6,'p_expression_primary_key','ddl_parser.py',133),
+  ('expr -> PRIMARY KEY ID ID ID ID ID','expr',7,'p_expression_primary_key','ddl_parser.py',134),
 ]

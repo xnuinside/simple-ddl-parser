@@ -13,7 +13,7 @@ class Parser:
     """
     def __init__(self, content) -> None:
         """ init parser for file """
-        self.result = []
+        self.tables = []
         self.data = content
         self.paren_count = 0
         self.lexer = lex.lex(object=self, debug=True)
@@ -21,9 +21,19 @@ class Parser:
     
     def run(self):
         """ run lex and yacc on prepared data from files """
+        tables = []
+        table = []
+        previous_table_name = None
         for line in self.data.split("\n"):
             if line.replace("\n", "").replace("\t", ""):
                 _parse_result = yacc.parse(line)
                 if _parse_result:
-                    self.result.append(_parse_result)
-        return self.result
+                    print(_parse_result)
+                    if 'table_name' in _parse_result:
+                        if previous_table_name is not None:
+                            tables.append(table)
+                            table = []
+                        previous_table_name = _parse_result['table_name']
+                    table.append(_parse_result)
+        tables.append(table)        
+        return tables

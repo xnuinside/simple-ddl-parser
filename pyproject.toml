@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simple-ddl-parser"
-version = "0.1.0alpha1"
+version = "0.1.0"
 description = ""
 authors = ["Iuliia Volkova <xnuinside@gmail.com>"]
 

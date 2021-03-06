@@ -1,3 +1,5 @@
 dump_schemas/
 *.pyc
 simple_ddl_parser/__pycache__
+dist/
+.pytest_cache/

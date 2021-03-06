@@ -11,44 +11,41 @@ Unused terminals:
 Grammar
 
 Rule 0     S' -> expr
-Rule 1     expr -> CREATE TABLE IF NOT EXISTS ID DOT ID
-Rule 2     expr -> CREATE TABLE IF NOT EXISTS ID
-Rule 3     expr -> CREATE TABLE ID
-Rule 4     expr -> CREATE TABLE ID DOT ID
+Rule 1     expr -> table ID DOT ID
+Rule 2     expr -> table ID
+Rule 3     table -> CREATE TABLE IF NOT EXISTS
+Rule 4     table -> CREATE TABLE
 Rule 5     column -> ID ID
 Rule 6     column -> ID ID NUM_VALUE_SDP
 Rule 7     column -> ID NUM_VALUE_SDP
-Rule 8     expr -> column NOT NULL
-Rule 9     expr -> column
-Rule 10    expr -> column NULL
-Rule 11    expr -> column PRIMARY KEY
-Rule 12    expr -> column DEFAULT NUM_VALUE_SDP
+Rule 8     expr -> column
+Rule 9     expr -> column DEFAULT NUM_VALUE_SDP
+Rule 10    expr -> column NOT NULL
+Rule 11    expr -> column NULL
+Rule 12    expr -> column PRIMARY KEY
 Rule 13    expr -> column DEFAULT ID
-Rule 14    expr -> column NOT NULL PRIMARY KEY
-Rule 15    expr -> column NULL PRIMARY KEY
-Rule 16    expr -> PRIMARY KEY ID
-Rule 17    expr -> PRIMARY KEY ID ID
-Rule 18    expr -> PRIMARY KEY ID ID ID
-Rule 19    expr -> PRIMARY KEY ID ID ID ID
-Rule 20    expr -> PRIMARY KEY ID ID ID ID ID
-Rule 21    expr -> PRIMARY KEY ID ID ID ID ID ID
+Rule 14    expr -> PRIMARY KEY ID
+Rule 15    expr -> PRIMARY KEY ID ID
+Rule 16    expr -> PRIMARY KEY ID ID ID
+Rule 17    expr -> PRIMARY KEY ID ID ID ID
+Rule 18    expr -> PRIMARY KEY ID ID ID ID ID
 
 Terminals, with rules where they appear
 
-CREATE               : 1 2 3 4
-DEFAULT              : 12 13
-DOT                  : 1 4
+CREATE               : 3 4
+DEFAULT              : 9 13
+DOT                  : 1
 ELSE                 : 
-EXISTS               : 1 2
-ID                   : 1 1 2 3 4 4 5 5 6 6 7 13 16 17 17 18 18 18 19 19 19 19 20 20 20 20 20 21 21 21 21 21 21
-IF                   : 1 2
-KEY                  : 11 14 15 16 17 18 19 20 21
+EXISTS               : 3
+ID                   : 1 1 2 5 5 6 6 7 13 14 15 15 16 16 16 17 17 17 17 18 18 18 18 18
+IF                   : 3
+KEY                  : 12 14 15 16 17 18
 NEWLINE              : 
-NOT                  : 1 2 8 14
-NULL                 : 8 10 14 15
-NUM_VALUE_SDP        : 6 7 12
-PRIMARY              : 11 14 15 16 17 18 19 20 21
-TABLE                : 1 2 3 4
+NOT                  : 3 10
+NULL                 : 10 11
+NUM_VALUE_SDP        : 6 7 9
+PRIMARY              : 12 14 15 16 17 18
+TABLE                : 3 4
 THEN                 : 
 USE                  : 
 WHILE                : 
@@ -56,41 +53,40 @@ error                :
 
 Nonterminals, with rules where they appear
 
-column               : 8 9 10 11 12 13 14 15
+column               : 8 9 10 11 12 13
 expr                 : 0
+table                : 1 2
 
 Parsing method: LALR
 
 state 0
 
     (0) S' -> . expr
-    (1) expr -> . CREATE TABLE IF NOT EXISTS ID DOT ID
-    (2) expr -> . CREATE TABLE IF NOT EXISTS ID
-    (3) expr -> . CREATE TABLE ID
-    (4) expr -> . CREATE TABLE ID DOT ID
-    (8) expr -> . column NOT NULL
-    (9) expr -> . column
-    (10) expr -> . column NULL
-    (11) expr -> . column PRIMARY KEY
-    (12) expr -> . column DEFAULT NUM_VALUE_SDP
+    (1) expr -> . table ID DOT ID
+    (2) expr -> . table ID
+    (8) expr -> . column
+    (9) expr -> . column DEFAULT NUM_VALUE_SDP
+    (10) expr -> . column NOT NULL
+    (11) expr -> . column NULL
+    (12) expr -> . column PRIMARY KEY
     (13) expr -> . column DEFAULT ID
-    (14) expr -> . column NOT NULL PRIMARY KEY
-    (15) expr -> . column NULL PRIMARY KEY
-    (16) expr -> . PRIMARY KEY ID
-    (17) expr -> . PRIMARY KEY ID ID
-    (18) expr -> . PRIMARY KEY ID ID ID
-    (19) expr -> . PRIMARY KEY ID ID ID ID
-    (20) expr -> . PRIMARY KEY ID ID ID ID ID
-    (21) expr -> . PRIMARY KEY ID ID ID ID ID ID
+    (14) expr -> . PRIMARY KEY ID
+    (15) expr -> . PRIMARY KEY ID ID
+    (16) expr -> . PRIMARY KEY ID ID ID
+    (17) expr -> . PRIMARY KEY ID ID ID ID
+    (18) expr -> . PRIMARY KEY ID ID ID ID ID
+    (3) table -> . CREATE TABLE IF NOT EXISTS
+    (4) table -> . CREATE TABLE
     (5) column -> . ID ID
     (6) column -> . ID ID NUM_VALUE_SDP
     (7) column -> . ID NUM_VALUE_SDP
 
-    CREATE          shift and go to state 2
     PRIMARY         shift and go to state 5
+    CREATE          shift and go to state 6
     ID              shift and go to state 3
 
     expr                           shift and go to state 1
+    table                          shift and go to state 2
     column                         shift and go to state 4
 
 state 1
@@ -101,12 +97,10 @@ state 1
 
 state 2
 
-    (1) expr -> CREATE . TABLE IF NOT EXISTS ID DOT ID
-    (2) expr -> CREATE . TABLE IF NOT EXISTS ID
-    (3) expr -> CREATE . TABLE ID
-    (4) expr -> CREATE . TABLE ID DOT ID
+    (1) expr -> table . ID DOT ID
+    (2) expr -> table . ID
 
-    TABLE           shift and go to state 6
+    ID              shift and go to state 7
 
 
 state 3
@@ -115,317 +109,247 @@ state 3
     (6) column -> ID . ID NUM_VALUE_SDP
     (7) column -> ID . NUM_VALUE_SDP
 
-    ID              shift and go to state 7
-    NUM_VALUE_SDP   shift and go to state 8
+    ID              shift and go to state 8
+    NUM_VALUE_SDP   shift and go to state 9
 
 
 state 4
 
-    (8) expr -> column . NOT NULL
-    (9) expr -> column .
-    (10) expr -> column . NULL
-    (11) expr -> column . PRIMARY KEY
-    (12) expr -> column . DEFAULT NUM_VALUE_SDP
+    (8) expr -> column .
+    (9) expr -> column . DEFAULT NUM_VALUE_SDP
+    (10) expr -> column . NOT NULL
+    (11) expr -> column . NULL
+    (12) expr -> column . PRIMARY KEY
     (13) expr -> column . DEFAULT ID
-    (14) expr -> column . NOT NULL PRIMARY KEY
-    (15) expr -> column . NULL PRIMARY KEY
 
-    NOT             shift and go to state 9
-    $end            reduce using rule 9 (expr -> column .)
-    NULL            shift and go to state 10
-    PRIMARY         shift and go to state 11
-    DEFAULT         shift and go to state 12
+    $end            reduce using rule 8 (expr -> column .)
+    DEFAULT         shift and go to state 10
+    NOT             shift and go to state 11
+    NULL            shift and go to state 12
+    PRIMARY         shift and go to state 13
 
 
 state 5
 
-    (16) expr -> PRIMARY . KEY ID
-    (17) expr -> PRIMARY . KEY ID ID
-    (18) expr -> PRIMARY . KEY ID ID ID
-    (19) expr -> PRIMARY . KEY ID ID ID ID
-    (20) expr -> PRIMARY . KEY ID ID ID ID ID
-    (21) expr -> PRIMARY . KEY ID ID ID ID ID ID
+    (14) expr -> PRIMARY . KEY ID
+    (15) expr -> PRIMARY . KEY ID ID
+    (16) expr -> PRIMARY . KEY ID ID ID
+    (17) expr -> PRIMARY . KEY ID ID ID ID
+    (18) expr -> PRIMARY . KEY ID ID ID ID ID
 
-    KEY             shift and go to state 13
+    KEY             shift and go to state 14
 
 
 state 6
 
-    (1) expr -> CREATE TABLE . IF NOT EXISTS ID DOT ID
-    (2) expr -> CREATE TABLE . IF NOT EXISTS ID
-    (3) expr -> CREATE TABLE . ID
-    (4) expr -> CREATE TABLE . ID DOT ID
+    (3) table -> CREATE . TABLE IF NOT EXISTS
+    (4) table -> CREATE . TABLE
 
-    IF              shift and go to state 14
-    ID              shift and go to state 15
+    TABLE           shift and go to state 15
 
 
 state 7
 
-    (5) column -> ID ID .
-    (6) column -> ID ID . NUM_VALUE_SDP
+    (1) expr -> table ID . DOT ID
+    (2) expr -> table ID .
 
-    NOT             reduce using rule 5 (column -> ID ID .)
-    NULL            reduce using rule 5 (column -> ID ID .)
-    PRIMARY         reduce using rule 5 (column -> ID ID .)
-    DEFAULT         reduce using rule 5 (column -> ID ID .)
-    $end            reduce using rule 5 (column -> ID ID .)
-    NUM_VALUE_SDP   shift and go to state 16
+    DOT             shift and go to state 16
+    $end            reduce using rule 2 (expr -> table ID .)
 
 
 state 8
 
-    (7) column -> ID NUM_VALUE_SDP .
+    (5) column -> ID ID .
+    (6) column -> ID ID . NUM_VALUE_SDP
 
-    NOT             reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
-    NULL            reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
-    PRIMARY         reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
-    DEFAULT         reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
-    $end            reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
+    DEFAULT         reduce using rule 5 (column -> ID ID .)
+    NOT             reduce using rule 5 (column -> ID ID .)
+    NULL            reduce using rule 5 (column -> ID ID .)
+    PRIMARY         reduce using rule 5 (column -> ID ID .)
+    $end            reduce using rule 5 (column -> ID ID .)
+    NUM_VALUE_SDP   shift and go to state 17
 
 
 state 9
 
-    (8) expr -> column NOT . NULL
-    (14) expr -> column NOT . NULL PRIMARY KEY
+    (7) column -> ID NUM_VALUE_SDP .
 
-    NULL            shift and go to state 17
+    DEFAULT         reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
+    NOT             reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
+    NULL            reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
+    PRIMARY         reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
+    $end            reduce using rule 7 (column -> ID NUM_VALUE_SDP .)
 
 
 state 10
 
-    (10) expr -> column NULL .
-    (15) expr -> column NULL . PRIMARY KEY
+    (9) expr -> column DEFAULT . NUM_VALUE_SDP
+    (13) expr -> column DEFAULT . ID
 
-    $end            reduce using rule 10 (expr -> column NULL .)
-    PRIMARY         shift and go to state 18
+    NUM_VALUE_SDP   shift and go to state 18
+    ID              shift and go to state 19
 
 
 state 11
 
-    (11) expr -> column PRIMARY . KEY
+    (10) expr -> column NOT . NULL
 
-    KEY             shift and go to state 19
+    NULL            shift and go to state 20
 
 
 state 12
 
-    (12) expr -> column DEFAULT . NUM_VALUE_SDP
-    (13) expr -> column DEFAULT . ID
+    (11) expr -> column NULL .
 
-    NUM_VALUE_SDP   shift and go to state 20
-    ID              shift and go to state 21
+    $end            reduce using rule 11 (expr -> column NULL .)
 
 
 state 13
 
-    (16) expr -> PRIMARY KEY . ID
-    (17) expr -> PRIMARY KEY . ID ID
-    (18) expr -> PRIMARY KEY . ID ID ID
-    (19) expr -> PRIMARY KEY . ID ID ID ID
-    (20) expr -> PRIMARY KEY . ID ID ID ID ID
-    (21) expr -> PRIMARY KEY . ID ID ID ID ID ID
+    (12) expr -> column PRIMARY . KEY
 
-    ID              shift and go to state 22
+    KEY             shift and go to state 21
 
 
 state 14
 
-    (1) expr -> CREATE TABLE IF . NOT EXISTS ID DOT ID
-    (2) expr -> CREATE TABLE IF . NOT EXISTS ID
+    (14) expr -> PRIMARY KEY . ID
+    (15) expr -> PRIMARY KEY . ID ID
+    (16) expr -> PRIMARY KEY . ID ID ID
+    (17) expr -> PRIMARY KEY . ID ID ID ID
+    (18) expr -> PRIMARY KEY . ID ID ID ID ID
 
-    NOT             shift and go to state 23
+    ID              shift and go to state 22
 
 
 state 15
 
-    (3) expr -> CREATE TABLE ID .
-    (4) expr -> CREATE TABLE ID . DOT ID
+    (3) table -> CREATE TABLE . IF NOT EXISTS
+    (4) table -> CREATE TABLE .
 
-    $end            reduce using rule 3 (expr -> CREATE TABLE ID .)
-    DOT             shift and go to state 24
+    IF              shift and go to state 23
+    ID              reduce using rule 4 (table -> CREATE TABLE .)
 
 
 state 16
 
-    (6) column -> ID ID NUM_VALUE_SDP .
+    (1) expr -> table ID DOT . ID
 
-    NOT             reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
-    NULL            reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
-    PRIMARY         reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
-    DEFAULT         reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
-    $end            reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
+    ID              shift and go to state 24
 
 
 state 17
 
-    (8) expr -> column NOT NULL .
-    (14) expr -> column NOT NULL . PRIMARY KEY
+    (6) column -> ID ID NUM_VALUE_SDP .
 
-    $end            reduce using rule 8 (expr -> column NOT NULL .)
-    PRIMARY         shift and go to state 25
+    DEFAULT         reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
+    NOT             reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
+    NULL            reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
+    PRIMARY         reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
+    $end            reduce using rule 6 (column -> ID ID NUM_VALUE_SDP .)
 
 
 state 18
 
-    (15) expr -> column NULL PRIMARY . KEY
+    (9) expr -> column DEFAULT NUM_VALUE_SDP .
 
-    KEY             shift and go to state 26
+    $end            reduce using rule 9 (expr -> column DEFAULT NUM_VALUE_SDP .)
 
 
 state 19
-
-    (11) expr -> column PRIMARY KEY .
-
-    $end            reduce using rule 11 (expr -> column PRIMARY KEY .)
-
-
-state 20
-
-    (12) expr -> column DEFAULT NUM_VALUE_SDP .
-
-    $end            reduce using rule 12 (expr -> column DEFAULT NUM_VALUE_SDP .)
-
-
-state 21
 
     (13) expr -> column DEFAULT ID .
 
     $end            reduce using rule 13 (expr -> column DEFAULT ID .)
 
 
+state 20
+
+    (10) expr -> column NOT NULL .
+
+    $end            reduce using rule 10 (expr -> column NOT NULL .)
+
+
+state 21
+
+    (12) expr -> column PRIMARY KEY .
+
+    $end            reduce using rule 12 (expr -> column PRIMARY KEY .)
+
+
 state 22
 
-    (16) expr -> PRIMARY KEY ID .
-    (17) expr -> PRIMARY KEY ID . ID
-    (18) expr -> PRIMARY KEY ID . ID ID
-    (19) expr -> PRIMARY KEY ID . ID ID ID
-    (20) expr -> PRIMARY KEY ID . ID ID ID ID
-    (21) expr -> PRIMARY KEY ID . ID ID ID ID ID
+    (14) expr -> PRIMARY KEY ID .
+    (15) expr -> PRIMARY KEY ID . ID
+    (16) expr -> PRIMARY KEY ID . ID ID
+    (17) expr -> PRIMARY KEY ID . ID ID ID
+    (18) expr -> PRIMARY KEY ID . ID ID ID ID
 
-    $end            reduce using rule 16 (expr -> PRIMARY KEY ID .)
-    ID              shift and go to state 27
+    $end            reduce using rule 14 (expr -> PRIMARY KEY ID .)
+    ID              shift and go to state 25
 
 
 state 23
 
-    (1) expr -> CREATE TABLE IF NOT . EXISTS ID DOT ID
-    (2) expr -> CREATE TABLE IF NOT . EXISTS ID
+    (3) table -> CREATE TABLE IF . NOT EXISTS
 
-    EXISTS          shift and go to state 28
+    NOT             shift and go to state 26
 
 
 state 24
 
-    (4) expr -> CREATE TABLE ID DOT . ID
+    (1) expr -> table ID DOT ID .
 
-    ID              shift and go to state 29
+    $end            reduce using rule 1 (expr -> table ID DOT ID .)
 
 
 state 25
 
-    (14) expr -> column NOT NULL PRIMARY . KEY
+    (15) expr -> PRIMARY KEY ID ID .
+    (16) expr -> PRIMARY KEY ID ID . ID
+    (17) expr -> PRIMARY KEY ID ID . ID ID
+    (18) expr -> PRIMARY KEY ID ID . ID ID ID
 
-    KEY             shift and go to state 30
+    $end            reduce using rule 15 (expr -> PRIMARY KEY ID ID .)
+    ID              shift and go to state 27
 
 
 state 26
 
-    (15) expr -> column NULL PRIMARY KEY .
+    (3) table -> CREATE TABLE IF NOT . EXISTS
 
-    $end            reduce using rule 15 (expr -> column NULL PRIMARY KEY .)
+    EXISTS          shift and go to state 28
 
 
 state 27
 
-    (17) expr -> PRIMARY KEY ID ID .
-    (18) expr -> PRIMARY KEY ID ID . ID
-    (19) expr -> PRIMARY KEY ID ID . ID ID
-    (20) expr -> PRIMARY KEY ID ID . ID ID ID
-    (21) expr -> PRIMARY KEY ID ID . ID ID ID ID
+    (16) expr -> PRIMARY KEY ID ID ID .
+    (17) expr -> PRIMARY KEY ID ID ID . ID
+    (18) expr -> PRIMARY KEY ID ID ID . ID ID
 
-    $end            reduce using rule 17 (expr -> PRIMARY KEY ID ID .)
-    ID              shift and go to state 31
+    $end            reduce using rule 16 (expr -> PRIMARY KEY ID ID ID .)
+    ID              shift and go to state 29
 
 
 state 28
 
-    (1) expr -> CREATE TABLE IF NOT EXISTS . ID DOT ID
-    (2) expr -> CREATE TABLE IF NOT EXISTS . ID
+    (3) table -> CREATE TABLE IF NOT EXISTS .
 
-    ID              shift and go to state 32
+    ID              reduce using rule 3 (table -> CREATE TABLE IF NOT EXISTS .)
 
 
 state 29
 
-    (4) expr -> CREATE TABLE ID DOT ID .
+    (17) expr -> PRIMARY KEY ID ID ID ID .
+    (18) expr -> PRIMARY KEY ID ID ID ID . ID
 
-    $end            reduce using rule 4 (expr -> CREATE TABLE ID DOT ID .)
+    $end            reduce using rule 17 (expr -> PRIMARY KEY ID ID ID ID .)
+    ID              shift and go to state 30
 
 
 state 30
 
-    (14) expr -> column NOT NULL PRIMARY KEY .
+    (18) expr -> PRIMARY KEY ID ID ID ID ID .
 
-    $end            reduce using rule 14 (expr -> column NOT NULL PRIMARY KEY .)
-
-
-state 31
-
-    (18) expr -> PRIMARY KEY ID ID ID .
-    (19) expr -> PRIMARY KEY ID ID ID . ID
-    (20) expr -> PRIMARY KEY ID ID ID . ID ID
-    (21) expr -> PRIMARY KEY ID ID ID . ID ID ID
-
-    $end            reduce using rule 18 (expr -> PRIMARY KEY ID ID ID .)
-    ID              shift and go to state 33
-
-
-state 32
-
-    (1) expr -> CREATE TABLE IF NOT EXISTS ID . DOT ID
-    (2) expr -> CREATE TABLE IF NOT EXISTS ID .
-
-    DOT             shift and go to state 34
-    $end            reduce using rule 2 (expr -> CREATE TABLE IF NOT EXISTS ID .)
-
-
-state 33
-
-    (19) expr -> PRIMARY KEY ID ID ID ID .
-    (20) expr -> PRIMARY KEY ID ID ID ID . ID
-    (21) expr -> PRIMARY KEY ID ID ID ID . ID ID
-
-    $end            reduce using rule 19 (expr -> PRIMARY KEY ID ID ID ID .)
-    ID              shift and go to state 35
-
-
-state 34
-
-    (1) expr -> CREATE TABLE IF NOT EXISTS ID DOT . ID
-
-    ID              shift and go to state 36
-
-
-state 35
-
-    (20) expr -> PRIMARY KEY ID ID ID ID ID .
-    (21) expr -> PRIMARY KEY ID ID ID ID ID . ID
-
-    $end            reduce using rule 20 (expr -> PRIMARY KEY ID ID ID ID ID .)
-    ID              shift and go to state 37
-
-
-state 36
-
-    (1) expr -> CREATE TABLE IF NOT EXISTS ID DOT ID .
-
-    $end            reduce using rule 1 (expr -> CREATE TABLE IF NOT EXISTS ID DOT ID .)
-
-
-state 37
-
-    (21) expr -> PRIMARY KEY ID ID ID ID ID ID .
-
-    $end            reduce using rule 21 (expr -> PRIMARY KEY ID ID ID ID ID ID .)
+    $end            reduce using rule 18 (expr -> PRIMARY KEY ID ID ID ID ID .)
 

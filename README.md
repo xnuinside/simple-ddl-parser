@@ -1,6 +1,6 @@
 ## Simple DDL Parser
 
-Parser tested on DDL for PostgreSQL & Hive. 
+Parser tested on DDL for PostgreSQL & Hive.
 
 If you have samples that cause an error - please open the issue, I will be glad to fix it.
 
@@ -25,7 +25,7 @@ And produce output like this (information about table name, schema, columns, typ
 
 ```python
 
-    {
+    [{
     'columns': [
         {'name': 'data_sync_id', 'type': 'bigint', 'mode': False, 'size': None}, 
         {'name': 'sync_count', 'type': 'bigint', 'mode': False, 'size': None}, 
@@ -35,7 +35,7 @@ And produce output like this (information about table name, schema, columns, typ
         {'name': 'message', 'type': 'varchar', 'mode': False, 'size': 2000}], 
     'table_name': 'super_table', 'schema': 'prod', 
     'primary_key': ['data_sync_id', 'sync_start']
-    }
+    }]
 
 ```
 
@@ -58,7 +58,7 @@ CREATE TABLE "paths" (
 and result
 
 ```python
-        {
+        [{
         'columns': [
             {'name': 'id', 'type': 'int', 'nullable': False, 'size': None}, 
             {'name': 'title', 'type': 'varchar', 'nullable': False, 'size': None}, 
@@ -67,7 +67,7 @@ and result
             {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None}], 
         'primary_key': ['id'], 
         'table_name': 'paths', 'schema': ''
-        }
+        }]
 
 ```
 
@@ -90,6 +90,29 @@ CREATE TABLE "path_owners" (
 );
 
 ```
+Output:
+
+```python
+
+    [
+        {'columns': [
+            {'name': 'id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
+            {'name': 'code', 'type': 'varchar', 'size': 4, 'nullable': False, 'default': None}, 
+            {'name': 'name', 'type': 'varchar', 'size': None, 'nullable': False, 'default': None}], 
+         'primary_key': ['id'], 
+         'table_name': 'countries', 
+         'schema': None}, 
+        {'columns': [
+            {'name': 'user_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
+            {'name': 'path_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
+            {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': '1a'}], 
+         'primary_key': [], 
+         'table_name': 'path_owners', 
+         'schema': None}
+    ]
+
+```
+
 ## How to use
 
 ### From python code
@@ -131,13 +154,22 @@ You can find in **tests/functional** folder.
 
 To dump result in json use argument .run(dump=True)
 
-```python
 
+You also can provide a path where you want to have a dumps with schema with argument
 
+### TODO in next Releases
+
+1. Support for references (Foreigein key) in column defenition
+2. Support for separate ALTER TABLE statements for Foreigein keys like
+
+```sql
+
+    ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id") REFERENCES "materials" ("id");
 
 ```
 
-You also can provide a path where you want to have a dumps with schema with argument
+3. Support for parse CREATE INDEX statements
+4. Add command line
 
 
 ### Historical context
