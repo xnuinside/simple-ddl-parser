@@ -24,6 +24,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "sync_count",
@@ -31,6 +32,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "sync_mark",
@@ -38,6 +40,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "sync_start",
@@ -45,6 +48,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "sync_end",
@@ -52,6 +56,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "message",
@@ -59,6 +64,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": 2000,
                     "default": None,
+                    "references": None,
                 },
             ],
             "table_name": "super_table",
@@ -88,6 +94,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "title",
@@ -95,6 +102,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "description",
@@ -102,6 +110,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": 160,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "created_at",
@@ -109,6 +118,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "updated_at",
@@ -116,6 +126,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
             ],
             "primary_key": ["id"],
@@ -145,6 +156,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "TITLE",
@@ -152,6 +164,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "description",
@@ -159,6 +172,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": 160,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "created_at",
@@ -166,6 +180,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "updated_at",
@@ -173,6 +188,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "references": None,
                 },
             ],
             "primary_key": ["ID"],
@@ -193,6 +209,7 @@ def test_parse_from_file_one_table():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "name",
@@ -200,6 +217,7 @@ def test_parse_from_file_one_table():
                     "size": 160,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "created_at",
@@ -207,6 +225,7 @@ def test_parse_from_file_one_table():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "updated_at",
@@ -214,6 +233,7 @@ def test_parse_from_file_one_table():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "country_code",
@@ -221,6 +241,7 @@ def test_parse_from_file_one_table():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "default_language",
@@ -228,6 +249,7 @@ def test_parse_from_file_one_table():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
             ],
             "primary_key": ["id"],
@@ -266,6 +288,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "code",
@@ -273,6 +296,7 @@ def test_parser_multiple_tables():
                     "size": 4,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "name",
@@ -280,6 +304,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
             ],
             "primary_key": ["id"],
@@ -294,6 +319,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "path_id",
@@ -301,6 +327,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "type",
@@ -308,6 +335,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": "1a",
+                    "references": None,
                 },
             ],
             "primary_key": [],
@@ -329,6 +357,7 @@ def test_parse_from_file_two_statements():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "name",
@@ -336,6 +365,7 @@ def test_parse_from_file_two_statements():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "created_at",
@@ -343,6 +373,7 @@ def test_parse_from_file_two_statements():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "updated_at",
@@ -350,6 +381,7 @@ def test_parse_from_file_two_statements():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "country_code",
@@ -357,6 +389,7 @@ def test_parse_from_file_two_statements():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "default_language",
@@ -364,6 +397,7 @@ def test_parse_from_file_two_statements():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
             ],
             "primary_key": ["id"],
@@ -378,6 +412,7 @@ def test_parse_from_file_two_statements():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "code",
@@ -385,6 +420,7 @@ def test_parse_from_file_two_statements():
                     "size": 2,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
                 {
                     "name": "name",
@@ -392,6 +428,7 @@ def test_parse_from_file_two_statements():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "references": None,
                 },
             ],
             "primary_key": ["id"],
@@ -403,3 +440,38 @@ def test_parse_from_file_two_statements():
     assert expected == parse_from_file(
         os.path.join(current_path, "test_two_tables.sql")
     )
+
+
+def test_references():
+    ddl = """
+    CREATE table users_events(
+    event_id  varchar not null REFERENCES events (id), 
+    user_id varchar not null REFERENCES users (id),
+    ) ;
+    """
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "event_id",
+                    "type": "varchar",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": {"table": "events", "column": "id"},
+                },
+                {
+                    "name": "user_id",
+                    "type": "varchar",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": {"table": "users", "column": "id"},
+                },
+            ],
+            "primary_key": [],
+            "table_name": "users_events",
+            "schema": None,
+        }
+    ]
+    assert expected == DDLParser(ddl).run()

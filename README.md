@@ -2,9 +2,19 @@
 
 ![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) 
 
-Parser tested on DDL for PostgreSQL & Hive.
 
-If you have samples that cause an error - please open the issue, I will be glad to fix it.
+### How to install
+
+```bash
+
+    pip install simple-ddl-parser
+
+```
+
+Parser tested on different DDLs for PostgreSQL & Hive.
+Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB.
+
+If you have samples that cause an error - please open the issue (but don't forget to add ddl example), I will be glad to fix it.
 
 This parser take as input SQL DDL statements or files, for example like this:
 
@@ -12,10 +22,11 @@ This parser take as input SQL DDL statements or files, for example like this:
 
     create table prod.super_table
 (
-    data_sync_id bigint not null,
-    sync_count bigint not null,
+    data_sync_id bigint not null default 0,
+    id_ref_from_another_table int REFERENCES another_table (id)
+    sync_count bigint not null REFERENCES count_table (count),
     sync_mark timestamp  not  null,
-    sync_start timestamp  not null,
+    sync_start timestamp  not null default now(),
     sync_end timestamp  not null,
     message varchar(2000) null,
     primary key (data_sync_id, sync_start)
@@ -27,18 +38,43 @@ And produce output like this (information about table name, schema, columns, typ
 
 ```python
 
-    [{
-    'columns': [
-        {'name': 'data_sync_id', 'type': 'bigint', 'mode': False, 'size': None, 'default': None}, 
-        {'name': 'sync_count', 'type': 'bigint', 'mode': False, 'size': None, 'default': None}, 
-        {'name': 'sync_mark', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
-        {'name': 'sync_start', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
-        {'name': 'sync_end', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
-        {'name': 'message', 'type': 'varchar', 'mode': False, 'size': 2000, 'default': None}], 
-    'table_name': 'super_table', 'schema': 'prod', 
-    'primary_key': ['data_sync_id', 'sync_start']
-    }]
-
+    [
+        {
+            "columns": [
+                {
+                    "name": "data_sync_id", "type": "bigint", "size": None, 
+                    "nullable": False, "default": None, "references": None,
+                },
+                {
+                    "name": "id_ref_from_another_table", "type": "int", "size": None,
+                    "nullable": False, "default": None, "references": {"table": "another_table", "column": "id"},
+                },
+                {
+                    "name": "sync_count", "type": "bigint", "size": None,
+                    "nullable": False, "default": None, "references": {"table": "count_table", "column": "count"},
+                },
+                {
+                    "name": "sync_mark", "type": "timestamp", "size": None,
+                    "nullable": False, "default": None, "references": None,
+                },
+                {
+                    "name": "sync_start", "type": "timestamp", "size": None,
+                    "nullable": False, "default": None, "references": None,
+                },
+                {
+                    "name": "sync_end", "type": "timestamp", "size": None,
+                    "nullable": False, "default": None, "references": None,
+                },
+                {
+                    "name": "message", "type": "varchar", "size": 2000,
+                    "nullable": False, "default": None, "references": None,
+                },
+            ],
+            "primary_key": ["data_sync_id", "sync_start"],
+            "table_name": "super_table",
+            "schema": "prod",
+        }
+    ]
 ```
 
 Or one more example
@@ -62,13 +98,13 @@ and result
 ```python
         [{
         'columns': [
-            {'name': 'id', 'type': 'int', 'nullable': False, 'size': None, 'default': None}, 
-            {'name': 'title', 'type': 'varchar', 'nullable': False, 'size': None, 'default': None}, 
-            {'name': 'description', 'type': 'varchar', 'nullable': False, 'size': 160, 'default': None}, 
-            {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None}, 
-            {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None}], 
+            {'name': 'id', 'type': 'int', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
+            {'name': 'title', 'type': 'varchar', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
+            {'name': 'description', 'type': 'varchar', 'nullable': False, 'size': 160, 'default': None, 'references': None}, 
+            {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
+            {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}], 
         'primary_key': ['id'], 
-        'table_name': 'paths', 'schema': ''
+        'table_name': 'paths', 'schema': None
         }]
 
 ```
@@ -98,16 +134,16 @@ Output:
 
     [
         {'columns': [
-            {'name': 'id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
-            {'name': 'code', 'type': 'varchar', 'size': 4, 'nullable': False, 'default': None}, 
-            {'name': 'name', 'type': 'varchar', 'size': None, 'nullable': False, 'default': None}], 
+            {'name': 'id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
+            {'name': 'code', 'type': 'varchar', 'size': 4, 'nullable': False, 'default': None, 'references': None}, 
+            {'name': 'name', 'type': 'varchar', 'size': None, 'nullable': False, 'default': None, 'references': None}], 
          'primary_key': ['id'], 
          'table_name': 'countries', 
          'schema': None}, 
         {'columns': [
-            {'name': 'user_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
-            {'name': 'path_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
-            {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': 1}], 
+            {'name': 'user_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
+            {'name': 'path_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
+            {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': 1, 'references': None}], 
          'primary_key': [], 
          'table_name': 'path_owners', 
          'schema': None}
@@ -156,13 +192,11 @@ You can find in **tests/functional** folder.
 
 To dump result in json use argument .run(dump=True)
 
-
 You also can provide a path where you want to have a dumps with schema with argument
 
 ### TODO in next Releases
 
-1. Support for references (Foreigein key) in column defenition
-2. Support for separate ALTER TABLE statements for Foreigein keys like
+1. Support for separate ALTER TABLE statements for Foreigein keys like
 
 ```sql
 
@@ -170,9 +204,9 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ```
 
-3. Support for parse CREATE INDEX statements
-4. Add command line
-5. Support ARRAYs
+2. Support for parse CREATE INDEX statements
+3. Add command line
+4. Support ARRAYs
 
 
 ### Historical context

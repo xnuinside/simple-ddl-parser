@@ -7,45 +7,45 @@ from simple_ddl_parser.parser import Parser
 
 class DDLParser(Parser):
     """
-        lex and yacc parser for parse ddl into BQ schemas
+    lex and yacc parser for parse ddl into BQ schemas
     """
+
     reserved = {
-        'IF': 'IF',
-        'then': 'THEN',
-        'else': 'ELSE',
-        'while': 'WHILE',
-        'USE': 'USE',
-        'CREATE': 'CREATE',
-        'TABLE': 'TABLE',
-        'NOT': 'NOT',
-        'EXISTS': 'EXISTS',
-        'NULL': 'NULL',
-        'NUM_VALUE_SDP': 'NUM_VALUE_SDP',
-        'PRIMARY': 'PRIMARY',
-        'KEY': 'KEY', 
-        'DEFAULT': 'DEFAULT'
+        "IF": "IF",
+        "then": "THEN",
+        "else": "ELSE",
+        "while": "WHILE",
+        "USE": "USE",
+        "CREATE": "CREATE",
+        "TABLE": "TABLE",
+        "NOT": "NOT",
+        "EXISTS": "EXISTS",
+        "NULL": "NULL",
+        "NUM_VALUE_SDP": "NUM_VALUE_SDP",
+        "PRIMARY": "PRIMARY",
+        "KEY": "KEY",
+        "DEFAULT": "DEFAULT",
+        "REFERENCES": "REFERENCES",
     }
 
-    tokens = tuple(['ID',
-                    'NEWLINE',
-                    'DOT'] + list(reserved.values()))
+    tokens = tuple(["ID", "NEWLINE", "DOT"] + list(reserved.values()))
 
-    t_ignore = '\t<>();, \'"${}\r'
-    t_DOT= r'.'
-    
+    t_ignore = "\t<>();, '\"${}\r"
+    t_DOT = r"."
+
     def t_NUM_VALUE_SDP(self, t):
-        r'[0-9]+\D'
+        r"[0-9]+\D"
         t.type = "NUM_VALUE_SDP"
-        t.value = t.value.replace(')', '')
+        t.value = t.value.replace(")", "")
         return t
 
     def t_ID(self, t):
-        r'[a-zA-Z_][a-zA-Z_0-9:]*'
-        t.type = self.reserved.get(t.value.upper(), 'ID')  # Check for reserved word
+        r"[a-zA-Z_][a-zA-Z_0-9:]*"
+        t.type = self.reserved.get(t.value.upper(), "ID")  # Check for reserved word
         return t
 
     def t_newline(self, t):
-        r'\n+'
+        r"\n+"
         self.lexer.lineno += len(t.value)
         t.type = "NEWLINE"
         if self.lexer.paren_count == 0:
@@ -59,115 +59,134 @@ class DDLParser(Parser):
 
     def p_expression_table_name(self, p):
         """expr : table ID DOT ID
-                | table ID     
+        | table ID
         """
         # get schema & table name
         p_list = list(p)
-        
+
         schema = None
         if len(p) > 4:
-            if '.' in p:
+            if "." in p:
                 schema = p_list[-3]
                 table_name = p_list[-1]
         else:
             table_name = p_list[-1]
-        p[0] = {'schema': schema, 'table_name': table_name}
-    
+        p[0] = {"schema": schema, "table_name": table_name}
+
     def p_ttable(self, p):
         """table : CREATE TABLE IF NOT EXISTS
-                | CREATE TABLE
-                
+        | CREATE TABLE
+
         """
         # get schema & table name
         pass
+
     def p_column(self, p):
         """column : ID ID
-                  | ID ID NUM_VALUE_SDP
-                  | ID NUM_VALUE_SDP
+        | ID ID NUM_VALUE_SDP
+        | ID NUM_VALUE_SDP
         """
         size = None
         type_str = p[2]
         if len(p) == 4:
-            match = re.match(r'[0-9]+', p[3])
+            match = re.match(r"[0-9]+", p[3])
             if bool(match):
-                size =  int(p[3])
-        p[0] = {"name": p[1], 
-                "type": type_str, 
-                'size': size}
-        
+                size = int(p[3])
+        p[0] = {"name": p[1], "type": type_str, "size": size}
+
     def p_defcolumn(self, p):
-        """ expr : column
-                | column DEFAULT NUM_VALUE_SDP
-                | column NOT NULL
-                | column NULL
-                | column PRIMARY KEY
-                | column DEFAULT ID
+        """expr : column
+        | expr DEFAULT NUM_VALUE_SDP
+        | expr NOT NULL
+        | expr NULL
+        | expr PRIMARY KEY
+        | expr DEFAULT ID
+        | expr REFERENCES ID ID
         """
+        _ref = "REFERENCES"
+        _def = "DEFAULT"
         pk = False
         nullable = False
         default = None
+        references = None
         p[0] = p[1]
-        if 'KEY' in p and 'PRIMARY' in p:
+        p_list = list(p)
+        if "KEY" in p and "PRIMARY" in p:
             pk = True
-        if 'NULL' in p and 'NOT' not in p:
+        if "NULL" in p and "NOT" not in p:
             nullable = True
-        if 'DEFAULT' in p:
-            ind_default = list(p).index('DEFAULT')
-            default = p[ind_default+1]
+        if _ref in p:
+            ref_index = p_list.index(_ref)
+            references = {
+                "table": p_list[ref_index + 1],
+                "column": p_list[ref_index + 2],
+            }
+        if _def in p:
+            ind_default = p_list.index(_def)
+            default = p[ind_default + 1]
             if default.isnumeric():
                 default = int(default)
-        p[0].update({"nullable": nullable, "primary_key": pk, "default": default})
+        p[0].update(
+            {
+                "nullable": nullable,
+                "primary_key": pk,
+                "default": default,
+                "references": references,
+            }
+        )
+
     def p_expression_primary_key(self, p):
         # todo: need to redone id lists
         """expr : PRIMARY KEY ID
-                | PRIMARY KEY ID ID
-                | PRIMARY KEY ID ID ID
-                | PRIMARY KEY ID ID ID ID
-                | PRIMARY KEY ID ID ID ID ID
+        | PRIMARY KEY ID ID
+        | PRIMARY KEY ID ID ID
+        | PRIMARY KEY ID ID ID ID
+        | PRIMARY KEY ID ID ID ID ID
         """
-        p[0] = {'primary_key': [x for x in p[3:] if x != ',']}
-        
+        p[0] = {"primary_key": [x for x in p[3:] if x != ","]}
+
     def dump_schema(self, table_name, dump_path):
         """ method to dump json schema """
         if not os.path.isdir(dump_path):
             os.makedirs(dump_path, exist_ok=True)
-        with open("{}/{}_schema.json".format(dump_path, table_name),
-                  'w+') as schema_file:
+        with open(
+            "{}/{}_schema.json".format(dump_path, table_name), "w+"
+        ) as schema_file:
             json.dump(self.result, schema_file, indent=1)
-    
+
     def result_format(self, result: List[Dict]) -> List[Dict]:
         final_result = []
         for table in result:
-            table_data = {'columns': [], 'primary_key': None}
+            table_data = {"columns": [], "primary_key": None}
             for item in table:
-                if item.get('table_name'):
-                    table_data['table_name'] = item['table_name']
-                    table_data['schema'] = item['schema']
-                elif not item.get('type') and item.get('primary_key'):
-                    table_data['primary_key'] = item['primary_key']
+                if item.get("table_name"):
+                    table_data["table_name"] = item["table_name"]
+                    table_data["schema"] = item["schema"]
+                elif not item.get("type") and item.get("primary_key"):
+                    table_data["primary_key"] = item["primary_key"]
                 else:
-                    table_data['columns'].append(item)
-            if not table_data['primary_key']:
+                    table_data["columns"].append(item)
+            if not table_data["primary_key"]:
                 table_data = self.check_pk_in_columns(table_data)
             else:
                 table_data = self.remove_pk_from_columns(table_data)
             final_result.append(table_data)
         return final_result
-    
+
     @staticmethod
     def remove_pk_from_columns(table_data: Dict):
-        for column in table_data['columns']:
-            del column['primary_key']
+        for column in table_data["columns"]:
+            del column["primary_key"]
         return table_data
-    
+
     @staticmethod
     def check_pk_in_columns(table_data: Dict):
         pk = []
-        for column in table_data['columns']:
-            if column['primary_key']:
-                pk.append(column['name'])
-            del column['primary_key']
-        table_data['primary_key'] = pk
+        for column in table_data["columns"]:
+            if column["primary_key"]:
+                pk.append(column["name"])
+            del column["primary_key"]
+        table_data["primary_key"] = pk
         return table_data
 
     def run(self, *, dump=None, dump_path="schemas", lower_case=False):
@@ -175,10 +194,97 @@ class DDLParser(Parser):
         result = super().run()
         table_data = self.result_format(result)
         if dump:
-            self.dump_schema(table_data['table_name'], dump_path)
+            self.dump_schema(table_data["table_name"], dump_path)
         return table_data
+
 
 def parse_from_file(file_path: str, **kwargs):
     """ get useful data from ddl """
-    with open(file_path, 'r') as df:
+    with open(file_path, "r") as df:
         return DDLParser(df.read()).run(**kwargs)
+
+
+ddl = """
+
+ create table prod.super_table
+(
+    data_sync_id bigint not null default 0,
+    id_ref_from_another_table int REFERENCES another_table (id)
+    sync_count bigint not null REFERENCES count_table (count),
+    sync_mark timestamp  not  null,
+    sync_start timestamp  not null default now(),
+    sync_end timestamp  not null,
+    message varchar(2000) null,
+    primary key (data_sync_id, sync_start)
+);
+
+"""
+print(DDLParser(ddl).run())
+
+print(
+    [
+        {
+            "columns": [
+                {
+                    "name": "data_sync_id",
+                    "type": "bigint",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": None,
+                },
+                {
+                    "name": "id_ref_from_another_table",
+                    "type": "int",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": {"table": "another_table", "column": "id"},
+                },
+                {
+                    "name": "sync_count",
+                    "type": "bigint",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": {"table": "count_table", "column": "count"},
+                },
+                {
+                    "name": "sync_mark",
+                    "type": "timestamp",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": None,
+                },
+                {
+                    "name": "sync_start",
+                    "type": "timestamp",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": None,
+                },
+                {
+                    "name": "sync_end",
+                    "type": "timestamp",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": None,
+                },
+                {
+                    "name": "message",
+                    "type": "varchar",
+                    "size": 2000,
+                    "nullable": False,
+                    "default": None,
+                    "references": None,
+                },
+            ],
+            "primary_key": ["data_sync_id", "sync_start"],
+            "table_name": "super_table",
+            "schema": "prod",
+        }
+    ]
+)
