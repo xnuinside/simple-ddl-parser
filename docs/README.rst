@@ -16,9 +16,18 @@ Simple DDL Parser
    :alt: badge3
  
 
-Parser tested on DDL for PostgreSQL & Hive.
+How to install
+^^^^^^^^^^^^^^
 
-If you have samples that cause an error - please open the issue, I will be glad to fix it.
+.. code-block:: bash
+
+
+       pip install simple-ddl-parser
+
+Parser tested on different DDLs for PostgreSQL & Hive.
+Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB.
+
+If you have samples that cause an error - please open the issue (but don't forget to add ddl example), I will be glad to fix it.
 
 This parser take as input SQL DDL statements or files, for example like this:
 
@@ -27,10 +36,11 @@ This parser take as input SQL DDL statements or files, for example like this:
 
        create table prod.super_table
    (
-       data_sync_id bigint not null,
-       sync_count bigint not null,
+       data_sync_id bigint not null default 0,
+       id_ref_from_another_table int REFERENCES another_table (id)
+       sync_count bigint not null REFERENCES count_table (count),
        sync_mark timestamp  not  null,
-       sync_start timestamp  not null,
+       sync_start timestamp  not null default now(),
        sync_end timestamp  not null,
        message varchar(2000) null,
        primary key (data_sync_id, sync_start)
@@ -41,17 +51,43 @@ And produce output like this (information about table name, schema, columns, typ
 .. code-block:: python
 
 
-       [{
-       'columns': [
-           {'name': 'data_sync_id', 'type': 'bigint', 'mode': False, 'size': None, 'default': None}, 
-           {'name': 'sync_count', 'type': 'bigint', 'mode': False, 'size': None, 'default': None}, 
-           {'name': 'sync_mark', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
-           {'name': 'sync_start', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
-           {'name': 'sync_end', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
-           {'name': 'message', 'type': 'varchar', 'mode': False, 'size': 2000, 'default': None}], 
-       'table_name': 'super_table', 'schema': 'prod', 
-       'primary_key': ['data_sync_id', 'sync_start']
-       }]
+       [
+           {
+               "columns": [
+                   {
+                       "name": "data_sync_id", "type": "bigint", "size": None, 
+                       "nullable": False, "default": None, "references": None,
+                   },
+                   {
+                       "name": "id_ref_from_another_table", "type": "int", "size": None,
+                       "nullable": False, "default": None, "references": {"table": "another_table", "column": "id"},
+                   },
+                   {
+                       "name": "sync_count", "type": "bigint", "size": None,
+                       "nullable": False, "default": None, "references": {"table": "count_table", "column": "count"},
+                   },
+                   {
+                       "name": "sync_mark", "type": "timestamp", "size": None,
+                       "nullable": False, "default": None, "references": None,
+                   },
+                   {
+                       "name": "sync_start", "type": "timestamp", "size": None,
+                       "nullable": False, "default": None, "references": None,
+                   },
+                   {
+                       "name": "sync_end", "type": "timestamp", "size": None,
+                       "nullable": False, "default": None, "references": None,
+                   },
+                   {
+                       "name": "message", "type": "varchar", "size": 2000,
+                       "nullable": False, "default": None, "references": None,
+                   },
+               ],
+               "primary_key": ["data_sync_id", "sync_start"],
+               "table_name": "super_table",
+               "schema": "prod",
+           }
+       ]
 
 Or one more example
 
@@ -72,13 +108,13 @@ and result
 
            [{
            'columns': [
-               {'name': 'id', 'type': 'int', 'nullable': False, 'size': None, 'default': None}, 
-               {'name': 'title', 'type': 'varchar', 'nullable': False, 'size': None, 'default': None}, 
-               {'name': 'description', 'type': 'varchar', 'nullable': False, 'size': 160, 'default': None}, 
-               {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None}, 
-               {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None}], 
+               {'name': 'id', 'type': 'int', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
+               {'name': 'title', 'type': 'varchar', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
+               {'name': 'description', 'type': 'varchar', 'nullable': False, 'size': 160, 'default': None, 'references': None}, 
+               {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
+               {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}], 
            'primary_key': ['id'], 
-           'table_name': 'paths', 'schema': ''
+           'table_name': 'paths', 'schema': None
            }]
 
 If you pass file or text block with more when 1 CREATE TABLE statement when result will be list of such dicts. For example:
@@ -107,16 +143,16 @@ Output:
 
        [
            {'columns': [
-               {'name': 'id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
-               {'name': 'code', 'type': 'varchar', 'size': 4, 'nullable': False, 'default': None}, 
-               {'name': 'name', 'type': 'varchar', 'size': None, 'nullable': False, 'default': None}], 
+               {'name': 'id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
+               {'name': 'code', 'type': 'varchar', 'size': 4, 'nullable': False, 'default': None, 'references': None}, 
+               {'name': 'name', 'type': 'varchar', 'size': None, 'nullable': False, 'default': None, 'references': None}], 
             'primary_key': ['id'], 
             'table_name': 'countries', 
             'schema': None}, 
            {'columns': [
-               {'name': 'user_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
-               {'name': 'path_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
-               {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': 1}], 
+               {'name': 'user_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
+               {'name': 'path_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
+               {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': 1, 'references': None}], 
             'primary_key': [], 
             'table_name': 'path_owners', 
             'schema': None}
@@ -156,6 +192,36 @@ To parse from file
        result = parse_from_file('tests/test_one_statement.sql')
        print(result)
 
+From command line
+^^^^^^^^^^^^^^^^^
+
+simple-ddl-parser is installed to environment as command **sdp**
+
+.. code-block:: bash
+
+
+       sdp path_to_ddl_file
+
+       # for example:
+
+       sdp tests/test_two_tables.sql
+
+You will see the output in **schemas** folder in file with name **test_two_tables_schema.json**
+
+If you want to have also output in console - use **-v** flag for verbose.
+
+.. code-block:: bash
+
+
+       sdp tests/test_two_tables.sql -v
+
+If you don't want to dump schema in file and just print result to the console, use **--no-dump** flag:
+
+.. code-block:: bash
+
+
+       sdp tests/test_two_tables.sql --no-dump
+
 More examples & tests
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -172,7 +238,6 @@ TODO in next Releases
 ^^^^^^^^^^^^^^^^^^^^^
 
 
-#. Support for references (Foreigein key) in column defenition
 #. Support for separate ALTER TABLE statements for Foreigein keys like
 
 .. code-block:: sql
@@ -182,7 +247,7 @@ TODO in next Releases
 
 
 #. Support for parse CREATE INDEX statements
-#. Add command line
+#. Add to command line args: to pass folder with ddls to convert, pass path to get the output results
 #. Support ARRAYs
 
 Historical context

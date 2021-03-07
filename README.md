@@ -237,7 +237,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ```
 2. Support for parse CREATE INDEX statements
-3. Add to command line args: to pass folder with ddls to convert, pass path to get the results, parse without dump to file
+3. Add to command line args: to pass folder with ddls to convert, pass path to get the output results
 4. Support ARRAYs
 
 

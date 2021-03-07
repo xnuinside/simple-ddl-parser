@@ -1,0 +1,4 @@
+v0.3.0
+
+1. Added support for REFERENCES statement in column defenition
+2. Added command line
