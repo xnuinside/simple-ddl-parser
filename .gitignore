@@ -1,4 +1,5 @@
 dump_schemas/
+schemas/
 *.pyc
 simple_ddl_parser/__pycache__
 dist/
