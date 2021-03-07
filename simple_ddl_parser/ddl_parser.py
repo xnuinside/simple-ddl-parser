@@ -203,6 +203,7 @@ def dump_data_to_file(table_name, dump_path, data):
     ) as schema_file:
         json.dump(data, schema_file, indent=1)
 
+
 def parse_from_file(file_path: str, **kwargs):
     """ get useful data from ddl """
     with open(file_path, "r") as df:
