@@ -29,12 +29,12 @@ And produce output like this (information about table name, schema, columns, typ
 
     [{
     'columns': [
-        {'name': 'data_sync_id', 'type': 'bigint', 'mode': False, 'size': None}, 
-        {'name': 'sync_count', 'type': 'bigint', 'mode': False, 'size': None}, 
-        {'name': 'sync_mark', 'type': 'timestamp', 'mode': False, 'size': None}, 
-        {'name': 'sync_start', 'type': 'timestamp', 'mode': False, 'size': None}, 
-        {'name': 'sync_end', 'type': 'timestamp', 'mode': False, 'size': None}, 
-        {'name': 'message', 'type': 'varchar', 'mode': False, 'size': 2000}], 
+        {'name': 'data_sync_id', 'type': 'bigint', 'mode': False, 'size': None, 'default': None}, 
+        {'name': 'sync_count', 'type': 'bigint', 'mode': False, 'size': None, 'default': None}, 
+        {'name': 'sync_mark', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
+        {'name': 'sync_start', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
+        {'name': 'sync_end', 'type': 'timestamp', 'mode': False, 'size': None, 'default': None}, 
+        {'name': 'message', 'type': 'varchar', 'mode': False, 'size': 2000, 'default': None}], 
     'table_name': 'super_table', 'schema': 'prod', 
     'primary_key': ['data_sync_id', 'sync_start']
     }]
@@ -62,11 +62,11 @@ and result
 ```python
         [{
         'columns': [
-            {'name': 'id', 'type': 'int', 'nullable': False, 'size': None}, 
-            {'name': 'title', 'type': 'varchar', 'nullable': False, 'size': None}, 
-            {'name': 'description', 'type': 'varchar', 'nullable': False, 'size': 160}, 
-            {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None}, 
-            {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None}], 
+            {'name': 'id', 'type': 'int', 'nullable': False, 'size': None, 'default': None}, 
+            {'name': 'title', 'type': 'varchar', 'nullable': False, 'size': None, 'default': None}, 
+            {'name': 'description', 'type': 'varchar', 'nullable': False, 'size': 160, 'default': None}, 
+            {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None}, 
+            {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None}], 
         'primary_key': ['id'], 
         'table_name': 'paths', 'schema': ''
         }]
@@ -75,7 +75,7 @@ and result
 
 If you pass file or text block with more when 1 CREATE TABLE statement when result will be list of such dicts. For example:
 
-Input 
+Input:
 
 ```sql
 
@@ -107,7 +107,7 @@ Output:
         {'columns': [
             {'name': 'user_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
             {'name': 'path_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None}, 
-            {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': '1a'}], 
+            {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': 1}], 
          'primary_key': [], 
          'table_name': 'path_owners', 
          'schema': None}
@@ -172,6 +172,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 3. Support for parse CREATE INDEX statements
 4. Add command line
+5. Support ARRAYs
 
 
 ### Historical context
