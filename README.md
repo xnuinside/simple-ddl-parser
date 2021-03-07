@@ -184,6 +184,39 @@ Output:
 
 ```
 
+### From command line
+
+simple-ddl-parser is installed to environment as command **sdp**
+
+```bash
+
+    sdp path_to_ddl_file
+
+    # for example:
+
+    sdp tests/test_two_tables.sql
+    
+```
+
+You will see the output in **schemas** folder in file with name **test_two_tables_schema.json**
+
+If you want to have also output in console - use **-v** flag for verbose.
+
+```bash
+    
+    sdp tests/test_two_tables.sql -v
+    
+```
+
+If you don't want to dump schema in file and just print result to the console, use **--no-dump** flag:
+
+
+```bash
+    
+    sdp tests/test_two_tables.sql --no-dump
+    
+```
+
 ### More examples & tests
 
 You can find in **tests/functional** folder.
@@ -203,9 +236,8 @@ You also can provide a path where you want to have a dumps with schema with argu
     ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id") REFERENCES "materials" ("id");
 
 ```
-
 2. Support for parse CREATE INDEX statements
-3. Add command line
+3. Add to command line args: to pass folder with ddls to convert, pass path to get the results, parse without dump to file
 4. Support ARRAYs
 
 

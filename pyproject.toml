@@ -25,6 +25,9 @@ pytest = "^5.2"
 m2r = "^0.2.1"
 twine = "^3.3.0"
 
+[tool.poetry.scripts]
+sdp = 'simple_ddl_parser.cli:main'
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

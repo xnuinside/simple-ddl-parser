@@ -17,8 +17,8 @@ class Parser:
         self.tables = []
         self.data = content
         self.paren_count = 0
-        self.lexer = lex.lex(object=self, debug=True)
-        self.yacc = yacc.yacc(module=self, debug=True)
+        self.lexer = lex.lex(object=self, debug=False)
+        self.yacc = yacc.yacc(module=self, debug=False)
 
     def run(self):
         """ run lex and yacc on prepared data from files """

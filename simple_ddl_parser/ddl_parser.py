@@ -1,7 +1,7 @@
 import os
 import re
 import json
-from typing import Dict, List
+from typing import Dict, List, Optional
 from simple_ddl_parser.parser import Parser
 
 
@@ -145,15 +145,6 @@ class DDLParser(Parser):
         """
         p[0] = {"primary_key": [x for x in p[3:] if x != ","]}
 
-    def dump_schema(self, table_name, dump_path):
-        """ method to dump json schema """
-        if not os.path.isdir(dump_path):
-            os.makedirs(dump_path, exist_ok=True)
-        with open(
-            "{}/{}_schema.json".format(dump_path, table_name), "w+"
-        ) as schema_file:
-            json.dump(self.result, schema_file, indent=1)
-
     def result_format(self, result: List[Dict]) -> List[Dict]:
         final_result = []
         for table in result:
@@ -189,102 +180,30 @@ class DDLParser(Parser):
         table_data["primary_key"] = pk
         return table_data
 
-    def run(self, *, dump=None, dump_path="schemas", lower_case=False):
+    def run(self, *, dump=None, dump_path="schemas", file_path: Optional[str] = None):
         """ run lex and yacc on prepared data from files """
         result = super().run()
         table_data = self.result_format(result)
         if dump:
-            self.dump_schema(table_data["table_name"], dump_path)
+            if file_path:
+                # if we run parse from one file - save same way to one file
+                dump_data_to_file(os.path.basename(file_path).split('.')[0], dump_path, table_data)
+            else:
+                for table in table_data:
+                    dump_data_to_file(table['table_name'], dump_path, table)
         return table_data
 
+
+def dump_data_to_file(table_name, dump_path, data):
+    """ method to dump json schema """
+    if not os.path.isdir(dump_path):
+        os.makedirs(dump_path, exist_ok=True)
+    with open(
+        "{}/{}_schema.json".format(dump_path, table_name), "w+"
+    ) as schema_file:
+        json.dump(data, schema_file, indent=1)
 
 def parse_from_file(file_path: str, **kwargs):
     """ get useful data from ddl """
     with open(file_path, "r") as df:
-        return DDLParser(df.read()).run(**kwargs)
-
-
-ddl = """
-
- create table prod.super_table
-(
-    data_sync_id bigint not null default 0,
-    id_ref_from_another_table int REFERENCES another_table (id)
-    sync_count bigint not null REFERENCES count_table (count),
-    sync_mark timestamp  not  null,
-    sync_start timestamp  not null default now(),
-    sync_end timestamp  not null,
-    message varchar(2000) null,
-    primary key (data_sync_id, sync_start)
-);
-
-"""
-print(DDLParser(ddl).run())
-
-print(
-    [
-        {
-            "columns": [
-                {
-                    "name": "data_sync_id",
-                    "type": "bigint",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "id_ref_from_another_table",
-                    "type": "int",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": {"table": "another_table", "column": "id"},
-                },
-                {
-                    "name": "sync_count",
-                    "type": "bigint",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": {"table": "count_table", "column": "count"},
-                },
-                {
-                    "name": "sync_mark",
-                    "type": "timestamp",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "sync_start",
-                    "type": "timestamp",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "sync_end",
-                    "type": "timestamp",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "message",
-                    "type": "varchar",
-                    "size": 2000,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-            ],
-            "primary_key": ["data_sync_id", "sync_start"],
-            "table_name": "super_table",
-            "schema": "prod",
-        }
-    ]
-)
+        return DDLParser(df.read()).run(file_path=file_path, **kwargs)
