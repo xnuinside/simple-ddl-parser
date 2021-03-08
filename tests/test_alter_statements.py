@@ -280,7 +280,7 @@ def test_alter_check():
     assert DDLParser(ddl).run() == expected
 
 
-def test_alter_check_combine_all_vatiants():
+def test_alter_check_combine_all_variants():
 
     ddl = """
     CREATE TABLE employees (
