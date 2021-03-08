@@ -60,11 +60,11 @@ And produce output like this (information about table name, schema, columns, typ
                    },
                    {
                        "name": "id_ref_from_another_table", "type": "int", "size": None,
-                       "nullable": False, "default": None, "references": {"table": "another_table", "column": "id"},
+                       "nullable": False, "default": None, "references": {"table": "another_table", "schema": None, "column": "id"},
                    },
                    {
                        "name": "sync_count", "type": "bigint", "size": None,
-                       "nullable": False, "default": None, "references": {"table": "count_table", "column": "count"},
+                       "nullable": False, "default": None, "references": {"table": "count_table", "schema": None, "column": "count"},
                    },
                    {
                        "name": "sync_mark", "type": "timestamp", "size": None,
@@ -86,6 +86,7 @@ And produce output like this (information about table name, schema, columns, typ
                "primary_key": ["data_sync_id", "sync_start"],
                "table_name": "super_table",
                "schema": "prod",
+               "alter": {}
            }
        ]
 
@@ -114,7 +115,9 @@ and result
                {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
                {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}], 
            'primary_key': ['id'], 
-           'table_name': 'paths', 'schema': None
+           'table_name': 'paths', 
+           'schema': None,
+           'alter': {}
            }]
 
 If you pass file or text block with more when 1 CREATE TABLE statement when result will be list of such dicts. For example:
@@ -155,8 +158,24 @@ Output:
                {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': 1, 'references': None}], 
             'primary_key': [], 
             'table_name': 'path_owners', 
-            'schema': None}
+            'schema': None,
+            'alter': {}}
        ]
+
+ALTER statements
+^^^^^^^^^^^^^^^^
+
+Right now added support only for ALTER statements with FOREIGEIN key
+
+For example, if in your ddl after table defenitions (create table statements) you have ALTER table statements like this:
+
+.. code-block:: sql
+
+
+   ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id", "material_title") REFERENCES "materials" ("id", "title");
+
+This statements will be parsed and information about them putted inside 'alter' key in table's dict.
+For example, please check alter statement tests - **tests/test_alter_statements.py**
 
 How to use
 ----------
@@ -222,6 +241,13 @@ If you don't want to dump schema in file and just print result to the console, u
 
        sdp tests/test_two_tables.sql --no-dump
 
+You can provide target path where you want to dump result with argument **-t**\ , **--targer**\ :
+
+.. code-block:: bash
+
+
+       sdp tests/test_two_tables.sql -t dump_results/
+
 More examples & tests
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -232,23 +258,17 @@ Dump result in json
 
 To dump result in json use argument .run(dump=True)
 
-You also can provide a path where you want to have a dumps with schema with argument
+You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
 TODO in next Releases
 ^^^^^^^^^^^^^^^^^^^^^
 
 
-#. Support for separate ALTER TABLE statements for Foreigein keys like
-
-.. code-block:: sql
-
-
-       ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id") REFERENCES "materials" ("id");
-
-
-#. Support for parse CREATE INDEX statements
-#. Add to command line args: to pass folder with ddls to convert, pass path to get the output results
+#. Support CREATE INDEX statements
 #. Support ARRAYs
+#. Support CREATE SEQUENCE statements
+#. Support for UNIQUE column attribute
+#. Add command line arg to pass folder with ddls to convert
 
 Historical context
 ^^^^^^^^^^^^^^^^^^
@@ -264,3 +284,21 @@ How to contribute
 Please describe issue that you want to solve and open the PR, I will review it as soon as possible.
 
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
+
+Changelog
+---------
+
+**v0.4.0**
+
+
+#. Added support schema for table in REFERENCES statement in column defenition
+#. Added base support fot Alter table statements (added 'alters' key in table)
+#. Added support for UNIQUE attribute in column
+#. Added command line arg to pass path to get the output results
+#. Fixed incorrect null fields parsing
+
+**v0.3.0**
+
+
+#. Added support for REFERENCES statement in column defenition
+#. Added command line

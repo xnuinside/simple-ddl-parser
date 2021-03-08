@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simple-ddl-parser"
-version = "0.3.1"
+version = "0.4.0"
 description = "Simple DDL Parser to parse SQL & HQL ddl files to json/python dict with full information about columns: types, defaults, primary keys, etc."
 authors = ["Iuliia Volkova <xnuinside@gmail.com>"]
 license = "MIT"
