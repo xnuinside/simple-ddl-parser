@@ -4,10 +4,8 @@ from simple_ddl_parser.parser import Parser
 
 
 _ref = "REFERENCES"
-_ref_lower = _ref.lower()
 _def = "DEFAULT"
-_def_lower = _def.lower()
-
+_cons = 'CONSTRAINT'
 
 class DDLParser(Parser):
     """
@@ -50,8 +48,10 @@ class DDLParser(Parser):
         return t
 
     def t_ID(self, t):
-        r"[a-zA-Z_0-9:><\=\-\+\~\%$\']+"
+        r"[a-zA-Z_0-9:><\=\-\+\~\%$\'!]+"
         t.type = self.reserved.get(t.value.upper(), "ID")  # Check for reserved word
+        if t.type != "ID":
+            t.value = t.value.upper()
         return t
 
     def t_newline(self, t):
@@ -103,10 +103,7 @@ class DDLParser(Parser):
         p[0] = {"name": p[1], "type": type_str, "size": size}
 
     def extract_references(self, p_list):
-        try:
-            ref_index = p_list.index(_ref)
-        except ValueError:
-            ref_index = p_list.index(_ref_lower)
+        ref_index = p_list.index(_ref)
         if not "." in p_list[ref_index:]:
             references = {
                 "table": p_list[ref_index + 1],
@@ -136,10 +133,7 @@ class DDLParser(Parser):
         | DEFAULT NUM_VALUE_SDP
         """
         p_list = list(p)
-        try:
-            ind_default = p_list.index(_def)
-        except ValueError:
-            ind_default = p_list.index(_def_lower)
+        ind_default = p_list.index(_def)
         default = p[ind_default + 1]
         if default.isnumeric():
             default = int(default)
@@ -163,6 +157,7 @@ class DDLParser(Parser):
         p[0] = p[1]
         p_list = list(p)
 
+        print(p_list)
         if ("KEY" in p or "key" in p) and ("PRIMARY" in p or "primary" in p):
             pk = True
             nullable = False
@@ -187,30 +182,50 @@ class DDLParser(Parser):
             p[0]["check"] = ' '.join(p[0]["check"])
     
     def p_expr_check(self, p):
-        """expr : CHECK ID
-                | check_st ID
-                | CONSTRAINT ID check_st
+        """expr :  check_st
+                | constraint check_st
         """
-        p_list = list(p)
-        print(p_list)
+        print(list(p), '1')
+        name = None
         if isinstance(p[1], dict):
-            p[0] = p[1]
-            p[0]['check'].append(p[2])
+            if 'constraint' in p[1]:
+                p[0] = {'check': {'name': p[1]['constraint']['name'],
+                                  'statement': [p[2]]}}
+            else:
+                p[0] = p[1]
+                if isinstance(p[1], list):
+                    p[0] = {'check': {'name': name, 'statement': p[1]['check']}}
+                if len(p) >= 3:
+                    for item in list(p)[2:]:
+                        p[0]['check']['statement'].append(item)
         else:
-            p[0] = {"check": [p[2]]}
+            p[0] = {"check": {"statement": [p[2]], 
+                              "name": name}}
         print(p[0])
     
-    
+    def p_constraint(self, p):
+        """
+            constraint : CONSTRAINT ID
+        """
+        
+        p_list = list(p)
+        con_ind = p_list.index(_cons)
+        name = p_list[con_ind+1]
+        p[0] = {"constraint": {"name": name}}
+
     def p_check_st(self, p):
         """check_st : CHECK ID
                     | check_st ID
+                    | check_st ID ID
         """
         p_list = list(p)
+        print(p_list, '2')
         if isinstance(p[1], dict):
             p[0] = p[1]
-            p[0]['check'].append(p[2])
         else:
-            p[0] = {"check": [p[2]]}
+            p[0] = {"check": []}
+        for item in p_list[2:]:
+            p[0]['check'].append(item)
         print(p[0])
     
     def p_expression_alter(self, p):
@@ -337,7 +352,6 @@ LastName varchar(255) NOT NULL,
 FirstName varchar(255),
 Age int,
 City varchar(255),
-CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
 CHECK (LastName != FirstName)
 );
 """

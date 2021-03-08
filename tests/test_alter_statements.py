@@ -86,6 +86,7 @@ def test_alter_table_initial_support():
             ],
             "primary_key": ["id"],
             "alter": {},
+            'checks': [],
             "table_name": "materials",
             "schema": None,
         },
@@ -133,6 +134,7 @@ def test_alter_table_initial_support():
                     },
                 ]
             },
+            "checks": [],
             "table_name": "material_attachments",
             "schema": None,
         },
@@ -191,6 +193,7 @@ def test_alter_table_initial_support():
             ],
             "primary_key": ["id"],
             "alter": {},
+            "checks": [],
             "table_name": "attachments",
             "schema": None,
         },
@@ -268,6 +271,7 @@ def test_alter_check():
             ],
             "primary_key": [],
             "alter": {"check": "Age>=18"},
+            "checks": [],
             "table_name": "Persons",
             "schema": None,
         }
