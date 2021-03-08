@@ -73,6 +73,7 @@ And produce output like this (information about table name, schema, columns, typ
             "primary_key": ["data_sync_id", "sync_start"],
             "table_name": "super_table",
             "schema": "prod",
+            "alter": {}
         }
     ]
 ```
@@ -104,7 +105,9 @@ and result
             {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
             {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}], 
         'primary_key': ['id'], 
-        'table_name': 'paths', 'schema': None
+        'table_name': 'paths', 
+        'schema': None,
+        'alter': {}
         }]
 
 ```
@@ -146,10 +149,26 @@ Output:
             {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': 1, 'references': None}], 
          'primary_key': [], 
          'table_name': 'path_owners', 
-         'schema': None}
+         'schema': None,
+         'alter': {}}
     ]
 
 ```
+
+### ALTER statements
+
+Right now added support only for ALTER statements with FOREIGEIN key
+
+For example, if in your ddl after table defenitions (create table statements) you have ALTER table statements like this:
+
+```sql
+
+ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id", "material_title") REFERENCES "materials" ("id", "title");
+
+```
+
+This statements will be parsed and information about them putted inside 'alter' key in table's dict.
+For example, please check alter statement tests - **tests/test_alter_statements.py**
 
 ## How to use
 
@@ -217,6 +236,15 @@ If you don't want to dump schema in file and just print result to the console, u
     
 ```
 
+You can provide target path where you want to dump result with argument **-t**, **--targer**:
+
+
+```bash
+    
+    sdp tests/test_two_tables.sql -t dump_results/
+    
+```
+
 ### More examples & tests
 
 You can find in **tests/functional** folder.
@@ -225,20 +253,15 @@ You can find in **tests/functional** folder.
 
 To dump result in json use argument .run(dump=True)
 
-You also can provide a path where you want to have a dumps with schema with argument
+You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
 ### TODO in next Releases
 
-1. Support for separate ALTER TABLE statements for Foreigein keys like
-
-```sql
-
-    ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id") REFERENCES "materials" ("id");
-
-```
-2. Support for parse CREATE INDEX statements
-3. Add to command line args: to pass folder with ddls to convert, pass path to get the output results
-4. Support ARRAYs
+1. Support CREATE INDEX statements
+2. Support ARRAYs
+3. Support CREATE SEQUENCE statements
+4. Support for UNIQUE column attribute
+5. Add command line arg to pass folder with ddls to convert
 
 
 ### Historical context
@@ -254,3 +277,19 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 Please describe issue that you want to solve and open the PR, I will review it as soon as possible.
 
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
+
+## Changelog
+
+**v0.4.0**
+
+1. Added support schema for table in REFERENCES statement in column defenition
+2. Added base support fot Alter table statements (added 'alters' key in table)
+3. Added support for UNIQUE attribute in column
+4. Added command line arg to pass path to get the output results
+5. Fixed incorrect null fields parsing
+
+
+**v0.3.0**
+
+1. Added support for REFERENCES statement in column defenition
+2. Added command line

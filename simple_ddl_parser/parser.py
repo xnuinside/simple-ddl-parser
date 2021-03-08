@@ -26,18 +26,15 @@ class Parser:
     def parse_data(self):
         tables = []
         table = []
-        previous_table_name = None
         for line in self.data.split("\n"):
             if line.replace("\n", "").replace("\t", ""):
                 _parse_result = yacc.parse(line)
                 if _parse_result:
-                    if "table_name" in _parse_result:
-                        if previous_table_name is not None:
-                            tables.append(table)
-                            table = []
-                        previous_table_name = _parse_result["table_name"]
                     table.append(_parse_result)
-        tables.append(table)
+                if line.strip().endswith(';'):
+                    if table:
+                        tables.append(table)
+                    table = []
         return tables
 
     def run(self, *, dump=None, dump_path="schemas", file_path: Optional[str] = None) -> List[Dict]:

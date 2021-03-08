@@ -16,6 +16,14 @@ def cli():
                         type=str,
                         help='The path to ddl file to parse')
     
+    sdb_cli.add_argument(
+        "-t",
+        "--target",
+        type=str,
+        default="schemas",
+        help="Target path to save parse results in .json files",
+    )
+
     sdb_cli.add_argument('-v',
                         action='store_true',
                         default=False,
@@ -33,15 +41,16 @@ def main():
     args = sdb_cli.parse_args()
     
     input_path = args.ddl_file_path
-    target_folder ='schemas'
     if not os.path.isfile(input_path):
         print('The file path specified does not exist or it is a folder')
         sys.exit()
     
     print(f"Start parsing file {input_path} \n")
-    result = parse_from_file(input_path, dump=not args.no_dump)
+    result = parse_from_file(input_path, 
+                             dump=not args.no_dump,
+                             dump_path=args.target)
     
-    print(f"File with result was saved to {target_folder} folder")
+    print(f"File with result was saved to >> {args.target} folder")
     
     if args.v or args.no_dump:
         pprint.pprint(result)
