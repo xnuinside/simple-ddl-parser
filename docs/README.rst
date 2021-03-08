@@ -293,7 +293,6 @@ Changelog
 
 #. Added support schema for table in REFERENCES statement in column defenition
 #. Added base support fot Alter table statements (added 'alters' key in table)
-#. Added support for UNIQUE attribute in column
 #. Added command line arg to pass path to get the output results
 #. Fixed incorrect null fields parsing
 
