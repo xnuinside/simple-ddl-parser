@@ -2,8 +2,8 @@
 **v0.4.0**
 1. Added support schema for table in REFERENCES statement in column defenition
 2. Added base support fot Alter table statements (added 'alters' key in table)
-4. Added command line arg to pass path to get the output results
-5. Fixed incorrect null fields parsing
+3. Added command line arg to pass path to get the output results
+4. Fixed incorrect null fields parsing
 
 **v0.3.0**
 1. Added support for REFERENCES statement in column defenition
