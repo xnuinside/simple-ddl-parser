@@ -23,6 +23,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -32,6 +33,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -41,6 +43,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -50,6 +53,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -59,6 +63,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -68,6 +73,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": 2000,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -100,6 +106,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -109,6 +116,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -118,6 +126,7 @@ def test_run_hql_query():
                     "nullable": True,
                     "size": 160,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -127,6 +136,7 @@ def test_run_hql_query():
                     "nullable": True,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -136,6 +146,7 @@ def test_run_hql_query():
                     "nullable": True,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -168,6 +179,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -177,6 +189,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -186,6 +199,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": True,
                     "size": 160,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -195,6 +209,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -204,6 +219,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": True,
                     "size": None,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -244,6 +260,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -253,6 +270,7 @@ def test_parser_multiple_tables():
                     "size": 4,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -262,6 +280,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -279,6 +298,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -288,6 +308,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": None,
                 },
@@ -297,6 +318,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": True,
                     "default": "1a",
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -327,6 +349,7 @@ def test_references():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": {"table": "events", "schema": None, "column": "id"},
                 },
@@ -336,6 +359,7 @@ def test_references():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": {"table": "users", "schema": None, "column": "id"},
                 },
@@ -370,6 +394,7 @@ def test_references_with_schema():
                     "default": 0,
                     "references": None,
                     "unique": False,
+                    "check": None,
                 },
                 {
                     "name": "id_ref_from_another_table",
@@ -377,6 +402,7 @@ def test_references_with_schema():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                     "unique": False,
                     "references": {
                         "schema": "other_schema",
@@ -420,6 +446,7 @@ def test_unique_statement_in_columns():
                     "unique": True,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
                 {
                     "name": "title",
@@ -429,6 +456,7 @@ def test_unique_statement_in_columns():
                     "unique": True,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
                 {
                     "name": "description",
@@ -438,6 +466,7 @@ def test_unique_statement_in_columns():
                     "unique": False,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
                 {
                     "name": "created_at",
@@ -447,6 +476,7 @@ def test_unique_statement_in_columns():
                     "unique": False,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
                 {
                     "name": "updated_at",
@@ -456,6 +486,7 @@ def test_unique_statement_in_columns():
                     "unique": False,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
             ],
             "primary_key": [],
@@ -465,6 +496,7 @@ def test_unique_statement_in_columns():
         }
     ]
     assert DDLParser(ddl).run() == expected
+
 
 def test_unique_statement_separate_line():
 
@@ -490,6 +522,7 @@ def test_unique_statement_separate_line():
                     "unique": True,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
                 {
                     "name": "title",
@@ -499,6 +532,7 @@ def test_unique_statement_separate_line():
                     "unique": True,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
                 {
                     "name": "description",
@@ -508,6 +542,7 @@ def test_unique_statement_separate_line():
                     "unique": False,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
                 {
                     "name": "created_at",
@@ -517,6 +552,7 @@ def test_unique_statement_separate_line():
                     "unique": False,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
                 {
                     "name": "updated_at",
@@ -526,6 +562,7 @@ def test_unique_statement_separate_line():
                     "unique": False,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                 },
             ],
             "primary_key": [],
@@ -534,5 +571,80 @@ def test_unique_statement_separate_line():
             "schema": None,
         }
     ]
-    
+
     assert DDLParser(ddl).run() == expected
+
+
+def test_check_in_column():
+    ddl = """
+    CREATE TABLE employees (
+        id SERIAL PRIMARY KEY,
+        first_name VARCHAR (50),
+        last_name VARCHAR (50),
+        birth_date DATE CHECK (birth_date > '1900-01-01'),
+        joined_date DATE CHECK (joined_date > birth_date),
+        salary numeric CHECK(salary > 0)
+        );"""
+
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "SERIAL",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "first_name",
+                    "type": "VARCHAR",
+                    "size": 50,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "last_name",
+                    "type": "VARCHAR",
+                    "size": 50,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "birth_date",
+                    "type": "DATE",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": "birth_date > '1900-01-01'",
+                },
+                {
+                    "name": "joined_date",
+                    "type": "DATE",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": "joined_date > birth_date",
+                },
+            ],
+            "primary_key": ["id"],
+            "alter": {},
+            "table_name": "employees",
+            "schema": None,
+        }
+    ]
+    print(DDLParser(ddl).run())
+    assert expected == DDLParser(ddl).run()

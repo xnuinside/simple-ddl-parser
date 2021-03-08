@@ -39,6 +39,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -48,6 +49,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -57,6 +59,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -66,6 +69,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -75,6 +79,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -92,6 +97,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -101,6 +107,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -137,6 +144,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -146,6 +154,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -155,6 +164,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -164,6 +174,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -173,6 +184,7 @@ def test_alter_table_initial_support():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "check": None,
                     "references": None,
                     "unique": False,
                 },
@@ -185,3 +197,84 @@ def test_alter_table_initial_support():
     ]
     parse_results = DDLParser(ddl).run()
     assert expected == parse_results
+
+
+def test_alter_check():
+    ddl = """ 
+    CREATE TABLE Persons (
+        ID int NOT NULL,
+        LastName varchar(255) NOT NULL,
+        FirstName varchar(255),
+        Age int,
+        City varchar(255),
+        );
+
+        ALTER TABLE Persons
+        ADD CHECK (Age>=18);
+    """
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "ID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LastName",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "FirstName",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "Age",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "City",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {"check": "Age>=18"},
+            "table_name": "Persons",
+            "schema": None,
+        }
+    ]
+
+    assert DDLParser(ddl).run() == expected
+
+
+def test_alter_check_combine():
+    pass

@@ -30,6 +30,8 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
             target_table["alter"]["columns"] = alter_columns
         else:
             target_table["alter"]["columns"].extend(alter_columns)
+    elif 'check' in statement:
+        target_table["alter"]['check'] = statement['check']
     return tables_dict
 
 

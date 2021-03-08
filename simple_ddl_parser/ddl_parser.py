@@ -34,11 +34,13 @@ class DDLParser(Parser):
         "ADD": "ADD",
         "FOREIGN": "FOREIGN",
         "UNIQUE": "UNIQUE",
+        "CHECK": "CHECK",
+        "CONSTRAINT": "CONSTRAINT"
     }
 
     tokens = tuple(["ID", "NEWLINE", "DOT"] + list(reserved.values()))
 
-    t_ignore = "\t<>();, '\"${}\r"
+    t_ignore = "\t();, \"{}\r"
     t_DOT = r"."
 
     def t_NUM_VALUE_SDP(self, t):
@@ -48,7 +50,7 @@ class DDLParser(Parser):
         return t
 
     def t_ID(self, t):
-        r"[a-zA-Z_0-9:]+"
+        r"[a-zA-Z_0-9:><\=\-\+\~\%$\']+"
         t.type = self.reserved.get(t.value.upper(), "ID")  # Check for reserved word
         return t
 
@@ -145,16 +147,18 @@ class DDLParser(Parser):
 
     def p_defcolumn(self, p):
         """expr : column
-        | expr null
-        | expr PRIMARY KEY
-        | expr UNIQUE
-        | expr def
-        | expr ref
+                | expr null
+                | expr PRIMARY KEY
+                | expr UNIQUE
+                | expr check_st
+                | expr def
+                | expr ref
         """
         pk = False
         nullable = True
         default = None
         unique = False
+        check = None
         references = None
         p[0] = p[1]
         p_list = list(p)
@@ -178,16 +182,67 @@ class DDLParser(Parser):
         )
         p[0]["nullable"] = p[0].get("nullable", nullable)
         p[0]["default"] = p[0].get("default", default)
+        p[0]["check"] = p[0].get("check", check)
+        if p[0]["check"]:
+            p[0]["check"] = ' '.join(p[0]["check"])
     
-    def p_expression_alter_table(self, p):
-        # todo: need to redone id lists
-        " expr : alter ref "
+    def p_expr_check(self, p):
+        """expr : CHECK ID
+                | check_st ID
+                | CONSTRAINT ID check_st
+        """
+        p_list = list(p)
+        print(p_list)
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+            p[0]['check'].append(p[2])
+        else:
+            p[0] = {"check": [p[2]]}
+        print(p[0])
+    
+    
+    def p_check_st(self, p):
+        """check_st : CHECK ID
+                    | check_st ID
+        """
+        p_list = list(p)
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+            p[0]['check'].append(p[2])
+        else:
+            p[0] = {"check": [p[2]]}
+        print(p[0])
+    
+    def p_expression_alter(self, p):
+        """ expr : alter_foreign ref 
+                 | alter_check
+        """
+        print(list(p))
         p[0] = p[1]
-        p[0].update(p[2])
+        if len(p) == 3:
+            p[0].update(p[2])
 
-    def p_alter(self, p):
-        """alter : ALTER TABLE ID ADD foreign
-                 | ALTER TABLE ID DOT ID ADD foreign
+    def p_alter_check(self, p):
+        """alter_check : alt_table CHECK ID
+        | alter_check ID
+        """
+        
+        p_list = list(p)
+        
+        p[0] = p[1]
+        p[0]["check"] = p_list[-1]
+        
+    def p_alter_foreign(self, p):
+        'alter_foreign : alt_table foreign'
+        
+        p_list = list(p)
+        
+        p[0] = p[1]
+        p[0]["columns"] = p_list[-1]
+
+    def p_alt_table_name(self, p):
+        """alt_table : ALTER TABLE ID ADD
+                | ALTER TABLE ID DOT ID ADD
         """
         p_list = list(p)
         if "." in p:
@@ -197,9 +252,8 @@ class DDLParser(Parser):
         else:
             schema = None
             table_name = p_list[3]
-
-        p[0] = {"alter_table_name": table_name, "schema": schema, "columns": p_list[-1]}
-
+        p[0] = {"alter_table_name": table_name, "schema": schema}
+    
     def p_foreign(self, p):
         # todo: need to redone id lists
         """foreign : FOREIGN KEY ID
@@ -260,3 +314,32 @@ def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
     """ get useful data from ddl """
     with open(file_path, "r") as df:
         return DDLParser(df.read()).run(file_path=file_path, **kwargs)
+
+"""
+CREATE TABLE Persons (
+ID int NOT NULL,
+LastName varchar(255) NOT NULL,
+FirstName varchar(255),
+Age int,
+City varchar(255),
+CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
+CHECK (LastName != FirstName)
+);
+
+ALTER TABLE Persons
+ADD CHECK (Age>=18);
+"""
+
+ddl = """
+CREATE TABLE Persons (
+ID int NOT NULL,
+LastName varchar(255) NOT NULL,
+FirstName varchar(255),
+Age int,
+City varchar(255),
+CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
+CHECK (LastName != FirstName)
+);
+"""
+
+print(DDLParser(ddl).run())

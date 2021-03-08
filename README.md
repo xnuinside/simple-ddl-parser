@@ -198,7 +198,7 @@ For example, please check alter statement tests - **tests/test_alter_statements.
     
     from simple_ddl_parser import parse_from_file
 
-    result = parse_from_file('tests/test_one_statement.sql')
+    result = parse_from_file('tests/sql/test_one_statement.sql')
     print(result)
 
 ```
@@ -213,7 +213,7 @@ simple-ddl-parser is installed to environment as command **sdp**
 
     # for example:
 
-    sdp tests/test_two_tables.sql
+    sdp tests/sql/test_two_tables.sql
     
 ```
 
@@ -223,7 +223,7 @@ If you want to have also output in console - use **-v** flag for verbose.
 
 ```bash
     
-    sdp tests/test_two_tables.sql -v
+    sdp tests/sql/test_two_tables.sql -v
     
 ```
 
@@ -232,7 +232,7 @@ If you don't want to dump schema in file and just print result to the console, u
 
 ```bash
     
-    sdp tests/test_two_tables.sql --no-dump
+    sdp tests/sql/test_two_tables.sql --no-dump
     
 ```
 
@@ -241,13 +241,13 @@ You can provide target path where you want to dump result with argument **-t**, 
 
 ```bash
     
-    sdp tests/test_two_tables.sql -t dump_results/
+    sdp tests/sql/test_two_tables.sql -t dump_results/
     
 ```
 
 ### More examples & tests
 
-You can find in **tests/functional** folder.
+You can find in **tests/** folder.
 
 ### Dump result in json
 
@@ -255,12 +255,12 @@ To dump result in json use argument .run(dump=True)
 
 You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
-### TODO in next Releases
+
+### TODO in next Releases (if you don't see feature that you need - open the issue)
 
 1. Support CREATE INDEX statements
 2. Support ARRAYs
 3. Support CREATE SEQUENCE statements
-4. Support for CHECK Constratint - https://github.com/xnuinside/simple-ddl-parser/issues/5
 
 
 ### Historical context
@@ -270,6 +270,18 @@ This library is an extracted parser code from https://github.com/xnuinside/fakem
 For one of the work projects I needed to convert SQL ddl to Python ORM models in auto way and I tried to use https://github.com/andialbrecht/sqlparse but it works not well enough with ddl for my case (for example, if in ddl used lower case - nothing works, primary keys inside ddl are mapped as column name not reserved word and etc.).
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
+
+### How to run tests
+
+```bash
+
+    git clone https://github.com/xnuinside/simple-ddl-parser.git
+    cd simple-ddl-parser
+    poetry install # if you use poetry
+    # or use `pip install .`
+    pytest tests/ -vv
+
+```
 
 ## How to contribute
 
