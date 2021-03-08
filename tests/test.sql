@@ -53,7 +53,7 @@ CREATE TABLE "step_materials" (
 
 CREATE TABLE "materials" (
   "id" int PRIMARY KEY,
-  "title" varchar NOT NULL,
+  "title" varchar NOT NULL default "New title",
   "description" varchar,
   "link" varchar,
   "created_at" timestamp,

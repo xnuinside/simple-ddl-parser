@@ -102,6 +102,7 @@ class DDLParser(Parser):
         | expr PRIMARY KEY
         | expr DEFAULT ID
         | expr REFERENCES ID ID
+        | expr REFERENCES ID DOT ID ID
         """
         _ref = "REFERENCES"
         _def = "DEFAULT"
@@ -117,10 +118,18 @@ class DDLParser(Parser):
             nullable = True
         if _ref in p:
             ref_index = p_list.index(_ref)
-            references = {
-                "table": p_list[ref_index + 1],
-                "column": p_list[ref_index + 2],
-            }
+            if not '.' in p[ref_index:]:
+                references = {
+                    "table": p_list[ref_index + 1],
+                    "column": p_list[ref_index + 2],
+                    "schema": None
+                }
+            else:
+                 references = {
+                    "schema": p_list[ref_index + 1],
+                    "column": p_list[ref_index + 4],
+                    "table": p_list[ref_index + 3]
+                }
         if _def in p:
             ind_default = p_list.index(_def)
             default = p[ind_default + 1]
