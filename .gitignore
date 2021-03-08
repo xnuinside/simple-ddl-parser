@@ -5,4 +5,5 @@ simple_ddl_parser/__pycache__
 dist/
 .pytest_cache/
 simple_ddl_parser/parser.out
-parsetab.py
+simple_ddl_parser/parsetab.py
+.vscode/

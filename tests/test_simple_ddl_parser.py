@@ -458,7 +458,7 @@ def test_references():
                     "size": None,
                     "nullable": False,
                     "default": None,
-                    "references": {"table": "events", "column": "id"},
+                    "references": {"table": "events", "schema": None, "column": "id"},
                 },
                 {
                     "name": "user_id",
@@ -466,7 +466,7 @@ def test_references():
                     "size": None,
                     "nullable": False,
                     "default": None,
-                    "references": {"table": "users", "column": "id"},
+                    "references": {"table": "users", "schema": None, "column": "id"},
                 },
             ],
             "primary_key": [],
@@ -475,3 +475,50 @@ def test_references():
         }
     ]
     assert expected == DDLParser(ddl).run()
+
+
+def test_references_with_schema():
+    ddl = """
+    create table prod.super_table
+    (
+        data_sync_id bigint not null default 0,
+        id_ref_from_another_table int REFERENCES other_schema.other_table (id) 
+        primary key (data_sync_id, sync_start)
+    );
+
+    """
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "data_sync_id",
+                    "type": "bigint",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": None,
+                },
+                {
+                    "name": "id_ref_from_another_table",
+                    "type": "int",
+                    "size": None,
+                    "nullable": False,
+                    "default": None,
+                    "references": {
+                        "schema": "other_schema",
+                        "column": "id",
+                        "table": "other_table",
+                    },
+                },
+            ],
+            "primary_key": ["data_sync_id", "sync_start"],
+            "table_name": "super_table",
+            "schema": "prod",
+        }
+    ]
+
+    parse_results = DDLParser(ddl).run()
+
+    print(parse_results)
+
+    assert expected == parse_results

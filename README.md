@@ -47,11 +47,11 @@ And produce output like this (information about table name, schema, columns, typ
                 },
                 {
                     "name": "id_ref_from_another_table", "type": "int", "size": None,
-                    "nullable": False, "default": None, "references": {"table": "another_table", "column": "id"},
+                    "nullable": False, "default": None, "references": {"table": "another_table", "schema": None, "column": "id"},
                 },
                 {
                     "name": "sync_count", "type": "bigint", "size": None,
-                    "nullable": False, "default": None, "references": {"table": "count_table", "column": "count"},
+                    "nullable": False, "default": None, "references": {"table": "count_table", "schema": None, "column": "count"},
                 },
                 {
                     "name": "sync_mark", "type": "timestamp", "size": None,
