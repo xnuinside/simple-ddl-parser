@@ -260,8 +260,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 1. Support CREATE INDEX statements
 2. Support ARRAYs
 3. Support CREATE SEQUENCE statements
-4. Support for UNIQUE column attribute
-5. Add command line arg to pass folder with ddls to convert
+4. Support for CHECK Constratint - https://github.com/xnuinside/simple-ddl-parser/issues/5
 
 
 ### Historical context

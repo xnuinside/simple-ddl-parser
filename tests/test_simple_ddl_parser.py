@@ -1,5 +1,4 @@
-import os
-from simple_ddl_parser import DDLParser, parse_from_file
+from simple_ddl_parser import DDLParser
 
 
 def test_run_postgres_first_query():
@@ -11,8 +10,8 @@ def test_run_postgres_first_query():
     sync_mark timestamp  not  null,
     sync_start timestamp  not null,
     sync_end timestamp  not null,
-    message varchar(2000) null,
-    primary key (data_sync_id, sync_start)
+    message varchar(2000),
+    primary key (data_sync_id, sync_start, sync_end, message)
 );
     """
     expected = [
@@ -24,6 +23,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -32,6 +32,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -40,6 +41,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -48,6 +50,7 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -56,21 +59,23 @@ def test_run_postgres_first_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
                     "name": "message",
                     "type": "varchar",
-                    "nullable": True,
+                    "nullable": False,
                     "size": 2000,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
             ],
             "table_name": "super_table",
             "schema": "prod",
             "alter": {},
-            "primary_key": ["data_sync_id", "sync_start"],
+            "primary_key": ["data_sync_id", "sync_start", "sync_end", "message"],
         }
     ]
     assert expected == DDLParser(ddl).run()
@@ -95,6 +100,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -103,6 +109,7 @@ def test_run_hql_query():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -111,6 +118,7 @@ def test_run_hql_query():
                     "nullable": True,
                     "size": 160,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -119,6 +127,7 @@ def test_run_hql_query():
                     "nullable": True,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -127,6 +136,7 @@ def test_run_hql_query():
                     "nullable": True,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
             ],
@@ -158,6 +168,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -166,6 +177,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -174,6 +186,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": True,
                     "size": 160,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -182,6 +195,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": False,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -190,6 +204,7 @@ def test_run_hql_query_caps_in_columns():
                     "nullable": True,
                     "size": None,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
             ],
@@ -200,69 +215,6 @@ def test_run_hql_query_caps_in_columns():
         }
     ]
     assert expected == DDLParser(ddl).run()
-
-
-def test_parse_from_file_one_table():
-    expected = [
-        {
-            "columns": [
-                {
-                    "name": "id",
-                    "type": "SERIAL",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "name",
-                    "type": "varchar",
-                    "size": 160,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "created_at",
-                    "type": "timestamp",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "updated_at",
-                    "type": "timestamp",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "country_code",
-                    "type": "int",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "default_language",
-                    "type": "int",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-            ],
-            "primary_key": ["id"],
-            "table_name": "users",
-            "schema": None,
-            "alter": {},
-        }
-    ]
-    current_path = os.path.dirname(os.path.abspath(__file__))
-    assert expected == parse_from_file(os.path.join(current_path, "test_one_table.sql"))
 
 
 def test_parser_multiple_tables():
@@ -292,6 +244,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -300,6 +253,7 @@ def test_parser_multiple_tables():
                     "size": 4,
                     "nullable": False,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -308,6 +262,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
             ],
@@ -324,6 +279,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -332,6 +288,7 @@ def test_parser_multiple_tables():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "unique": False,
                     "references": None,
                 },
                 {
@@ -341,6 +298,7 @@ def test_parser_multiple_tables():
                     "nullable": True,
                     "default": "1a",
                     "references": None,
+                    "unique": False,
                 },
             ],
             "primary_key": [],
@@ -351,103 +309,6 @@ def test_parser_multiple_tables():
     ]
 
     assert DDLParser(ddl).run() == expected
-
-
-def test_parse_from_file_two_statements():
-    expected = [
-        {
-            "columns": [
-                {
-                    "name": "id",
-                    "type": "SERIAL",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "name",
-                    "type": "varchar",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "created_at",
-                    "type": "timestamp",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "updated_at",
-                    "type": "timestamp",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "country_code",
-                    "type": "int",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "default_language",
-                    "type": "int",
-                    "size": None,
-                    "nullable": True,
-                    "default": None,
-                    "references": None,
-                },
-            ],
-            "primary_key": ["id"],
-            "table_name": "users",
-            "schema": None,
-            "alter": {},
-        },
-        {
-            "columns": [
-                {
-                    "name": "id",
-                    "type": "int",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "code",
-                    "type": "varchar",
-                    "size": 2,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-                {
-                    "name": "name",
-                    "type": "varchar",
-                    "size": None,
-                    "nullable": False,
-                    "default": None,
-                    "references": None,
-                },
-            ],
-            "primary_key": ["id"],
-            "table_name": "languages",
-            "schema": None,
-            "alter": {},
-        },
-    ]
-    current_path = os.path.dirname(os.path.abspath(__file__))
-    assert expected == parse_from_file(
-        os.path.join(current_path, "test_two_tables.sql")
-    )
 
 
 def test_references():
@@ -466,6 +327,7 @@ def test_references():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "unique": False,
                     "references": {"table": "events", "schema": None, "column": "id"},
                 },
                 {
@@ -474,6 +336,7 @@ def test_references():
                     "size": None,
                     "nullable": False,
                     "default": None,
+                    "unique": False,
                     "references": {"table": "users", "schema": None, "column": "id"},
                 },
             ],
@@ -506,6 +369,7 @@ def test_references_with_schema():
                     "nullable": False,
                     "default": 0,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "id_ref_from_another_table",
@@ -513,6 +377,7 @@ def test_references_with_schema():
                     "size": None,
                     "nullable": True,
                     "default": None,
+                    "unique": False,
                     "references": {
                         "schema": "other_schema",
                         "column": "id",
@@ -530,3 +395,144 @@ def test_references_with_schema():
     parse_results = DDLParser(ddl).run()
 
     assert expected == parse_results
+
+
+def test_unique_statement_in_columns():
+
+    ddl = """
+
+    CREATE TABLE "steps" (
+    "id" int UNIQUE,
+    "title" varchar unique,
+    "description" varchar(160),
+    "created_at" timestamp,
+    "updated_at" timestamp
+    );
+    """
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": True,
+                    "nullable": True,
+                    "default": None,
+                },
+                {
+                    "name": "title",
+                    "type": "varchar",
+                    "size": None,
+                    "references": None,
+                    "unique": True,
+                    "nullable": True,
+                    "default": None,
+                },
+                {
+                    "name": "description",
+                    "type": "varchar",
+                    "size": 160,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "table_name": "steps",
+            "schema": None,
+        }
+    ]
+    assert DDLParser(ddl).run() == expected
+
+def test_unique_statement_separate_line():
+
+    ddl = """
+
+    CREATE TABLE "steps" (
+    "id" int,
+    "title" varchar,
+    "description" varchar(160),
+    "created_at" timestamp,
+    "updated_at" timestamp,
+    unique ("id", "title")
+    );
+    """
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": True,
+                    "nullable": True,
+                    "default": None,
+                },
+                {
+                    "name": "title",
+                    "type": "varchar",
+                    "size": None,
+                    "references": None,
+                    "unique": True,
+                    "nullable": True,
+                    "default": None,
+                },
+                {
+                    "name": "description",
+                    "type": "varchar",
+                    "size": 160,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "table_name": "steps",
+            "schema": None,
+        }
+    ]
+    
+    assert DDLParser(ddl).run() == expected

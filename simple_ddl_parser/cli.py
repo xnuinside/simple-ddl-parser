@@ -35,19 +35,40 @@ def cli():
     return sdb_cli
 
 
-def main():
-    sdb_cli = cli()
-    args = sdb_cli.parse_args()
-
-    input_path = args.ddl_file_path
-    if not os.path.isfile(input_path):
-        print("The file path specified does not exist or it is a folder")
-        sys.exit()
-
-    print(f"Start parsing file {input_path} \n")
-    result = parse_from_file(input_path, dump=not args.no_dump, dump_path=args.target)
+def run_for_file(args):
+    print(f"Start parsing file {args.ddl_file_path} \n")
+    result = parse_from_file(args.ddl_file_path, dump=not args.no_dump, dump_path=args.target)
 
     print(f"File with result was saved to >> {args.target} folder")
 
     if args.v or args.no_dump:
         pprint.pprint(result)
+
+
+def correct_extension(file_name: str) -> bool:
+    ext = ['ddl', 'sql', 'hql', '']
+    split_name = file_name.split('.')
+    if len(split_name) >= 2:
+        ext_file = split_name[1]
+        if ext_file in ext:
+            return True
+    return False
+
+
+def main():
+    sdb_cli = cli()
+    args = sdb_cli.parse_args()
+    type(args)
+    if not os.path.exists(args.ddl_file_path):
+        print("The file path specified does not exist")
+        sys.exit()
+    if os.path.isfile(args.ddl_file_path):
+        run_for_file(args)
+    else:
+        files = [os.path.join(
+            args.ddl_file_path, file_name) 
+                 for file_name in os.listdir(
+                     args.ddl_file_path) if correct_extension(file_name)]
+        for file_path in files:
+            args.ddl_file_path = file_path
+            run_for_file(args)

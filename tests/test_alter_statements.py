@@ -40,6 +40,7 @@ def test_alter_table_initial_support():
                     "nullable": False,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "description",
@@ -48,6 +49,7 @@ def test_alter_table_initial_support():
                     "nullable": True,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "link",
@@ -56,6 +58,7 @@ def test_alter_table_initial_support():
                     "nullable": True,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "created_at",
@@ -64,6 +67,7 @@ def test_alter_table_initial_support():
                     "nullable": False,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "updated_at",
@@ -72,6 +76,7 @@ def test_alter_table_initial_support():
                     "nullable": False,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
             ],
             "primary_key": ["id"],
@@ -88,6 +93,7 @@ def test_alter_table_initial_support():
                     "nullable": False,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "attachment_id",
@@ -96,6 +102,7 @@ def test_alter_table_initial_support():
                     "nullable": False,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
             ],
             "primary_key": [],
@@ -131,6 +138,7 @@ def test_alter_table_initial_support():
                     "nullable": False,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "title",
@@ -139,6 +147,7 @@ def test_alter_table_initial_support():
                     "nullable": True,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "description",
@@ -147,6 +156,7 @@ def test_alter_table_initial_support():
                     "nullable": True,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "created_at",
@@ -155,6 +165,7 @@ def test_alter_table_initial_support():
                     "nullable": False,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
                 {
                     "name": "updated_at",
@@ -163,6 +174,7 @@ def test_alter_table_initial_support():
                     "nullable": False,
                     "default": None,
                     "references": None,
+                    "unique": False,
                 },
             ],
             "primary_key": ["id"],

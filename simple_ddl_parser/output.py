@@ -47,6 +47,8 @@ def result_format(result: List[Dict]) -> List[Dict]:
                     table_data["schema"] = item["schema"]
                 elif not item.get("type") and item.get("primary_key"):
                     table_data["primary_key"] = item["primary_key"]
+                elif not item.get("type") and item.get("unique"):
+                    table_data["unique"] = item["unique"]
                 else:
                     table_data["columns"].append(item)
             tables_dict[(table_data["table_name"], table_data["schema"])] = table_data
@@ -56,12 +58,21 @@ def result_format(result: List[Dict]) -> List[Dict]:
             else:
                 table_data = remove_pk_from_columns(table_data)
 
+            if table_data.get("unique"):
+                table_data = add_unique_columns(table_data)
+            
             for column in table_data["columns"]:
                 if column["name"] in table_data["primary_key"]:
                     column["nullable"] = False
             final_result.append(table_data)
     return final_result
 
+def add_unique_columns(table_data: Dict) -> Dict:
+    for column in table_data["columns"]:
+        if column['name'] in table_data["unique"]:
+            column['unique'] = True
+    del table_data["unique"]
+    return table_data
 
 def remove_pk_from_columns(table_data: Dict) -> Dict:
     for column in table_data["columns"]:

@@ -33,11 +33,12 @@ class DDLParser(Parser):
         "ALTER": "ALTER",
         "ADD": "ADD",
         "FOREIGN": "FOREIGN",
+        "UNIQUE": "UNIQUE",
     }
 
     tokens = tuple(["ID", "NEWLINE", "DOT"] + list(reserved.values()))
 
-    t_ignore = "\t<>();\, '\"${}\r"
+    t_ignore = "\t<>();, '\"${}\r"
     t_DOT = r"."
 
     def t_NUM_VALUE_SDP(self, t):
@@ -146,12 +147,14 @@ class DDLParser(Parser):
         """expr : column
         | expr null
         | expr PRIMARY KEY
+        | expr UNIQUE
         | expr def
         | expr ref
         """
         pk = False
         nullable = True
         default = None
+        unique = False
         references = None
         p[0] = p[1]
         p_list = list(p)
@@ -159,6 +162,8 @@ class DDLParser(Parser):
         if ("KEY" in p or "key" in p) and ("PRIMARY" in p or "primary" in p):
             pk = True
             nullable = False
+        if 'unique' in p or 'UNIQUE' in p:
+            unique = True
         if isinstance(p_list[-1], dict) and "references" in p_list[-1]:
             references = p_list[-1]["references"]
         for item in p[1:]:
@@ -168,11 +173,12 @@ class DDLParser(Parser):
             {
                 "primary_key": pk,
                 "references": references,
+                "unique": unique
             }
         )
         p[0]["nullable"] = p[0].get("nullable", nullable)
         p[0]["default"] = p[0].get("default", default)
-
+    
     def p_expression_alter_table(self, p):
         # todo: need to redone id lists
         " expr : alter ref "
@@ -181,7 +187,7 @@ class DDLParser(Parser):
 
     def p_alter(self, p):
         """alter : ALTER TABLE ID ADD foreign
-        | ALTER TABLE ID DOT ID ADD foreign
+                 | ALTER TABLE ID DOT ID ADD foreign
         """
         p_list = list(p)
         if "." in p:
@@ -197,10 +203,7 @@ class DDLParser(Parser):
     def p_foreign(self, p):
         # todo: need to redone id lists
         """foreign : FOREIGN KEY ID
-        | FOREIGN KEY ID ID
-        | FOREIGN KEY ID ID ID
-        | FOREIGN KEY ID ID ID ID
-        | FOREIGN KEY ID ID ID ID ID
+                   | foreign ID
         """
         p_list = list(p)
         key_index = p_list.index("KEY")
@@ -210,11 +213,8 @@ class DDLParser(Parser):
 
     def p_ref(self, p):
         """ref : REFERENCES ID ID
-        | REFERENCES ID DOT ID ID
-        | ref ID
-        | ref ID ID
-        | ref ID ID ID
-        | ref ID ID ID ID
+               | REFERENCES ID DOT ID ID
+               | ref ID
         """
         p_list = list(p)
         if isinstance(p[1], dict):
@@ -226,14 +226,34 @@ class DDLParser(Parser):
             p[0] = data
 
     def p_expression_primary_key(self, p):
-        # todo: need to redone id lists
-        """expr : PRIMARY KEY ID
-        | PRIMARY KEY ID ID
-        | PRIMARY KEY ID ID ID
-        | PRIMARY KEY ID ID ID ID
-        | PRIMARY KEY ID ID ID ID ID
+        'expr : pkey'
+        p[0] = p[1]
+        
+    def p_expression_uniq(self, p):
+        'expr : uniq'
+        p[0] = p[1]
+            
+    def p_uniq(self, p):
+        """ uniq : UNIQUE ID
+                 | uniq ID
         """
-        p[0] = {"primary_key": [x for x in p[3:] if x != ","]}
+        print(list(p))
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+            p[0]["unique"].append(p[2])
+        else:
+            p[0] = {"unique": [x for x in p[1:] if x != ","]}
+        print(p[0])
+            
+    def p_pkey(self, p):
+        """ pkey : PRIMARY KEY ID
+                 | pkey ID
+        """
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+            p[0]["primary_key"].append(p[2])
+        else:
+            p[0] = {"primary_key": [x for x in p[3:] if x != ","]}
 
 
 def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
