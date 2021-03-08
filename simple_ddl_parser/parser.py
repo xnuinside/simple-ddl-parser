@@ -1,4 +1,7 @@
+import os
 from ply import lex, yacc
+from typing import Dict, List, Optional
+from simple_ddl_parser.output import dump_data_to_file, result_format
 
 
 class Parser:
@@ -20,8 +23,7 @@ class Parser:
         self.lexer = lex.lex(object=self, debug=False)
         self.yacc = yacc.yacc(module=self, debug=False)
 
-    def run(self):
-        """ run lex and yacc on prepared data from files """
+    def parse_data(self):
         tables = []
         table = []
         previous_table_name = None
@@ -36,4 +38,17 @@ class Parser:
                         previous_table_name = _parse_result["table_name"]
                     table.append(_parse_result)
         tables.append(table)
+        return tables
+
+    def run(self, *, dump=None, dump_path="schemas", file_path: Optional[str] = None) -> List[Dict]:
+        """ run lex and yacc on prepared data from files """
+        tables = self.parse_data()
+        tables = result_format(tables)
+        if dump:
+            if file_path:
+                # if we run parse from one file - save same way to one file
+                dump_data_to_file(os.path.basename(file_path).split('.')[0], dump_path, tables)
+            else:
+                for table in tables:
+                    dump_data_to_file(table['table_name'], dump_path, table)
         return tables
