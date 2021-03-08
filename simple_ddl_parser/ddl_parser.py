@@ -8,7 +8,7 @@ _ref_lower = _ref.lower()
 _def = "DEFAULT"
 _def_lower = _def.lower()
 
-        
+
 class DDLParser(Parser):
     """
     lex and yacc parser for parse ddl into BQ schemas
@@ -32,7 +32,7 @@ class DDLParser(Parser):
         "REFERENCES": "REFERENCES",
         "ALTER": "ALTER",
         "ADD": "ADD",
-        "FOREIGN": "FOREIGN"
+        "FOREIGN": "FOREIGN",
     }
 
     tokens = tuple(["ID", "NEWLINE", "DOT"] + list(reserved.values()))
@@ -43,7 +43,7 @@ class DDLParser(Parser):
     def t_NUM_VALUE_SDP(self, t):
         r"[0-9]+\D"
         t.type = "NUM_VALUE_SDP"
-        t.value = re.sub(r"[\)\,]", '', t.value)
+        t.value = re.sub(r"[\)\,]", "", t.value)
         return t
 
     def t_ID(self, t):
@@ -66,7 +66,7 @@ class DDLParser(Parser):
 
     def p_expression_table_name(self, p):
         """expr : create_table ID DOT ID
-                | create_table ID
+        | create_table ID
         """
         # get schema & table name
         p_list = list(p)
@@ -81,15 +81,15 @@ class DDLParser(Parser):
 
     def p_create_table(self, p):
         """create_table : CREATE TABLE IF NOT EXISTS
-                        | CREATE TABLE
+        | CREATE TABLE
 
         """
         # get schema & table name
         pass
-    
+
     def p_column(self, p):
         """column : ID ID
-                  | ID ID NUM_VALUE_SDP
+        | ID ID NUM_VALUE_SDP
         """
         size = None
         type_str = p[2]
@@ -104,33 +104,33 @@ class DDLParser(Parser):
             ref_index = p_list.index(_ref)
         except ValueError:
             ref_index = p_list.index(_ref_lower)
-        if not '.' in p_list[ref_index:]:
+        if not "." in p_list[ref_index:]:
             references = {
                 "table": p_list[ref_index + 1],
                 "column": p_list[ref_index + 2],
-                "schema": None
+                "schema": None,
             }
         else:
-                references = {
+            references = {
                 "schema": p_list[ref_index + 1],
                 "column": p_list[ref_index + 4],
-                "table": p_list[ref_index + 3]
+                "table": p_list[ref_index + 3],
             }
         return references
 
     def p_null(self, p):
-        """null : NULL 
-                | NOT NULL
+        """null : NULL
+        | NOT NULL
         """
         nullable = True
-        if "NULL" in p or 'null' in p:
-            if "NOT" in p or 'not' in p:
+        if "NULL" in p or "null" in p:
+            if "NOT" in p or "not" in p:
                 nullable = False
-        p[0] = {'nullable': nullable}
-    
+        p[0] = {"nullable": nullable}
+
     def p_def(self, p):
-        """def : DEFAULT ID 
-               | DEFAULT NUM_VALUE_SDP
+        """def : DEFAULT ID
+        | DEFAULT NUM_VALUE_SDP
         """
         p_list = list(p)
         try:
@@ -140,14 +140,14 @@ class DDLParser(Parser):
         default = p[ind_default + 1]
         if default.isnumeric():
             default = int(default)
-        p[0] = {'default': default}
-    
+        p[0] = {"default": default}
+
     def p_defcolumn(self, p):
         """expr : column
-                | expr null
-                | expr PRIMARY KEY
-                | expr def
-                | expr ref
+        | expr null
+        | expr PRIMARY KEY
+        | expr def
+        | expr ref
         """
         pk = False
         nullable = True
@@ -155,12 +155,12 @@ class DDLParser(Parser):
         references = None
         p[0] = p[1]
         p_list = list(p)
-        
-        if ("KEY" in p or 'key' in p) and ("PRIMARY" in p or 'primary' in p):
+
+        if ("KEY" in p or "key" in p) and ("PRIMARY" in p or "primary" in p):
             pk = True
             nullable = False
-        if isinstance(p_list[-1], dict) and 'references' in p_list[-1]:
-            references = p_list[-1]['references']
+        if isinstance(p_list[-1], dict) and "references" in p_list[-1]:
+            references = p_list[-1]["references"]
         for item in p[1:]:
             if isinstance(item, dict):
                 p[0].update(item)
@@ -170,70 +170,68 @@ class DDLParser(Parser):
                 "references": references,
             }
         )
-        p[0]['nullable'] = p[0].get('nullable', nullable)
-        p[0]['default'] = p[0].get('default', default)
-        
+        p[0]["nullable"] = p[0].get("nullable", nullable)
+        p[0]["default"] = p[0].get("default", default)
+
     def p_expression_alter_table(self, p):
         # todo: need to redone id lists
-        ' expr : alter ref '
+        " expr : alter ref "
         p[0] = p[1]
         p[0].update(p[2])
-        
+
     def p_alter(self, p):
-        """ alter : ALTER TABLE ID ADD foreign
-                  | ALTER TABLE ID DOT ID ADD foreign
+        """alter : ALTER TABLE ID ADD foreign
+        | ALTER TABLE ID DOT ID ADD foreign
         """
         p_list = list(p)
-        if '.' in p:
-            idx_dot = p_list.index('.')
-            schema = p_list[idx_dot-1]
-            table_name = p_list[idx_dot+1]
+        if "." in p:
+            idx_dot = p_list.index(".")
+            schema = p_list[idx_dot - 1]
+            table_name = p_list[idx_dot + 1]
         else:
             schema = None
             table_name = p_list[3]
-        
+
         p[0] = {"alter_table_name": table_name, "schema": schema, "columns": p_list[-1]}
-        
+
     def p_foreign(self, p):
         # todo: need to redone id lists
-        """ foreign : FOREIGN KEY ID
-                    | FOREIGN KEY ID ID 
-                    | FOREIGN KEY ID ID ID
-                    | FOREIGN KEY ID ID ID ID
-                    | FOREIGN KEY ID ID ID ID ID
+        """foreign : FOREIGN KEY ID
+        | FOREIGN KEY ID ID
+        | FOREIGN KEY ID ID ID
+        | FOREIGN KEY ID ID ID ID
+        | FOREIGN KEY ID ID ID ID ID
         """
         p_list = list(p)
-        key_index = p_list.index('KEY')
-        columns = p_list[key_index+1:]
-        
+        key_index = p_list.index("KEY")
+        columns = p_list[key_index + 1 :]
+
         p[0] = columns
-        
-        
+
     def p_ref(self, p):
-        """ ref : REFERENCES ID ID
-                | REFERENCES ID DOT ID ID
-                | ref ID
-                | ref ID ID
-                | ref ID ID ID
-                | ref ID ID ID ID
+        """ref : REFERENCES ID ID
+        | REFERENCES ID DOT ID ID
+        | ref ID
+        | ref ID ID
+        | ref ID ID ID
+        | ref ID ID ID ID
         """
         p_list = list(p)
         if isinstance(p[1], dict):
             p[0] = p[1]
             for column in p_list[2:]:
-                p[0]['references']['column'].append(column)
+                p[0]["references"]["column"].append(column)
         else:
-            data = {'references': self.extract_references(p_list)}
+            data = {"references": self.extract_references(p_list)}
             p[0] = data
-     
-    
+
     def p_expression_primary_key(self, p):
         # todo: need to redone id lists
         """expr : PRIMARY KEY ID
-                | PRIMARY KEY ID ID
-                | PRIMARY KEY ID ID ID
-                | PRIMARY KEY ID ID ID ID
-                | PRIMARY KEY ID ID ID ID ID
+        | PRIMARY KEY ID ID
+        | PRIMARY KEY ID ID ID
+        | PRIMARY KEY ID ID ID ID
+        | PRIMARY KEY ID ID ID ID ID
         """
         p[0] = {"primary_key": [x for x in p[3:] if x != ","]}
 

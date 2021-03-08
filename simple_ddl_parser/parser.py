@@ -31,21 +31,25 @@ class Parser:
                 _parse_result = yacc.parse(line)
                 if _parse_result:
                     table.append(_parse_result)
-                if line.strip().endswith(';'):
+                if line.strip().endswith(";"):
                     if table:
                         tables.append(table)
                     table = []
         return tables
 
-    def run(self, *, dump=None, dump_path="schemas", file_path: Optional[str] = None) -> List[Dict]:
+    def run(
+        self, *, dump=None, dump_path="schemas", file_path: Optional[str] = None
+    ) -> List[Dict]:
         """ run lex and yacc on prepared data from files """
         tables = self.parse_data()
         tables = result_format(tables)
         if dump:
             if file_path:
                 # if we run parse from one file - save same way to one file
-                dump_data_to_file(os.path.basename(file_path).split('.')[0], dump_path, tables)
+                dump_data_to_file(
+                    os.path.basename(file_path).split(".")[0], dump_path, tables
+                )
             else:
                 for table in tables:
-                    dump_data_to_file(table['table_name'], dump_path, table)
+                    dump_data_to_file(table["table_name"], dump_path, table)
         return tables
