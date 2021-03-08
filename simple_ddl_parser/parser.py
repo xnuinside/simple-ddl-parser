@@ -29,15 +29,14 @@ class Parser:
         statement = None
         for line in self.data.split("\n"):
             if line.replace("\n", "").replace("\t", ""):
-                if 'ALTER' in line:
+                if "ALTER" in line:
                     statement = line
                 elif statement != None:
                     statement += f" {line}"
                 else:
                     statement = line
-                if ';' not in statement and 'ALTER' in statement:
+                if ";" not in statement and "ALTER" in statement:
                     continue
-                print(statement)
                 _parse_result = yacc.parse(statement)
                 if _parse_result:
                     table.append(_parse_result)

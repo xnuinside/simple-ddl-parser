@@ -37,7 +37,9 @@ def cli():
 
 def run_for_file(args):
     print(f"Start parsing file {args.ddl_file_path} \n")
-    result = parse_from_file(args.ddl_file_path, dump=not args.no_dump, dump_path=args.target)
+    result = parse_from_file(
+        args.ddl_file_path, dump=not args.no_dump, dump_path=args.target
+    )
 
     print(f"File with result was saved to >> {args.target} folder")
 
@@ -46,8 +48,8 @@ def run_for_file(args):
 
 
 def correct_extension(file_name: str) -> bool:
-    ext = ['ddl', 'sql', 'hql', '']
-    split_name = file_name.split('.')
+    ext = ["ddl", "sql", "hql", ""]
+    split_name = file_name.split(".")
     if len(split_name) >= 2:
         ext_file = split_name[1]
         if ext_file in ext:
@@ -65,10 +67,11 @@ def main():
     if os.path.isfile(args.ddl_file_path):
         run_for_file(args)
     else:
-        files = [os.path.join(
-            args.ddl_file_path, file_name) 
-                 for file_name in os.listdir(
-                     args.ddl_file_path) if correct_extension(file_name)]
+        files = [
+            os.path.join(args.ddl_file_path, file_name)
+            for file_name in os.listdir(args.ddl_file_path)
+            if correct_extension(file_name)
+        ]
         for file_path in files:
             args.ddl_file_path = file_path
             run_for_file(args)

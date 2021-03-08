@@ -70,7 +70,8 @@ def test_parse_from_file_one_table():
             "primary_key": ["id"],
             "table_name": "users",
             "schema": None,
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         }
     ]
     current_path = os.path.dirname(os.path.abspath(__file__))
@@ -147,7 +148,8 @@ def test_parse_from_file_two_statements():
             "primary_key": ["id"],
             "table_name": "users",
             "schema": None,
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         },
         {
             "columns": [
@@ -185,7 +187,8 @@ def test_parse_from_file_two_statements():
             "primary_key": ["id"],
             "table_name": "languages",
             "schema": None,
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         },
     ]
     current_path = os.path.dirname(os.path.abspath(__file__))

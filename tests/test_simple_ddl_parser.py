@@ -80,7 +80,8 @@ def test_run_postgres_first_query():
             ],
             "table_name": "super_table",
             "schema": "prod",
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
             "primary_key": ["data_sync_id", "sync_start", "sync_end", "message"],
         }
     ]
@@ -154,7 +155,8 @@ def test_run_hql_query():
             "primary_key": ["id"],
             "table_name": "paths",
             "schema": None,
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         }
     ]
     assert expected == DDLParser(ddl).run()
@@ -227,7 +229,8 @@ def test_run_hql_query_caps_in_columns():
             "primary_key": ["ID"],
             "table_name": "paths",
             "schema": None,
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         }
     ]
     assert expected == DDLParser(ddl).run()
@@ -288,7 +291,8 @@ def test_parser_multiple_tables():
             "primary_key": ["id"],
             "table_name": "countries",
             "schema": None,
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         },
         {
             "columns": [
@@ -326,7 +330,8 @@ def test_parser_multiple_tables():
             "primary_key": [],
             "table_name": "path_owners",
             "schema": None,
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         },
     ]
 
@@ -367,7 +372,8 @@ def test_references():
             "primary_key": [],
             "table_name": "users_events",
             "schema": None,
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         }
     ]
     assert expected == DDLParser(ddl).run()
@@ -414,7 +420,8 @@ def test_references_with_schema():
             "primary_key": ["data_sync_id"],
             "table_name": "super_table",
             "schema": "prod",
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
         }
     ]
 
@@ -490,7 +497,8 @@ def test_unique_statement_in_columns():
                 },
             ],
             "primary_key": [],
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
             "table_name": "steps",
             "schema": None,
         }
@@ -566,7 +574,8 @@ def test_unique_statement_separate_line():
                 },
             ],
             "primary_key": [],
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
             "table_name": "steps",
             "schema": None,
         }
@@ -641,7 +650,8 @@ def test_check_in_column():
                 },
             ],
             "primary_key": ["id"],
-            'alter': {},  "checks": [],
+            "alter": {},
+            "checks": [],
             "table_name": "employees",
             "schema": None,
         }
@@ -660,6 +670,148 @@ City varchar(255),
 CHECK (LastName != FirstName)
 );
 """
-    expected = [{'columns': [{'name': 'ID', 'type': 'int', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'LastName', 'type': 'varchar', 'size': 255, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'FirstName', 'type': 'varchar', 'size': 255, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}, {'name': 'Age', 'type': 'int', 'size': None, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}, {'name': 'City', 'type': 'varchar', 'size': 255, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}], 'primary_key': [], 'alter': {},  "checks": [], 'checks': [{'name': None, 'statement': 'LastName != FirstName'}], 'table_name': 'Persons', 'schema': None}]
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "ID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LastName",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "FirstName",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "Age",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "City",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "checks": [{"name": None, "statement": "LastName != FirstName"}],
+            "table_name": "Persons",
+            "schema": None,
+        }
+    ]
+
+    assert expected == DDLParser(ddl).run()
+
+
+def test_check_with_constraint():
+    ddl = """
     
+    CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    City varchar(255),
+    CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
+    CHECK (LastName != FirstName)
+    );
+    
+    """
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "ID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LastName",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "FirstName",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "Age",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "City",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [
+                {"name": "CHK_Person", "statement": "Age>=18 AND City='Sandnes'"},
+                {"name": None, "statement": "LastName != FirstName"},
+            ],
+            "table_name": "Persons",
+            "schema": None,
+        }
+    ]
     assert expected == DDLParser(ddl).run()

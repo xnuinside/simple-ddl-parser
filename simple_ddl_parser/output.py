@@ -30,17 +30,17 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
             target_table["alter"]["columns"] = alter_columns
         else:
             target_table["alter"]["columns"].extend(alter_columns)
-    elif 'check' in statement:
-        target_table["alter"]['check'] = statement['check']
+    elif "check" in statement:
+        target_table["alter"]["check"] = statement["check"]
     return tables_dict
 
 
 def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
     if isinstance(check, list):
-        check = {'name': None, 'statement': ' '.join(check)}
-    print('check')
+        check = {"name": None, "statement": " ".join(check)}
+    print("check")
     print(check)
-    table_data['checks'].append(check)
+    table_data["checks"].append(check)
     return table_data
 
 
@@ -55,7 +55,7 @@ def result_format(result: List[Dict]) -> List[Dict]:
         else:
             for item in table:
                 print(item)
-                print( table_data["checks"], ' table_data["checks"] 2')
+                print(table_data["checks"], ' table_data["checks"] 2')
                 if item.get("table_name"):
                     table_data["table_name"] = item["table_name"]
                     table_data["schema"] = item["schema"]
@@ -66,7 +66,7 @@ def result_format(result: List[Dict]) -> List[Dict]:
                 elif not item.get("type") and item.get("check"):
                     print('item["check"]', item["check"])
                     table_data = set_checks_to_table(table_data, item["check"])
-                    print( table_data["checks"], ' table_data["checks"] ')
+                    print(table_data["checks"], ' table_data["checks"] ')
                 else:
                     table_data["columns"].append(item)
             tables_dict[(table_data["table_name"], table_data["schema"])] = table_data
@@ -78,19 +78,21 @@ def result_format(result: List[Dict]) -> List[Dict]:
 
             if table_data.get("unique"):
                 table_data = add_unique_columns(table_data)
-            
+
             for column in table_data["columns"]:
                 if column["name"] in table_data["primary_key"]:
                     column["nullable"] = False
             final_result.append(table_data)
     return final_result
 
+
 def add_unique_columns(table_data: Dict) -> Dict:
     for column in table_data["columns"]:
-        if column['name'] in table_data["unique"]:
-            column['unique'] = True
+        if column["name"] in table_data["unique"]:
+            column["unique"] = True
     del table_data["unique"]
     return table_data
+
 
 def remove_pk_from_columns(table_data: Dict) -> Dict:
     for column in table_data["columns"]:
