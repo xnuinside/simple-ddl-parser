@@ -3,6 +3,7 @@
 1. Added support for UNIQUE column attribute
 2. Add command line arg to pass folder with ddls (parse multiple files)
 3. Added support for CHECK Constratint
+4. Added support for FOREIGN Constratint in ALTER TABLE
 
 **v0.4.0**
 1. Added support schema for table in REFERENCES statement in column defenition

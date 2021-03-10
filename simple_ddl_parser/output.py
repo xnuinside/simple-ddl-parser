@@ -18,7 +18,7 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
                 statement["references"]["column"] = [statement["references"]["column"]]
             column_reference = statement["references"]["column"][num]
             alter_column = {
-                "name": column,
+                "name": column['name'],
                 "references": {
                     "column": column_reference,
                     "table": statement["references"]["table"],
@@ -31,15 +31,15 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
         else:
             target_table["alter"]["columns"].extend(alter_columns)
     elif "check" in statement:
-        target_table["alter"]["check"] = statement["check"]
+        if not target_table["alter"].get("checks"):
+            target_table["alter"]["checks"] = []
+        target_table["alter"]["checks"].append(statement["check"])
     return tables_dict
 
 
 def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
     if isinstance(check, list):
-        check = {"name": None, "statement": " ".join(check)}
-    print("check")
-    print(check)
+        check = {"constraint_name": None, "statement": " ".join(check)}
     table_data["checks"].append(check)
     return table_data
 
@@ -54,8 +54,6 @@ def result_format(result: List[Dict]) -> List[Dict]:
             tables_dict = add_alter_to_table(tables_dict, table[0])
         else:
             for item in table:
-                print(item)
-                print(table_data["checks"], ' table_data["checks"] 2')
                 if item.get("table_name"):
                     table_data["table_name"] = item["table_name"]
                     table_data["schema"] = item["schema"]
@@ -64,9 +62,7 @@ def result_format(result: List[Dict]) -> List[Dict]:
                 elif not item.get("type") and item.get("unique"):
                     table_data["unique"] = item["unique"]
                 elif not item.get("type") and item.get("check"):
-                    print('item["check"]', item["check"])
                     table_data = set_checks_to_table(table_data, item["check"])
-                    print(table_data["checks"], ' table_data["checks"] ')
                 else:
                     table_data["columns"].append(item)
             tables_dict[(table_data["table_name"], table_data["schema"])] = table_data

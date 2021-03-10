@@ -39,7 +39,7 @@ class DDLParser(Parser):
 
     tokens = tuple(["ID", "NEWLINE", "DOT"] + list(reserved.values()))
 
-    t_ignore = '\t();, "{}\r'
+    t_ignore = '\t();, "\r'
     t_DOT = r"."
 
     def t_NUM_VALUE_SDP(self, t):
@@ -49,7 +49,7 @@ class DDLParser(Parser):
         return t
 
     def t_ID(self, t):
-        r"[a-zA-Z_0-9:><\=\-\+\~\%$\'!]+"
+        r"[a-zA-Z_0-9:><\=\-\+\~\%$\'!{}]+"
         t.type = self.reserved.get(t.value.upper(), "ID")  # Check for reserved word
         if t.type != "ID":
             t.value = t.value.upper()
@@ -131,14 +131,20 @@ class DDLParser(Parser):
 
     def p_def(self, p):
         """def : DEFAULT ID
-        | DEFAULT NUM_VALUE_SDP
+               | DEFAULT NUM_VALUE_SDP
+               | def ID
         """
         p_list = list(p)
-        ind_default = p_list.index(_def)
-        default = p[ind_default + 1]
+        default = p[2]
         if default.isnumeric():
             default = int(default)
-        p[0] = {"default": default}
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+            if isinstance(p[2], str):
+                p[0]['default'] += f' {p[2]}'
+                p[0]['default'] = p[0]['default'].replace('"', '').replace("'", '')
+        else:
+            p[0] = {"default": default}
 
     def p_defcolumn(self, p):
         """expr : column
@@ -158,7 +164,6 @@ class DDLParser(Parser):
         p[0] = p[1]
         p_list = list(p)
 
-        print(p_list)
         if ("KEY" in p or "key" in p) and ("PRIMARY" in p or "primary" in p):
             pk = True
             nullable = False
@@ -180,26 +185,24 @@ class DDLParser(Parser):
         """expr :  check_st
         | constraint check_st
         """
-        print(list(p), "1")
         name = None
         if isinstance(p[1], dict):
             if "constraint" in p[1]:
                 p[0] = {
                     "check": {
-                        "name": p[1]["constraint"]["name"],
+                        "constraint_name": p[1]["constraint"]["name"],
                         "statement": " ".join(p[2]["check"]),
                     }
                 }
             elif "check" in p[1]:
                 p[0] = p[1]
                 if isinstance(p[1], list):
-                    p[0] = {"check": {"name": name, "statement": p[1]["check"]}}
+                    p[0] = {"check": {"constraint_name": name, "statement": p[1]["check"]}}
                 if len(p) >= 3:
                     for item in list(p)[2:]:
                         p[0]["check"]["statement"].append(item)
         else:
-            p[0] = {"check": {"statement": [p[2]], "name": name}}
-        print(p[0])
+            p[0] = {"check": {"statement": [p[2]], "constraint_name": name}}
 
     def p_constraint(self, p):
         """
@@ -209,7 +212,7 @@ class DDLParser(Parser):
         p_list = list(p)
         con_ind = p_list.index(_cons)
         name = p_list[con_ind + 1]
-        p[0] = {"constraint": {"name": name}}
+        p[0] = {"constraint" : {"name": name} }
 
     def p_check_st(self, p):
         """check_st : CHECK ID
@@ -217,41 +220,54 @@ class DDLParser(Parser):
         | check_st ID ID
         """
         p_list = list(p)
-        print(p_list, "2")
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
             p[0] = {"check": []}
         for item in p_list[2:]:
             p[0]["check"].append(item)
-        print(p[0])
 
     def p_expression_alter(self, p):
         """expr : alter_foreign ref
-        | alter_check
+                | alter_check
         """
-        print(list(p))
         p[0] = p[1]
         if len(p) == 3:
             p[0].update(p[2])
 
     def p_alter_check(self, p):
         """alter_check : alt_table CHECK ID
+        | alter_check constraint ID
         | alter_check ID
         """
 
         p_list = list(p)
 
         p[0] = p[1]
-        p[0]["check"] = p_list[-1]
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+        if not p[0].get("check"):
+            p[0]["check"] = {'constraint_name': None, 'statement': []}
+        p[0]["check"]['statement'].append(p_list[-1])
 
     def p_alter_foreign(self, p):
-        "alter_foreign : alt_table foreign"
+        """alter_foreign : alt_table foreign
+                         | alt_table constraint foreign
+        """
 
         p_list = list(p)
-
+        
         p[0] = p[1]
-        p[0]["columns"] = p_list[-1]
+        if isinstance(p_list[-1], list):
+            column = {'name': p_list[-1][0]}
+        else:
+            column = p_list[-1]
+        if isinstance(p_list[2], dict) and 'constraint' in p_list[2]:
+            column.update({'constraint_name': p_list[2]['constraint']['name']})
+
+        if not p[0].get("columns"):
+            p[0]["columns"] = []
+        p[0]["columns"].append(column)
 
     def p_alt_table_name(self, p):
         """alt_table : ALTER TABLE ID ADD
@@ -304,13 +320,11 @@ class DDLParser(Parser):
         """uniq : UNIQUE ID
         | uniq ID
         """
-        print(list(p))
         if isinstance(p[1], dict):
             p[0] = p[1]
             p[0]["unique"].append(p[2])
         else:
             p[0] = {"unique": [x for x in p[1:] if x != ","]}
-        print(p[0])
 
     def p_pkey(self, p):
         """pkey : PRIMARY KEY ID
@@ -327,3 +341,4 @@ def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
     """ get useful data from ddl """
     with open(file_path, "r") as df:
         return DDLParser(df.read()).run(file_path=file_path, **kwargs)
+

@@ -208,7 +208,7 @@ To parse from file
 
        from simple_ddl_parser import parse_from_file
 
-       result = parse_from_file('tests/test_one_statement.sql')
+       result = parse_from_file('tests/sql/test_one_statement.sql')
        print(result)
 
 From command line
@@ -223,7 +223,7 @@ simple-ddl-parser is installed to environment as command **sdp**
 
        # for example:
 
-       sdp tests/test_two_tables.sql
+       sdp tests/sql/test_two_tables.sql
 
 You will see the output in **schemas** folder in file with name **test_two_tables_schema.json**
 
@@ -232,26 +232,26 @@ If you want to have also output in console - use **-v** flag for verbose.
 .. code-block:: bash
 
 
-       sdp tests/test_two_tables.sql -v
+       sdp tests/sql/test_two_tables.sql -v
 
 If you don't want to dump schema in file and just print result to the console, use **--no-dump** flag:
 
 .. code-block:: bash
 
 
-       sdp tests/test_two_tables.sql --no-dump
+       sdp tests/sql/test_two_tables.sql --no-dump
 
 You can provide target path where you want to dump result with argument **-t**\ , **--targer**\ :
 
 .. code-block:: bash
 
 
-       sdp tests/test_two_tables.sql -t dump_results/
+       sdp tests/sql/test_two_tables.sql -t dump_results/
 
 More examples & tests
 ^^^^^^^^^^^^^^^^^^^^^
 
-You can find in **tests/functional** folder.
+You can find in **tests/** folder.
 
 Dump result in json
 ^^^^^^^^^^^^^^^^^^^
@@ -260,15 +260,13 @@ To dump result in json use argument .run(dump=True)
 
 You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
-TODO in next Releases
-^^^^^^^^^^^^^^^^^^^^^
+TODO in next Releases (if you don't see feature that you need - open the issue)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 #. Support CREATE INDEX statements
 #. Support ARRAYs
 #. Support CREATE SEQUENCE statements
-#. Support for UNIQUE column attribute
-#. Add command line arg to pass folder with ddls to convert
 
 Historical context
 ^^^^^^^^^^^^^^^^^^
@@ -277,6 +275,18 @@ This library is an extracted parser code from https://github.com/xnuinside/fakem
 
 For one of the work projects I needed to convert SQL ddl to Python ORM models in auto way and I tried to use https://github.com/andialbrecht/sqlparse but it works not well enough with ddl for my case (for example, if in ddl used lower case - nothing works, primary keys inside ddl are mapped as column name not reserved word and etc.).
 So I remembered about Parser in Fakeme and just extracted it & improved. 
+
+How to run tests
+^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+
+       git clone https://github.com/xnuinside/simple-ddl-parser.git
+       cd simple-ddl-parser
+       poetry install # if you use poetry
+       # or use `pip install .`
+       pytest tests/ -vv
 
 How to contribute
 -----------------
@@ -287,6 +297,14 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 
 Changelog
 ---------
+
+**v0.5.0**
+
+
+#. Added support for UNIQUE column attribute
+#. Add command line arg to pass folder with ddls (parse multiple files)
+#. Added support for CHECK Constratint
+#. Added support for FOREIGN Constratint in ALTER TABLE
 
 **v0.4.0**
 

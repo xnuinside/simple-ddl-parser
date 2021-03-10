@@ -44,6 +44,16 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
+                    "name": "title",
+                    "type": "varchar",
+                    "size": None,
+                    "nullable": False,
+                    "default": 'New title',
+                    "check": None,
+                    "references": None,
+                    "unique": False,
+                },
+                {
                     "name": "description",
                     "type": "varchar",
                     "size": None,
@@ -270,7 +280,7 @@ def test_alter_check():
                 },
             ],
             "primary_key": [],
-            "alter": {"check": "Age>=18"},
+            "alter": {"checks": [{'constraint_name': None, 'statement': ['Age>=18']}]},
             "checks": [],
             "table_name": "Persons",
             "schema": None,
@@ -285,8 +295,8 @@ def test_alter_check_combine_all_variants():
     ddl = """
     CREATE TABLE employees (
     id SERIAL PRIMARY KEY,
-    first_name VARCHAR (50),
-    last_name VARCHAR (50),
+    first_name VARCHAR (50) default 'User Name',
+    last_name VARCHAR (50) default 'User Last Name',
     birth_date DATE CHECK (birth_date > '1900-01-01'),
     joined_date DATE CHECK (joined_date > birth_date),
     salary numeric CHECK(salary > 0)
@@ -323,7 +333,7 @@ def test_alter_check_combine_all_variants():
                     "references": None,
                     "unique": False,
                     "nullable": True,
-                    "default": None,
+                    "default": 'User Name',
                     "check": None,
                 },
                 {
@@ -333,7 +343,7 @@ def test_alter_check_combine_all_variants():
                     "references": None,
                     "unique": False,
                     "nullable": True,
-                    "default": None,
+                    "default": 'User Last Name',
                     "check": None,
                 },
                 {
@@ -417,9 +427,9 @@ def test_alter_check_combine_all_variants():
                 },
             ],
             "primary_key": [],
-            "alter": {"check": "Age>=18"},
+            "alter": {"checks": [{'constraint_name': None, 'statement':["Age>=18"]}]},
             "checks": [
-                {"name": "CHK_Person", "statement": "Age>=18 AND City='Sandnes'"}
+                {"constraint_name": "CHK_Person", "statement": "Age>=18 AND City='Sandnes'"}
             ],
             "table_name": "Persons",
             "schema": None,

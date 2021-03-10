@@ -291,11 +291,17 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 
 ## Changelog
 
+**v0.5.0**
+1. Added support for UNIQUE column attribute
+2. Add command line arg to pass folder with ddls (parse multiple files)
+3. Added support for CHECK Constratint
+4. Added support for FOREIGN Constratint in ALTER TABLE
+
 **v0.4.0**
 1. Added support schema for table in REFERENCES statement in column defenition
 2. Added base support fot Alter table statements (added 'alters' key in table)
-4. Added command line arg to pass path to get the output results
-5. Fixed incorrect null fields parsing
+3. Added command line arg to pass path to get the output results
+4. Fixed incorrect null fields parsing
 
 **v0.3.0**
 1. Added support for REFERENCES statement in column defenition

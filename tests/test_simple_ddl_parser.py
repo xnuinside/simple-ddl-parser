@@ -807,8 +807,8 @@ def test_check_with_constraint():
             "primary_key": [],
             "alter": {},
             "checks": [
-                {"name": "CHK_Person", "statement": "Age>=18 AND City='Sandnes'"},
-                {"name": None, "statement": "LastName != FirstName"},
+                {"constraint_name": "CHK_Person", "statement": "Age>=18 AND City='Sandnes'"},
+                {"constraint_name": None, "statement": "LastName != FirstName"},
             ],
             "table_name": "Persons",
             "schema": None,
