@@ -12,9 +12,19 @@
 ```
 
 Parser tested on different DDLs for PostgreSQL & Hive.
-Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB.
+Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
+
+```sql
+Alter Table Persons ADD CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes');
+```
+It will be parsed as is without errors.
 
 If you have samples that cause an error - please open the issue (but don't forget to add ddl example), I will be glad to fix it.
+
+A lot of statements and output result you can find in tests, for example:
+
+[test_alter_statements.py](tests/test_alter_statements.py) 
+
 
 This parser take as input SQL DDL statements or files, for example like this:
 
@@ -255,12 +265,29 @@ To dump result in json use argument .run(dump=True)
 
 You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
+### Supported Statements
+
+1. CREATE TABLE [ IF NOT EXISTS ]
+2. columns defenition, columns attributes:
+    2.0 column name + type + type size(for example, varchar(255))
+    2.1 UNIQUE
+    2.2 PRIMARY KEY
+    2.3 DEFAULT
+    2.4 CHECK
+    2.5 NULL/NOT NULL
+    2.6 REFERENCES
+3. PRRIMARY KEY, CHECK, FOREIGN KEY in 
+4. ALTER TABLE:
+    4.1 ADD CHECK (with CONSTRAINT)
+    4.2 ADD FOREIGN KEY (with CONSTRAINT)
+
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
 1. Support CREATE INDEX statements
 2. Support ARRAYs
 3. Support CREATE SEQUENCE statements
+4. Provide API to get result as Python Object
 
 
 ### Historical context
