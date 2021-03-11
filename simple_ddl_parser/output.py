@@ -66,8 +66,10 @@ def result_format(result: List[Dict]) -> List[Dict]:
                     table_data = set_checks_to_table(table_data, item["check"])
                 else:
                     table_data["columns"].append(item)
-            tables_dict[(table_data["table_name"], table_data["schema"])] = table_data
-
+            if table_data.get("table_name"):
+                tables_dict[(table_data["table_name"], table_data["schema"])] = table_data
+            else:
+                print("\n Something goes wrong. Possible you try to parse unsupported statement \n ")
             if not table_data["primary_key"]:
                 table_data = check_pk_in_columns(table_data)
             else:
