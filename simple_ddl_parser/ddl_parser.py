@@ -247,6 +247,8 @@ class DDLParser(Parser):
             p[0] = p[1]
         if not p[0].get("check"):
             p[0]["check"] = {'constraint_name': None, 'statement': []}
+        if isinstance(p[2], dict) and 'constraint' in p[2]:
+            p[0]["check"]['constraint_name'] = p[2]['constraint']['name']
         p[0]["check"]['statement'].append(p_list[-1])
 
     def p_alter_foreign(self, p):

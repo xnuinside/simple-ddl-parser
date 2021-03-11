@@ -48,7 +48,7 @@ def test_alter_table_initial_support():
                     "type": "varchar",
                     "size": None,
                     "nullable": False,
-                    "default": 'New title',
+                    "default": "New title",
                     "check": None,
                     "references": None,
                     "unique": False,
@@ -280,7 +280,7 @@ def test_alter_check():
                 },
             ],
             "primary_key": [],
-            "alter": {"checks": [{'constraint_name': None, 'statement': ['Age>=18']}]},
+            "alter": {"checks": [{"constraint_name": None, "statement": ["Age>=18"]}]},
             "checks": [],
             "table_name": "Persons",
             "schema": None,
@@ -333,7 +333,7 @@ def test_alter_check_combine_all_variants():
                     "references": None,
                     "unique": False,
                     "nullable": True,
-                    "default": 'User Name',
+                    "default": "User Name",
                     "check": None,
                 },
                 {
@@ -343,7 +343,7 @@ def test_alter_check_combine_all_variants():
                     "references": None,
                     "unique": False,
                     "nullable": True,
-                    "default": 'User Last Name',
+                    "default": "User Last Name",
                     "check": None,
                 },
                 {
@@ -427,9 +427,12 @@ def test_alter_check_combine_all_variants():
                 },
             ],
             "primary_key": [],
-            "alter": {"checks": [{'constraint_name': None, 'statement':["Age>=18"]}]},
+            "alter": {"checks": [{"constraint_name": None, "statement": ["Age>=18"]}]},
             "checks": [
-                {"constraint_name": "CHK_Person", "statement": "Age>=18 AND City='Sandnes'"}
+                {
+                    "constraint_name": "CHK_Person",
+                    "statement": "Age>=18 AND City='Sandnes'",
+                }
             ],
             "table_name": "Persons",
             "schema": None,
@@ -437,3 +440,89 @@ def test_alter_check_combine_all_variants():
     ]
 
     assert expected == DDLParser(ddl).run()
+
+
+def test_alter_check_with_constraint():
+    parse_results = DDLParser(
+        """
+
+        CREATE TABLE Persons (
+        ID int NOT NULL,
+        LastName varchar(255) NOT NULL,
+        FirstName varchar(255),
+        Age int,
+        City varchar(255),
+
+        );
+        Alter Table Persons ADD CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes');   
+    """
+    ).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "ID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LastName",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "FirstName",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "Age",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "City",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {
+                "checks": [
+                    {
+                        "constraint_name": "CHK_PersonAge",
+                        "statement": ["Age>=18", "AND", "City='Sandnes'"],
+                    }
+                ]
+            },
+            "checks": [],
+            "table_name": "Persons",
+            "schema": None,
+        }
+    ]
+    assert expected == parse_results
