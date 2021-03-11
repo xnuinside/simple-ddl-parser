@@ -19,6 +19,7 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
             column_reference = statement["references"]["column"][num]
             alter_column = {
                 "name": column['name'],
+                "constraint_name": column.get('constraint_name'),
                 "references": {
                     "column": column_reference,
                     "table": statement["references"]["table"],

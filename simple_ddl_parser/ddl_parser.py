@@ -263,7 +263,9 @@ class DDLParser(Parser):
         else:
             column = p_list[-1]
         if isinstance(p_list[2], dict) and 'constraint' in p_list[2]:
-            column.update({'constraint_name': p_list[2]['constraint']['name']})
+            column.update(
+                {'constraint_name': 
+                    p_list[2]['constraint']['name']})
 
         if not p[0].get("columns"):
             p[0]["columns"] = []
