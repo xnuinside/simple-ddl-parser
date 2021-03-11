@@ -237,12 +237,11 @@ class DDLParser(Parser):
 
     def p_alter_check(self, p):
         """alter_check : alt_table CHECK ID
-        | alter_check constraint ID
+        | alt_table constraint CHECK ID
         | alter_check ID
         """
 
         p_list = list(p)
-
         p[0] = p[1]
         if isinstance(p[1], dict):
             p[0] = p[1]
@@ -256,7 +255,6 @@ class DDLParser(Parser):
         """
 
         p_list = list(p)
-        
         p[0] = p[1]
         if isinstance(p_list[-1], list):
             column = {'name': p_list[-1][0]}
@@ -341,4 +339,3 @@ def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
     """ get useful data from ddl """
     with open(file_path, "r") as df:
         return DDLParser(df.read()).run(file_path=file_path, **kwargs)
-
