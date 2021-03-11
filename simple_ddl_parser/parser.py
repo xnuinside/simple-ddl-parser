@@ -26,15 +26,25 @@ class Parser:
     def parse_data(self):
         tables = []
         table = []
+        statement = None
         for line in self.data.split("\n"):
             if line.replace("\n", "").replace("\t", ""):
-                _parse_result = yacc.parse(line)
+                if "ALTER" in line:
+                    statement = line
+                elif statement != None:
+                    statement += f" {line}"
+                else:
+                    statement = line
+                if ";" not in statement and "ALTER" in statement:
+                    continue
+                _parse_result = yacc.parse(statement)
                 if _parse_result:
                     table.append(_parse_result)
                 if line.strip().endswith(";"):
                     if table:
                         tables.append(table)
                     table = []
+                statement = None
         return tables
 
     def run(

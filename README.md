@@ -12,9 +12,19 @@
 ```
 
 Parser tested on different DDLs for PostgreSQL & Hive.
-Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB.
+Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
+
+```sql
+Alter Table Persons ADD CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes');
+```
+It will be parsed as is without errors.
 
 If you have samples that cause an error - please open the issue (but don't forget to add ddl example), I will be glad to fix it.
+
+A lot of statements and output result you can find in tests, for example:
+
+[test_alter_statements.py](tests/test_alter_statements.py) 
+
 
 This parser take as input SQL DDL statements or files, for example like this:
 
@@ -198,7 +208,7 @@ For example, please check alter statement tests - **tests/test_alter_statements.
     
     from simple_ddl_parser import parse_from_file
 
-    result = parse_from_file('tests/test_one_statement.sql')
+    result = parse_from_file('tests/sql/test_one_statement.sql')
     print(result)
 
 ```
@@ -213,7 +223,7 @@ simple-ddl-parser is installed to environment as command **sdp**
 
     # for example:
 
-    sdp tests/test_two_tables.sql
+    sdp tests/sql/test_two_tables.sql
     
 ```
 
@@ -223,7 +233,7 @@ If you want to have also output in console - use **-v** flag for verbose.
 
 ```bash
     
-    sdp tests/test_two_tables.sql -v
+    sdp tests/sql/test_two_tables.sql -v
     
 ```
 
@@ -232,7 +242,7 @@ If you don't want to dump schema in file and just print result to the console, u
 
 ```bash
     
-    sdp tests/test_two_tables.sql --no-dump
+    sdp tests/sql/test_two_tables.sql --no-dump
     
 ```
 
@@ -241,13 +251,13 @@ You can provide target path where you want to dump result with argument **-t**, 
 
 ```bash
     
-    sdp tests/test_two_tables.sql -t dump_results/
+    sdp tests/sql/test_two_tables.sql -t dump_results/
     
 ```
 
 ### More examples & tests
 
-You can find in **tests/functional** folder.
+You can find in **tests/** folder.
 
 ### Dump result in json
 
@@ -255,13 +265,29 @@ To dump result in json use argument .run(dump=True)
 
 You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
-### TODO in next Releases
+### Supported Statements
+
+1. CREATE TABLE [ IF NOT EXISTS ]
+2. columns defenition, columns attributes:
+    2.0 column name + type + type size(for example, varchar(255))
+    2.1 UNIQUE
+    2.2 PRIMARY KEY
+    2.3 DEFAULT
+    2.4 CHECK
+    2.5 NULL/NOT NULL
+    2.6 REFERENCES
+3. PRRIMARY KEY, CHECK, FOREIGN KEY in 
+4. ALTER TABLE:
+    4.1 ADD CHECK (with CONSTRAINT)
+    4.2 ADD FOREIGN KEY (with CONSTRAINT)
+
+
+### TODO in next Releases (if you don't see feature that you need - open the issue)
 
 1. Support CREATE INDEX statements
 2. Support ARRAYs
 3. Support CREATE SEQUENCE statements
-4. Support for UNIQUE column attribute
-5. Add command line arg to pass folder with ddls to convert
+4. Provide API to get result as Python Object
 
 
 ### Historical context
@@ -272,6 +298,18 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 
+### How to run tests
+
+```bash
+
+    git clone https://github.com/xnuinside/simple-ddl-parser.git
+    cd simple-ddl-parser
+    poetry install # if you use poetry
+    # or use `pip install .`
+    pytest tests/ -vv
+
+```
+
 ## How to contribute
 
 Please describe issue that you want to solve and open the PR, I will review it as soon as possible.
@@ -280,11 +318,17 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 
 ## Changelog
 
+**v0.5.0**
+1. Added support for UNIQUE column attribute
+2. Add command line arg to pass folder with ddls (parse multiple files)
+3. Added support for CHECK Constratint
+4. Added support for FOREIGN Constratint in ALTER TABLE
+
 **v0.4.0**
 1. Added support schema for table in REFERENCES statement in column defenition
 2. Added base support fot Alter table statements (added 'alters' key in table)
-4. Added command line arg to pass path to get the output results
-5. Fixed incorrect null fields parsing
+3. Added command line arg to pass path to get the output results
+4. Fixed incorrect null fields parsing
 
 **v0.3.0**
 1. Added support for REFERENCES statement in column defenition
