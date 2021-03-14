@@ -15,9 +15,10 @@ class DDLParser(Parser):
 
     reserved = {
         "IF": "IF",
-        "then": "THEN",
-        "else": "ELSE",
-        "while": "WHILE",
+        "THEN": "THEN",
+        "ON": "ON",
+        "ELSE": "ELSE",
+        "WHILE": "WHILE",
         "USE": "USE",
         "CREATE": "CREATE",
         "TABLE": "TABLE",
@@ -37,8 +38,10 @@ class DDLParser(Parser):
         "CHECK": "CHECK",
         "SEQUENCE": "SEQUENCE",
         "CONSTRAINT": "CONSTRAINT",
-        "ARRAY": "ARRAY"
+        "ARRAY": "ARRAY",
+        "INDEX": "INDEX"
     }
+    
     sequence = False
     sequence_reserved = {
         "INCREMENT": "INCREMENT",
@@ -104,7 +107,43 @@ class DDLParser(Parser):
         else:
             table_name = p_list[-1]
         p[0] = {"schema": schema, "table_name": table_name}
-
+    
+    def p_expression_index(self, p):
+        """expr : index_table_name ID
+                | expr ID
+        """
+        p_list = list(p)
+        p[0] = p[1]
+        if not 'columns' in p[0]:
+            p[0]['columns'] = [p_list[-1]]
+        else:
+            p[0]['columns'].append(p_list[-1])
+    
+    def p_index_table_name(self, p):
+        """index_table_name : create_index ON ID  
+                | create_index ON ID DOT ID  
+        """
+        p[0] = p[1]
+        p_list = list(p)
+        if "." in p_list:
+            schema = p_list[-3]
+            table_name = p_list[-1]
+        else:
+            table_name = p_list[-1]
+        p[0].update({"schema": schema, "table_name": table_name})
+        
+        
+    def p_create_index(self, p):
+        """create_index : CREATE INDEX ID
+                        | CREATE UNIQUE INDEX ID
+                        | create_index ON ID
+        """
+        p_list = list(p)
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+        else:
+            p[0] = {"schema": None, "index_name": p_list[-1], "unique": 'UNIQUE' in p_list}
+    
     def p_expression_table_name(self, p):
         """expr : create_table ID DOT ID
         | create_table ID

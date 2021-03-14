@@ -88,7 +88,7 @@ def test_sequence_and_table():
                     "check": None,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ["id"], 'index': [],
             "alter": {},
             "checks": [],
             "table_name": "countries",
