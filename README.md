@@ -165,6 +165,27 @@ Output:
 
 ```
 
+### SEQUENCES
+
+When we parse SEQUENCES each property stored as a separate dict KEY, for example for sequence:
+
+```sql
+    CREATE SEQUENCE dev.incremental_ids
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+```
+
+Will be output:
+
+```python
+    [
+        {'schema': 'dev', 'incremental_ids': 'document_id_seq', 'increment': 1, 'start': 1, 'minvalue': 1, 'maxvalue': 9223372036854775807, 'cache': 1}
+    ]
+```
+
 ### ALTER statements
 
 Right now added support only for ALTER statements with FOREIGEIN key
@@ -269,25 +290,34 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 1. CREATE TABLE [ IF NOT EXISTS ]
 2. columns defenition, columns attributes:
-    2.0 column name + type + type size(for example, varchar(255))
-    2.1 UNIQUE
-    2.2 PRIMARY KEY
-    2.3 DEFAULT
-    2.4 CHECK
-    2.5 NULL/NOT NULL
-    2.6 REFERENCES
-3. PRRIMARY KEY, CHECK, FOREIGN KEY in 
-4. ALTER TABLE:
-    4.1 ADD CHECK (with CONSTRAINT)
-    4.2 ADD FOREIGN KEY (with CONSTRAINT)
 
+    2.0 column name + type + type size(for example, varchar(255))
+
+    2.1 UNIQUE
+
+    2.2 PRIMARY KEY
+
+    2.3 DEFAULT
+
+    2.4 CHECK
+
+    2.5 NULL/NOT NULL
+
+    2.6 REFERENCES
+
+3. PRRIMARY KEY, CHECK, FOREIGN KEY in 
+
+4. ALTER TABLE:
+
+    4.1 ADD CHECK (with CONSTRAINT)
+
+    4.2 ADD FOREIGN KEY (with CONSTRAINT)
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
 1. Support CREATE INDEX statements
 2. Support ARRAYs
-3. Support CREATE SEQUENCE statements
-4. Provide API to get result as Python Object
+3. Provide API to get result as Python Object
 
 
 ### Historical context
