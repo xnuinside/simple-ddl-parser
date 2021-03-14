@@ -21,6 +21,7 @@ class DDLParser(Parser):
         "USE": "USE",
         "CREATE": "CREATE",
         "TABLE": "TABLE",
+        "DROP": "DROP",
         "NOT": "NOT",
         "EXISTS": "EXISTS",
         "NULL": "NULL",
@@ -34,23 +35,41 @@ class DDLParser(Parser):
         "FOREIGN": "FOREIGN",
         "UNIQUE": "UNIQUE",
         "CHECK": "CHECK",
+        "SEQUENCE": "SEQUENCE",
         "CONSTRAINT": "CONSTRAINT",
     }
+    sequence = False
+    sequence_reserved = {
+        "INCREMENT": "INCREMENT",
+        "START": "START",
+        "MINVALUE": "MINVALUE",
+        "MAXVALUE": "MAXVALUE",
+        "CACHE": "CACHE",
+    }
+    tokens = tuple(
+        ["ID", "NEWLINE", "DOT"]
+        + list(reserved.values())
+        + list(sequence_reserved.values())
+    )
 
-    tokens = tuple(["ID", "NEWLINE", "DOT"] + list(reserved.values()))
-
-    t_ignore = '\t();, "\r'
+    t_ignore = '\t();,  "\r'
     t_DOT = r"."
 
     def t_NUM_VALUE_SDP(self, t):
         r"[0-9]+\D"
         t.type = "NUM_VALUE_SDP"
-        t.value = re.sub(r"[\)\,]", "", t.value)
+        t.value = re.sub(r"[\)\,;]", "", t.value)
         return t
 
     def t_ID(self, t):
         r"[a-zA-Z_0-9:><\=\-\+\~\%$\'!{}]+"
-        t.type = self.reserved.get(t.value.upper(), "ID")  # Check for reserved word
+
+        if self.sequence:
+            t.type = self.sequence_reserved.get(t.value.upper(), "ID")
+        else:
+            t.type = self.reserved.get(t.value.upper(), "ID")  # Check for reserved word
+        if t.type == "SEQUENCE":
+            self.sequence = True
         if t.type != "ID":
             t.value = t.value.upper()
         return t
@@ -68,6 +87,21 @@ class DDLParser(Parser):
     def p_error(self, p):
         pass
 
+    def p_expression_drop_table(self, p):
+        """expr : DROP TABLE ID
+        | DROP TABLE ID DOT ID
+        """
+        # get schema & table name
+        p_list = list(p)
+        schema = None
+        if len(p) > 4:
+            if "." in p:
+                schema = p_list[-3]
+                table_name = p_list[-1]
+        else:
+            table_name = p_list[-1]
+        p[0] = {"schema": schema, "table_name": table_name}
+
     def p_expression_table_name(self, p):
         """expr : create_table ID DOT ID
         | create_table ID
@@ -82,6 +116,43 @@ class DDLParser(Parser):
         else:
             table_name = p_list[-1]
         p[0] = {"schema": schema, "table_name": table_name}
+
+    def p_expression_seq(self, p):
+        """expr : seq_name
+        | expr INCREMENT NUM_VALUE_SDP
+        | expr START NUM_VALUE_SDP
+        | expr MINVALUE NUM_VALUE_SDP
+        | expr MAXVALUE NUM_VALUE_SDP
+        | expr CACHE NUM_VALUE_SDP
+        """
+        # get schema & table name
+        p_list = list(p)
+        p[0] = p[1]
+        if len(p) > 2:
+            p[0].update({p[2].lower(): int(p_list[-1])})
+
+    def p_seq_name(self, p):
+        """seq_name : create_seq ID DOT ID
+        | create_seq ID
+        """
+        # get schema & table name
+        p_list = list(p)
+        schema = None
+        if len(p) > 4:
+            if "." in p:
+                schema = p_list[-3]
+                seq_name = p_list[-1]
+        else:
+            seq_name = p_list[-1]
+        p[0] = {"schema": schema, "sequence_name": seq_name}
+
+    def p_create_seq(self, p):
+        """create_seq : CREATE SEQUENCE IF NOT EXISTS
+        | CREATE SEQUENCE
+
+        """
+        # get schema & table name
+        pass
 
     def p_create_table(self, p):
         """create_table : CREATE TABLE IF NOT EXISTS
@@ -131,8 +202,8 @@ class DDLParser(Parser):
 
     def p_def(self, p):
         """def : DEFAULT ID
-               | DEFAULT NUM_VALUE_SDP
-               | def ID
+        | DEFAULT NUM_VALUE_SDP
+        | def ID
         """
         p_list = list(p)
         default = p[2]
@@ -141,8 +212,8 @@ class DDLParser(Parser):
         if isinstance(p[1], dict):
             p[0] = p[1]
             if isinstance(p[2], str):
-                p[0]['default'] += f' {p[2]}'
-                p[0]['default'] = p[0]['default'].replace('"', '').replace("'", '')
+                p[0]["default"] += f" {p[2]}"
+                p[0]["default"] = p[0]["default"].replace('"', "").replace("'", "")
         else:
             p[0] = {"default": default}
 
@@ -197,7 +268,9 @@ class DDLParser(Parser):
             elif "check" in p[1]:
                 p[0] = p[1]
                 if isinstance(p[1], list):
-                    p[0] = {"check": {"constraint_name": name, "statement": p[1]["check"]}}
+                    p[0] = {
+                        "check": {"constraint_name": name, "statement": p[1]["check"]}
+                    }
                 if len(p) >= 3:
                     for item in list(p)[2:]:
                         p[0]["check"]["statement"].append(item)
@@ -212,7 +285,7 @@ class DDLParser(Parser):
         p_list = list(p)
         con_ind = p_list.index(_cons)
         name = p_list[con_ind + 1]
-        p[0] = {"constraint" : {"name": name} }
+        p[0] = {"constraint": {"name": name}}
 
     def p_check_st(self, p):
         """check_st : CHECK ID
@@ -229,7 +302,7 @@ class DDLParser(Parser):
 
     def p_expression_alter(self, p):
         """expr : alter_foreign ref
-                | alter_check
+        | alter_check
         """
         p[0] = p[1]
         if len(p) == 3:
@@ -246,26 +319,24 @@ class DDLParser(Parser):
         if isinstance(p[1], dict):
             p[0] = p[1]
         if not p[0].get("check"):
-            p[0]["check"] = {'constraint_name': None, 'statement': []}
-        if isinstance(p[2], dict) and 'constraint' in p[2]:
-            p[0]["check"]['constraint_name'] = p[2]['constraint']['name']
-        p[0]["check"]['statement'].append(p_list[-1])
+            p[0]["check"] = {"constraint_name": None, "statement": []}
+        if isinstance(p[2], dict) and "constraint" in p[2]:
+            p[0]["check"]["constraint_name"] = p[2]["constraint"]["name"]
+        p[0]["check"]["statement"].append(p_list[-1])
 
     def p_alter_foreign(self, p):
         """alter_foreign : alt_table foreign
-                         | alt_table constraint foreign
+        | alt_table constraint foreign
         """
 
         p_list = list(p)
         p[0] = p[1]
         if isinstance(p_list[-1], list):
-            column = {'name': p_list[-1][0]}
+            column = {"name": p_list[-1][0]}
         else:
             column = p_list[-1]
-        if isinstance(p_list[2], dict) and 'constraint' in p_list[2]:
-            column.update(
-                {'constraint_name': 
-                    p_list[2]['constraint']['name']})
+        if isinstance(p_list[2], dict) and "constraint" in p_list[2]:
+            column.update({"constraint_name": p_list[2]["constraint"]["name"]})
 
         if not p[0].get("columns"):
             p[0]["columns"] = []

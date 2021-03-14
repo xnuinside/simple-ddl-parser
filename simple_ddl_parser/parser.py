@@ -26,18 +26,26 @@ class Parser:
     def parse_data(self):
         tables = []
         table = []
+        # todo: need to re-done this and parse table defenitions same way till ;
+        is_table = False
         statement = None
         for line in self.data.split("\n"):
             if line.replace("\n", "").replace("\t", ""):
-                if "ALTER" in line:
+                if "CREATE" in line.upper() and "TABLE" in line.upper():
+                    is_table = True
                     statement = line
-                elif statement != None:
+                elif statement != None and not is_table:
                     statement += f" {line}"
+                elif "TABLE" not in line.upper() and not statement:
+                    statement = line
                 else:
                     statement = line
-                if ";" not in statement and "ALTER" in statement:
+                if ";" not in statement and not is_table:
                     continue
+                if ";" in line and is_table:
+                    is_table = False
                 _parse_result = yacc.parse(statement)
+                self.sequence = False
                 if _parse_result:
                     table.append(_parse_result)
                 if line.strip().endswith(";"):
