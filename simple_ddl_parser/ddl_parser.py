@@ -37,6 +37,7 @@ class DDLParser(Parser):
         "CHECK": "CHECK",
         "SEQUENCE": "SEQUENCE",
         "CONSTRAINT": "CONSTRAINT",
+        "ARRAY": "ARRAY"
     }
     sequence = False
     sequence_reserved = {
@@ -62,10 +63,12 @@ class DDLParser(Parser):
         return t
 
     def t_ID(self, t):
-        r"[a-zA-Z_0-9:><\=\-\+\~\%$\'!{}]+"
+        r"[a-zA-Z_0-9:><\=\-\+\~\%$\'!{}\[\]]+"
 
         if self.sequence:
             t.type = self.sequence_reserved.get(t.value.upper(), "ID")
+        elif 'ARRAY' in t.value:
+            t.type = 'ARRAY'
         else:
             t.type = self.reserved.get(t.value.upper(), "ID")  # Check for reserved word
         if t.type == "SEQUENCE":
@@ -164,16 +167,30 @@ class DDLParser(Parser):
 
     def p_column(self, p):
         """column : ID ID
-        | ID ID NUM_VALUE_SDP
+                  | column NUM_VALUE_SDP 
+                  | column ARRAY
+                  | column ID 
+                  
         """
-        size = None
-        type_str = p[2]
-        if len(p) == 4:
-            match = re.match(r"[0-9]+", p[3])
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+        else:
+            size = None
+            type_str = p[2]
+            p[0] = {"name": p[1], "type": type_str, "size": size}
+        p_list = list(p)
+        
+        if '[]' == p_list[-1]:
+            p[0]['type'] = p[0]['type'] + '[]'
+        elif 'ARRAY' in p_list[-1]:
+            arr_split = p_list[-1].split('ARRAY')
+            append = '[]' if not arr_split[-1] else arr_split[-1]
+            p[0]['type'] = p[0]['type'] + append
+        else:
+            match = re.match(r"[0-9]+", p_list[2])
             if bool(match):
-                size = int(p[3])
-        p[0] = {"name": p[1], "type": type_str, "size": size}
-
+                size = int(p_list[2])
+                p[0]['size'] = size
     def extract_references(self, p_list):
         ref_index = p_list.index(_ref)
         if not "." in p_list[ref_index:]:

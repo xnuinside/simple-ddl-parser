@@ -316,9 +316,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
 1. Support CREATE INDEX statements
-2. Support ARRAYs
-3. Provide API to get result as Python Object
-
+2. Provide API to get result as Python Object
 
 ### Historical context
 

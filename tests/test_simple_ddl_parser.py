@@ -818,3 +818,112 @@ def test_check_with_constraint():
         }
     ]
     assert expected == DDLParser(ddl).run()
+
+
+def test_arrays():
+    parse_results = DDLParser(
+        """
+    CREATE table arrays_2 (
+        field_1                decimal(21)[] not null
+    ,field_2              integer(61) array not null
+    ,field_3              varchar array not null default '{"none"}'
+    ,squares   integer[3][3] not null default '{1}'
+    ,schedule        text[][]
+    ,pay_by_quarter  integer[]
+    ,pay_by_quarter_2  integer ARRAY[4]
+    ,pay_by_quarter_3  integer ARRAY
+    ) ;
+    """
+    ).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "field_1",
+                    "type": "decimal[]",
+                    "size": 21,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "field_2",
+                    "type": "integer[]",
+                    "size": 61,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "field_3",
+                    "type": "varchar[]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "{ none }",
+                    "check": None,
+                },
+                {
+                    "name": "squares",
+                    "type": "integer[3][3]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "'{1}'",
+                    "check": None,
+                },
+                {
+                    "name": "schedule",
+                    "type": "text[][]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "pay_by_quarter",
+                    "type": "integer[]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "pay_by_quarter_2",
+                    "type": "integer[4]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "pay_by_quarter_3",
+                    "type": "integer[]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "table_name": "arrays_2",
+            "schema": None,
+        }
+    ]
+    assert expected == parse_results
