@@ -1,6 +1,7 @@
 **v0.6.0** (not released, current master)
 1. Added support for SEQUENCE statemensts
 2. Added support for ARRAYs in types
+3. Added support for CREATE INDEX statements
 
 **v0.5.0**
 1. Added support for UNIQUE column attribute

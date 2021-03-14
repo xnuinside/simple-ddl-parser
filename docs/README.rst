@@ -16,6 +16,8 @@ Simple DDL Parser
    :alt: badge3
  
 
+Build with ply (lex & yacc in python). A lot of samples in 'tests/'
+
 How to install
 ^^^^^^^^^^^^^^
 
@@ -23,6 +25,80 @@ How to install
 
 
        pip install simple-ddl-parser
+
+How to use
+----------
+
+From python code
+^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+       from simple_ddl_parser import DDLParser
+
+
+       parse_results = DDLParser("""create table dev.data_sync_history(
+           data_sync_id bigint not null,
+           sync_count bigint not null,
+           sync_mark timestamp  not  null,
+           sync_start timestamp  not null,
+           sync_end timestamp  not null,
+           message varchar(2000) null,
+           primary key (data_sync_id, sync_start)
+       ); """).run()
+
+       print(parse_results)
+
+To parse from file
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+
+       from simple_ddl_parser import parse_from_file
+
+       result = parse_from_file('tests/sql/test_one_statement.sql')
+       print(result)
+
+From command line
+^^^^^^^^^^^^^^^^^
+
+simple-ddl-parser is installed to environment as command **sdp**
+
+.. code-block:: bash
+
+
+       sdp path_to_ddl_file
+
+       # for example:
+
+       sdp tests/sql/test_two_tables.sql
+
+You will see the output in **schemas** folder in file with name **test_two_tables_schema.json**
+
+If you want to have also output in console - use **-v** flag for verbose.
+
+.. code-block:: bash
+
+
+       sdp tests/sql/test_two_tables.sql -v
+
+If you don't want to dump schema in file and just print result to the console, use **--no-dump** flag:
+
+.. code-block:: bash
+
+
+       sdp tests/sql/test_two_tables.sql --no-dump
+
+You can provide target path where you want to dump result with argument **-t**\ , **--targer**\ :
+
+.. code-block:: bash
+
+
+       sdp tests/sql/test_two_tables.sql -t dump_results/
+
+How does it work?
+^^^^^^^^^^^^^^^^^
 
 Parser tested on different DDLs for PostgreSQL & Hive.
 Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
@@ -172,6 +248,28 @@ Output:
             'alter': {}}
        ]
 
+SEQUENCES
+^^^^^^^^^
+
+When we parse SEQUENCES each property stored as a separate dict KEY, for example for sequence:
+
+.. code-block:: sql
+
+       CREATE SEQUENCE dev.incremental_ids
+       INCREMENT 1
+       START 1
+       MINVALUE 1
+       MAXVALUE 9223372036854775807
+       CACHE 1;
+
+Will be output:
+
+.. code-block:: python
+
+       [
+           {'schema': 'dev', 'incremental_ids': 'document_id_seq', 'increment': 1, 'start': 1, 'minvalue': 1, 'maxvalue': 9223372036854775807, 'cache': 1}
+       ]
+
 ALTER statements
 ^^^^^^^^^^^^^^^^
 
@@ -186,77 +284,6 @@ For example, if in your ddl after table defenitions (create table statements) yo
 
 This statements will be parsed and information about them putted inside 'alter' key in table's dict.
 For example, please check alter statement tests - **tests/test_alter_statements.py**
-
-How to use
-----------
-
-From python code
-^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-       from simple_ddl_parser import DDLParser
-
-
-       parse_results = DDLParser("""create table dev.data_sync_history(
-           data_sync_id bigint not null,
-           sync_count bigint not null,
-           sync_mark timestamp  not  null,
-           sync_start timestamp  not null,
-           sync_end timestamp  not null,
-           message varchar(2000) null,
-           primary key (data_sync_id, sync_start)
-       ); """).run()
-
-       print(parse_results)
-
-To parse from file
-^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-
-       from simple_ddl_parser import parse_from_file
-
-       result = parse_from_file('tests/sql/test_one_statement.sql')
-       print(result)
-
-From command line
-^^^^^^^^^^^^^^^^^
-
-simple-ddl-parser is installed to environment as command **sdp**
-
-.. code-block:: bash
-
-
-       sdp path_to_ddl_file
-
-       # for example:
-
-       sdp tests/sql/test_two_tables.sql
-
-You will see the output in **schemas** folder in file with name **test_two_tables_schema.json**
-
-If you want to have also output in console - use **-v** flag for verbose.
-
-.. code-block:: bash
-
-
-       sdp tests/sql/test_two_tables.sql -v
-
-If you don't want to dump schema in file and just print result to the console, use **--no-dump** flag:
-
-.. code-block:: bash
-
-
-       sdp tests/sql/test_two_tables.sql --no-dump
-
-You can provide target path where you want to dump result with argument **-t**\ , **--targer**\ :
-
-.. code-block:: bash
-
-
-       sdp tests/sql/test_two_tables.sql -t dump_results/
 
 More examples & tests
 ^^^^^^^^^^^^^^^^^^^^^
@@ -276,26 +303,35 @@ Supported Statements
 
 #. CREATE TABLE [ IF NOT EXISTS ]
 #. columns defenition, columns attributes:
+
     2.0 column name + type + type size(for example, varchar(255))
+
     2.1 UNIQUE
+
     2.2 PRIMARY KEY
+
     2.3 DEFAULT
+
     2.4 CHECK
+
     2.5 NULL/NOT NULL
+
     2.6 REFERENCES
-#. PRRIMARY KEY, CHECK, FOREIGN KEY in 
+
+#. PRRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
+
 #. ALTER TABLE:
+
     4.1 ADD CHECK (with CONSTRAINT)
+
     4.2 ADD FOREIGN KEY (with CONSTRAINT)
 
 TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-#. Support CREATE INDEX statements
-#. Support ARRAYs
-#. Support CREATE SEQUENCE statements
 #. Provide API to get result as Python Object
+#. Add online demo (UI) to parse ddl
 
 Historical context
 ^^^^^^^^^^^^^^^^^^
@@ -326,6 +362,13 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 
 Changelog
 ---------
+
+**v0.6.0** (not released, current master)
+
+
+#. Added support for SEQUENCE statemensts
+#. Added support for ARRAYs in types
+#. Added support for CREATE INDEX statements
 
 **v0.5.0**
 

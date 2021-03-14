@@ -2,6 +2,7 @@
 
 ![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) 
 
+Build with ply (lex & yacc in python). A lot of samples in 'tests/'
 
 ### How to install
 
@@ -10,6 +11,83 @@
     pip install simple-ddl-parser
 
 ```
+
+## How to use
+
+### From python code
+
+```python
+    from simple_ddl_parser import DDLParser
+
+
+    parse_results = DDLParser("""create table dev.data_sync_history(
+        data_sync_id bigint not null,
+        sync_count bigint not null,
+        sync_mark timestamp  not  null,
+        sync_start timestamp  not null,
+        sync_end timestamp  not null,
+        message varchar(2000) null,
+        primary key (data_sync_id, sync_start)
+    ); """).run()
+
+    print(parse_results) 
+
+```
+
+### To parse from file
+
+```python
+    
+    from simple_ddl_parser import parse_from_file
+
+    result = parse_from_file('tests/sql/test_one_statement.sql')
+    print(result)
+
+```
+
+### From command line
+
+simple-ddl-parser is installed to environment as command **sdp**
+
+```bash
+
+    sdp path_to_ddl_file
+
+    # for example:
+
+    sdp tests/sql/test_two_tables.sql
+    
+```
+
+You will see the output in **schemas** folder in file with name **test_two_tables_schema.json**
+
+If you want to have also output in console - use **-v** flag for verbose.
+
+```bash
+    
+    sdp tests/sql/test_two_tables.sql -v
+    
+```
+
+If you don't want to dump schema in file and just print result to the console, use **--no-dump** flag:
+
+
+```bash
+    
+    sdp tests/sql/test_two_tables.sql --no-dump
+    
+```
+
+You can provide target path where you want to dump result with argument **-t**, **--targer**:
+
+
+```bash
+    
+    sdp tests/sql/test_two_tables.sql -t dump_results/
+    
+```
+
+### How does it work?
 
 Parser tested on different DDLs for PostgreSQL & Hive.
 Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
@@ -141,6 +219,7 @@ CREATE TABLE "path_owners" (
 );
 
 ```
+
 Output:
 
 ```python
@@ -201,80 +280,6 @@ ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id", "material_tit
 This statements will be parsed and information about them putted inside 'alter' key in table's dict.
 For example, please check alter statement tests - **tests/test_alter_statements.py**
 
-## How to use
-
-### From python code
-
-```python
-    from simple_ddl_parser import DDLParser
-
-
-    parse_results = DDLParser("""create table dev.data_sync_history(
-        data_sync_id bigint not null,
-        sync_count bigint not null,
-        sync_mark timestamp  not  null,
-        sync_start timestamp  not null,
-        sync_end timestamp  not null,
-        message varchar(2000) null,
-        primary key (data_sync_id, sync_start)
-    ); """).run()
-
-    print(parse_results) 
-
-```
-
-### To parse from file
-
-```python
-    
-    from simple_ddl_parser import parse_from_file
-
-    result = parse_from_file('tests/sql/test_one_statement.sql')
-    print(result)
-
-```
-
-### From command line
-
-simple-ddl-parser is installed to environment as command **sdp**
-
-```bash
-
-    sdp path_to_ddl_file
-
-    # for example:
-
-    sdp tests/sql/test_two_tables.sql
-    
-```
-
-You will see the output in **schemas** folder in file with name **test_two_tables_schema.json**
-
-If you want to have also output in console - use **-v** flag for verbose.
-
-```bash
-    
-    sdp tests/sql/test_two_tables.sql -v
-    
-```
-
-If you don't want to dump schema in file and just print result to the console, use **--no-dump** flag:
-
-
-```bash
-    
-    sdp tests/sql/test_two_tables.sql --no-dump
-    
-```
-
-You can provide target path where you want to dump result with argument **-t**, **--targer**:
-
-
-```bash
-    
-    sdp tests/sql/test_two_tables.sql -t dump_results/
-    
-```
 
 ### More examples & tests
 
@@ -305,7 +310,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
     2.6 REFERENCES
 
-3. PRRIMARY KEY, CHECK, FOREIGN KEY in 
+3. PRRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
 4. ALTER TABLE:
 
@@ -315,8 +320,8 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
-1. Support CREATE INDEX statements
-2. Provide API to get result as Python Object
+1. Provide API to get result as Python Object
+2. Add online demo (UI) to parse ddl
 
 ### Historical context
 
@@ -345,6 +350,10 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.6.0** (not released, current master)
+1. Added support for SEQUENCE statemensts
+2. Added support for ARRAYs in types
+3. Added support for CREATE INDEX statements
 
 **v0.5.0**
 1. Added support for UNIQUE column attribute
