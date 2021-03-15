@@ -1,4 +1,7 @@
-**v0.6.0** (not released, current master)
+**v0.6.1**
+1. Fix minor bug with schema in index statements
+
+**v0.6.0**
 1. Added support for SEQUENCE statemensts
 2. Added support for ARRAYs in types
 3. Added support for CREATE INDEX statements

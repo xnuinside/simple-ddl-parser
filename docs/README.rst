@@ -120,133 +120,168 @@ This parser take as input SQL DDL statements or files, for example like this:
 .. code-block:: sql
 
 
-       create table prod.super_table
-   (
-       data_sync_id bigint not null default 0,
-       id_ref_from_another_table int REFERENCES another_table (id)
-       sync_count bigint not null REFERENCES count_table (count),
-       sync_mark timestamp  not  null,
-       sync_start timestamp  not null default now(),
-       sync_end timestamp  not null,
-       message varchar(2000) null,
-       primary key (data_sync_id, sync_start)
-   );
+       CREATE TABLE employees (
+           id SERIAL PRIMARY KEY,
+           first_name VARCHAR (50),
+           last_name VARCHAR (50),
+           birth_date DATE CHECK (birth_date > '1900-01-01'),
+           joined_date DATE CHECK (joined_date > birth_date),
+           salary numeric CHECK(salary > 0),
+           phone_numbers varchar(16) array,
+           tags varchar ARRAY[1]
+       );
+       CREATE TABLE dev.Persons (
+           ID int NOT NULL,
+           LastName varchar(255) NOT NULL,
+           FirstName varchar(255),
+           Age int,
+           City varchar(255),
+           Country varchar(255),
+           CONSTRAINT CHK_Person CHECK (Age>=19 AND City='Sandnes')
+       );
+
+       ALTER TABLE dev.Persons ADD CHECK (Age>=18 AND City='Sandnes');
+
+       ALTER TABLE dev.Persons Add CONSTRAINT ck_person  CHECK (Age>=18 AND City='Sandnes');
+       Alter Table dev.Persons ADD CONSTRAINT fk_group FOREIGN KEY (id) REFERENCES employees (id); 
+       create unique index person_pk on dev.Persons (ID) ;
+       create index person_ix2 on dev.Persons (City, Country);
 
 And produce output like this (information about table name, schema, columns, types and properties):
 
 .. code-block:: python
 
+   [{
+     'table_name': 'employees',
+     'index': [],
+     'primary_key': ['id'],
+     'schema': None,
+     'alter': {},
+     'checks': [],
+     'columns': [{'check': None,
+                  'default': None,
+                  'name': 'id',
+                  'nullable': False,
+                  'references': None,
+                  'size': None,
+                  'type': 'SERIAL',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'first_name',
+                  'nullable': True,
+                  'references': None,
+                  'size': 50,
+                  'type': 'VARCHAR',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'last_name',
+                  'nullable': True,
+                  'references': None,
+                  'size': 50,
+                  'type': 'VARCHAR',
+                  'unique': False},
+                 {'check': "birth_date > '1900-01-01'",
+                  'default': None,
+                  'name': 'birth_date',
+                  'nullable': True,
+                  'references': None,
+                  'size': None,
+                  'type': 'DATE',
+                  'unique': False},
+                 {'check': 'joined_date > birth_date',
+                  'default': None,
+                  'name': 'joined_date',
+                  'nullable': True,
+                  'references': None,
+                  'size': None,
+                  'type': 'DATE',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'phone_numbers',
+                  'nullable': True,
+                  'references': None,
+                  'size': 16,
+                  'type': 'varchar[]',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'tags',
+                  'nullable': True,
+                  'references': None,
+                  'size': None,
+                  'type': 'varchar[1]',
+                  'unique': False}]},
 
-       [
-           {
-               "columns": [
-                   {
-                       "name": "data_sync_id", "type": "bigint", "size": None, 
-                       "nullable": False, "default": None, "references": None,
-                   },
-                   {
-                       "name": "id_ref_from_another_table", "type": "int", "size": None,
-                       "nullable": False, "default": None, "references": {"table": "another_table", "schema": None, "column": "id"},
-                   },
-                   {
-                       "name": "sync_count", "type": "bigint", "size": None,
-                       "nullable": False, "default": None, "references": {"table": "count_table", "schema": None, "column": "count"},
-                   },
-                   {
-                       "name": "sync_mark", "type": "timestamp", "size": None,
-                       "nullable": False, "default": None, "references": None,
-                   },
-                   {
-                       "name": "sync_start", "type": "timestamp", "size": None,
-                       "nullable": False, "default": None, "references": None,
-                   },
-                   {
-                       "name": "sync_end", "type": "timestamp", "size": None,
-                       "nullable": False, "default": None, "references": None,
-                   },
-                   {
-                       "name": "message", "type": "varchar", "size": 2000,
-                       "nullable": False, "default": None, "references": None,
-                   },
-               ],
-               "primary_key": ["data_sync_id", "sync_start"],
-               "table_name": "super_table",
-               "schema": "prod",
-               "alter": {}
-           }
-       ]
-
-Or one more example
-
-.. code-block:: sql
-
-
-   CREATE TABLE "paths" (
-     "id" int PRIMARY KEY,
-     "title" varchar NOT NULL,
-     "description" varchar(160),
-     "created_at" timestamp,
-     "updated_at" timestamp
-   );
-
-and result
-
-.. code-block:: python
-
-           [{
-           'columns': [
-               {'name': 'id', 'type': 'int', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
-               {'name': 'title', 'type': 'varchar', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
-               {'name': 'description', 'type': 'varchar', 'nullable': False, 'size': 160, 'default': None, 'references': None}, 
-               {'name': 'created_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}, 
-               {'name': 'updated_at', 'type': 'timestamp', 'nullable': False, 'size': None, 'default': None, 'references': None}], 
-           'primary_key': ['id'], 
-           'table_name': 'paths', 
-           'schema': None,
-           'alter': {}
-           }]
-
-If you pass file or text block with more when 1 CREATE TABLE statement when result will be list of such dicts. For example:
-
-Input:
-
-.. code-block:: sql
-
-
-   CREATE TABLE "countries" (
-     "id" int PRIMARY KEY,
-     "code" varchar(4) NOT NULL,
-     "name" varchar NOT NULL
-   );
-
-   CREATE TABLE "path_owners" (
-     "user_id" int,
-     "path_id" int,
-     "type" int DEFAULT 1
-   );
-
-Output:
-
-.. code-block:: python
-
-
-       [
-           {'columns': [
-               {'name': 'id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
-               {'name': 'code', 'type': 'varchar', 'size': 4, 'nullable': False, 'default': None, 'references': None}, 
-               {'name': 'name', 'type': 'varchar', 'size': None, 'nullable': False, 'default': None, 'references': None}], 
-            'primary_key': ['id'], 
-            'table_name': 'countries', 
-            'schema': None}, 
-           {'columns': [
-               {'name': 'user_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
-               {'name': 'path_id', 'type': 'int', 'size': None, 'nullable': False, 'default': None, 'references': None}, 
-               {'name': 'type', 'type': 'int', 'size': None, 'nullable': False, 'default': 1, 'references': None}], 
-            'primary_key': [], 
-            'table_name': 'path_owners', 
-            'schema': None,
-            'alter': {}}
-       ]
+       {'table_name': 'Persons',
+       'index': [{'columns': ['ID'], 'index_name': 'person_pk', 'unique': True},
+                   {'columns': ['City', 'Country'],
+                   'index_name': 'person_ix2',
+                   'unique': False}],
+       'primary_key': [],
+       'schema': 'dev',
+       'alter': {'checks': [{'constraint_name': None,
+                           'statement': ['Age>=18', 'AND', "City='Sandnes'"]},
+                          {'constraint_name': 'ck_person',
+                           'statement': ['Age>=18', 'AND', "City='Sandnes'"]}],
+               'columns': [{'constraint_name': 'fk_group',
+                            'name': 'id',
+                            'references': {'column': 'id',
+                                           'schema': None,
+                                           'table': 'employees'}}]},
+     'checks': [{'constraint_name': 'CHK_Person',
+                 'statement': "Age>=19 AND City='Sandnes'"}],
+     'columns': [{'check': None,
+                  'default': None,
+                  'name': 'ID',
+                  'nullable': False,
+                  'references': None,
+                  'size': None,
+                  'type': 'int',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'LastName',
+                  'nullable': False,
+                  'references': None,
+                  'size': 255,
+                  'type': 'varchar',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'FirstName',
+                  'nullable': True,
+                  'references': None,
+                  'size': 255,
+                  'type': 'varchar',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'Age',
+                  'nullable': True,
+                  'references': None,
+                  'size': None,
+                  'type': 'int',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'City',
+                  'nullable': True,
+                  'references': None,
+                  'size': 255,
+                  'type': 'varchar',
+                  'unique': False},
+                 {'check': None,
+                  'default': None,
+                  'name': 'Country',
+                  'nullable': True,
+                  'references': None,
+                  'size': 255,
+                  'type': 'varchar',
+                  'unique': False}]
+                  }]
 
 SEQUENCES
 ^^^^^^^^^
@@ -301,10 +336,9 @@ Supported Statements
 ^^^^^^^^^^^^^^^^^^^^
 
 
-#. CREATE TABLE [ IF NOT EXISTS ]
-#. columns defenition, columns attributes:
-
-    2.0 column name + type + type size(for example, varchar(255))
+#. 
+   CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes:
+   2.0 column name + type + type size(for example, varchar(255))
 
     2.1 UNIQUE
 
@@ -318,9 +352,11 @@ Supported Statements
 
     2.6 REFERENCES
 
-#. PRRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
+#. 
+   PRRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
-#. ALTER TABLE:
+#. 
+   ALTER TABLE:
 
     4.1 ADD CHECK (with CONSTRAINT)
 
@@ -363,7 +399,12 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 Changelog
 ---------
 
-**v0.6.0** (not released, current master)
+**v0.6.1**
+
+
+#. Fix minor bug with schema in index statements
+
+**v0.6.0**
 
 
 #. Added support for SEQUENCE statemensts

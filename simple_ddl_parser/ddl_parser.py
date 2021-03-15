@@ -125,6 +125,7 @@ class DDLParser(Parser):
         """
         p[0] = p[1]
         p_list = list(p)
+        schema = None
         if "." in p_list:
             schema = p_list[-3]
             table_name = p_list[-1]
