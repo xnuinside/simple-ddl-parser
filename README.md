@@ -325,10 +325,8 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### Supported Statements
 
-1. CREATE TABLE [ IF NOT EXISTS ]
-2. columns defenition, columns attributes:
-
-    2.0 column name + type + type size(for example, varchar(255))
+1. CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes:
+2.0 column name + type + type size(for example, varchar(255))
 
     2.1 UNIQUE
 
@@ -382,7 +380,10 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
-**v0.6.0** (not released, current master)
+**v0.6.1**
+1. Fix minor bug with schema in index statements
+
+**v0.6.0**
 1. Added support for SEQUENCE statemensts
 2. Added support for ARRAYs in types
 3. Added support for CREATE INDEX statements

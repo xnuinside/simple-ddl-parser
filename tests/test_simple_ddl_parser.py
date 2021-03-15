@@ -948,3 +948,24 @@ def test_indexes_in_table():
     """).run()
     expected = [{'columns': [{'name': 'job_id', 'type': 'decimal', 'size': 21, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'pipeline_id', 'type': 'varchar', 'size': 100, 'references': None, 'unique': False, 'nullable': False, 'default': "'none'", 'check': None}, {'name': 'start_time', 'type': 'timestamp', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 'now', 'check': None}, {'name': 'end_time', 'type': 'timestamp', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 'now', 'check': None}, {'name': 'exitcode', 'type': 'smallint', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 0, 'check': None}, {'name': 'status', 'type': 'varchar', 'size': 25, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'elapse_time', 'type': 'float', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 0, 'check': None}, {'name': 'message', 'type': 'varchar', 'size': 1000, 'references': None, 'unique': False, 'nullable': False, 'default': "'none'", 'check': None}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [{'index_name': 'pipeline_pk', 'unique': True, 'columns': ['job_id']}, {'index_name': 'pipeline_ix2', 'unique': False, 'columns': ['pipeline_id', 'elapse_time', 'status']}], 'table_name': 'pipeline', 'schema': 'dev'}]
     assert expected == parse_results
+
+
+def test_indexes_in_table_wint_no_schema():
+    parse_results = DDLParser("""
+    drop table if exists pipeline ;
+    CREATE table dev.pipeline (
+            job_id               decimal(21) not null
+        ,pipeline_id          varchar(100) not null default 'none'
+        ,start_time           timestamp not null default now()
+        ,end_time             timestamp not null default now()
+        ,exitcode             smallint not null default 0
+        ,status               varchar(25) not null
+        ,elapse_time          float not null default 0
+        ,message              varchar(1000) not null default 'none'
+        ) ;
+    create unique index pipeline_pk on pipeline (job_id) ;
+    create index pipeline_ix2 on pipeline (pipeline_id, elapse_time, status) ;        
+    """).run()
+    expected = [{'columns': [
+        {'name': 'job_id', 'type': 'decimal', 'size': 21, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'pipeline_id', 'type': 'varchar', 'size': 100, 'references': None, 'unique': False, 'nullable': False, 'default': "'none'", 'check': None}, {'name': 'start_time', 'type': 'timestamp', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 'now', 'check': None}, {'name': 'end_time', 'type': 'timestamp', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 'now', 'check': None}, {'name': 'exitcode', 'type': 'smallint', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 0, 'check': None}, {'name': 'status', 'type': 'varchar', 'size': 25, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'elapse_time', 'type': 'float', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 0, 'check': None}, {'name': 'message', 'type': 'varchar', 'size': 1000, 'references': None, 'unique': False, 'nullable': False, 'default': "'none'", 'check': None}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [{'index_name': 'pipeline_pk', 'unique': True, 'columns': ['job_id']}, {'index_name': 'pipeline_ix2', 'unique': False, 'columns': ['pipeline_id', 'elapse_time', 'status']}], 'table_name': 'pipeline', 'schema': 'dev'}]
+    assert expected == parse_results
