@@ -82,7 +82,7 @@ def test_run_postgres_first_query():
             "schema": "prod",
             "alter": {},
             "checks": [],
-            'index': [],
+            "index": [],
             "primary_key": ["data_sync_id", "sync_start", "sync_end", "message"],
         }
     ]
@@ -153,7 +153,8 @@ def test_run_hql_query():
                     "references": None,
                 },
             ],
-            "primary_key": ["id"], 'index': [],
+            "primary_key": ["id"],
+            "index": [],
             "table_name": "paths",
             "schema": None,
             "alter": {},
@@ -227,7 +228,8 @@ def test_run_hql_query_caps_in_columns():
                     "references": None,
                 },
             ],
-            "primary_key": ["ID"], 'index': [],
+            "primary_key": ["ID"],
+            "index": [],
             "table_name": "paths",
             "schema": None,
             "alter": {},
@@ -289,7 +291,8 @@ def test_parser_multiple_tables():
                     "references": None,
                 },
             ],
-            "primary_key": ["id"], 'index': [],
+            "primary_key": ["id"],
+            "index": [],
             "table_name": "countries",
             "schema": None,
             "alter": {},
@@ -328,7 +331,8 @@ def test_parser_multiple_tables():
                     "unique": False,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "table_name": "path_owners",
             "schema": None,
             "alter": {},
@@ -370,7 +374,8 @@ def test_references():
                     "references": {"table": "users", "schema": None, "column": "id"},
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "table_name": "users_events",
             "schema": None,
             "alter": {},
@@ -385,7 +390,7 @@ def test_references_with_schema():
     create table prod.super_table
     (
         data_sync_id bigint not null default 0,
-        id_ref_from_another_table int REFERENCES other_schema.other_table (id) 
+        id_ref_from_another_table int REFERENCES other_schema.other_table (id),
         primary key (data_sync_id)
     );
 
@@ -418,7 +423,8 @@ def test_references_with_schema():
                     },
                 },
             ],
-            "primary_key": ["data_sync_id"], 'index': [],
+            "primary_key": ["data_sync_id"],
+            "index": [],
             "table_name": "super_table",
             "schema": "prod",
             "alter": {},
@@ -497,7 +503,8 @@ def test_unique_statement_in_columns():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {},
             "checks": [],
             "table_name": "steps",
@@ -574,7 +581,8 @@ def test_unique_statement_separate_line():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {},
             "checks": [],
             "table_name": "steps",
@@ -649,8 +657,19 @@ def test_check_in_column():
                     "default": None,
                     "check": "joined_date > birth_date",
                 },
+                {
+                    "name": "salary",
+                    "type": "numeric",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": "salary > 0",
+                },
             ],
-            "primary_key": ["id"], 'index': [],
+            "primary_key": ["id"],
+            "index": [],
             "alter": {},
             "checks": [],
             "table_name": "employees",
@@ -725,7 +744,8 @@ CHECK (LastName != FirstName)
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {},
             "checks": [],
             "checks": [{"name": None, "statement": "LastName != FirstName"}],
@@ -746,7 +766,7 @@ def test_check_with_constraint():
     FirstName varchar(255),
     Age int,
     City varchar(255),
-    CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
+    CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes'),
     CHECK (LastName != FirstName)
     );
     
@@ -805,7 +825,8 @@ def test_check_with_constraint():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {},
             "checks": [
                 {
@@ -920,7 +941,8 @@ def test_arrays():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {},
             "checks": [],
             "table_name": "arrays_2",
@@ -931,7 +953,8 @@ def test_arrays():
 
 
 def test_indexes_in_table():
-    parse_results = DDLParser("""
+    parse_results = DDLParser(
+        """
     drop table if exists dev.pipeline ;
     CREATE table dev.pipeline (
             job_id               decimal(21) not null
@@ -945,15 +968,115 @@ def test_indexes_in_table():
         ) ;
     create unique index pipeline_pk on dev.pipeline (job_id) ;
     create index pipeline_ix2 on dev.pipeline (pipeline_id, elapse_time, status) ;        
-    """).run()
-    expected = [{'columns': [{'name': 'job_id', 'type': 'decimal', 'size': 21, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'pipeline_id', 'type': 'varchar', 'size': 100, 'references': None, 'unique': False, 'nullable': False, 'default': "'none'", 'check': None}, {'name': 'start_time', 'type': 'timestamp', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 'now', 'check': None}, {'name': 'end_time', 'type': 'timestamp', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 'now', 'check': None}, {'name': 'exitcode', 'type': 'smallint', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 0, 'check': None}, {'name': 'status', 'type': 'varchar', 'size': 25, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'elapse_time', 'type': 'float', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 0, 'check': None}, {'name': 'message', 'type': 'varchar', 'size': 1000, 'references': None, 'unique': False, 'nullable': False, 'default': "'none'", 'check': None}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [{'index_name': 'pipeline_pk', 'unique': True, 'columns': ['job_id']}, {'index_name': 'pipeline_ix2', 'unique': False, 'columns': ['pipeline_id', 'elapse_time', 'status']}], 'table_name': 'pipeline', 'schema': 'dev'}]
+    """
+    ).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "job_id",
+                    "type": "decimal",
+                    "size": 21,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "pipeline_id",
+                    "type": "varchar",
+                    "size": 100,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "'none'",
+                    "check": None,
+                },
+                {
+                    "name": "start_time",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "now()",
+                    "check": None,
+                },
+                {
+                    "name": "end_time",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "now()",
+                    "check": None,
+                },
+                {
+                    "name": "exitcode",
+                    "type": "smallint",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": 0,
+                    "check": None,
+                },
+                {
+                    "name": "status",
+                    "type": "varchar",
+                    "size": 25,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "elapse_time",
+                    "type": "float",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": 0,
+                    "check": None,
+                },
+                {
+                    "name": "message",
+                    "type": "varchar",
+                    "size": 1000,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "'none'",
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [
+                {"index_name": "pipeline_pk", "unique": True, "columns": ["job_id"]},
+                {
+                    "index_name": "pipeline_ix2",
+                    "unique": False,
+                    "columns": ["pipeline_id", "elapse_time", "status"],
+                },
+            ],
+            "table_name": "pipeline",
+            "schema": "dev",
+        }
+    ]
     assert expected == parse_results
 
 
 def test_indexes_in_table_wint_no_schema():
-    parse_results = DDLParser("""
+    parse_results = DDLParser(
+        """
     drop table if exists pipeline ;
-    CREATE table dev.pipeline (
+    CREATE table pipeline (
             job_id               decimal(21) not null
         ,pipeline_id          varchar(100) not null default 'none'
         ,start_time           timestamp not null default now()
@@ -965,7 +1088,105 @@ def test_indexes_in_table_wint_no_schema():
         ) ;
     create unique index pipeline_pk on pipeline (job_id) ;
     create index pipeline_ix2 on pipeline (pipeline_id, elapse_time, status) ;        
-    """).run()
-    expected = [{'columns': [
-        {'name': 'job_id', 'type': 'decimal', 'size': 21, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'pipeline_id', 'type': 'varchar', 'size': 100, 'references': None, 'unique': False, 'nullable': False, 'default': "'none'", 'check': None}, {'name': 'start_time', 'type': 'timestamp', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 'now', 'check': None}, {'name': 'end_time', 'type': 'timestamp', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 'now', 'check': None}, {'name': 'exitcode', 'type': 'smallint', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 0, 'check': None}, {'name': 'status', 'type': 'varchar', 'size': 25, 'references': None, 'unique': False, 'nullable': False, 'default': None, 'check': None}, {'name': 'elapse_time', 'type': 'float', 'size': None, 'references': None, 'unique': False, 'nullable': False, 'default': 0, 'check': None}, {'name': 'message', 'type': 'varchar', 'size': 1000, 'references': None, 'unique': False, 'nullable': False, 'default': "'none'", 'check': None}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [{'index_name': 'pipeline_pk', 'unique': True, 'columns': ['job_id']}, {'index_name': 'pipeline_ix2', 'unique': False, 'columns': ['pipeline_id', 'elapse_time', 'status']}], 'table_name': 'pipeline', 'schema': 'dev'}]
+    """
+    ).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "job_id",
+                    "type": "decimal",
+                    "size": 21,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "pipeline_id",
+                    "type": "varchar",
+                    "size": 100,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "'none'",
+                    "check": None,
+                },
+                {
+                    "name": "start_time",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "now()",
+                    "check": None,
+                },
+                {
+                    "name": "end_time",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "now()",
+                    "check": None,
+                },
+                {
+                    "name": "exitcode",
+                    "type": "smallint",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": 0,
+                    "check": None,
+                },
+                {
+                    "name": "status",
+                    "type": "varchar",
+                    "size": 25,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "elapse_time",
+                    "type": "float",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": 0,
+                    "check": None,
+                },
+                {
+                    "name": "message",
+                    "type": "varchar",
+                    "size": 1000,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "'none'",
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [
+                {"index_name": "pipeline_pk", "unique": True, "columns": ["job_id"]},
+                {
+                    "index_name": "pipeline_ix2",
+                    "unique": False,
+                    "columns": ["pipeline_id", "elapse_time", "status"],
+                },
+            ],
+            "table_name": "pipeline",
+            "schema": None,
+        }
+    ]
     assert expected == parse_results
