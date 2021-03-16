@@ -8,10 +8,9 @@ def get_table_from_tables_data(
 ) -> Dict:
 
     target_table = tables_dict.get(table_id)
-    print(statement)
     if target_table is None:
         raise ValueError(
-            f"Found ALTER statement to not existed TABLE {statement['alter_table_name']} with SCHEMA {statement['schema']}"
+            f"Found ALTER statement to not existed TABLE {table_id[0]} with SCHEMA {table_id[1]}"
         )
     return target_table
 
@@ -32,10 +31,7 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
     if "columns" in statement:
         alter_columns = []
         for num, column in enumerate(statement["columns"]):
-
-            if isinstance(statement["references"]["column"], str):
-                statement["references"]["column"] = [statement["references"]["column"]]
-            column_reference = statement["references"]["column"][num]
+            column_reference = statement["references"]["columns"][num]
             alter_column = {
                 "name": column["name"],
                 "constraint_name": column.get("constraint_name"),
@@ -76,7 +72,6 @@ def result_format(result: List[Dict]) -> List[Dict]:
             "index": [],
         }
         sequence = False
-        print(result)
         if len(table) == 1 and "index_name" in table[0]:
             tables_dict = add_index_to_table(tables_dict, table[0])
         elif len(table) == 1 and "alter_table_name" in table[0]:

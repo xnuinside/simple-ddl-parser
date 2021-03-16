@@ -1000,7 +1000,7 @@ def test_indexes_in_table():
                     "references": None,
                     "unique": False,
                     "nullable": False,
-                    "default": "now",
+                    "default": "now()",
                     "check": None,
                 },
                 {
@@ -1010,7 +1010,7 @@ def test_indexes_in_table():
                     "references": None,
                     "unique": False,
                     "nullable": False,
-                    "default": "now",
+                    "default": "now()",
                     "check": None,
                 },
                 {
@@ -1120,7 +1120,7 @@ def test_indexes_in_table_wint_no_schema():
                     "references": None,
                     "unique": False,
                     "nullable": False,
-                    "default": "now",
+                    "default": "now()",
                     "check": None,
                 },
                 {
@@ -1130,7 +1130,7 @@ def test_indexes_in_table_wint_no_schema():
                     "references": None,
                     "unique": False,
                     "nullable": False,
-                    "default": "now",
+                    "default": "now()",
                     "check": None,
                 },
                 {
