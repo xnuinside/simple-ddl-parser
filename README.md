@@ -325,28 +325,11 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### Supported Statements
 
-1. CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes:
-2.0 column name + type + type size(for example, varchar(255))
+- CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES
 
-    2.1 UNIQUE
+- STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
-    2.2 PRIMARY KEY
-
-    2.3 DEFAULT
-
-    2.4 CHECK
-
-    2.5 NULL/NOT NULL
-
-    2.6 REFERENCES
-
-3. PRRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
-
-4. ALTER TABLE:
-
-    4.1 ADD CHECK (with CONSTRAINT)
-
-    4.2 ADD FOREIGN KEY (with CONSTRAINT)
+- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT)
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 

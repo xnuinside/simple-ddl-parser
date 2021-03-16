@@ -3,9 +3,12 @@ import json
 from typing import Dict, List, Union, Tuple
 
 
-def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str], statement: Dict) -> Dict:
-    
+def get_table_from_tables_data(
+    tables_dict: Dict, table_id: Tuple[str, str], statement: Dict
+) -> Dict:
+
     target_table = tables_dict.get(table_id)
+    print(statement)
     if target_table is None:
         raise ValueError(
             f"Found ALTER statement to not existed TABLE {statement['alter_table_name']} with SCHEMA {statement['schema']}"
@@ -14,12 +17,12 @@ def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str], sta
 
 
 def add_index_to_table(tables_dict: Dict, statement: Dict) -> Dict:
-    
+
     table_id = (statement["table_name"], statement["schema"])
     target_table = get_table_from_tables_data(tables_dict, table_id, statement)
-    del statement['schema']
-    del statement['table_name']
-    target_table['index'].append(statement)
+    del statement["schema"]
+    del statement["table_name"]
+    target_table["index"].append(statement)
     return tables_dict
 
 
@@ -65,8 +68,15 @@ def result_format(result: List[Dict]) -> List[Dict]:
     final_result = []
     tables_dict = {}
     for table in result:
-        table_data = {"columns": [], "primary_key": None, "alter": {}, "checks": [], "index": []}
+        table_data = {
+            "columns": [],
+            "primary_key": None,
+            "alter": {},
+            "checks": [],
+            "index": [],
+        }
         sequence = False
+        print(result)
         if len(table) == 1 and "index_name" in table[0]:
             tables_dict = add_index_to_table(tables_dict, table[0])
         elif len(table) == 1 and "alter_table_name" in table[0]:
@@ -78,16 +88,13 @@ def result_format(result: List[Dict]) -> List[Dict]:
                     sequence = True
                     continue
                 elif item.get("table_name"):
-                    table_data["table_name"] = item["table_name"]
-                    table_data["schema"] = item["schema"]
-                elif not item.get("type") and item.get("primary_key"):
-                    table_data["primary_key"] = item["primary_key"]
-                elif not item.get("type") and item.get("unique"):
-                    table_data["unique"] = item["unique"]
-                elif not item.get("type") and item.get("check"):
-                    table_data = set_checks_to_table(table_data, item["check"])
-                else:
-                    table_data["columns"].append(item)
+                    table_data.update(item)
+                    if "unique_statement" in table_data:
+                        for column in table_data["columns"]:
+                            if column["name"] in table_data["unique_statement"]:
+                                column["unique"] = True
+                        del table_data["unique_statement"]
+
             if not sequence:
                 if table_data.get("table_name"):
                     tables_dict[

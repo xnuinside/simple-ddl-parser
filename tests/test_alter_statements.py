@@ -94,7 +94,8 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
             ],
-            "primary_key": ["id"], 'index': [],
+            "primary_key": ["id"],
+            "index": [],
             "alter": {},
             "checks": [],
             "table_name": "materials",
@@ -123,7 +124,8 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {
                 "columns": [
                     {
@@ -203,7 +205,8 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
             ],
-            "primary_key": ["id"], 'index': [],
+            "primary_key": ["id"],
+            "index": [],
             "alter": {},
             "checks": [],
             "table_name": "attachments",
@@ -281,7 +284,8 @@ def test_alter_check():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {"checks": [{"constraint_name": None, "statement": ["Age>=18"]}]},
             "checks": [],
             "table_name": "Persons",
@@ -368,8 +372,19 @@ def test_alter_check_combine_all_variants():
                     "default": None,
                     "check": "joined_date > birth_date",
                 },
+                {
+                    "check": "salary > 0",
+                    "default": None,
+                    "name": "salary",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "numeric",
+                    "unique": False,
+                },
             ],
-            "primary_key": ["id"], 'index': [],
+            "primary_key": ["id"],
+            "index": [],
             "alter": {},
             "checks": [],
             "table_name": "employees",
@@ -428,7 +443,8 @@ def test_alter_check_combine_all_variants():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {"checks": [{"constraint_name": None, "statement": ["Age>=18"]}]},
             "checks": [
                 {
@@ -513,7 +529,8 @@ def test_alter_check_with_constraint():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {
                 "checks": [
                     {
@@ -601,7 +618,8 @@ def test_alter_foreiggn_with_constraint():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {
                 "columns": [
                     {
@@ -698,7 +716,8 @@ def test_alter_without_constraint_and_constraint_in_table():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {
                 "checks": [
                     {
@@ -800,8 +819,19 @@ def test_combo_with_alter_and_table_constraints():
                     "default": None,
                     "check": "joined_date > birth_date",
                 },
+                {
+                    "check": "salary > 0",
+                    "default": None,
+                    "name": "salary",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "numeric",
+                    "unique": False,
+                },
             ],
-            "primary_key": ["id"], 'index': [],
+            "primary_key": ["id"],
+            "index": [],
             "alter": {},
             "checks": [],
             "table_name": "employees",
@@ -860,7 +890,8 @@ def test_combo_with_alter_and_table_constraints():
                     "check": None,
                 },
             ],
-            "primary_key": [], 'index': [],
+            "primary_key": [],
+            "index": [],
             "alter": {
                 "checks": [
                     {
