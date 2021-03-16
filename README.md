@@ -363,6 +363,11 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.7.0**
+1. Redone logic of parse CREATE TABLE statements, now they parsed as one statement (not line by line as previous)
+2. Fixed several minor bugs with edge cases in default values and checks
+3. Added support for ALTER FOREIGN KEY statement for several fields in one statement
+
 **v0.6.1**
 1. Fix minor bug with schema in index statements
 
