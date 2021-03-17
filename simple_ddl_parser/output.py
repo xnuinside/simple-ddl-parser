@@ -63,7 +63,6 @@ def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
 def result_format(result: List[Dict]) -> List[Dict]:
     final_result = []
     tables_dict = {}
-    print(result, 'result')
     for table in result:
         table_data = {
             "columns": [],

@@ -352,6 +352,7 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 #. Provide API to get result as Python Object
 #. Add online demo (UI) to parse ddl
 #. Ignore block comments with ``/* ... */`` in DDLs
+#. Add support for PARTITION statement
 
 Historical context
 ^^^^^^^^^^^^^^^^^^
