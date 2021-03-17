@@ -335,6 +335,8 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 1. Provide API to get result as Python Object
 2. Add online demo (UI) to parse ddl
+3. Ignore block comments with `/* ... */` in DDLs
+4. Add support for PARTITION statement
 
 ### Historical context
 
@@ -363,6 +365,10 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+
+**v0.7.1**
+1. Ignore inline with '--' comments
+
 **v0.7.0**
 1. Redone logic of parse CREATE TABLE statements, now they parsed as one statement (not line by line as previous)
 2. Fixed several minor bugs with edge cases in default values and checks

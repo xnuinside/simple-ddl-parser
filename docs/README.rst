@@ -351,6 +351,7 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 
 #. Provide API to get result as Python Object
 #. Add online demo (UI) to parse ddl
+#. Ignore block comments with ``/* ... */`` in DDLs
 
 Historical context
 ^^^^^^^^^^^^^^^^^^
@@ -381,6 +382,11 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 
 Changelog
 ---------
+
+**v0.7.1**
+
+
+#. Ignore inline with '--' comments
 
 **v0.7.0**
 

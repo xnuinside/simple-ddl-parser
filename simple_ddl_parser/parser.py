@@ -28,6 +28,8 @@ class Parser:
         table = []
         statement = None
         for line in self.data.split("\n"):
+            if '--' in line:
+                line = line.split('--')[0]
             if line.replace("\n", "").replace("\t", ""):
                 # to avoid issues when comma are glued to column name
                 line = line.replace(",", " , ").replace("(", " ( ").replace(")", " ) ")
