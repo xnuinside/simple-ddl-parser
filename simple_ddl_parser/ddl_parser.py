@@ -538,3 +538,21 @@ def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
     """ get useful data from ddl """
     with open(file_path, "r") as df:
         return DDLParser(df.read()).run(file_path=file_path, **kwargs)
+
+
+parse_results = DDLParser("""
+                          drop table if exists v2.entitlement_requests ;
+CREATE table v2.entitlement_requests (
+    job_id                decimal(21) not null
+   ,id                    varchar(100) not null -- group_id or role_id
+   ,request_time          timestamp not null default now()
+   ,status_update_time    timestamp null 
+   ,status                varchar(10) not null default 'requested'
+   ,notes                 varchar(2000) not null default 'none'
+) ;
+create unique index entitlement_requests_pk on v2.entitlement_requests (job_id, id) ;
+                          
+                          
+                          """).run()
+
+print(parse_results)

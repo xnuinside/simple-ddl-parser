@@ -1190,3 +1190,125 @@ def test_indexes_in_table_wint_no_schema():
         }
     ]
     assert expected == parse_results
+
+
+def test_inline_comment():
+    parse_result = DDLParser(
+        """
+                          drop table if exists user_history ;
+    CREATE table user_history (
+        runid                 decimal(21) not null
+    ,job_id                decimal(21) not null
+    ,id                    varchar(100) not null -- group_id or role_id
+    ,user              varchar(100) not null
+    ,status                varchar(10) not null
+    ,event_time            timestamp not null default now()
+    ,comment           varchar(1000) not null default 'none'
+    ) ;
+    create unique index user_history_pk on user_history (runid) ;
+    create index user_history_ix2 on user_history (job_id) ;
+    create index user_history_ix3 on user_history (id) ;
+                            
+                            
+                            
+                            """
+    ).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "runid",
+                    "type": "decimal",
+                    "size": 21,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "job_id",
+                    "type": "decimal",
+                    "size": 21,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "id",
+                    "type": "varchar",
+                    "size": 100,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "user",
+                    "type": "varchar",
+                    "size": 100,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "status",
+                    "type": "varchar",
+                    "size": 10,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "event_time",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "now()",
+                    "check": None,
+                },
+                {
+                    "name": "comment",
+                    "type": "varchar",
+                    "size": 1000,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "'none'",
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [
+                {
+                    "index_name": "user_history_pk",
+                    "unique": True,
+                    "columns": ["runid"],
+                },
+                {
+                    "index_name": "user_history_ix2",
+                    "unique": False,
+                    "columns": ["job_id"],
+                },
+                {
+                    "index_name": "user_history_ix3",
+                    "unique": False,
+                    "columns": ["id"],
+                },
+            ],
+            "schema": None,
+            "table_name": "user_history",
+        }
+    ]
+    assert expected == parse_result
