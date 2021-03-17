@@ -336,6 +336,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 1. Provide API to get result as Python Object
 2. Add online demo (UI) to parse ddl
 3. Ignore block comments with `/* ... */` in DDLs
+4. Add support for PARTITION statement
 
 ### Historical context
 
