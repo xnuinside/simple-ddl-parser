@@ -4,6 +4,22 @@
 
 Build with ply (lex & yacc in python). A lot of samples in 'tests/'
 
+### How does it work?
+
+Parser tested on different DDLs for PostgreSQL & Hive. But idea to support as much as possible DDL dialects, I already added such things as support  MySQL '#' comments. If you need to add something - please provide DDL example & information abotu that is it SQL dialect & DB.
+
+Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
+
+```sql
+Alter Table Persons ADD CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes');
+```
+It will be parsed as is without errors.
+
+If you have samples that cause an error - please open the issue (but don't forget to add ddl example), I will be glad to fix it.
+
+A lot of statements and output result you can find in tests on the github - https://github.com/xnuinside/simple-ddl-parser/tree/main/tests .
+
+
 ### How to install
 
 ```bash
@@ -86,23 +102,7 @@ You can provide target path where you want to dump result with argument **-t**, 
     sdp tests/sql/test_two_tables.sql -t dump_results/
     
 ```
-
-### How does it work?
-
-Parser tested on different DDLs for PostgreSQL & Hive.
-Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
-
-```sql
-Alter Table Persons ADD CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes');
-```
-It will be parsed as is without errors.
-
-If you have samples that cause an error - please open the issue (but don't forget to add ddl example), I will be glad to fix it.
-
-A lot of statements and output result you can find in tests, for example:
-
-[test_alter_statements.py](tests/test_alter_statements.py) 
-
+### More details
 
 This parser take as input SQL DDL statements or files, for example like this:
 
@@ -335,6 +335,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 1. Add support for CREATE VIEW statement
 2. Add support for PARTITION statement
+3. Add support CREATE TABLE ... LIKE statement
 3. Provide API to get result as Python Object
 4. Add online demo (UI) to parse ddl
 
@@ -365,6 +366,9 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.7.3**
+1. Added support `/* ... */` block comments
+2. Added support for Mysql '#' comments
 
 **v0.7.1**
 1. Ignore inline with '--' comments

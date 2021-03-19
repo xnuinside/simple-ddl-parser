@@ -28,8 +28,12 @@ class Parser:
         OP_COM = '/*'
         CL_COM = '*/'
         IN_COM = '--'
+        MYSQL_COM = '#'
         code_line = ""
         
+        if line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM):
+            return code_line, block_comments
+         
         if CL_COM not in line and OP_COM not in line and IN_COM not in line:
             return line, block_comments
         if IN_COM in line:
@@ -49,7 +53,6 @@ class Parser:
         statement = None
         for line in self.data.split("\n"):
             line, block_comments = self.pre_process_line(line, block_comments)
-            print(line, 'line')
             if line.replace("\n", "").replace("\t", ""):
                 # to avoid issues when comma are glued to column name
                 line = line.replace(",", " , ").replace("(", " ( ").replace(")", " ) ")
@@ -63,7 +66,6 @@ class Parser:
                     statement = line
                 if ";" not in statement:
                     continue
-                print(statement, 'statement')
                 _parse_result = yacc.parse(statement)
                 if _parse_result:
                     table.append(_parse_result)
