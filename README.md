@@ -335,6 +335,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 1. Add support for CREATE VIEW statement
 2. Add support for PARTITION statement
+3. Add support CREATE TABLE ... LIKE statement
 3. Provide API to get result as Python Object
 4. Add online demo (UI) to parse ddl
 
@@ -365,6 +366,9 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.7.3**
+1. Added support `/* ... */` block comments
+2. Added support for Mysql '#' comments
 
 **v0.7.1**
 1. Ignore inline with '--' comments
