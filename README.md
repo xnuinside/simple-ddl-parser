@@ -333,10 +333,10 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
-1. Provide API to get result as Python Object
-2. Add online demo (UI) to parse ddl
-3. Ignore block comments with `/* ... */` in DDLs
-4. Add support for PARTITION statement
+1. Add support for CREATE VIEW statement
+2. Add support for PARTITION statement
+3. Provide API to get result as Python Object
+4. Add online demo (UI) to parse ddl
 
 ### Historical context
 
