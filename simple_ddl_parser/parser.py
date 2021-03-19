@@ -1,6 +1,6 @@
 import os
 from ply import lex, yacc
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from simple_ddl_parser.output import dump_data_to_file, result_format
 
 
@@ -23,13 +23,33 @@ class Parser:
         self.lexer = lex.lex(object=self, debug=False)
         self.yacc = yacc.yacc(module=self, debug=False)
 
+    @staticmethod
+    def pre_process_line(line: str, block_comments: List[str]) -> Tuple[str, List]:
+        OP_COM = '/*'
+        CL_COM = '*/'
+        IN_COM = '--'
+        code_line = ""
+        
+        if CL_COM not in line and OP_COM not in line and IN_COM not in line:
+            return line, block_comments
+        if IN_COM in line:
+            code_line = line.split(IN_COM)[0]
+        if OP_COM in line:
+            code_line += line.split(OP_COM)[0]
+            block_comments.append(OP_COM)
+        if CL_COM in code_line and block_comments:
+            block_comments.pop(-1)
+            code_line += code_line.split(CL_COM)[1]
+        return code_line, block_comments
+                    
     def parse_data(self):
         tables = []
         table = []
+        block_comments = []
         statement = None
         for line in self.data.split("\n"):
-            if '--' in line:
-                line = line.split('--')[0]
+            line, block_comments = self.pre_process_line(line, block_comments)
+            print(line, 'line')
             if line.replace("\n", "").replace("\t", ""):
                 # to avoid issues when comma are glued to column name
                 line = line.replace(",", " , ").replace("(", " ( ").replace(")", " ) ")
@@ -43,6 +63,7 @@ class Parser:
                     statement = line
                 if ";" not in statement:
                     continue
+                print(statement, 'statement')
                 _parse_result = yacc.parse(statement)
                 if _parse_result:
                     table.append(_parse_result)
