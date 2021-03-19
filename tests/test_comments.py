@@ -194,3 +194,78 @@ def test_block_comments():
         }
     ]
     assert expected == parse_result
+
+def test_mysql_comments_support():
+    ddl = """
+        # this is mysql comment1
+        
+    /* outer comment start
+    bla bla bla
+    /* inner comment */
+    select a from b
+
+    outer comment end */
+    create table A(/* 
+            inner comment2 */
+        data_sync_id bigint not null ,
+        sync_start timestamp  not null,
+        sync_end timestamp  not null,
+    # this is mysql comment2
+        message varchar(2000),
+        primary key (data_sync_id, sync_start, sync_end, message)
+    );
+    """
+    parse_result = DDLParser(ddl).run()
+    expected = expected = [
+        {
+            "columns": [
+                {
+                    "name": "data_sync_id",
+                    "type": "bigint",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "sync_start",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "sync_end",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "message",
+                    "type": "varchar",
+                    "size": 2000,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": ["data_sync_id", "sync_start", "sync_end", "message"],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "schema": None,
+            "table_name": "A",
+        }
+    ]
+    assert expected == parse_result
