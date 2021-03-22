@@ -2,6 +2,7 @@ import os
 from ply import lex, yacc
 from typing import Dict, List, Optional, Tuple
 from simple_ddl_parser.output import dump_data_to_file, result_format
+import re
 
 
 class Parser:
@@ -33,11 +34,12 @@ class Parser:
         
         if line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM):
             return code_line, block_comments
-         
-        if CL_COM not in line and OP_COM not in line and IN_COM not in line:
-            return line, block_comments
         if IN_COM in line:
+            if re.search(r'((\")|(\'))+(.)*(--)+', line):
+                return line, block_comments
             code_line = line.split(IN_COM)[0]
+        elif CL_COM not in line and OP_COM not in line:
+            return line, block_comments
         if OP_COM in line:
             code_line += line.split(OP_COM)[0]
             block_comments.append(OP_COM)
