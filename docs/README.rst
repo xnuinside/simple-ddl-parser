@@ -390,7 +390,7 @@ Changelog
 **v0.7.4**
 
 
-#. Added support ``/* ... */`` block comments
+#. Fix behaviour with -- in strings. Allow calid table name like 'table--name'
 
 **v0.7.3**
 

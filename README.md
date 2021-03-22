@@ -367,7 +367,7 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 
 ## Changelog
 **v0.7.4**
-1. Added support `/* ... */` block comments
+1. Fix behaviour with -- in strings. Allow calid table name like 'table--name'
 
 **v0.7.3**
 1. Added support `/* ... */` block comments
