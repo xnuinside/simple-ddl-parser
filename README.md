@@ -366,6 +366,9 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.7.4**
+1. Added support `/* ... */` block comments
+
 **v0.7.3**
 1. Added support `/* ... */` block comments
 2. Added support for Mysql '#' comments

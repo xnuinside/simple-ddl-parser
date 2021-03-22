@@ -195,6 +195,7 @@ def test_block_comments():
     ]
     assert expected == parse_result
 
+
 def test_mysql_comments_support():
     ddl = """
         # this is mysql comment1
@@ -266,6 +267,95 @@ def test_mysql_comments_support():
             "index": [],
             "schema": None,
             "table_name": "A",
+        }
+    ]
+    assert expected == parse_result
+
+
+def test_two_defices_in_string_work_ok():
+
+    ddl = """
+    CREATE TABLE "my--custom--schema"."users" (
+    "id" SERIAL PRIMARY KEY,
+    "name" varchar,
+    "created_at" timestamp,
+    "updated_at" timestamp,
+    "country_code" int,
+    "default_language" int
+    );
+    """
+    parse_result = DDLParser(ddl).run()
+
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "SERIAL",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "name",
+                    "type": "varchar",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "country_code",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "default_language",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": ["id"],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "schema": "my--custom--schema",
+            "table_name": "users",
         }
     ]
     assert expected == parse_result

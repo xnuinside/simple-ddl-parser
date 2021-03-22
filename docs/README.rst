@@ -387,6 +387,11 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 Changelog
 ---------
 
+**v0.7.4**
+
+
+#. Added support ``/* ... */`` block comments
+
 **v0.7.3**
 
 
