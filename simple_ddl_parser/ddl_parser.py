@@ -43,9 +43,13 @@ class DDLParser(Parser):
     }
     after_columns_tokens = {
         "PARTITIONED": "PARTITIONED",
-        "BY": "BY"
+        "BY": "BY",
+        "STORED": "STORED",
+        "AS": "AS", 
+        "LOCATION": "LOCATION"
     }
     sequence = False
+    last_token = False
     sequence_reserved = {
         "INCREMENT": "INCREMENT",
         "START": "START",
@@ -60,11 +64,11 @@ class DDLParser(Parser):
         + list(after_columns_tokens.values())
     )
 
-    t_ignore = '\t;  "\r'
+    t_ignore = ';\t  "\r'
     t_DOT = r"."
     
     def t_STRING(self, t):
-        r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\/]*\'\B"
+        r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\//]*\'\B"
         t.type = 'STRING'
         return t
         
@@ -81,16 +85,10 @@ class DDLParser(Parser):
         if t.type == "CREATE":
             self.sequence = False
             self.is_table = False
-        print
-        if 'last_token' in self.__dict__:
-            print(self.last_token)
-            print('l')
-        
-        if ('last_token' in self.__dict__ and self.last_token == 'RP') or ('after_columns' in self.__dict__):
+        if self.last_token == 'RP' or 'after_columns' in self.__dict__:
             t.type = self.after_columns_tokens.get(t.value.upper(), t.type)
             if t.type != 'ID':
                 self.after_columns = True
-            print(t.type, 'type')
         elif self.sequence:
             t.type = self.sequence_reserved.get(t.value.upper(), "ID")
         elif "ARRAY" in t.value:
@@ -103,8 +101,6 @@ class DDLParser(Parser):
             self.sequence = True
         if t.type != "ID":
             t.value = t.value.upper()
-        print(t.value)
-        print(t.type)
         self.last_token = t.type
         return t
 
@@ -121,15 +117,27 @@ class DDLParser(Parser):
     def p_error(self, p):
         pass
     
+    def p_expression_location(self, p):
+        """ expr : expr LOCATION STRING
+        """
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]['location'] = p_list[-1]
+    
+    def p_expression_stored_as(self, p):
+        """ expr : expr STORED AS ID
+        """
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]['stored_as'] = p_list[-1]
+    
     def p_expression_partitioned_by(self, p):
         """ expr : expr PARTITIONED BY LP pid_with_type RP
         | expr PARTITIONED BY LP pid RP
         """
         p[0] = p[1]
         p_list = list(p)
-        print(p_list, 'p_list')
         p[0]['partitioned_by'] = p_list[-2]
-        print(p[0], 'PARTITIONED')
 
     def p_expression_drop_table(self, p):
         """expr : DROP TABLE ID
@@ -201,7 +209,6 @@ class DDLParser(Parser):
         """
         p[0] = p[1]
         p_list = list(p)
-        print(list(p))
         if p_list[-1] != "," and p_list[-1] != ")":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
@@ -215,9 +222,6 @@ class DDLParser(Parser):
                 p[0]["checks"].append(check)
             else:
                 p[0].update(p_list[-1])
-        if ')' == p_list[-1]:
-            self.columns_closed = True
-            print(self.columns_closed, 'aaaa')
 
     def p_table_name(self, p):
         """table_name : create_table ID DOT ID
@@ -301,7 +305,6 @@ class DDLParser(Parser):
             type_str = p[2]
             p[0] = {"name": p[1], "type": type_str, "size": size}
         p_list = remove_par(list(p))
-        print(p_list)
         
         if "[]" == p_list[-1]:
             p[0]["type"] = p[0]["type"] + "[]"
@@ -482,7 +485,6 @@ class DDLParser(Parser):
                 | COMMA column
         """
         p_list = list(p)
-        print(p_list)
         if not isinstance(p_list[1], list):
             p[0] = [p_list[1]]
         else:
@@ -495,7 +497,6 @@ class DDLParser(Parser):
                 | STRING
         """
         p_list = list(p)
-        print(p_list)
         if not isinstance(p_list[1], list):
             p[0] = [p_list[1]]
         else:

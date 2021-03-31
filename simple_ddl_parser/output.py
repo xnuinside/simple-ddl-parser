@@ -72,6 +72,10 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
             "index": [],
             "partitioned_by": []
         }
+        if output_mode == 'hql':
+            table_data.update({
+                'stored_as': None, 
+                'location': None})
         
         sequence = False
         if len(table) == 1 and "index_name" in table[0]:
@@ -115,6 +119,10 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
             if output_mode != 'hql':
                 if 'external' in table_data:
                     del table_data['external']
+                if 'stored_as' in table_data:
+                    del table_data['stored_as']
+                if 'location' in table_data:
+                    del table_data['location']
             final_result.append(table_data)
     return final_result
 
