@@ -117,6 +117,7 @@ def test_inline_comment():
                 },
             ],
             "schema": None,
+            "partitioned_by": [],
             "table_name": "user_history",
         }
     ]
@@ -190,6 +191,7 @@ def test_block_comments():
             "checks": [],
             "index": [],
             "schema": None,
+            "partitioned_by": [],
             "table_name": "A",
         }
     ]
@@ -266,6 +268,7 @@ def test_mysql_comments_support():
             "checks": [],
             "index": [],
             "schema": None,
+            "partitioned_by": [],
             "table_name": "A",
         }
     ]
@@ -355,6 +358,7 @@ def test_two_defices_in_string_work_ok():
             "checks": [],
             "index": [],
             "schema": "my--custom--schema",
+            "partitioned_by": [],
             "table_name": "users",
         }
     ]

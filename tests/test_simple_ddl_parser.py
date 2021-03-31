@@ -80,6 +80,7 @@ def test_run_postgres_first_query():
             ],
             "table_name": "super_table",
             "schema": "prod",
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
             "index": [],
@@ -157,6 +158,7 @@ def test_run_hql_query():
             "index": [],
             "table_name": "paths",
             "schema": None,
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         }
@@ -232,6 +234,7 @@ def test_run_hql_query_caps_in_columns():
             "index": [],
             "table_name": "paths",
             "schema": None,
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         }
@@ -295,6 +298,7 @@ def test_parser_multiple_tables():
             "index": [],
             "table_name": "countries",
             "schema": None,
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         },
@@ -335,6 +339,7 @@ def test_parser_multiple_tables():
             "index": [],
             "table_name": "path_owners",
             "schema": None,
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         },
@@ -378,6 +383,7 @@ def test_references():
             "index": [],
             "table_name": "users_events",
             "schema": None,
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         }
@@ -427,6 +433,7 @@ def test_references_with_schema():
             "index": [],
             "table_name": "super_table",
             "schema": "prod",
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         }
@@ -509,6 +516,7 @@ def test_unique_statement_in_columns():
             "checks": [],
             "table_name": "steps",
             "schema": None,
+            "partitioned_by": [],
         }
     ]
     assert DDLParser(ddl).run() == expected
@@ -587,6 +595,7 @@ def test_unique_statement_separate_line():
             "checks": [],
             "table_name": "steps",
             "schema": None,
+            "partitioned_by": [],
         }
     ]
 
@@ -674,6 +683,7 @@ def test_check_in_column():
             "checks": [],
             "table_name": "employees",
             "schema": None,
+            "partitioned_by": [],
         }
     ]
     assert expected == DDLParser(ddl).run()
@@ -751,6 +761,7 @@ CHECK (LastName != FirstName)
             "checks": [{"name": None, "statement": "LastName != FirstName"}],
             "table_name": "Persons",
             "schema": None,
+            "partitioned_by": [],
         }
     ]
 
@@ -837,6 +848,7 @@ def test_check_with_constraint():
             ],
             "table_name": "Persons",
             "schema": None,
+            "partitioned_by": [],
         }
     ]
     assert expected == DDLParser(ddl).run()
@@ -947,6 +959,7 @@ def test_arrays():
             "checks": [],
             "table_name": "arrays_2",
             "schema": None,
+            "partitioned_by": [],
         }
     ]
     assert expected == parse_results
@@ -1067,6 +1080,7 @@ def test_indexes_in_table():
             ],
             "table_name": "pipeline",
             "schema": "dev",
+            "partitioned_by": [],
         }
     ]
     assert expected == parse_results
@@ -1187,6 +1201,7 @@ def test_indexes_in_table_wint_no_schema():
             ],
             "table_name": "pipeline",
             "schema": None,
+            "partitioned_by": [],
         }
     ]
     assert expected == parse_results

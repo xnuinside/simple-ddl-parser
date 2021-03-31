@@ -60,7 +60,7 @@ def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
     return table_data
 
 
-def result_format(result: List[Dict]) -> List[Dict]:
+def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
     final_result = []
     tables_dict = {}
     for table in result:
@@ -70,7 +70,13 @@ def result_format(result: List[Dict]) -> List[Dict]:
             "alter": {},
             "checks": [],
             "index": [],
+            "partitioned_by": []
         }
+        if output_mode == 'hql':
+            table_data.update({
+                'stored_as': None, 
+                'location': None})
+        
         sequence = False
         if len(table) == 1 and "index_name" in table[0]:
             tables_dict = add_index_to_table(tables_dict, table[0])
@@ -110,6 +116,13 @@ def result_format(result: List[Dict]) -> List[Dict]:
                 for column in table_data["columns"]:
                     if column["name"] in table_data["primary_key"]:
                         column["nullable"] = False
+            if output_mode != 'hql':
+                if 'external' in table_data:
+                    del table_data['external']
+                if 'stored_as' in table_data:
+                    del table_data['stored_as']
+                if 'location' in table_data:
+                    del table_data['location']
             final_result.append(table_data)
     return final_result
 

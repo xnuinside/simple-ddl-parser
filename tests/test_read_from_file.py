@@ -71,6 +71,7 @@ def test_parse_from_file_one_table():
             "index": [],
             "table_name": "users",
             "schema": None,
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         }
@@ -150,6 +151,7 @@ def test_parse_from_file_two_statements():
             "index": [],
             "table_name": "users",
             "schema": None,
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         },
@@ -190,6 +192,7 @@ def test_parse_from_file_two_statements():
             "index": [],
             "table_name": "languages",
             "schema": None,
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
         },

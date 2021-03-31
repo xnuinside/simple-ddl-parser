@@ -30,6 +30,35 @@ A lot of statements and output result you can find in tests on the github - http
 
 ## How to use
 
+
+### Extract additional information from HQL (& other dialects)
+
+In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This propertie will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'. 
+
+To get this 'hql' specific details about table in output please use 'output_mode' argument in run() method.
+
+example:
+
+```python
+
+    ddl = """
+    CREATE EXTERNAL TABLE IF NOT EXISTS database.table_name
+    (
+        day_long_nm     string,
+        calendar_dt     date,
+        source_batch_id string,
+    ) PARTITIONED BY (batch_id int) STORED AS PARQUET LOCATION 's3://datalake/table_name/v1'
+
+    """
+
+    result = DDLParser(ddl).run(output_mode="hql")
+    print(result)
+```
+
+And you will get output with additional keys 'stored_as' and 'location'.
+
+If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
+
 ### From python code
 
 ```python
@@ -210,7 +239,7 @@ And produce output like this (information about table name, schema, columns, typ
                 'index_name': 'person_ix2',
                 'unique': False}],
     'primary_key': [],
-    'schema': 'dev',
+    'schema': 'dev', 'partitioned_by': [],
     'alter': {'checks': [{'constraint_name': None,
                         'statement': ['Age>=18', 'AND', "City='Sandnes'"]},
                        {'constraint_name': 'ck_person',
@@ -293,7 +322,7 @@ Will be output:
 
 ```python
     [
-        {'schema': 'dev', 'incremental_ids': 'document_id_seq', 'increment': 1, 'start': 1, 'minvalue': 1, 'maxvalue': 9223372036854775807, 'cache': 1}
+        {'schema': 'dev', 'partitioned_by': [], 'incremental_ids': 'document_id_seq', 'increment': 1, 'start': 1, 'minvalue': 1, 'maxvalue': 9223372036854775807, 'cache': 1}
     ]
 ```
 
@@ -334,10 +363,14 @@ You also can provide a path where you want to have a dumps with schema with argu
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
 1. Add support for CREATE VIEW statement
-2. Add support for PARTITION statement
-3. Add support CREATE TABLE ... LIKE statement
-3. Provide API to get result as Python Object
-4. Add online demo (UI) to parse ddl
+2. Add support CREATE TABLE ... LIKE statement
+3. Add support for REFERENCES ON (https://github.com/xnuinside/simple-ddl-parser/issues/18)
+4. Add support for HQL ROW FORMAT DELIMITED statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
+
+
+## non-feature todo
+0. Provide API to get result as Python Object
+1. Add online demo (UI) to parse ddl
 
 ### Historical context
 
@@ -366,6 +399,14 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.8.0**(current master, not released yet)
+1. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).
+Mode change result output. For example, in hql exists statement EXTERNAL. If you want to see in table information 
+is it EXTERNAL table or not - you need to set 'hql' output_mode.
+2. Added suppport for hql EXTERNAL statement, STORED AS statement, LOCATION statement
+3. Added suppport for PARTITIONED BY statement (for both hql & sql)
+
+
 **v0.7.4**
 1. Fix behaviour with -- in strings. Allow calid table name like 'table--name'
 

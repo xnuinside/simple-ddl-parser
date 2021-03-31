@@ -94,6 +94,7 @@ def test_sequence_and_table():
             "checks": [],
             "table_name": "countries",
             "schema": None,
+            "partitioned_by": [],
         },
     ]
     assert expected == parse_results
