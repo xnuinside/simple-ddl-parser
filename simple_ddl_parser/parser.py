@@ -57,20 +57,21 @@ class Parser:
         table = []
         block_comments = []
         statement = None
-        for line in self.data.split("\n"):
+        lines = self.data.split("\n")
+        for num, line in enumerate(lines):
             line, block_comments = self.pre_process_line(line, block_comments)
-            if line.replace("\n", "").replace("\t", ""):
+            if line.replace("\n", "").replace("\t", "") or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
                 if statement != None:
                     statement += f" {line}"
                 else:
                     statement = line
-                if ";" not in statement:
+                if ";" not in statement and num != len(lines) - 1:
                     continue
                 _parse_result = yacc.parse(statement)
                 if _parse_result:
                     table.append(_parse_result)
-                if line.strip().endswith(";"):
+                if line.strip().endswith(";") or num == len(lines) - 1:
                     if table:
                         tables.append(table)
                     table = []

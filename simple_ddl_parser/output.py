@@ -70,6 +70,7 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
             "alter": {},
             "checks": [],
             "index": [],
+            "partitioned_by": []
         }
         
         sequence = False

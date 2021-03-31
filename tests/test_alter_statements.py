@@ -96,10 +96,11 @@ def test_alter_table_initial_support():
             ],
             "primary_key": ["id"],
             "index": [],
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
             "table_name": "materials",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         },
         {
             "columns": [
@@ -126,6 +127,7 @@ def test_alter_table_initial_support():
             ],
             "primary_key": [],
             "index": [],
+            "partitioned_by": [],
             "alter": {
                 "columns": [
                     {
@@ -207,10 +209,11 @@ def test_alter_table_initial_support():
             ],
             "primary_key": ["id"],
             "index": [],
+            "partitioned_by": [],
             "alter": {},
             "checks": [],
             "table_name": "attachments",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         },
     ]
     parse_results = DDLParser(ddl).run()
@@ -289,7 +292,7 @@ def test_alter_check():
             "alter": {"checks": [{"constraint_name": None, "statement": ["Age>=18"]}]},
             "checks": [],
             "table_name": "Persons",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         }
     ]
 
@@ -388,7 +391,7 @@ def test_alter_check_combine_all_variants():
             "alter": {},
             "checks": [],
             "table_name": "employees",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         },
         {
             "columns": [
@@ -453,7 +456,7 @@ def test_alter_check_combine_all_variants():
                 }
             ],
             "table_name": "Persons",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         },
     ]
 
@@ -541,7 +544,7 @@ def test_alter_check_with_constraint():
             },
             "checks": [],
             "table_name": "Persons",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         }
     ]
     assert expected == parse_results
@@ -640,7 +643,7 @@ def test_alter_foreiggn_with_constraint():
                 }
             ],
             "table_name": "Persons",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         }
     ]
     assert parse_results == expected
@@ -733,7 +736,7 @@ def test_alter_without_constraint_and_constraint_in_table():
                 }
             ],
             "table_name": "Persons",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         }
     ]
     assert expected == parse_results
@@ -835,7 +838,7 @@ def test_combo_with_alter_and_table_constraints():
             "alter": {},
             "checks": [],
             "table_name": "employees",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         },
         {
             "columns": [
@@ -922,7 +925,7 @@ def test_combo_with_alter_and_table_constraints():
                 }
             ],
             "table_name": "Persons",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         },
     ]
     assert expected == parse_results
@@ -1020,7 +1023,7 @@ CREATE TABLE employees (
             "alter": {},
             "checks": [],
             "index": [],
-            "schema": None,
+            "schema": None, "partitioned_by": [],
             "table_name": "employees",
         },
         {
@@ -1125,7 +1128,7 @@ CREATE TABLE employees (
                 }
             ],
             "index": [],
-            "schema": None,
+            "schema": None, "partitioned_by": [],
             "table_name": "Persons",
         },
     ]
@@ -1224,7 +1227,7 @@ CREATE TABLE employees (
                 "alter": {},
                 "checks": [],
                 "index": [],
-                "schema": None,
+                "schema": None, "partitioned_by": [],
                 "table_name": "employees",
             },
             {
@@ -1329,7 +1332,7 @@ CREATE TABLE employees (
                     }
                 ],
                 "index": [],
-                "schema": None,
+                "schema": None, "partitioned_by": [],
                 "table_name": "Persons",
             },
         ]

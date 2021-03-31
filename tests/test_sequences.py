@@ -15,7 +15,7 @@ def test_only_sequence():
     ).run()
     expected = [
         {
-            "schema": "dev",
+            'schema': 'dev',
             "sequence_name": "incremental_ids",
             "increment": 1,
             "start": 1,
@@ -47,7 +47,7 @@ def test_sequence_and_table():
     ).run()
     expected = [
         {
-            "schema": "dev",
+            'schema': 'dev',
             "sequence_name": "incremental_ids",
             "increment": 10,
             "start": 0,
@@ -93,7 +93,7 @@ def test_sequence_and_table():
             "alter": {},
             "checks": [],
             "table_name": "countries",
-            "schema": None,
+            "schema": None, "partitioned_by": [],
         },
     ]
     assert expected == parse_results

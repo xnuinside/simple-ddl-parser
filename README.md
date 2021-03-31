@@ -210,7 +210,7 @@ And produce output like this (information about table name, schema, columns, typ
                 'index_name': 'person_ix2',
                 'unique': False}],
     'primary_key': [],
-    'schema': 'dev',
+    'schema': 'dev', 'partitioned_by': [],
     'alter': {'checks': [{'constraint_name': None,
                         'statement': ['Age>=18', 'AND', "City='Sandnes'"]},
                        {'constraint_name': 'ck_person',
@@ -293,7 +293,7 @@ Will be output:
 
 ```python
     [
-        {'schema': 'dev', 'incremental_ids': 'document_id_seq', 'increment': 1, 'start': 1, 'minvalue': 1, 'maxvalue': 9223372036854775807, 'cache': 1}
+        {'schema': 'dev', 'partitioned_by': [], 'incremental_ids': 'document_id_seq', 'increment': 1, 'start': 1, 'minvalue': 1, 'maxvalue': 9223372036854775807, 'cache': 1}
     ]
 ```
 
