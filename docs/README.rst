@@ -422,7 +422,7 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 Changelog
 ---------
 
-**v0.8.0**
+**v0.8.0**\ (current master, not released yet)
 
 
 #. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).

@@ -1,4 +1,4 @@
-**v0.8.0**
+**v0.8.0**(current master, not released yet)
 1. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).
 Mode change result output. For example, in hql exists statement EXTERNAL. If you want to see in table information 
 is it EXTERNAL table or not - you need to set 'hql' output_mode.
