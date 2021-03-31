@@ -1,3 +1,11 @@
+**v0.8.0**
+1. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).
+Mode change result output. For example, in hql exists statement EXTERNAL. If you want to see in table information 
+is it EXTERNAL table or not - you need to set 'hql' mode.
+2. Added suppport for hql EXTERNAL statement, STORED AS statement, LOCATION statement
+3. Added suppport for PARTITIONED BY statement
+
+
 **v0.7.4**
 1. Fix behaviour with -- in strings. Allow calid table name like 'table--name'
 

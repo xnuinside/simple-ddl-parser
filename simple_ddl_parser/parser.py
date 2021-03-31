@@ -23,6 +23,7 @@ class Parser:
         self.paren_count = 0
         self.lexer = lex.lex(object=self, debug=False)
         self.yacc = yacc.yacc(module=self, debug=False)
+        self.columns_closed = False
 
     @staticmethod
     def pre_process_line(line: str, block_comments: List[str]) -> Tuple[str, List]:
@@ -32,8 +33,11 @@ class Parser:
         MYSQL_COM = '#'
         code_line = ""
         
+        line = line.replace(",", " , ").replace("(", " ( ").replace(")", " ) ")
+        
         if line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM):
             return code_line, block_comments
+        
         if IN_COM in line:
             if re.search(r'((\")|(\'))+(.)*(--)+', line):
                 return line, block_comments
@@ -56,14 +60,9 @@ class Parser:
         for line in self.data.split("\n"):
             line, block_comments = self.pre_process_line(line, block_comments)
             if line.replace("\n", "").replace("\t", ""):
-                # to avoid issues when comma are glued to column name
-                line = line.replace(",", " , ").replace("(", " ( ").replace(")", " ) ")
-                if "CREATE" in line.upper() and "TABLE" in line.upper():
-                    statement = line
-                elif statement != None:
+                # to avoid issues when comma or parath are glued to column name
+                if statement != None:
                     statement += f" {line}"
-                elif "TABLE" not in line.upper() and not statement:
-                    statement = line
                 else:
                     statement = line
                 if ";" not in statement:
@@ -79,11 +78,15 @@ class Parser:
         return tables
 
     def run(
-        self, *, dump=None, dump_path="schemas", file_path: Optional[str] = None
+        self, *, 
+        dump=None, 
+        dump_path="schemas", 
+        file_path: Optional[str] = None,
+        output_mode: str = 'sql'
     ) -> List[Dict]:
         """ run parser """
         tables = self.parse_data()
-        tables = result_format(tables)
+        tables = result_format(tables, output_mode)
         if dump:
             if file_path:
                 # if we run parse from one file - save same way to one file
