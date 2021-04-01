@@ -70,14 +70,10 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
             "alter": {},
             "checks": [],
             "index": [],
-            "partitioned_by": []
+            "partitioned_by": [],
         }
-        if output_mode == 'hql':
-            table_data.update({
-                'stored_as': None, 
-                'location': None,
-                'row_format': None})
-        
+        if output_mode == "hql":
+            table_data = add_additional_hql_keys(table_data)
         sequence = False
         if len(table) == 1 and "index_name" in table[0]:
             tables_dict = add_index_to_table(tables_dict, table[0])
@@ -117,21 +113,44 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
                 for column in table_data["columns"]:
                     if column["name"] in table_data["primary_key"]:
                         column["nullable"] = False
-            if output_mode != 'hql':
+            if output_mode != "hql":
                 table_data = clean_up_output(table_data)
+            else:
+                # todo: need to figure out how workaround it normally
+                if "_ddl_parser_comma_only_str" == table_data["fields_terminated_by"]:
+                    table_data["fields_terminated_by"] = ","
             final_result.append(table_data)
     return final_result
 
 
-def clean_up_output(table_data: Dict):
-    if 'external' in table_data:
-        del table_data['external']
-    if 'stored_as' in table_data:
-        del table_data['stored_as']
-    if 'location' in table_data:
-        del table_data['location']
-    if 'row_format' in table_data:
-        del table_data['row_format']
+def add_additional_hql_keys(table_data: Dict) -> Dict:
+    table_data.update(
+        {
+            "stored_as": None,
+            "location": None,
+            "row_format": None,
+            "fields_terminated_by": None,
+            'map_keys_terminated_by': None,
+            'collection_items_terminated_by': None
+        }
+    )
+    return table_data
+
+
+def clean_up_output(table_data: Dict) -> Dict:
+    key_list = [
+        "external",
+        "external",
+        "stored_as",
+        "location",
+        "row_format",
+        "fields_terminated_by",
+        "collection_items_terminated_by",
+        "map_keys_terminated_by",
+    ]
+    for key in key_list:
+        if key in table_data:
+            del table_data[key]
     return table_data
 
 

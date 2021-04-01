@@ -4,7 +4,7 @@ Mode change result output. For example, in hql exists statement EXTERNAL. If you
 is it EXTERNAL table or not - you need to set 'hql' output_mode.
 2. Added suppport for hql EXTERNAL statement, STORED AS statement, LOCATION statement
 3. Added suppport for PARTITIONED BY statement (for both hql & sql)
-4. Added support for HQL ROW FORMAT DELIMITED statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
+4. Added support for HQL ROW FORMAT statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
 
 **v0.7.4**
 1. Fix behaviour with -- in strings. Allow calid table name like 'table--name'

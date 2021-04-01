@@ -137,7 +137,10 @@ def test_partitioned_by_hql_output_mode_hql():
             "schema": "database",
             "table_name": "table_name",
             "location": None,
-                'row_format': None
+            "row_format": None,
+            "fields_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "map_keys_terminated_by": None,
         },
         {
             "columns": [
@@ -242,7 +245,10 @@ def test_partitioned_by_hql_output_mode_hql():
             "stored_as": None,
             "table_name": "table_name2",
             "location": None,
-                'row_format': None
+            "row_format": None,
+            "fields_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "map_keys_terminated_by": None,
         },
     ]
 
@@ -371,7 +377,10 @@ def test_stored_as_hql_showed():
             "table_name": "table_name",
             "stored_as": "PARQUET",
             "location": None,
-                'row_format': None
+            "row_format": None,
+            "fields_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "map_keys_terminated_by": None,
         }
     ]
     assert expected == result
@@ -499,7 +508,10 @@ def test_location_showed():
             "external": True,
             "schema": "database",
             "table_name": "table_name",
-                'row_format': None
+            "row_format": None,
+            "fields_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "map_keys_terminated_by": None,
         }
     ]
     assert expected == result
@@ -632,7 +644,10 @@ def partitioned_by_multiple_tables_hql():
             "external": True,
             "schema": "database",
             "table_name": "table_name",
-                'row_format': None
+            "row_format": None,
+            "fields_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "map_keys_terminated_by": None,
         }
     ]
     assert expected == result
@@ -706,6 +721,249 @@ def test_hql_row_format():
             "schema": "default",
             "table_name": "salesorderdetail",
             "row_format": "DELIMITED",
+            "fields_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "map_keys_terminated_by": None,
         }
     ]
     assert expected == result
+
+
+def test_fields_terminated_by_hql():
+
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+            FIELDS TERMINATED BY ','
+        STORED AS TEXTFILE
+    """
+
+    result = DDLParser(ddl).run(output_mode="hql")
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "stored_as": "TEXTFILE",
+            "location": None,
+            "row_format": "DELIMITED",
+            "fields_terminated_by": ",",
+            "external": False,
+            "schema": "default",
+            "table_name": "salesorderdetail",
+            "collection_items_terminated_by": None,
+            "map_keys_terminated_by": None,
+        }
+    ]
+    assert expected == result
+
+
+def test_collection_items_terminated_by_hql():
+
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+            FIELDS TERMINATED BY '\002'
+            COLLECTION ITEMS TERMINATED BY '\002'
+        STORED AS TEXTFILE
+    """
+
+    result = DDLParser(ddl).run(output_mode="hql")
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "stored_as": "TEXTFILE",
+            "location": None,
+            "row_format": "DELIMITED",
+            "fields_terminated_by": "'\\002'",
+            "external": False,
+            "schema": "default",
+            "table_name": "salesorderdetail",
+            "collection_items_terminated_by": "'\\002'",
+            "map_keys_terminated_by": None,
+        }
+    ]
+
+
+def test_map_keys_terminated_by_hql():
+
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+            FIELDS TERMINATED BY ','
+            COLLECTION ITEMS TERMINATED BY '\002'
+            MAP KEYS TERMINATED BY '\003'
+        STORED AS TEXTFILE
+    """
+
+
+    result = DDLParser(ddl).run(output_mode='hql')
+
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "stored_as": "TEXTFILE",
+            "location": None,
+            "row_format": "DELIMITED",
+            "fields_terminated_by": ",",
+            "external": False,
+            "schema": "default",
+            "table_name": "salesorderdetail",
+            "collection_items_terminated_by": "'\\002'",
+            "map_keys_terminated_by": "'\\003'",
+        }
+    ]
+
+    assert expected == result
+
