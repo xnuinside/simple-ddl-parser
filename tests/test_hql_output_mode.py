@@ -501,7 +501,7 @@ def test_location_showed():
     assert expected == result
 
 
-def partitioned_by_multiple_tables():
+def partitioned_by_multiple_tables_hql():
 
     ddl = """
     CREATE EXTERNAL TABLE IF NOT EXISTS database.table_name
