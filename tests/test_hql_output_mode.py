@@ -901,8 +901,7 @@ def test_map_keys_terminated_by_hql():
         STORED AS TEXTFILE
     """
 
-
-    result = DDLParser(ddl).run(output_mode='hql')
+    result = DDLParser(ddl).run(output_mode="hql")
 
     expected = [
         {
@@ -967,3 +966,156 @@ def test_map_keys_terminated_by_hql():
 
     assert expected == result
 
+
+def simple_structure_type_support():
+
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            column_abc ARRAY<structcolx:string,coly:string>
+            )
+    """
+
+    result = DDLParser(ddl).run(output_mode="hql")
+
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "collection_items_terminated_by": None,
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "column_abc",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "ARRAY<structcolx:stringcoly:string>",
+                    "unique": False,
+                }
+            ],
+            "external": False,
+            "fields_terminated_by": None,
+            "index": [],
+            "location": None,
+            "map_keys_terminated_by": None,
+            "partitioned_by": [],
+            "primary_key": [],
+            "row_format": None,
+            "schema": "default",
+            "stored_as": None,
+            "table_name": "salesorderdetail",
+        }
+    ]
+
+    assert expected == result
+
+
+def test_complex_structure_test_hql():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            column_abc ARRAY <structcolx:string,coly:string>,
+            employee_info STRUCT < employer: STRING, id: BIGINT, address: STRING >,
+            employee_description string, 
+            column_abc2 ARRAY<structcolx:string,coly:string>,
+            column_map MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING >>,
+            column_map_no_spaces MAP<STRING,STRUCT<year:INT,place:STRING,details:STRING>>,
+            column_struct STRUCT < street_address: STRUCT <street_number: INT, street_name: STRING, street_type: STRING>, country: STRING, postal_code: STRING > not null
+            )
+    """
+
+    result = DDLParser(ddl).run(output_mode="hql")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "collection_items_terminated_by": None,
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "column_abc",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "ARRAY <structcolx:string,coly:string>",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "employee_info",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "STRUCT <employer:STRING,id:BIGINT,address:STRING>",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "employee_description",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "string",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "column_abc2",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "ARRAY <structcolx:string,coly:string>",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "column_map",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "MAP <STRING,STRUCT "
+                    "<year:INT,place:STRING,details:STRING>>",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "column_map_no_spaces",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "MAP <STRING,STRUCT "
+                    "<year:INT,place:STRING,details:STRING>>",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "column_struct",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "STRUCT <street_address:STRUCT "
+                    "<street_number:INT,street_name:STRING,street_type:STRING>,country:STRING,postal_code:STRING>",
+                    "unique": False,
+                },
+            ],
+            "external": False,
+            "fields_terminated_by": None,
+            "index": [],
+            "location": None,
+            "map_keys_terminated_by": None,
+            "partitioned_by": [],
+            "primary_key": [],
+            "row_format": None,
+            "schema": "default",
+            "stored_as": None,
+            "table_name": "salesorderdetail",
+        }
+    ]
+    assert expected == result

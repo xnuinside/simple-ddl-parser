@@ -457,6 +457,13 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 Changelog
 ---------
 
+**v0.8.1**
+
+
+#. Added support for HQL Structured types like ARRAY < STRUCT <street: STRING, city: STRING, country: STRING >>, 
+   MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING >>, 
+   STRUCT < street_address: STRUCT <street_number: INT, street_name: STRING, street_type: STRING>, country: STRING, postal_code: STRING >
+
 **v0.8.0**
 
 

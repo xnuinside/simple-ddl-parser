@@ -63,7 +63,7 @@ class DDLParser(Parser, HQL):
         "CACHE": "CACHE",
     }
     tokens = tuple(
-        ["ID", "NEWLINE", "DOT", "STRING", "LP", "RP"]
+        ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
         + list(defenition_statements.values())
         + list(columns_defenition.values())
         + list(sequence_reserved.values())
@@ -77,7 +77,10 @@ class DDLParser(Parser, HQL):
     last_token = False
     columns_def = False
     after_columns = False
-
+    check = False
+    is_table = False
+    lt_open = 0
+    
     def t_STRING(self, t):
         r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\/\\\"]*\'\B"
         t.type = "STRING"
@@ -91,10 +94,18 @@ class DDLParser(Parser, HQL):
             t.type = "LP"
             if not self.after_columns:
                 self.columns_def = True
+        # todo: need to find less hacky way to parse HQL structure types
+        elif '<' == t.value and not self.check:
+            t.type = "LT"
+            self.lt_open += 1
+        elif '>' == t.value and not self.check:
+            t.type = "RT"
+            self.lt_open -= 1
         else:
             t.type = self.defenition_statements.get(
                 t.value.upper(), "ID"
             )  # Check for reserved word
+        
         if t.value.strip() == "'":
             self.string = True
         if t.type == "CREATE":
@@ -114,10 +125,14 @@ class DDLParser(Parser, HQL):
             t.type = "ARRAY"
         if t.type == "TABLE" or t.type == "INDEX":
             self.is_table = True
-        elif t.type == "SEQUENCE" and self.__dict__.get("is_table"):
+        elif t.type == "SEQUENCE" and self.is_table:
             t.type = "ID"
         if t.type == "SEQUENCE":
             self.sequence = True
+        if t.type == 'COMMA' and self.lt_open:
+            t.type = 'COMMAT'
+        if t.type == "CHECK":
+            self.check = True
         if t.type != "ID":
             t.value = t.value.upper()
         self.last_token = t.type
@@ -291,13 +306,30 @@ class DDLParser(Parser, HQL):
         if p[2].upper() == "EXTERNAL":
             external = True
         p[0] = {"external": external}
-
+    
+    def p_tid(self, p):
+        """ tid : LT ID
+        | tid ID 
+        | tid COMMAT
+        | tid RT
+        """
+        if not isinstance(p[1], list):
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1]
+        
+        for i in list(p)[2:]:
+            p[0][0] += i
+        
     def p_column(self, p):
         """column : ID ID
+        | ID tid
         | column LP ID RP
         | column ID
         | column LP ID COMMA ID RP
-        | column ARRAY
+        | column ARRAY 
+        | ID ARRAY tid 
+        | column tid 
 
         """
         if isinstance(p[1], dict):
@@ -313,6 +345,15 @@ class DDLParser(Parser, HQL):
             arr_split = p_list[-1].split("ARRAY")
             append = "[]" if not arr_split[-1] else arr_split[-1]
             p[0]["type"] = p[0]["type"] + append
+        elif isinstance(p_list[-1], list):
+            if len(p_list) == 4:
+                p[0]["type"] = f'{p[2]} {p[3][0]}'
+            elif p[0]["type"]:
+                if len(p[0]["type"]) == 1 and isinstance(p[0]["type"], list):
+                    p[0]["type"] = p[0]["type"][0]
+                p[0]["type"] = f'{p[0]["type"]} {p_list[-1][0]}'
+            else:
+                p[0]["type"] = p_list[-1][0]
         else:
             match = re.match(r"[0-9]+", p_list[2])
             if bool(match):

@@ -899,7 +899,7 @@ def test_arrays():
                     "references": None,
                     "unique": False,
                     "nullable": False,
-                    "default": '\'{"none"}\'',
+                    "default": "'{\"none\"}'",
                     "check": None,
                 },
                 {
