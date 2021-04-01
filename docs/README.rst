@@ -59,19 +59,43 @@ example:
 
 
        ddl = """
-       CREATE EXTERNAL TABLE IF NOT EXISTS database.table_name
-       (
-           day_long_nm     string,
-           calendar_dt     date,
-           source_batch_id string,
-       ) PARTITIONED BY (batch_id int) STORED AS PARQUET LOCATION 's3://datalake/table_name/v1'
-
+       CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+           SalesOrderID int,
+           ProductID int,
+           OrderQty int,
+           LineTotal decimal
+           )
+       PARTITIONED BY (batch_id int, batch_id2 string, batch_32 some_type)
+       LOCATION 's3://datalake/table_name/v1'
+       ROW FORMAT DELIMITED
+           FIELDS TERMINATED BY ','
+           COLLECTION ITEMS TERMINATED BY '\002'
+           MAP KEYS TERMINATED BY '\003'
+       STORED AS TEXTFILE
        """
 
        result = DDLParser(ddl).run(output_mode="hql")
        print(result)
 
-And you will get output with additional keys 'stored_as' and 'location'.
+And you will get output with additional keys 'stored_as', 'location', 'external', etc.
+
+.. code-block:: python
+
+
+       # additional keys examples
+     {
+       ...,
+       'location': "'s3://datalake/table_name/v1'",
+       'map_keys_terminated_by': "'\\003'",
+       'partitioned_by': [{'name': 'batch_id', 'size': None, 'type': 'int'},
+                           {'name': 'batch_id2', 'size': None, 'type': 'string'},
+                           {'name': 'batch_32', 'size': None, 'type': 'some_type'}],
+       'primary_key': [],
+       'row_format': 'DELIMITED',
+       'schema': 'default',
+       'stored_as': 'TEXTFILE',
+       ... 
+     }
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
@@ -376,6 +400,18 @@ Supported Statements
 * 
   ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT)
 
+* 
+  PARTITIONED BY statement
+
+HQL Dialect statements
+----------------------
+
+
+* PARTITIONED BY statement
+* ROW FORMAT
+* STORED AS
+* LOCATION, FIELDS TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
+
 TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -383,7 +419,6 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 #. Add support for CREATE VIEW statement
 #. Add support CREATE TABLE ... LIKE statement
 #. Add support for REFERENCES ON (https://github.com/xnuinside/simple-ddl-parser/issues/18)
-#. Add support for HQL ROW FORMAT DELIMITED statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
 
 non-feature todo
 ----------------
@@ -422,7 +457,7 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 Changelog
 ---------
 
-**v0.8.0**\ (current master, not released yet)
+**v0.8.0**
 
 
 #. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).
@@ -430,6 +465,7 @@ Changelog
    is it EXTERNAL table or not - you need to set 'hql' output_mode.
 #. Added suppport for hql EXTERNAL statement, STORED AS statement, LOCATION statement
 #. Added suppport for PARTITIONED BY statement (for both hql & sql)
+#. Added support for HQL ROW FORMAT statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
 
 **v0.7.4**
 

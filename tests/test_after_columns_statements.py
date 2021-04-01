@@ -624,10 +624,298 @@ def partitioned_by_multiple_tables_hql():
             "index": [],
             "partitioned_by": ["batch_id", "batch_id2", "batch_32"],
             "stored_as": "PARQUET",
-            "location": "'s3://datalake/table_name/v1'",
+            "location": "s3://datalake/table_name/v1'",
             "external": True,
             "schema": "database",
             "table_name": "table_name",
         }
     ]
+    assert expected == result
+
+
+def test_row_format_is_not_showed():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+        STORED AS TEXTFILE
+    """
+
+    result = DDLParser(ddl).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "schema": "default",
+            "table_name": "salesorderdetail",
+        }
+    ]
+    assert expected == result
+
+
+def test_fields_terminated_by_not_showed():
+
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+            FIELDS TERMINATED BY ','
+        STORED AS TEXTFILE
+    """
+
+    result = DDLParser(ddl).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "schema": "default",
+            "table_name": "salesorderdetail",
+        }
+    ]
+    assert expected == result
+
+
+def test_collection_items_terminated_by_not_showed():
+
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+            FIELDS TERMINATED BY '\002'
+            COLLECTION ITEMS TERMINATED BY '\002'
+        STORED AS TEXTFILE
+    """
+
+    result = DDLParser(ddl).run(output_mode="hql")
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "external": False,
+            "schema": "default",
+            "table_name": "salesorderdetail",
+        }
+    ]
+
+
+def test_map_keys_terminated_not_showed():
+
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+            FIELDS TERMINATED BY ','
+            COLLECTION ITEMS TERMINATED BY '\002'
+            MAP KEYS TERMINATED BY '\003'
+        STORED AS TEXTFILE
+    """
+
+
+    result = DDLParser(ddl).run()
+
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "schema": "default",
+            "table_name": "salesorderdetail",
+        }
+    ]
+
     assert expected == result

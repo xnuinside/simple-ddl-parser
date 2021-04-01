@@ -33,8 +33,9 @@ def cli():
         help="Parse without saving to the file. Only print result to the console.",
     )
     sdb_cli.add_argument(
-        "-o", "--output-mode",
-        default='sql',
+        "-o",
+        "--output-mode",
+        default="sql",
         help="Parse without saving to the file. Only print result to the console.",
     )
     return sdb_cli
@@ -43,7 +44,10 @@ def cli():
 def run_for_file(args):
     print(f"Start parsing file {args.ddl_file_path} \n")
     result = parse_from_file(
-        args.ddl_file_path, dump=not args.no_dump, dump_path=args.target, output_mode=args.output_mode
+        args.ddl_file_path,
+        dump=not args.no_dump,
+        dump_path=args.target,
+        output_mode=args.output_mode,
     )
 
     print(f"File with result was saved to >> {args.target} folder")

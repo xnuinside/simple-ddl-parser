@@ -42,20 +42,47 @@ example:
 ```python
 
     ddl = """
-    CREATE EXTERNAL TABLE IF NOT EXISTS database.table_name
-    (
-        day_long_nm     string,
-        calendar_dt     date,
-        source_batch_id string,
-    ) PARTITIONED BY (batch_id int) STORED AS PARQUET LOCATION 's3://datalake/table_name/v1'
-
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+        SalesOrderID int,
+        ProductID int,
+        OrderQty int,
+        LineTotal decimal
+        )
+    PARTITIONED BY (batch_id int, batch_id2 string, batch_32 some_type)
+    LOCATION 's3://datalake/table_name/v1'
+    ROW FORMAT DELIMITED
+        FIELDS TERMINATED BY ','
+        COLLECTION ITEMS TERMINATED BY '\002'
+        MAP KEYS TERMINATED BY '\003'
+    STORED AS TEXTFILE
     """
 
     result = DDLParser(ddl).run(output_mode="hql")
     print(result)
 ```
 
-And you will get output with additional keys 'stored_as' and 'location'.
+And you will get output with additional keys 'stored_as', 'location', 'external', etc.
+
+```python
+
+    # additional keys examples
+  {
+    ...,
+    'location': "'s3://datalake/table_name/v1'",
+    'map_keys_terminated_by': "'\\003'",
+    'partitioned_by': [{'name': 'batch_id', 'size': None, 'type': 'int'},
+                        {'name': 'batch_id2', 'size': None, 'type': 'string'},
+                        {'name': 'batch_32', 'size': None, 'type': 'some_type'}],
+    'primary_key': [],
+    'row_format': 'DELIMITED',
+    'schema': 'default',
+    'stored_as': 'TEXTFILE',
+    ... 
+  }
+
+
+
+```
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
@@ -131,6 +158,7 @@ You can provide target path where you want to dump result with argument **-t**, 
     sdp tests/sql/test_two_tables.sql -t dump_results/
     
 ```
+
 ### More details
 
 This parser take as input SQL DDL statements or files, for example like this:
@@ -360,15 +388,23 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT)
 
+- PARTITIONED BY statement
+
+## HQL Dialect statements
+
+- PARTITIONED BY statement
+- ROW FORMAT
+- STORED AS
+- LOCATION, FIELDS TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
+
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
 1. Add support for CREATE VIEW statement
 2. Add support CREATE TABLE ... LIKE statement
 3. Add support for REFERENCES ON (https://github.com/xnuinside/simple-ddl-parser/issues/18)
-4. Add support for HQL ROW FORMAT DELIMITED statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
-
 
 ## non-feature todo
+
 0. Provide API to get result as Python Object
 1. Add online demo (UI) to parse ddl
 
@@ -399,13 +435,13 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
-**v0.8.0**(current master, not released yet)
+**v0.8.0**
 1. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).
 Mode change result output. For example, in hql exists statement EXTERNAL. If you want to see in table information 
 is it EXTERNAL table or not - you need to set 'hql' output_mode.
 2. Added suppport for hql EXTERNAL statement, STORED AS statement, LOCATION statement
 3. Added suppport for PARTITIONED BY statement (for both hql & sql)
-
+4. Added support for HQL ROW FORMAT statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
 
 **v0.7.4**
 1. Fix behaviour with -- in strings. Allow calid table name like 'table--name'
