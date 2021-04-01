@@ -1,14 +1,14 @@
 import re
 from typing import Dict, List
 from simple_ddl_parser.parser import Parser
-
+from simple_ddl_parser.dialects.hql import HQL
 
 _ref = "REFERENCES"
 _def = "DEFAULT"
 _cons = "CONSTRAINT"
 
 
-class DDLParser(Parser):
+class DDLParser(Parser, HQL):
     """
     lex and yacc parser for parse ddl into BQ schemas
     """
@@ -117,23 +117,8 @@ class DDLParser(Parser):
     def p_error(self, p):
         pass
     
-    def p_expression_location(self, p):
-        """ expr : expr LOCATION STRING
-        """
-        p[0] = p[1]
-        p_list = list(p)
-        p[0]['location'] = p_list[-1]
-    
-    def p_expression_stored_as(self, p):
-        """ expr : expr STORED AS ID
-        """
-        p[0] = p[1]
-        p_list = list(p)
-        p[0]['stored_as'] = p_list[-1]
-    
     def p_expression_partitioned_by(self, p):
-        """ expr : expr PARTITIONED BY LP pid_with_type RP
-        | expr PARTITIONED BY LP pid RP
+        """ expr : expr PARTITIONED BY LP pid RP
         """
         p[0] = p[1]
         p_list = list(p)
