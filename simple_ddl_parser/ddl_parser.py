@@ -305,7 +305,6 @@ class DDLParser(Parser):
             type_str = p[2]
             p[0] = {"name": p[1], "type": type_str, "size": size}
         p_list = remove_par(list(p))
-        
         if "[]" == p_list[-1]:
             p[0]["type"] = p[0]["type"] + "[]"
         elif "ARRAY" in p_list[-1]:
@@ -482,7 +481,7 @@ class DDLParser(Parser):
     
     def p_pid_with_type(self, p):
         """pid_with_type :  column
-                | COMMA column
+                | pid_with_type COMMA column
         """
         p_list = list(p)
         if not isinstance(p_list[1], list):
