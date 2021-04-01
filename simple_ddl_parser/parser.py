@@ -37,7 +37,8 @@ class Parser:
 
         # todo: not sure how to workaround ',' normal way
         line = line.replace(",", " , ").replace("(", " ( ").replace(")", " ) ").replace('\\x', '\\0')
-
+        if not '(' in line:
+            line = line.replace('<', ' < ').replace('>', ' > ')
         if line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM):
             return code_line, block_comments
 

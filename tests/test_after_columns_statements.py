@@ -861,7 +861,6 @@ def test_map_keys_terminated_not_showed():
         STORED AS TEXTFILE
     """
 
-
     result = DDLParser(ddl).run()
 
     expected = [

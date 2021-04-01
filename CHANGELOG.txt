@@ -1,3 +1,8 @@
+**v0.8.1**
+1. Added support for HQL Structured types like ARRAY < STRUCT <street: STRING, city: STRING, country: STRING >>, 
+MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING >>, 
+STRUCT < street_address: STRUCT <street_number: INT, street_name: STRING, street_type: STRING>, country: STRING, postal_code: STRING >
+
 **v0.8.0**
 1. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).
 Mode change result output. For example, in hql exists statement EXTERNAL. If you want to see in table information 
