@@ -6,7 +6,15 @@ class HQL:
             p[0] = p[1]
             p_list = list(p)
             p[0]['location'] = p_list[-1]
-        
+    
+    def p_expression_row_format(self, p):
+        """ expr : expr ROW FORMAT ID
+            | expr ROW FORMAT STRING
+        """
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]['row_format'] = p_list[-1]
+    
     def p_expression_stored_as(self, p):
         """ expr : expr STORED AS ID
         """

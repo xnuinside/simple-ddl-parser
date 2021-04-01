@@ -631,3 +631,72 @@ def partitioned_by_multiple_tables_hql():
         }
     ]
     assert expected == result
+
+
+def test_row_format_is_not_showed():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+        STORED AS TEXTFILE
+    """
+
+    result = DDLParser(ddl).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "schema": "default",
+            "table_name": "salesorderdetail",
+        }
+    ]
+    assert expected == result

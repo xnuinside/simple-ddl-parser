@@ -137,6 +137,7 @@ def test_partitioned_by_hql_output_mode_hql():
             "schema": "database",
             "table_name": "table_name",
             "location": None,
+                'row_format': None
         },
         {
             "columns": [
@@ -241,6 +242,7 @@ def test_partitioned_by_hql_output_mode_hql():
             "stored_as": None,
             "table_name": "table_name2",
             "location": None,
+                'row_format': None
         },
     ]
 
@@ -369,6 +371,7 @@ def test_stored_as_hql_showed():
             "table_name": "table_name",
             "stored_as": "PARQUET",
             "location": None,
+                'row_format': None
         }
     ]
     assert expected == result
@@ -496,6 +499,7 @@ def test_location_showed():
             "external": True,
             "schema": "database",
             "table_name": "table_name",
+                'row_format': None
         }
     ]
     assert expected == result
@@ -628,6 +632,80 @@ def partitioned_by_multiple_tables_hql():
             "external": True,
             "schema": "database",
             "table_name": "table_name",
+                'row_format': None
+        }
+    ]
+    assert expected == result
+
+
+def test_hql_row_format():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+            SalesOrderID int,
+            ProductID int,
+            OrderQty int,
+            LineTotal decimal
+            )
+        ROW FORMAT DELIMITED
+        STORED AS TEXTFILE
+    """
+
+    result = DDLParser(ddl).run(output_mode="hql")
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "SalesOrderID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "ProductID",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "OrderQty",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "LineTotal",
+                    "type": "decimal",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "stored_as": "TEXTFILE",
+            "location": None,
+            "external": False,
+            "schema": "default",
+            "table_name": "salesorderdetail",
+            "row_format": "DELIMITED",
         }
     ]
     assert expected == result

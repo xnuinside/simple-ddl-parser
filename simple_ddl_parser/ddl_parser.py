@@ -12,33 +12,31 @@ class DDLParser(Parser, HQL):
     """
     lex and yacc parser for parse ddl into BQ schemas
     """
-
-    reserved = {
+    defenition_statements = {
         "IF": "IF",
-        "THEN": "THEN",
-        "ON": "ON",
-        "ELSE": "ELSE",
-        "WHILE": "WHILE",
-        "USE": "USE",
+        "NOT": "NOT",
+        "DROP": "DROP",
         "CREATE": "CREATE",
         "TABLE": "TABLE",
-        "DROP": "DROP",
-        "NOT": "NOT",
         "EXISTS": "EXISTS",
-        "NULL": "NULL",
-        "PRIMARY": "PRIMARY",
-        "KEY": "KEY",
-        "DEFAULT": "DEFAULT",
-        "REFERENCES": "REFERENCES",
         "ALTER": "ALTER",
         "ADD": "ADD",
-        "FOREIGN": "FOREIGN",
-        "UNIQUE": "UNIQUE",
         "CHECK": "CHECK",
-        "SEQUENCE": "SEQUENCE",
         "CONSTRAINT": "CONSTRAINT",
-        "ARRAY": "ARRAY",
+        "FOREIGN": "FOREIGN",
         "INDEX": "INDEX",
+        "SEQUENCE": "SEQUENCE",
+        "REFERENCES": "REFERENCES",
+        "KEY": "KEY",
+    }
+    
+    columns_defenition = {
+        "ON": "ON",
+        "NULL": "NULL",
+        "PRIMARY": "PRIMARY",
+        "DEFAULT": "DEFAULT",
+        "UNIQUE": "UNIQUE",
+        "ARRAY": "ARRAY",
         ",": "COMMA",
     }
     after_columns_tokens = {
@@ -46,10 +44,10 @@ class DDLParser(Parser, HQL):
         "BY": "BY",
         "STORED": "STORED",
         "AS": "AS", 
-        "LOCATION": "LOCATION"
+        "LOCATION": "LOCATION",
+        "ROW": "ROW",
+        "FORMAT": "FORMAT"
     }
-    sequence = False
-    last_token = False
     sequence_reserved = {
         "INCREMENT": "INCREMENT",
         "START": "START",
@@ -59,13 +57,19 @@ class DDLParser(Parser, HQL):
     }
     tokens = tuple(
         ["ID", "NEWLINE", "DOT", "STRING", "LP", "RP"]
-        + list(reserved.values())
+        + list(defenition_statements.values())
+        + list(columns_defenition.values())
         + list(sequence_reserved.values())
         + list(after_columns_tokens.values())
     )
 
     t_ignore = ';\t  "\r'
     t_DOT = r"."
+    
+    sequence = False
+    last_token = False
+    columns_def = False
+    after_columns = False
     
     def t_STRING(self, t):
         r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\//]*\'\B"
@@ -78,17 +82,23 @@ class DDLParser(Parser, HQL):
             t.type = 'RP'
         elif t.value == "(":
             t.type = 'LP'
+            if not self.after_columns:
+                self.columns_def = True
         else:
-            t.type = self.reserved.get(t.value.upper(), "ID")  # Check for reserved word
+            t.type = self.defenition_statements.get(t.value.upper(), "ID")  # Check for reserved word
         if t.value.strip() == "'":
             self.string = True
         if t.type == "CREATE":
             self.sequence = False
             self.is_table = False
-        if self.last_token == 'RP' or 'after_columns' in self.__dict__:
+        if self.last_token == 'RP' or self.after_columns:
             t.type = self.after_columns_tokens.get(t.value.upper(), t.type)
             if t.type != 'ID':
                 self.after_columns = True
+            elif self.columns_def:
+                t.type = self.columns_defenition.get(t.value.upper(), t.type)
+        elif self.columns_def:
+            t.type = self.columns_defenition.get(t.value.upper(), t.type)
         elif self.sequence:
             t.type = self.sequence_reserved.get(t.value.upper(), "ID")
         elif "ARRAY" in t.value:
@@ -102,6 +112,7 @@ class DDLParser(Parser, HQL):
         if t.type != "ID":
             t.value = t.value.upper()
         self.last_token = t.type
+        print(t.type)
         return t
 
     def t_newline(self, t):
