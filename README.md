@@ -401,7 +401,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 1. Add support for CREATE VIEW statement
 2. Add support CREATE TABLE ... LIKE statement
-3. Add support for REFERENCES ON (https://github.com/xnuinside/simple-ddl-parser/issues/18)
+3. Add support for DEFERRABLE INITIALLY statement
 
 ## non-feature todo
 
@@ -435,6 +435,10 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.9.0**
+1. Added support for REFERENCES without field name, like `product_no integer REFERENCES products ON DELETE RESTRICT`
+2. Added support for REFERENCES ON statement
+
 **v0.8.1**
 1. Added support for HQL Structured types like ARRAY < STRUCT <street: STRING, city: STRING, country: STRING >>, 
 MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING >>, 

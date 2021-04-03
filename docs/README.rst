@@ -418,7 +418,7 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 
 #. Add support for CREATE VIEW statement
 #. Add support CREATE TABLE ... LIKE statement
-#. Add support for REFERENCES ON (https://github.com/xnuinside/simple-ddl-parser/issues/18)
+#. Add support for DEFERRABLE INITIALLY statement
 
 non-feature todo
 ----------------
@@ -456,6 +456,12 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 
 Changelog
 ---------
+
+**v0.9.0**
+
+
+#. Added support for REFERENCES without field name, like ``product_no integer REFERENCES products ON DELETE RESTRICT``
+#. Added support for REFERENCES ON statement
 
 **v0.8.1**
 
