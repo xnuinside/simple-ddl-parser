@@ -39,6 +39,8 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
                     "column": column_reference,
                     "table": statement["references"]["table"],
                     "schema": statement["references"]["schema"],
+                    "on_delete": statement["references"]["on_delete"],
+                    "on_update": statement["references"]["on_update"],
                 },
             }
             alter_columns.append(alter_column)

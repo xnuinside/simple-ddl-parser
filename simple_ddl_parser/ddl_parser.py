@@ -4,7 +4,6 @@ from simple_ddl_parser.parser import Parser
 from simple_ddl_parser.dialects.hql import HQL
 
 _ref = "REFERENCES"
-_def = "DEFAULT"
 _cons = "CONSTRAINT"
 
 
@@ -33,6 +32,8 @@ class DDLParser(Parser, HQL):
 
     columns_defenition = {
         "ON": "ON",
+        "DELETE": "DELETE",
+        "UPDATE": "UPDATE",
         "NULL": "NULL",
         "PRIMARY": "PRIMARY",
         "DEFAULT": "DEFAULT",
@@ -365,20 +366,28 @@ class DDLParser(Parser, HQL):
 
     def extract_references(self, p_list):
         ref_index = p_list.index(_ref)
+        ref = {
+            "table": None,
+            "columns": [None],
+            "schema": None,
+            "on_delete": None,
+            "on_update": None
+        }
         if not "." in p_list[ref_index:]:
-
-            references = {
-                "table": p_list[ref_index + 1],
-                "columns": p_list[-1],
-                "schema": None,
-            }
-        else:
-            references = {
+            ref.update({
+                    "table": p_list[ref_index + 1]})
+            if not len(p_list) == 3:
+                ref.update({
+                    "columns": p_list[-1]
+                })
+        else: 
+            ref.update({
                 "schema": p_list[ref_index + 1],
                 "columns": p_list[-1],
                 "table": p_list[ref_index + 3],
-            }
-        return references
+            })
+            
+        return ref
 
     def p_null(self, p):
         """null : NULL
@@ -433,9 +442,9 @@ class DDLParser(Parser, HQL):
         if ("KEY" in p or "key" in p) and ("PRIMARY" in p or "primary" in p):
             pk = True
             nullable = False
-        if "unique" in p or "UNIQUE" in p:
+        elif "unique" in p or "UNIQUE" in p:
             unique = True
-        if isinstance(p_list[-1], dict) and "references" in p_list[-1]:
+        elif isinstance(p_list[-1], dict) and "references" in p_list[-1]:
             p_list[-1]["references"]["column"] = p_list[-1]["references"]["columns"][0]
             del p_list[-1]["references"]["columns"]
             references = p_list[-1]["references"]
@@ -591,12 +600,27 @@ class DDLParser(Parser, HQL):
         p[0] = columns
 
     def p_ref(self, p):
-        """ref : REFERENCES ID LP pid RP
-        | REFERENCES ID DOT ID LP pid RP
+        """ref : REFERENCES ID DOT ID
+        | REFERENCES ID
+        | ref LP pid RP
+        | ref ON DELETE ID
+        | ref ON UPDATE ID
         """
         p_list = remove_par(list(p))
-        data = {"references": self.extract_references(p_list)}
-        p[0] = data
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+            if 'ON' not in p_list:
+                p[0]["references"]['columns'] = p_list[-1]
+            else:
+                p[0]["references"]['columns'] = p[0]["references"].get('columns', [None])
+        else:
+            data = {"references": self.extract_references(p_list)}
+            p[0] = data
+        if 'ON' in p:
+            if 'DELETE' in p:
+                p[0]["references"]['on_delete'] = p_list[-1]
+            elif 'UPDATE' in p:
+                p[0]["references"]['on_update'] = p_list[-1]
 
     def p_expression_primary_key(self, p):
         "expr : pkey"

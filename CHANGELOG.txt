@@ -1,3 +1,7 @@
+**v0.9.0**
+1. Added support for REFERENCES without field name, like `product_no integer REFERENCES products ON DELETE RESTRICT`
+2. Added support for REFERENCES ON statement
+
 **v0.8.1**
 1. Added support for HQL Structured types like ARRAY < STRUCT <street: STRING, city: STRING, country: STRING >>, 
 MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING >>, 

@@ -138,6 +138,8 @@ def test_alter_table_initial_support():
                             "column": "id",
                             "table": "materials",
                             "schema": None,
+                            'on_update': None,
+                            'on_delete': None,
                         },
                     },
                     {
@@ -147,6 +149,8 @@ def test_alter_table_initial_support():
                             "column": "id",
                             "table": "attachments",
                             "schema": None,
+                            'on_update': None,
+                            'on_delete': None,
                         },
                     },
                 ]
@@ -638,6 +642,8 @@ def test_alter_foreiggn_with_constraint():
                             "column": "id",
                             "table": "employees",
                             "schema": None,
+                            'on_update': None,
+                            'on_delete': None,
                         },
                     }
                 ]
@@ -923,6 +929,8 @@ def test_combo_with_alter_and_table_constraints():
                             "column": "id",
                             "table": "employees",
                             "schema": None,
+                            'on_update': None,
+                            'on_delete': None,
                         },
                     }
                 ],
@@ -1110,6 +1118,8 @@ CREATE TABLE employees (
                             "column": "id",
                             "table": "employees",
                             "schema": None,
+                            'on_update': None,
+                            'on_delete': None,
                         },
                     },
                     {
@@ -1119,6 +1129,8 @@ CREATE TABLE employees (
                             "column": "Age",
                             "table": "employees",
                             "schema": None,
+                            'on_update': None,
+                            'on_delete': None,
                         },
                     },
                     {
@@ -1128,6 +1140,8 @@ CREATE TABLE employees (
                             "column": "birth_date",
                             "table": "employees",
                             "schema": None,
+                            'on_update': None,
+                            'on_delete': None,
                         },
                     },
                 ]
