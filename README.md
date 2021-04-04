@@ -442,7 +442,7 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
-**v0.10.0**
+**v0.10.1**
 1. Added support for CREATE TABLE ... LIKE statement
 2. Add support for DEFERRABLE INITIALLY, NOT DEFERRABLE statements
 

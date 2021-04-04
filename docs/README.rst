@@ -392,7 +392,7 @@ Supported Statements
 
 
 * 
-  CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE
+  CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY
 
 * 
   STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
@@ -462,7 +462,7 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 Changelog
 ---------
 
-**v0.10.0**
+**v0.10.1**
 
 
 #. Added support for CREATE TABLE ... LIKE statement
