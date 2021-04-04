@@ -1,3 +1,7 @@
+**v0.10.1**
+1. Added support for CREATE TABLE ... LIKE statement
+2. Add support for DEFERRABLE INITIALLY, NOT DEFERRABLE statements
+
 **v0.9.0**
 1. Added support for REFERENCES without field name, like `product_no integer REFERENCES products ON DELETE RESTRICT`
 2. Added support for REFERENCES ON statement

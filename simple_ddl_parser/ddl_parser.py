@@ -28,6 +28,9 @@ class DDLParser(Parser, HQL):
         "SEQUENCE": "SEQUENCE",
         "REFERENCES": "REFERENCES",
         "KEY": "KEY",
+        "LIKE": "LIKE",
+        "DEFERRABLE": "DEFERRABLE",
+        "INITIALLY": "INITIALLY"
     }
 
     columns_defenition = {
@@ -239,23 +242,43 @@ class DDLParser(Parser, HQL):
                 p[0]["checks"].append(check)
             else:
                 p[0].update(p_list[-1])
-
-    def p_table_name(self, p):
-        """table_name : create_table ID DOT ID
-        | create_table ID
+    def p_expression_like_table(self, p):
+        """expr : table_name LIKE ID
+        | table_name LIKE ID DOT ID
         """
         # get schema & table name
         p_list = list(p)
-        p[0] = p[1]
-        schema = None
         if len(p) > 4:
             if "." in p:
                 schema = p_list[-3]
                 table_name = p_list[-1]
         else:
             table_name = p_list[-1]
+            schema = None
+        p[0] = p[1]
+        p[0].update({'like': {
+                  "schema": schema, "table_name": table_name
+             }})
+        
+    def p_table_name(self, p):
+        """table_name : create_table ID DOT ID
+        | create_table ID 
+        | table_name LIKE ID
+        | table_name DOT ID
+        """
+        # get schema & table name
+        p_list = list(p)
+        p[0] = p[1]
+        if len(p) > 4:
+            if "." in p:
+                schema = p_list[-3]
+                table_name = p_list[-1]
+        else:
+            table_name = p_list[-1]
+            schema = None
+            
         p[0].update(
-            {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
+        {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
         )
 
     def p_expression_seq(self, p):
@@ -302,6 +325,7 @@ class DDLParser(Parser, HQL):
         | CREATE ID TABLE
 
         """
+        # ID - for EXTERNAL
         # get schema & table name
         external = False
         if p[2].upper() == "EXTERNAL":
@@ -371,7 +395,8 @@ class DDLParser(Parser, HQL):
             "columns": [None],
             "schema": None,
             "on_delete": None,
-            "on_update": None
+            "on_update": None,
+            "deferrable_initially": None
         }
         if not "." in p_list[ref_index:]:
             ref.update({
@@ -605,22 +630,29 @@ class DDLParser(Parser, HQL):
         | ref LP pid RP
         | ref ON DELETE ID
         | ref ON UPDATE ID
+        | ref DEFERRABLE INITIALLY ID
+        | ref NOT DEFERRABLE
         """
         p_list = remove_par(list(p))
         if isinstance(p[1], dict):
             p[0] = p[1]
-            if 'ON' not in p_list:
+            if 'ON' not in p_list and 'DEFERRABLE' not in p_list:
                 p[0]["references"]['columns'] = p_list[-1]
             else:
                 p[0]["references"]['columns'] = p[0]["references"].get('columns', [None])
         else:
             data = {"references": self.extract_references(p_list)}
             p[0] = data
-        if 'ON' in p:
-            if 'DELETE' in p:
+        if 'ON' in p_list:
+            if 'DELETE' in p_list:
                 p[0]["references"]['on_delete'] = p_list[-1]
-            elif 'UPDATE' in p:
+            elif 'UPDATE' in p_list:
                 p[0]["references"]['on_update'] = p_list[-1]
+        elif 'DEFERRABLE' in p_list:
+            if 'NOT' not in p_list:
+                p[0]["references"]['deferrable_initially'] = p_list[-1]
+            else: 
+                p[0]["references"]['deferrable_initially'] = 'NOT'
 
     def p_expression_primary_key(self, p):
         "expr : pkey"

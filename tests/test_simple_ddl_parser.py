@@ -1109,3 +1109,29 @@ def test_indexes_in_table_wint_no_schema():
         }
     ]
     assert expected == parse_results
+
+
+def test_like_statement():
+
+    ddl = """
+
+    CREATE TABLE New_Users LIKE Old_Users ;
+    """
+
+    result = DDLParser(ddl).run()
+
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [],
+            "index": [],
+            "like": {"schema": None, "table_name": "Old_Users"},
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "New_Users",
+        }
+    ]
+
+    assert expected == result
