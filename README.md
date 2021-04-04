@@ -34,7 +34,7 @@ A lot of statements and output result you can find in tests on the github - http
 ### Extract additional information from HQL (& other dialects)
 
 In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This propertie will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'. 
-
+Also some fields hidden in HQL, because they are simple not exists in HIVE, for example 'deferrable_initially'
 To get this 'hql' specific details about table in output please use 'output_mode' argument in run() method.
 
 example:
@@ -382,13 +382,16 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### Supported Statements
 
-- CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES
+- CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY
 
 - STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
 - ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT)
 
 - PARTITIONED BY statement
+
+- LIKE statement (in this and only in this case to output will be added 'like' keyword with information about table from that we did like - 'like': {'schema': None, 'table_name': 'Old_Users'}).
+
 
 ## HQL Dialect statements
 
@@ -399,9 +402,13 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
-1. Add support for CREATE VIEW statement
-2. Add support CREATE TABLE ... LIKE statement
-3. Add support for DEFERRABLE INITIALLY statement
+1. Add 'oracle' output_mode: add support for STORAGE statement, ENCRYPT column parameter
+2. Add support for GENERATED ALWAYS AS statement
+3. Add support for CREATE TABLESPACE statement & TABLESPACE statement in table defenition.
+4. Add COMMENT ON statement support
+5. Add CREATE DATABASE statement support
+
+
 
 ## non-feature todo
 
@@ -435,6 +442,10 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.10.0**
+1. Added support for CREATE TABLE ... LIKE statement
+2. Add support for DEFERRABLE INITIALLY, NOT DEFERRABLE statements
+
 **v0.9.0**
 1. Added support for REFERENCES without field name, like `product_no integer REFERENCES products ON DELETE RESTRICT`
 2. Added support for REFERENCES ON statement

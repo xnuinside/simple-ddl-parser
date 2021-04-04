@@ -1,6 +1,20 @@
 import os
 import json
+from copy import deepcopy
 from typing import Dict, List, Union, Tuple
+
+
+hql_clean_up_list = ['deferrable_initially']
+sql_clean_up_list = [
+        "external",
+        "external",
+        "stored_as",
+        "location",
+        "row_format",
+        "fields_terminated_by",
+        "collection_items_terminated_by",
+        "map_keys_terminated_by",
+    ]
 
 
 def get_table_from_tables_data(
@@ -34,15 +48,12 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
             column_reference = statement["references"]["columns"][num]
             alter_column = {
                 "name": column["name"],
-                "constraint_name": column.get("constraint_name"),
-                "references": {
-                    "column": column_reference,
-                    "table": statement["references"]["table"],
-                    "schema": statement["references"]["schema"],
-                    "on_delete": statement["references"]["on_delete"],
-                    "on_update": statement["references"]["on_update"],
-                },
+                "constraint_name": column.get("constraint_name")
             }
+            
+            alter_column['references'] = deepcopy(statement["references"])
+            alter_column['references']["column"] = column_reference
+            del alter_column['references']["columns"]
             alter_columns.append(alter_column)
         if not target_table["alter"].get("columns"):
             target_table["alter"]["columns"] = alter_columns
@@ -116,8 +127,9 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
                     if column["name"] in table_data["primary_key"]:
                         column["nullable"] = False
             if output_mode != "hql":
-                table_data = clean_up_output(table_data)
+                table_data = clean_up_output(table_data, sql_clean_up_list)
             else:
+                table_data = clean_up_output(table_data, hql_clean_up_list)
                 # todo: need to figure out how workaround it normally
                 if "_ddl_parser_comma_only_str" == table_data["fields_terminated_by"]:
                     table_data["fields_terminated_by"] = ","
@@ -139,17 +151,8 @@ def add_additional_hql_keys(table_data: Dict) -> Dict:
     return table_data
 
 
-def clean_up_output(table_data: Dict) -> Dict:
-    key_list = [
-        "external",
-        "external",
-        "stored_as",
-        "location",
-        "row_format",
-        "fields_terminated_by",
-        "collection_items_terminated_by",
-        "map_keys_terminated_by",
-    ]
+def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
+    
     for key in key_list:
         if key in table_data:
             del table_data[key]

@@ -138,8 +138,9 @@ def test_alter_table_initial_support():
                             "column": "id",
                             "table": "materials",
                             "schema": None,
-                            'on_update': None,
-                            'on_delete': None,
+                            "on_update": None,
+                            "on_delete": None,
+                            "deferrable_initially": None,
                         },
                     },
                     {
@@ -149,8 +150,9 @@ def test_alter_table_initial_support():
                             "column": "id",
                             "table": "attachments",
                             "schema": None,
-                            'on_update': None,
-                            'on_delete': None,
+                            "on_update": None,
+                            "on_delete": None,
+                            "deferrable_initially": None,
                         },
                     },
                 ]
@@ -642,8 +644,9 @@ def test_alter_foreiggn_with_constraint():
                             "column": "id",
                             "table": "employees",
                             "schema": None,
-                            'on_update': None,
-                            'on_delete': None,
+                            "on_update": None,
+                            "on_delete": None,
+                            "deferrable_initially": None,
                         },
                     }
                 ]
@@ -929,8 +932,9 @@ def test_combo_with_alter_and_table_constraints():
                             "column": "id",
                             "table": "employees",
                             "schema": None,
-                            'on_update': None,
-                            'on_delete': None,
+                            "on_update": None,
+                            "on_delete": None,
+                            "deferrable_initially": None,
                         },
                     }
                 ],
@@ -1118,8 +1122,9 @@ CREATE TABLE employees (
                             "column": "id",
                             "table": "employees",
                             "schema": None,
-                            'on_update': None,
-                            'on_delete': None,
+                            "on_update": None,
+                            "on_delete": None,
+                            "deferrable_initially": None,
                         },
                     },
                     {
@@ -1129,8 +1134,9 @@ CREATE TABLE employees (
                             "column": "Age",
                             "table": "employees",
                             "schema": None,
-                            'on_update': None,
-                            'on_delete': None,
+                            "on_update": None,
+                            "on_delete": None,
+                            "deferrable_initially": None,
                         },
                     },
                     {
@@ -1140,8 +1146,9 @@ CREATE TABLE employees (
                             "column": "birth_date",
                             "table": "employees",
                             "schema": None,
-                            'on_update': None,
-                            'on_delete': None,
+                            "on_update": None,
+                            "on_delete": None,
+                            "deferrable_initially": None,
                         },
                     },
                 ]
@@ -1160,9 +1167,10 @@ CREATE TABLE employees (
     ]
     assert expected == parse_results
 
-    def test_several_alter_fk_for_same_table():
-        parse_results = DDLParser(
-            """
+
+def test_several_alter_fk_for_same_table():
+    parse_results = DDLParser(
+        """
 CREATE TABLE employees (
             id SERIAL PRIMARY KEY,
             first_name VARCHAR (50),
@@ -1184,184 +1192,193 @@ CREATE TABLE employees (
         Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id, Age) REFERENCES employees (id, Age, birth_date);          
         Alter Table Persons ADD CONSTRAINT new_fk FOREIGN KEY (birth_date) REFERENCES employees (birth_date);          
 """
-        ).run()
-        expected = [
-            {
-                "columns": [
-                    {
-                        "name": "id",
-                        "type": "SERIAL",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": False,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "first_name",
-                        "type": "VARCHAR",
-                        "size": 50,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "last_name",
-                        "type": "VARCHAR",
-                        "size": 50,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "birth_date",
-                        "type": "DATE",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": "birth_date > '1900-01-01'",
-                    },
-                    {
-                        "name": "joined_date",
-                        "type": "DATE",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": "joined_date > birth_date",
-                    },
-                    {
-                        "name": "salary",
-                        "type": "numeric",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": "salary > 0 Age int",
-                    },
-                ],
-                "primary_key": ["id"],
-                "alter": {},
-                "checks": [],
-                "index": [],
-                "schema": None,
-                "partitioned_by": [],
-                "table_name": "employees",
-            },
-            {
-                "columns": [
-                    {
-                        "name": "ID",
-                        "type": "int",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": False,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "LastName",
-                        "type": "varchar",
-                        "size": 255,
-                        "references": None,
-                        "unique": False,
-                        "nullable": False,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "FirstName",
-                        "type": "varchar",
-                        "size": 255,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "Age",
-                        "type": "int",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "City",
-                        "type": "varchar",
-                        "size": 255,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "birth_date",
-                        "type": "DATE",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": "birth_date > '1900-01-01'",
-                    },
-                ],
-                "primary_key": [],
-                "alter": {
-                    "columns": [
-                        {
-                            "name": "id",
-                            "constraint_name": "fk_group",
-                            "references": {
-                                "column": "id",
-                                "table": "employees",
-                                "schema": None,
-                            },
-                        },
-                        {
-                            "name": "Age",
-                            "constraint_name": "fk_group",
-                            "references": {
-                                "column": "Age",
-                                "table": "employees",
-                                "schema": None,
-                            },
-                        },
-                        {
-                            "name": "birth_date",
-                            "constraint_name": "new_fk",
-                            "references": {
-                                "column": "birth_date",
-                                "table": "employees",
-                                "schema": None,
-                            },
-                        },
-                    ]
+    ).run()
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "id",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "SERIAL",
+                    "unique": False,
                 },
-                "checks": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "first_name",
+                    "nullable": True,
+                    "references": None,
+                    "size": 50,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "last_name",
+                    "nullable": True,
+                    "references": None,
+                    "size": 50,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": "birth_date > '1900-01-01'",
+                    "default": None,
+                    "name": "birth_date",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "DATE",
+                    "unique": False,
+                },
+                {
+                    "check": "joined_date > birth_date",
+                    "default": None,
+                    "name": "joined_date",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "DATE",
+                    "unique": False,
+                },
+                {
+                    "check": "salary > 0 Age int",
+                    "default": None,
+                    "name": "salary",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "numeric",
+                    "unique": False,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": ["id"],
+            "schema": None,
+            "table_name": "employees",
+        },
+        {
+            "alter": {
+                "columns": [
                     {
-                        "constraint_name": "CHK_Person",
-                        "statement": "Age>=18 AND City='Sandnes'",
-                    }
-                ],
-                "index": [],
-                "schema": None,
-                "partitioned_by": [],
-                "table_name": "Persons",
+                        "constraint_name": "fk_group",
+                        "name": "id",
+                        "references": {
+                            "column": "id",
+                            "deferrable_initially": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "schema": None,
+                            "table": "employees",
+                        },
+                    },
+                    {
+                        "constraint_name": "fk_group",
+                        "name": "Age",
+                        "references": {
+                            "column": "Age",
+                            "deferrable_initially": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "schema": None,
+                            "table": "employees",
+                        },
+                    },
+                    {
+                        "constraint_name": "new_fk",
+                        "name": "birth_date",
+                        "references": {
+                            "column": "birth_date",
+                            "deferrable_initially": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "schema": None,
+                            "table": "employees",
+                        },
+                    },
+                ]
             },
-        ]
-        assert expected == parse_results
+            "checks": [
+                {
+                    "constraint_name": "CHK_Person",
+                    "statement": "Age>=18 AND City='Sandnes'",
+                }
+            ],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "ID",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "int",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "LastName",
+                    "nullable": False,
+                    "references": None,
+                    "size": 255,
+                    "type": "varchar",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "FirstName",
+                    "nullable": True,
+                    "references": None,
+                    "size": 255,
+                    "type": "varchar",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "Age",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "int",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "City",
+                    "nullable": True,
+                    "references": None,
+                    "size": 255,
+                    "type": "varchar",
+                    "unique": False,
+                },
+                {
+                    "check": "birth_date > '1900-01-01'",
+                    "default": None,
+                    "name": "birth_date",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "DATE",
+                    "unique": False,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "Persons",
+        },
+    ]
+    assert expected == parse_results
