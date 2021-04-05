@@ -462,6 +462,11 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 Changelog
 ---------
 
+**v0.10.2**
+
+
+#. Fix regex that find '--' in table names (to avoid issue with -- comment lines near string defaults)
+
 **v0.10.1**
 
 

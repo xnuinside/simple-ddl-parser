@@ -1135,3 +1135,49 @@ def test_like_statement():
     ]
 
     assert expected == result
+
+
+def test_defaults_with_comments():
+    
+    ddl = """
+
+    CREATE table v2.entitlement_requests (
+    status                varchar(10) not null default 'requested'  -- inline comment
+    ,notes                 varchar(2000) not null default 'none' -- inline comment
+    ,id          varchar(100) not null -- inline comment
+    ) ;
+    """
+
+    result = DDLParser(ddl).run()
+    expected = [{'alter': {},
+  'checks': [],
+  'columns': [{'check': None,
+               'default': "'requested'",
+               'name': 'status',
+               'nullable': False,
+               'references': None,
+               'size': 10,
+               'type': 'varchar',
+               'unique': False},
+              {'check': None,
+               'default': "'none'",
+               'name': 'notes',
+               'nullable': False,
+               'references': None,
+               'size': 2000,
+               'type': 'varchar',
+               'unique': False},
+              {'check': None,
+               'default': None,
+               'name': 'id',
+               'nullable': False,
+               'references': None,
+               'size': 100,
+               'type': 'varchar',
+               'unique': False}],
+  'index': [],
+  'partitioned_by': [],
+  'primary_key': [],
+  'schema': 'v2',
+  'table_name': 'entitlement_requests'}]
+    assert expected == result
