@@ -43,7 +43,7 @@ class Parser:
             return code_line, block_comments
 
         if IN_COM in line:
-            if re.search(r"((\")|(\'))+(.)*(--)+", line):
+            if re.search(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+", line):
                 return line, block_comments
             code_line = line.split(IN_COM)[0]
         elif CL_COM not in line and OP_COM not in line:
