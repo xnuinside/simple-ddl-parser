@@ -4,17 +4,17 @@ from copy import deepcopy
 from typing import Dict, List, Union, Tuple
 
 
-hql_clean_up_list = ['deferrable_initially']
+hql_clean_up_list = ["deferrable_initially"]
 sql_clean_up_list = [
-        "external",
-        "external",
-        "stored_as",
-        "location",
-        "row_format",
-        "fields_terminated_by",
-        "collection_items_terminated_by",
-        "map_keys_terminated_by",
-    ]
+    "external",
+    "external",
+    "stored_as",
+    "location",
+    "row_format",
+    "fields_terminated_by",
+    "collection_items_terminated_by",
+    "map_keys_terminated_by",
+]
 
 
 def get_table_from_tables_data(
@@ -48,12 +48,12 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
             column_reference = statement["references"]["columns"][num]
             alter_column = {
                 "name": column["name"],
-                "constraint_name": column.get("constraint_name")
+                "constraint_name": column.get("constraint_name"),
             }
-            
-            alter_column['references'] = deepcopy(statement["references"])
-            alter_column['references']["column"] = column_reference
-            del alter_column['references']["columns"]
+
+            alter_column["references"] = deepcopy(statement["references"])
+            alter_column["references"]["column"] = column_reference
+            del alter_column["references"]["columns"]
             alter_columns.append(alter_column)
         if not target_table["alter"].get("columns"):
             target_table["alter"]["columns"] = alter_columns
@@ -73,7 +73,9 @@ def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
     return table_data
 
 
-def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
+def result_format(
+    result: List[Dict], output_mode: str, group_by_type: bool
+) -> List[Dict]:
     final_result = []
     tables_dict = {}
     for table in result:
@@ -87,7 +89,7 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
         }
         if output_mode == "hql":
             table_data = add_additional_hql_keys(table_data)
-        sequence = False
+        not_table = False
         if len(table) == 1 and "index_name" in table[0]:
             tables_dict = add_index_to_table(tables_dict, table[0])
         elif len(table) == 1 and "alter_table_name" in table[0]:
@@ -96,7 +98,11 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
             for item in table:
                 if item.get("sequence_name"):
                     table_data = item
-                    sequence = True
+                    not_table = True
+                    continue
+                if item.get("type_name"):
+                    table_data = item
+                    not_table = True
                     continue
                 elif item.get("table_name"):
                     table_data.update(item)
@@ -106,7 +112,7 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
                                 column["unique"] = True
                         del table_data["unique_statement"]
 
-            if not sequence:
+            if not not_table:
                 if table_data.get("table_name"):
                     tables_dict[
                         (table_data["table_name"], table_data["schema"])
@@ -134,7 +140,25 @@ def result_format(result: List[Dict], output_mode: str) -> List[Dict]:
                 if "_ddl_parser_comma_only_str" == table_data["fields_terminated_by"]:
                     table_data["fields_terminated_by"] = ","
             final_result.append(table_data)
+    if group_by_type:
+        final_result = group_by_type_result(final_result)
     return final_result
+
+
+def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
+    result_as_dict = {"tables": [], "types": [], "sequences": []}
+    keys_map = {
+        "table_name": "tables",
+        "sequence_name": "sequences",
+        "type_name": "types",
+    }
+    for item in final_result:
+        for key in keys_map:
+            if key in item:
+                result_as_dict[keys_map.get(key)].append(item)
+                break
+
+    return result_as_dict
 
 
 def add_additional_hql_keys(table_data: Dict) -> Dict:
@@ -144,15 +168,15 @@ def add_additional_hql_keys(table_data: Dict) -> Dict:
             "location": None,
             "row_format": None,
             "fields_terminated_by": None,
-            'map_keys_terminated_by': None,
-            'collection_items_terminated_by': None
+            "map_keys_terminated_by": None,
+            "collection_items_terminated_by": None,
         }
     )
     return table_data
 
 
 def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
-    
+
     for key in key_list:
         if key in table_data:
             del table_data[key]

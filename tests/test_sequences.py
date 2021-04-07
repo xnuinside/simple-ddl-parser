@@ -58,7 +58,7 @@ def test_sequence_and_table():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "int",
                     "size": None,
                     "references": None,
@@ -68,7 +68,7 @@ def test_sequence_and_table():
                     "check": None,
                 },
                 {
-                    "name": "code",
+                    "name": '"code"',
                     "type": "varchar",
                     "size": 4,
                     "references": None,
@@ -78,7 +78,7 @@ def test_sequence_and_table():
                     "check": None,
                 },
                 {
-                    "name": "name",
+                    "name": '"name"',
                     "type": "varchar",
                     "size": None,
                     "references": None,
@@ -88,11 +88,11 @@ def test_sequence_and_table():
                     "check": None,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ['"id"'],
             "index": [],
             "alter": {},
             "checks": [],
-            "table_name": "countries",
+            "table_name": '"countries"',
             "schema": None,
             "partitioned_by": [],
         },

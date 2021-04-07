@@ -34,7 +34,7 @@ def test_alter_table_initial_support():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "int",
                     "size": None,
                     "nullable": False,
@@ -44,7 +44,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "title",
+                    "name": '"title"',
                     "type": "varchar",
                     "size": None,
                     "nullable": False,
@@ -54,7 +54,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "description",
+                    "name": '"description"',
                     "type": "varchar",
                     "size": None,
                     "nullable": True,
@@ -64,7 +64,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "link",
+                    "name": '"link"',
                     "type": "varchar",
                     "size": None,
                     "nullable": True,
@@ -74,7 +74,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "created_at",
+                    "name": '"created_at"',
                     "type": "timestamp",
                     "size": None,
                     "nullable": False,
@@ -84,7 +84,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "updated_at",
+                    "name": '"updated_at"',
                     "type": "timestamp",
                     "size": None,
                     "nullable": False,
@@ -94,19 +94,19 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ['"id"'],
             "index": [],
             "partitioned_by": [],
             "alter": {},
             "checks": [],
-            "table_name": "materials",
+            "table_name": '"materials"',
             "schema": None,
             "partitioned_by": [],
         },
         {
             "columns": [
                 {
-                    "name": "material_id",
+                    "name": '"material_id"',
                     "type": "int",
                     "size": None,
                     "nullable": False,
@@ -116,7 +116,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "attachment_id",
+                    "name": '"attachment_id"',
                     "type": "int",
                     "size": None,
                     "nullable": False,
@@ -132,11 +132,11 @@ def test_alter_table_initial_support():
             "alter": {
                 "columns": [
                     {
-                        "name": "material_id",
+                        "name": '"material_id"',
                         "constraint_name": None,
                         "references": {
-                            "column": "id",
-                            "table": "materials",
+                            "column": '"id"',
+                            "table": '"materials"',
                             "schema": None,
                             "on_update": None,
                             "on_delete": None,
@@ -144,11 +144,11 @@ def test_alter_table_initial_support():
                         },
                     },
                     {
-                        "name": "attachment_id",
+                        "name": '"attachment_id"',
                         "constraint_name": None,
                         "references": {
-                            "column": "id",
-                            "table": "attachments",
+                            "column": '"id"',
+                            "table": '"attachments"',
                             "schema": None,
                             "on_update": None,
                             "on_delete": None,
@@ -158,13 +158,13 @@ def test_alter_table_initial_support():
                 ]
             },
             "checks": [],
-            "table_name": "material_attachments",
+            "table_name": '"material_attachments"',
             "schema": None,
         },
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "int",
                     "size": None,
                     "nullable": False,
@@ -174,7 +174,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "title",
+                    "name": '"title"',
                     "type": "varchar",
                     "size": None,
                     "nullable": True,
@@ -184,7 +184,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "description",
+                    "name": '"description"',
                     "type": "varchar",
                     "size": None,
                     "nullable": True,
@@ -194,7 +194,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "created_at",
+                    "name": '"created_at"',
                     "type": "timestamp",
                     "size": None,
                     "nullable": False,
@@ -204,7 +204,7 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
                 {
-                    "name": "updated_at",
+                    "name": '"updated_at"',
                     "type": "timestamp",
                     "size": None,
                     "nullable": False,
@@ -214,12 +214,12 @@ def test_alter_table_initial_support():
                     "unique": False,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ['"id"'],
             "index": [],
             "partitioned_by": [],
             "alter": {},
             "checks": [],
-            "table_name": "attachments",
+            "table_name": '"attachments"',
             "schema": None,
             "partitioned_by": [],
         },

@@ -293,7 +293,7 @@ def test_two_defices_in_string_work_ok():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "SERIAL",
                     "size": None,
                     "references": None,
@@ -303,7 +303,7 @@ def test_two_defices_in_string_work_ok():
                     "check": None,
                 },
                 {
-                    "name": "name",
+                    "name": '"name"',
                     "type": "varchar",
                     "size": None,
                     "references": None,
@@ -313,7 +313,7 @@ def test_two_defices_in_string_work_ok():
                     "check": None,
                 },
                 {
-                    "name": "created_at",
+                    "name": '"created_at"',
                     "type": "timestamp",
                     "size": None,
                     "references": None,
@@ -323,7 +323,7 @@ def test_two_defices_in_string_work_ok():
                     "check": None,
                 },
                 {
-                    "name": "updated_at",
+                    "name": '"updated_at"',
                     "type": "timestamp",
                     "size": None,
                     "references": None,
@@ -333,7 +333,7 @@ def test_two_defices_in_string_work_ok():
                     "check": None,
                 },
                 {
-                    "name": "country_code",
+                    "name": '"country_code"',
                     "type": "int",
                     "size": None,
                     "references": None,
@@ -343,7 +343,7 @@ def test_two_defices_in_string_work_ok():
                     "check": None,
                 },
                 {
-                    "name": "default_language",
+                    "name": '"default_language"',
                     "type": "int",
                     "size": None,
                     "references": None,
@@ -353,13 +353,13 @@ def test_two_defices_in_string_work_ok():
                     "check": None,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ['"id"'],
             "alter": {},
             "checks": [],
             "index": [],
-            "schema": "my--custom--schema",
+            "schema": '"my--custom--schema"',
             "partitioned_by": [],
-            "table_name": "users",
+            "table_name": '"users"',
         }
     ]
     assert expected == parse_result

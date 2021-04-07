@@ -222,10 +222,10 @@ def test_ref_in_alter():
             "alter": {
                 "columns": [
                     {
-                        "constraint_name": "fk_t1_t2_tt",
-                        "name": "parentTable",
+                        "constraint_name": '"fk_t1_t2_tt"',
+                        "name": '"parentTable"',
                         "references": {
-                            "column": "columnName",
+                            "column": '"columnName"',
                             "on_delete": "CASCADE",
                             "on_update": "CASCADE",
                             "deferrable_initially": None,
