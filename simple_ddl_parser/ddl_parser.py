@@ -53,7 +53,6 @@ class DDLParser(Parser, HQL):
         "PARTITIONED": "PARTITIONED",
         "BY": "BY",
         "STORED": "STORED",
-        "AS": "AS",
         "LOCATION": "LOCATION",
         "ROW": "ROW",
         "FORMAT": "FORMAT",
@@ -80,7 +79,7 @@ class DDLParser(Parser, HQL):
         + list(after_columns_tokens.values())
     )
 
-    t_ignore = ';\t  "\r'
+    t_ignore = ';\t  \r'
     t_DOT = r"."
 
     def t_STRING(self, t):
@@ -90,7 +89,7 @@ class DDLParser(Parser, HQL):
         return t
 
     def t_ID(self, t):
-        r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$'\()!{}\[\]]+"
+        r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$'\()!{}\[\]\"]+"
         t.type = "ID"
         if t.value == ")":
             t.type = "RP"
@@ -384,7 +383,7 @@ class DDLParser(Parser, HQL):
 
         """
         if '.' in list(p):
-            type_str = f'"{p[2]}"."{p[4]}"'
+            type_str = f'{p[2]}.{p[4]}'
         else:
             type_str = p[2]
         if isinstance(p[1], dict):

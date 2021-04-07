@@ -222,15 +222,15 @@ def test_ref_in_alter():
             "alter": {
                 "columns": [
                     {
-                        "constraint_name": "fk_t1_t2_tt",
-                        "name": "parentTable",
+                        "constraint_name": '"fk_t1_t2_tt"',
+                        "name": '"parentTable"',
                         "references": {
-                            "column": "columnName",
+                            "column": '"columnName"',
                             "on_delete": "CASCADE",
                             "on_update": "CASCADE",
                             "deferrable_initially": None,
                             "schema": None,
-                            "table": "parentTable",
+                            "table": 'parentTable',
                         },
                     }
                 ]
@@ -240,7 +240,7 @@ def test_ref_in_alter():
                 {
                     "check": None,
                     "default": None,
-                    "name": "parentTable",
+                    "name": 'parentTable',
                     "nullable": True,
                     "references": None,
                     "size": None,
@@ -252,7 +252,7 @@ def test_ref_in_alter():
             "partitioned_by": [],
             "primary_key": [],
             "schema": None,
-            "table_name": "ChildTableName",
+            "table_name": 'ChildTableName',
         }
     ]
     assert expected == result

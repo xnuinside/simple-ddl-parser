@@ -90,85 +90,9 @@ def test_run_postgres_first_query():
     assert expected == DDLParser(ddl).run()
 
 
-def test_run_hql_query():
+def test_run_query_caps_in_columns():
     ddl = """
-    CREATE TABLE "paths" (
-        "id" int PRIMARY KEY,
-        "title" varchar NOT NULL,
-        "description" varchar(160),
-        "created_at" timestamp,
-        "updated_at" timestamp
-    );
-    """
-    expected = [
-        {
-            "columns": [
-                {
-                    "name": "id",
-                    "type": "int",
-                    "nullable": False,
-                    "size": None,
-                    "default": None,
-                    "check": None,
-                    "unique": False,
-                    "references": None,
-                },
-                {
-                    "name": "title",
-                    "type": "varchar",
-                    "nullable": False,
-                    "size": None,
-                    "default": None,
-                    "check": None,
-                    "unique": False,
-                    "references": None,
-                },
-                {
-                    "name": "description",
-                    "type": "varchar",
-                    "nullable": True,
-                    "size": 160,
-                    "default": None,
-                    "check": None,
-                    "unique": False,
-                    "references": None,
-                },
-                {
-                    "name": "created_at",
-                    "type": "timestamp",
-                    "nullable": True,
-                    "size": None,
-                    "default": None,
-                    "check": None,
-                    "unique": False,
-                    "references": None,
-                },
-                {
-                    "name": "updated_at",
-                    "type": "timestamp",
-                    "nullable": True,
-                    "size": None,
-                    "default": None,
-                    "check": None,
-                    "unique": False,
-                    "references": None,
-                },
-            ],
-            "primary_key": ["id"],
-            "index": [],
-            "table_name": "paths",
-            "schema": None,
-            "partitioned_by": [],
-            "alter": {},
-            "checks": [],
-        }
-    ]
-    assert expected == DDLParser(ddl).run()
-
-
-def test_run_hql_query_caps_in_columns():
-    ddl = """
-    CREATE TABLE "paths" (
+    CREATE TABLE paths (
         "ID" int PRIMARY KEY,
         "TITLE" varchar NOT NULL,
         "description" varchar(160),
@@ -180,7 +104,7 @@ def test_run_hql_query_caps_in_columns():
         {
             "columns": [
                 {
-                    "name": "ID",
+                    "name": '"ID"',
                     "type": "int",
                     "nullable": False,
                     "size": None,
@@ -190,7 +114,7 @@ def test_run_hql_query_caps_in_columns():
                     "references": None,
                 },
                 {
-                    "name": "TITLE",
+                    "name": '"TITLE"',
                     "type": "varchar",
                     "nullable": False,
                     "size": None,
@@ -200,7 +124,7 @@ def test_run_hql_query_caps_in_columns():
                     "references": None,
                 },
                 {
-                    "name": "description",
+                    "name": '"description"',
                     "type": "varchar",
                     "nullable": True,
                     "size": 160,
@@ -210,7 +134,7 @@ def test_run_hql_query_caps_in_columns():
                     "references": None,
                 },
                 {
-                    "name": "created_at",
+                    "name": '"created_at"',
                     "type": "timestamp",
                     "nullable": False,
                     "size": None,
@@ -220,7 +144,7 @@ def test_run_hql_query_caps_in_columns():
                     "references": None,
                 },
                 {
-                    "name": "updated_at",
+                    "name": '"updated_at"',
                     "type": "timestamp",
                     "nullable": True,
                     "size": None,
@@ -230,9 +154,9 @@ def test_run_hql_query_caps_in_columns():
                     "references": None,
                 },
             ],
-            "primary_key": ["ID"],
+            "primary_key": ['"ID"'],
             "index": [],
-            "table_name": "paths",
+            "table_name": 'paths',
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -264,7 +188,7 @@ def test_parser_multiple_tables():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "int",
                     "size": None,
                     "nullable": False,
@@ -274,7 +198,7 @@ def test_parser_multiple_tables():
                     "references": None,
                 },
                 {
-                    "name": "code",
+                    "name": '"code"',
                     "type": "varchar",
                     "size": 4,
                     "nullable": False,
@@ -284,7 +208,7 @@ def test_parser_multiple_tables():
                     "references": None,
                 },
                 {
-                    "name": "name",
+                    "name": '"name"',
                     "type": "varchar",
                     "size": None,
                     "nullable": False,
@@ -294,9 +218,9 @@ def test_parser_multiple_tables():
                     "references": None,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ['"id"'],
             "index": [],
-            "table_name": "countries",
+            "table_name": '"countries"',
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -305,7 +229,7 @@ def test_parser_multiple_tables():
         {
             "columns": [
                 {
-                    "name": "user_id",
+                    "name": '"user_id"',
                     "type": "int",
                     "size": None,
                     "nullable": True,
@@ -315,7 +239,7 @@ def test_parser_multiple_tables():
                     "references": None,
                 },
                 {
-                    "name": "path_id",
+                    "name": '"path_id"',
                     "type": "int",
                     "size": None,
                     "nullable": True,
@@ -325,7 +249,7 @@ def test_parser_multiple_tables():
                     "references": None,
                 },
                 {
-                    "name": "type",
+                    "name": '"type"',
                     "type": "int",
                     "size": None,
                     "nullable": True,
@@ -337,7 +261,7 @@ def test_parser_multiple_tables():
             ],
             "primary_key": [],
             "index": [],
-            "table_name": "path_owners",
+            "table_name": '"path_owners"',
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -364,7 +288,7 @@ def test_unique_statement_in_columns():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "int",
                     "size": None,
                     "references": None,
@@ -374,7 +298,7 @@ def test_unique_statement_in_columns():
                     "check": None,
                 },
                 {
-                    "name": "title",
+                    "name": '"title"',
                     "type": "varchar",
                     "size": None,
                     "references": None,
@@ -384,7 +308,7 @@ def test_unique_statement_in_columns():
                     "check": None,
                 },
                 {
-                    "name": "description",
+                    "name": '"description"',
                     "type": "varchar",
                     "size": 160,
                     "references": None,
@@ -394,7 +318,7 @@ def test_unique_statement_in_columns():
                     "check": None,
                 },
                 {
-                    "name": "created_at",
+                    "name": '"created_at"',
                     "type": "timestamp",
                     "size": None,
                     "references": None,
@@ -404,7 +328,7 @@ def test_unique_statement_in_columns():
                     "check": None,
                 },
                 {
-                    "name": "updated_at",
+                    "name": '"updated_at"',
                     "type": "timestamp",
                     "size": None,
                     "references": None,
@@ -418,7 +342,7 @@ def test_unique_statement_in_columns():
             "index": [],
             "alter": {},
             "checks": [],
-            "table_name": "steps",
+            "table_name":'"steps"',
             "schema": None,
             "partitioned_by": [],
         }
@@ -443,7 +367,7 @@ def test_unique_statement_separate_line():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "int",
                     "size": None,
                     "references": None,
@@ -453,7 +377,7 @@ def test_unique_statement_separate_line():
                     "check": None,
                 },
                 {
-                    "name": "title",
+                    "name": '"title"',
                     "type": "varchar",
                     "size": None,
                     "references": None,
@@ -463,7 +387,7 @@ def test_unique_statement_separate_line():
                     "check": None,
                 },
                 {
-                    "name": "description",
+                    "name": '"description"',
                     "type": "varchar",
                     "size": 160,
                     "references": None,
@@ -473,7 +397,7 @@ def test_unique_statement_separate_line():
                     "check": None,
                 },
                 {
-                    "name": "created_at",
+                    "name": '"created_at"',
                     "type": "timestamp",
                     "size": None,
                     "references": None,
@@ -483,7 +407,7 @@ def test_unique_statement_separate_line():
                     "check": None,
                 },
                 {
-                    "name": "updated_at",
+                    "name": '"updated_at"',
                     "type": "timestamp",
                     "size": None,
                     "references": None,
@@ -497,7 +421,7 @@ def test_unique_statement_separate_line():
             "index": [],
             "alter": {},
             "checks": [],
-            "table_name": "steps",
+            "table_name": '"steps"',
             "schema": None,
             "partitioned_by": [],
         }
@@ -1206,6 +1130,6 @@ def test_parse_table_name_table():
   'index': [],
   'partitioned_by': [],
   'primary_key': ['_id'],
-  'schema': 'prefix--schema-name',
-  'table_name': 'table'}]
+  'schema': '"prefix--schema-name"',
+  'table_name': '"table"'}]
     assert result == expected

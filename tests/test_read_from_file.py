@@ -7,7 +7,7 @@ def test_parse_from_file_one_table():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "SERIAL",
                     "size": None,
                     "nullable": False,
@@ -17,7 +17,7 @@ def test_parse_from_file_one_table():
                     "references": None,
                 },
                 {
-                    "name": "name",
+                    "name": '"name"',
                     "type": "varchar",
                     "size": 160,
                     "nullable": True,
@@ -27,7 +27,7 @@ def test_parse_from_file_one_table():
                     "references": None,
                 },
                 {
-                    "name": "created_at",
+                    "name": '"created_at"',
                     "type": "timestamp",
                     "size": None,
                     "nullable": True,
@@ -37,7 +37,7 @@ def test_parse_from_file_one_table():
                     "references": None,
                 },
                 {
-                    "name": "updated_at",
+                    "name": '"updated_at"',
                     "type": "timestamp",
                     "size": None,
                     "nullable": True,
@@ -47,7 +47,7 @@ def test_parse_from_file_one_table():
                     "references": None,
                 },
                 {
-                    "name": "country_code",
+                    "name": '"country_code"',
                     "type": "int",
                     "size": None,
                     "nullable": True,
@@ -57,7 +57,7 @@ def test_parse_from_file_one_table():
                     "references": None,
                 },
                 {
-                    "name": "default_language",
+                    "name": '"default_language"',
                     "type": "int",
                     "size": None,
                     "nullable": True,
@@ -67,9 +67,9 @@ def test_parse_from_file_one_table():
                     "references": None,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ['"id"'],
             "index": [],
-            "table_name": "users",
+            "table_name": '"users"',
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -87,7 +87,7 @@ def test_parse_from_file_two_statements():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "SERIAL",
                     "size": None,
                     "nullable": False,
@@ -97,7 +97,7 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
                 {
-                    "name": "name",
+                    "name": '"name"',
                     "type": "varchar",
                     "size": None,
                     "nullable": True,
@@ -107,7 +107,7 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
                 {
-                    "name": "created_at",
+                    "name": '"created_at"',
                     "type": "timestamp",
                     "size": None,
                     "nullable": True,
@@ -117,7 +117,7 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
                 {
-                    "name": "updated_at",
+                    "name": '"updated_at"',
                     "type": "timestamp",
                     "size": None,
                     "nullable": True,
@@ -127,7 +127,7 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
                 {
-                    "name": "country_code",
+                    "name": '"country_code"',
                     "type": "int",
                     "size": None,
                     "nullable": True,
@@ -137,7 +137,7 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
                 {
-                    "name": "default_language",
+                    "name": '"default_language"',
                     "type": "int",
                     "size": None,
                     "nullable": True,
@@ -147,9 +147,9 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ['"id"'],
             "index": [],
-            "table_name": "users",
+            "table_name": '"users"',
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -158,7 +158,7 @@ def test_parse_from_file_two_statements():
         {
             "columns": [
                 {
-                    "name": "id",
+                    "name": '"id"',
                     "type": "int",
                     "size": None,
                     "nullable": False,
@@ -168,7 +168,7 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
                 {
-                    "name": "code",
+                    "name": '"code"',
                     "type": "varchar",
                     "size": 2,
                     "nullable": False,
@@ -178,7 +178,7 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
                 {
-                    "name": "name",
+                    "name": '"name"',
                     "type": "varchar",
                     "size": None,
                     "nullable": False,
@@ -188,9 +188,9 @@ def test_parse_from_file_two_statements():
                     "references": None,
                 },
             ],
-            "primary_key": ["id"],
+            "primary_key": ['"id"'],
             "index": [],
-            "table_name": "languages",
+            "table_name": '"languages"',
             "schema": None,
             "partitioned_by": [],
             "alter": {},

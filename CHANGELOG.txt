@@ -5,6 +5,7 @@
 4. Added argument 'group_by_type' in 'run' method that will group output by type of parsed entities like: 
 'tables': [all_pasrsed_tables], 'sequences': [all_pasrsed_sequences], 'types': [all_pasrsed_types]
 5. Type in column defenition also can be "schema"."YourCustomType"
+6. " now are not dissapeared if you use them in DDL.
 
 **v0.10.2**
 1. Fix regex that find '--' in table names (to avoid issue with -- comment lines near string defaults)
