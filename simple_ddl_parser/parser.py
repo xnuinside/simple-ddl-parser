@@ -121,7 +121,7 @@ class Parser:
         output_mode: change output mode to get information relative to specific dialect,
             for example, in output_mode='hql' you will see also in tables such information as
             'external', 'stored_as', etc.
-        group_by_type: if you set True, output will be formed as Dict with keys ['tables', 'sequences', 'types']
+        group_by_type: if you set True, output will be formed as Dict with keys ['tables', 'sequences', 'types', 'domains']
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each
             Dict == one entity from ddl - one table or sequence or type.
         """

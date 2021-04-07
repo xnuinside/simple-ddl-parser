@@ -230,7 +230,7 @@ def test_ref_in_alter():
                             "on_update": "CASCADE",
                             "deferrable_initially": None,
                             "schema": None,
-                            "table": 'parentTable',
+                            "table": "parentTable",
                         },
                     }
                 ]
@@ -240,7 +240,7 @@ def test_ref_in_alter():
                 {
                     "check": None,
                     "default": None,
-                    "name": 'parentTable',
+                    "name": "parentTable",
                     "nullable": True,
                     "references": None,
                     "size": None,
@@ -252,7 +252,7 @@ def test_ref_in_alter():
             "partitioned_by": [],
             "primary_key": [],
             "schema": None,
-            "table_name": 'ChildTableName',
+            "table_name": "ChildTableName",
         }
     ]
     assert expected == result

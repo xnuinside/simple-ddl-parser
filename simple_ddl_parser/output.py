@@ -147,6 +147,17 @@ def result_format(
 
 def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
     result_as_dict = {"tables": [], "types": [], "sequences": []}
+    keys_map = {
+        "table_name": "tables",
+        "sequence_name": "sequences",
+        "type_name": "types",
+    }
+    for item in final_result:
+        for key in keys_map:
+            if key in item:
+                result_as_dict[keys_map.get(key)].append(item)
+                break
+
     return result_as_dict
 
 

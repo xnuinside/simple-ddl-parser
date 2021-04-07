@@ -19,6 +19,7 @@ class DDLParser(Parser, HQL):
         "TABLE": "TABLE",
         "ALTER": "ALTER",
         "TYPE": "TYPE",
+        "DOMAIN": "DOMAIN",
     }
     common_statements = {
         "CHECK": "CHECK",
@@ -79,7 +80,7 @@ class DDLParser(Parser, HQL):
         + list(after_columns_tokens.values())
     )
 
-    t_ignore = ';\t  \r'
+    t_ignore = ";\t  \r"
     t_DOT = r"."
 
     def t_STRING(self, t):
@@ -126,7 +127,7 @@ class DDLParser(Parser, HQL):
             t.type = "ARRAY"
         if t.type == "TABLE" or t.type == "INDEX":
             self.lexer.is_table = True
-            print('table', self.lexer.is_table)
+            print("table", self.lexer.is_table)
         elif t.type == "SEQUENCE" and self.lexer.is_table:
             t.type = "ID"
         if t.type == "SEQUENCE":
@@ -178,17 +179,36 @@ class DDLParser(Parser, HQL):
     def p_expression_type_as(self, p):
         """expr : type_name ID LP pid RP"""
         p_list = list(p)
-        print(p_list)
         p[0] = p[1]
         p[0]["base_type"] = p[2]
         p[0]["properties"] = {}
         if p[0]["base_type"] == "ENUM":
             p[0]["properties"]["values"] = p_list[4]
-        print(p[0])
 
     def p_type_name(self, p):
         """type_name : CREATE TYPE ID AS
         | CREATE TYPE ID DOT ID AS
+        """
+        p_list = list(p)
+        p[0] = {}
+        if "." not in p_list:
+            p[0]["schema"] = None
+        else:
+            p[0]["schema"] = p[3]
+        p[0]["type_name"] = p_list[-2]
+
+    def p_expression_domain_as(self, p):
+        """expr : domain_name ID LP pid RP"""
+        p_list = list(p)
+        p[0] = p[1]
+        p[0]["base_type"] = p[2]
+        p[0]["properties"] = {}
+        if p[0]["base_type"] == "ENUM":
+            p[0]["properties"]["values"] = p_list[4]
+
+    def p_domain_name(self, p):
+        """domain_name : CREATE DOMAIN ID AS
+        | CREATE DOMAIN ID DOT ID AS
         """
         p_list = list(p)
         print(p_list)
@@ -372,7 +392,7 @@ class DDLParser(Parser, HQL):
 
     def p_column(self, p):
         """column : ID ID
-        | ID ID DOT ID 
+        | ID ID DOT ID
         | ID tid
         | column LP ID RP
         | column ID
@@ -382,8 +402,8 @@ class DDLParser(Parser, HQL):
         | column tid
 
         """
-        if '.' in list(p):
-            type_str = f'{p[2]}.{p[4]}'
+        if "." in list(p):
+            type_str = f"{p[2]}.{p[4]}"
         else:
             type_str = p[2]
         if isinstance(p[1], dict):

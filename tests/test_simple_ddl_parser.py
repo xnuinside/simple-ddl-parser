@@ -156,7 +156,7 @@ def test_run_query_caps_in_columns():
             ],
             "primary_key": ['"ID"'],
             "index": [],
-            "table_name": 'paths',
+            "table_name": "paths",
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -342,7 +342,7 @@ def test_unique_statement_in_columns():
             "index": [],
             "alter": {},
             "checks": [],
-            "table_name":'"steps"',
+            "table_name": '"steps"',
             "schema": None,
             "partitioned_by": [],
         }
@@ -1062,7 +1062,7 @@ def test_like_statement():
 
 
 def test_defaults_with_comments():
-    
+
     ddl = """
 
     CREATE table v2.entitlement_requests (
@@ -1073,42 +1073,54 @@ def test_defaults_with_comments():
     """
 
     result = DDLParser(ddl).run()
-    expected = [{'alter': {},
-  'checks': [],
-  'columns': [{'check': None,
-               'default': "'requested'",
-               'name': 'status',
-               'nullable': False,
-               'references': None,
-               'size': 10,
-               'type': 'varchar',
-               'unique': False},
-              {'check': None,
-               'default': "'none'",
-               'name': 'notes',
-               'nullable': False,
-               'references': None,
-               'size': 2000,
-               'type': 'varchar',
-               'unique': False},
-              {'check': None,
-               'default': None,
-               'name': 'id',
-               'nullable': False,
-               'references': None,
-               'size': 100,
-               'type': 'varchar',
-               'unique': False}],
-  'index': [],
-  'partitioned_by': [],
-  'primary_key': [],
-  'schema': 'v2',
-  'table_name': 'entitlement_requests'}]
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": "'requested'",
+                    "name": "status",
+                    "nullable": False,
+                    "references": None,
+                    "size": 10,
+                    "type": "varchar",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": "'none'",
+                    "name": "notes",
+                    "nullable": False,
+                    "references": None,
+                    "size": 2000,
+                    "type": "varchar",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "id",
+                    "nullable": False,
+                    "references": None,
+                    "size": 100,
+                    "type": "varchar",
+                    "unique": False,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": "v2",
+            "table_name": "entitlement_requests",
+        }
+    ]
     assert expected == result
 
 
 def test_parse_table_name_table():
-    
+
     ddl = """
     CREATE TABLE "prefix--schema-name"."table" (
     _id uuid PRIMARY KEY,
@@ -1116,20 +1128,93 @@ def test_parse_table_name_table():
     """
 
     result = DDLParser(ddl).run()
-    
-    expected = [{'alter': {},
-  'checks': [],
-  'columns': [{'check': None,
-               'default': None,
-               'name': '_id',
-               'nullable': False,
-               'references': None,
-               'size': None,
-               'type': 'uuid',
-               'unique': False}],
-  'index': [],
-  'partitioned_by': [],
-  'primary_key': ['_id'],
-  'schema': '"prefix--schema-name"',
-  'table_name': '"table"'}]
+
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "_id",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "uuid",
+                    "unique": False,
+                }
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": ["_id"],
+            "schema": '"prefix--schema-name"',
+            "table_name": '"table"',
+        }
+    ]
+    assert result == expected
+
+
+def test_group_by_type_output():
+    expected = {
+        "sequences": [
+            {
+                "cache": 1,
+                "increment": 10,
+                "maxvalue": 9223372036854775807,
+                "minvalue": 0,
+                "schema": "dev",
+                "sequence_name": "incremental_ids",
+                "start": 0,
+            }
+        ],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "content_type",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": '"schema--notification"."ContentType"',
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": '"schema--notification"',
+                "table_name": '"notification"',
+            }
+        ],
+        "types": [
+            {
+                "base_type": "ENUM",
+                "properties": {"values": ["'TEXT'", "'MARKDOWN'", "'HTML'"]},
+                "schema": '"schema--notification"',
+                "type_name": '"ContentType"',
+            }
+        ],
+    }
+
+    ddl = """
+CREATE TYPE "schema--notification"."ContentType" AS
+    ENUM ('TEXT','MARKDOWN','HTML');
+    CREATE TABLE "schema--notification"."notification" (
+        content_type "schema--notification"."ContentType"
+    );
+   CREATE SEQUENCE dev.incremental_ids
+    INCREMENT 10
+    START 0
+    MINVALUE 0
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+"""
+
+    result = DDLParser(ddl).run(group_by_type=True)
+
     assert result == expected
