@@ -1181,3 +1181,31 @@ def test_defaults_with_comments():
   'schema': 'v2',
   'table_name': 'entitlement_requests'}]
     assert expected == result
+
+
+def test_parse_table_name_table():
+    
+    ddl = """
+    CREATE TABLE "prefix--schema-name"."table" (
+    _id uuid PRIMARY KEY,
+    );
+    """
+
+    result = DDLParser(ddl).run()
+    
+    expected = [{'alter': {},
+  'checks': [],
+  'columns': [{'check': None,
+               'default': None,
+               'name': '_id',
+               'nullable': False,
+               'references': None,
+               'size': None,
+               'type': 'uuid',
+               'unique': False}],
+  'index': [],
+  'partitioned_by': [],
+  'primary_key': ['_id'],
+  'schema': 'prefix--schema-name',
+  'table_name': 'table'}]
+    assert result == expected

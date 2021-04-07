@@ -12,15 +12,15 @@ class DDLParser(Parser, HQL):
     lex and yacc parser for parse ddl into BQ schemas
     """
 
+    # statements that used at the start of defenition or in statements without columns
     defenition_statements = {
-        "IF": "IF",
-        "NOT": "NOT",
         "DROP": "DROP",
         "CREATE": "CREATE",
         "TABLE": "TABLE",
-        "EXISTS": "EXISTS",
         "ALTER": "ALTER",
-        "ADD": "ADD",
+        "TYPE": "TYPE",
+    }
+    common_statements = {
         "CHECK": "CHECK",
         "CONSTRAINT": "CONSTRAINT",
         "FOREIGN": "FOREIGN",
@@ -28,19 +28,24 @@ class DDLParser(Parser, HQL):
         "SEQUENCE": "SEQUENCE",
         "REFERENCES": "REFERENCES",
         "KEY": "KEY",
+        "ADD": "ADD",
+        "AS": "AS",
         "LIKE": "LIKE",
         "DEFERRABLE": "DEFERRABLE",
-        "INITIALLY": "INITIALLY"
+        "INITIALLY": "INITIALLY",
+        "IF": "IF",
+        "NOT": "NOT",
+        "EXISTS": "EXISTS",
+        "UNIQUE": "UNIQUE",
+        "ON": "ON",
     }
 
     columns_defenition = {
-        "ON": "ON",
         "DELETE": "DELETE",
         "UPDATE": "UPDATE",
         "NULL": "NULL",
         "PRIMARY": "PRIMARY",
         "DEFAULT": "DEFAULT",
-        "UNIQUE": "UNIQUE",
         "ARRAY": "ARRAY",
         ",": "COMMA",
     }
@@ -69,6 +74,7 @@ class DDLParser(Parser, HQL):
     tokens = tuple(
         ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
         + list(defenition_statements.values())
+        + list(common_statements.values())
         + list(columns_defenition.values())
         + list(sequence_reserved.values())
         + list(after_columns_tokens.values())
@@ -77,69 +83,69 @@ class DDLParser(Parser, HQL):
     t_ignore = ';\t  "\r'
     t_DOT = r"."
 
-    sequence = False
-    last_token = False
-    columns_def = False
-    after_columns = False
-    check = False
-    is_table = False
-    lt_open = 0
-    
     def t_STRING(self, t):
         r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\/\\\"]*\'\B"
         t.type = "STRING"
+        print(t.type, t.value)
         return t
 
     def t_ID(self, t):
         r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$'\()!{}\[\]]+"
+        t.type = "ID"
         if t.value == ")":
             t.type = "RP"
         elif t.value == "(":
             t.type = "LP"
-            if not self.after_columns:
-                self.columns_def = True
+            if not self.lexer.after_columns:
+                self.lexer.columns_def = True
+                self.lexer.is_table = False
         # todo: need to find less hacky way to parse HQL structure types
-        elif '<' == t.value and not self.check:
+        elif "<" == t.value and not self.lexer.check:
             t.type = "LT"
-            self.lt_open += 1
-        elif '>' == t.value and not self.check:
+            self.lexer.lt_open += 1
+        elif ">" == t.value and not self.lexer.check:
             t.type = "RT"
-            self.lt_open -= 1
+            self.lexer.lt_open -= 1
         else:
-            t.type = self.defenition_statements.get(
-                t.value.upper(), "ID"
-            )  # Check for reserved word
-        
+            if not self.lexer.is_table:
+                # if is_table mean wi already met INDEX or TABLE statement and the defenition already done and this is a string
+                t.type = self.defenition_statements.get(
+                    t.value.upper(), t.type
+                )  # Check for reserved word
+            t.type = self.common_statements.get(t.value.upper(), t.type)
+
         if t.value.strip() == "'":
-            self.string = True
+            self.lexer.string = True
         if t.type == "CREATE":
-            self.sequence = False
-            self.is_table = False
-        if self.last_token == "RP" or self.after_columns:
+            self.lexer.sequence = False
+            self.lexer.is_table = False
+        if self.lexer.last_token == "RP" or self.lexer.after_columns:
             t.type = self.after_columns_tokens.get(t.value.upper(), t.type)
             if t.type != "ID":
-                self.after_columns = True
-            elif self.columns_def:
+                self.lexer.after_columns = True
+            elif self.lexer.columns_def:
                 t.type = self.columns_defenition.get(t.value.upper(), t.type)
-        elif self.columns_def:
+        elif self.lexer.columns_def:
             t.type = self.columns_defenition.get(t.value.upper(), t.type)
-        elif self.sequence:
+        elif self.lexer.sequence:
             t.type = self.sequence_reserved.get(t.value.upper(), "ID")
         elif "ARRAY" in t.value:
             t.type = "ARRAY"
         if t.type == "TABLE" or t.type == "INDEX":
-            self.is_table = True
-        elif t.type == "SEQUENCE" and self.is_table:
+            self.lexer.is_table = True
+
+        elif t.type == "SEQUENCE" and self.lexer.is_table:
             t.type = "ID"
         if t.type == "SEQUENCE":
-            self.sequence = True
-        if t.type == 'COMMA' and self.lt_open:
-            t.type = 'COMMAT'
+            self.lexer.sequence = True
+        if t.type == "COMMA" and self.lexer.lt_open:
+            t.type = "COMMAT"
         if t.type == "CHECK":
-            self.check = True
+            self.lexer.check = True
         if t.type != "ID":
             t.value = t.value.upper()
-        self.last_token = t.type
+        self.lexer.last_token = t.type
+        print(t.type, t.value)
         return t
 
     def t_newline(self, t):
@@ -175,6 +181,31 @@ class DDLParser(Parser, HQL):
         else:
             table_name = p_list[-1]
         p[0] = {"schema": schema, "table_name": table_name}
+
+    def p_expression_type_as(self, p):
+        """expr : type_name ID LP pid RP"""
+        p_list = list(p)
+        print(p_list)
+        p[0] = p[1]
+        p[0]["base_type"] = p[2]
+        p[0]["properties"] = {}
+        if p[0]["base_type"] == "ENUM":
+            p[0]["properties"]["values"] = p_list[4]
+        print(p[0])
+
+    def p_type_name(self, p):
+        """type_name : CREATE TYPE ID AS
+        | CREATE TYPE ID DOT ID AS
+        """
+        p_list = list(p)
+        print(p_list)
+        p[0] = {}
+        if "." not in p_list:
+            p[0]["schema"] = None
+        else:
+            p[0]["schema"] = p[3]
+        p[0]["type_name"] = p_list[-2]
+        print(p[0])
 
     def p_expression_index(self, p):
         """expr : index_table_name LP pid RP"""
@@ -229,6 +260,7 @@ class DDLParser(Parser, HQL):
         """
         p[0] = p[1]
         p_list = list(p)
+        print(p_list)
         if p_list[-1] != "," and p_list[-1] != ")":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
@@ -242,6 +274,7 @@ class DDLParser(Parser, HQL):
                 p[0]["checks"].append(check)
             else:
                 p[0].update(p_list[-1])
+
     def p_expression_like_table(self, p):
         """expr : table_name LIKE ID
         | table_name LIKE ID DOT ID
@@ -256,13 +289,11 @@ class DDLParser(Parser, HQL):
             table_name = p_list[-1]
             schema = None
         p[0] = p[1]
-        p[0].update({'like': {
-                  "schema": schema, "table_name": table_name
-             }})
-        
+        p[0].update({"like": {"schema": schema, "table_name": table_name}})
+
     def p_table_name(self, p):
         """table_name : create_table ID DOT ID
-        | create_table ID 
+        | create_table ID
         | table_name LIKE ID
         | table_name DOT ID
         """
@@ -276,9 +307,9 @@ class DDLParser(Parser, HQL):
         else:
             table_name = p_list[-1]
             schema = None
-            
+
         p[0].update(
-        {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
+            {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
         )
 
     def p_expression_seq(self, p):
@@ -331,10 +362,10 @@ class DDLParser(Parser, HQL):
         if p[2].upper() == "EXTERNAL":
             external = True
         p[0] = {"external": external}
-    
+
     def p_tid(self, p):
-        """ tid : LT ID
-        | tid ID 
+        """tid : LT ID
+        | tid ID
         | tid COMMAT
         | tid RT
         """
@@ -342,26 +373,30 @@ class DDLParser(Parser, HQL):
             p[0] = [p[1]]
         else:
             p[0] = p[1]
-        
+
         for i in list(p)[2:]:
             p[0][0] += i
-        
+
     def p_column(self, p):
         """column : ID ID
+        | ID ID DOT ID 
         | ID tid
         | column LP ID RP
         | column ID
         | column LP ID COMMA ID RP
-        | column ARRAY 
-        | ID ARRAY tid 
-        | column tid 
+        | column ARRAY
+        | ID ARRAY tid
+        | column tid
 
         """
+        if '.' in list(p):
+            type_str = f'"{p[2]}"."{p[4]}"'
+        else:
+            type_str = p[2]
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
             size = None
-            type_str = p[2]
             p[0] = {"name": p[1], "type": type_str, "size": size}
         p_list = remove_par(list(p))
         if "[]" == p_list[-1]:
@@ -372,7 +407,7 @@ class DDLParser(Parser, HQL):
             p[0]["type"] = p[0]["type"] + append
         elif isinstance(p_list[-1], list):
             if len(p_list) == 4:
-                p[0]["type"] = f'{p[2]} {p[3][0]}'
+                p[0]["type"] = f"{p[2]} {p[3][0]}"
             elif p[0]["type"]:
                 if len(p[0]["type"]) == 1 and isinstance(p[0]["type"], list):
                     p[0]["type"] = p[0]["type"][0]
@@ -396,22 +431,21 @@ class DDLParser(Parser, HQL):
             "schema": None,
             "on_delete": None,
             "on_update": None,
-            "deferrable_initially": None
+            "deferrable_initially": None,
         }
         if not "." in p_list[ref_index:]:
-            ref.update({
-                    "table": p_list[ref_index + 1]})
+            ref.update({"table": p_list[ref_index + 1]})
             if not len(p_list) == 3:
-                ref.update({
-                    "columns": p_list[-1]
-                })
-        else: 
-            ref.update({
-                "schema": p_list[ref_index + 1],
-                "columns": p_list[-1],
-                "table": p_list[ref_index + 3],
-            })
-            
+                ref.update({"columns": p_list[-1]})
+        else:
+            ref.update(
+                {
+                    "schema": p_list[ref_index + 1],
+                    "columns": p_list[-1],
+                    "table": p_list[ref_index + 3],
+                }
+            )
+
         return ref
 
     def p_null(self, p):
@@ -443,7 +477,12 @@ class DDLParser(Parser, HQL):
                         p[0]["default"] += f"{i}"
                     else:
                         p[0]["default"] += f" {i}"
-                    p[0]["default"] = p[0]["default"].replace('"', "").replace("'", "").replace("\\'", "'")
+                    p[0]["default"] = (
+                        p[0]["default"]
+                        .replace('"', "")
+                        .replace("'", "")
+                        .replace("\\'", "'")
+                    )
         else:
             p[0] = {"default": default}
 
@@ -570,8 +609,9 @@ class DDLParser(Parser, HQL):
 
     def p_pid(self, p):
         """pid :  ID
-        | pid COMMA ID
         | STRING
+        | pid COMMA ID
+        | pid COMMA STRING
         """
         p_list = list(p)
         if not isinstance(p_list[1], list):
@@ -636,23 +676,25 @@ class DDLParser(Parser, HQL):
         p_list = remove_par(list(p))
         if isinstance(p[1], dict):
             p[0] = p[1]
-            if 'ON' not in p_list and 'DEFERRABLE' not in p_list:
-                p[0]["references"]['columns'] = p_list[-1]
+            if "ON" not in p_list and "DEFERRABLE" not in p_list:
+                p[0]["references"]["columns"] = p_list[-1]
             else:
-                p[0]["references"]['columns'] = p[0]["references"].get('columns', [None])
+                p[0]["references"]["columns"] = p[0]["references"].get(
+                    "columns", [None]
+                )
         else:
             data = {"references": self.extract_references(p_list)}
             p[0] = data
-        if 'ON' in p_list:
-            if 'DELETE' in p_list:
-                p[0]["references"]['on_delete'] = p_list[-1]
-            elif 'UPDATE' in p_list:
-                p[0]["references"]['on_update'] = p_list[-1]
-        elif 'DEFERRABLE' in p_list:
-            if 'NOT' not in p_list:
-                p[0]["references"]['deferrable_initially'] = p_list[-1]
-            else: 
-                p[0]["references"]['deferrable_initially'] = 'NOT'
+        if "ON" in p_list:
+            if "DELETE" in p_list:
+                p[0]["references"]["on_delete"] = p_list[-1]
+            elif "UPDATE" in p_list:
+                p[0]["references"]["on_update"] = p_list[-1]
+        elif "DEFERRABLE" in p_list:
+            if "NOT" not in p_list:
+                p[0]["references"]["deferrable_initially"] = p_list[-1]
+            else:
+                p[0]["references"]["deferrable_initially"] = "NOT"
 
     def p_expression_primary_key(self, p):
         "expr : pkey"
