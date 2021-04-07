@@ -268,7 +268,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - CREATE SEQUENCE with words: INCREMENT, START, MINVALUE, MAXVALUE, CACHE
 
-- CREATE TYPE statement ENUM, OBJECT
+- CREATE TYPE statement:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT
 
 - LIKE statement (in this and only in this case to output will be added 'like' keyword with information about table from that we did like - 'like': {'schema': None, 'table_name': 'Old_Users'}).
 
@@ -288,6 +288,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 5. Add COMMENT ON statement support
 6. Add CREATE DATABASE statement support
 7. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
+8. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
 
 
 ## non-feature todo

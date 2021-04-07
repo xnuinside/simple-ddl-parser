@@ -20,6 +20,8 @@ class DDLParser(Parser, HQL):
         "ALTER": "ALTER",
         "TYPE": "TYPE",
         "DOMAIN": "DOMAIN",
+        "REPLACE": "REPLACE",
+        "OR": "OR"
     }
     common_statements = {
         "CHECK": "CHECK",
@@ -86,7 +88,6 @@ class DDLParser(Parser, HQL):
     def t_STRING(self, t):
         r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\/\\\"]*\'\B"
         t.type = "STRING"
-        print(t.type, t.value)
         return t
 
     def t_ID(self, t):
@@ -127,7 +128,6 @@ class DDLParser(Parser, HQL):
             t.type = "ARRAY"
         if t.type == "TABLE" or t.type == "INDEX":
             self.lexer.is_table = True
-            print("table", self.lexer.is_table)
         elif t.type == "SEQUENCE" and self.lexer.is_table:
             t.type = "ID"
         if t.type == "SEQUENCE":
@@ -139,7 +139,6 @@ class DDLParser(Parser, HQL):
         if t.type != "ID":
             t.value = t.value.upper()
         self.lexer.last_token = t.type
-        print(t.type, t.value)
         return t
 
     def t_newline(self, t):
@@ -176,26 +175,74 @@ class DDLParser(Parser, HQL):
             table_name = p_list[-1]
         p[0] = {"schema": schema, "table_name": table_name}
 
+    def p_multiple_column(self, p):
+        """multiple_column : column
+         | multiple_column COMMA 
+         | multiple_column column
+        """
+        p_list = list(p)
+        if isinstance(p[1], dict):
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1]
+            if p_list[-1] != ',':
+                p[0].append(p_list[-1])
+    
+    
+    def p_id_equals(self, p):
+        """id_equals : ID ID ID
+        | id_equals COMMA
+        | id_equals COMMA ID ID ID 
+        """
+        p_list = list(p)
+        if '=' == p_list[-2]:
+            property = {p_list[-3]: p_list[-1]}
+            if not isinstance(p[1], list):
+                p[0] = [property]
+            else:
+                p[0] = p[1]
+                p[0].append(property)
+        
     def p_expression_type_as(self, p):
-        """expr : type_name ID LP pid RP"""
+        """expr : type_name ID LP pid RP
+        | type_name ID LP multiple_column RP
+        | type_name LP id_equals RP
+        """
         p_list = list(p)
         p[0] = p[1]
         p[0]["base_type"] = p[2]
         p[0]["properties"] = {}
         if p[0]["base_type"] == "ENUM":
             p[0]["properties"]["values"] = p_list[4]
+        elif p[0]["base_type"] == "OBJECT":
+            if 'type' in p_list[4][0]:
+                p[0]["properties"]["attributes"] = p_list[4]
+        else:
+            if isinstance(p_list[-2], list):
+                for item in p_list[-2]:
+                    p[0]["properties"].update(item)
 
+        
     def p_type_name(self, p):
-        """type_name : CREATE TYPE ID AS
-        | CREATE TYPE ID DOT ID AS
+        """type_name : type_create ID AS
+        | type_create ID DOT ID AS 
+        | type_create ID DOT ID 
+        | type_create ID
         """
         p_list = list(p)
         p[0] = {}
         if "." not in p_list:
             p[0]["schema"] = None
+            p[0]["type_name"] = p_list[2]
         else:
-            p[0]["schema"] = p[3]
-        p[0]["type_name"] = p_list[-2]
+            p[0]["schema"] = p[2]
+            p[0]["type_name"] = p_list[4]
+    
+    def p_type_create(self, p):
+        """type_create : CREATE TYPE
+        | CREATE OR REPLACE TYPE
+        """
+        p[0] = None
 
     def p_expression_domain_as(self, p):
         """expr : domain_name ID LP pid RP"""
@@ -211,14 +258,12 @@ class DDLParser(Parser, HQL):
         | CREATE DOMAIN ID DOT ID AS
         """
         p_list = list(p)
-        print(p_list)
         p[0] = {}
         if "." not in p_list:
             p[0]["schema"] = None
         else:
             p[0]["schema"] = p[3]
         p[0]["type_name"] = p_list[-2]
-        print(p[0])
 
     def p_expression_index(self, p):
         """expr : index_table_name LP pid RP"""
@@ -273,7 +318,6 @@ class DDLParser(Parser, HQL):
         """
         p[0] = p[1]
         p_list = list(p)
-        print(p_list)
         if p_list[-1] != "," and p_list[-1] != ")":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
