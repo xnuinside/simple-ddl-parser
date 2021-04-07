@@ -98,7 +98,6 @@ class DDLParser(Parser, HQL):
             t.type = "LP"
             if not self.lexer.after_columns:
                 self.lexer.columns_def = True
-                self.lexer.is_table = False
         # todo: need to find less hacky way to parse HQL structure types
         elif "<" == t.value and not self.lexer.check:
             t.type = "LT"
@@ -114,11 +113,6 @@ class DDLParser(Parser, HQL):
                 )  # Check for reserved word
             t.type = self.common_statements.get(t.value.upper(), t.type)
 
-        if t.value.strip() == "'":
-            self.lexer.string = True
-        if t.type == "CREATE":
-            self.lexer.sequence = False
-            self.lexer.is_table = False
         if self.lexer.last_token == "RP" or self.lexer.after_columns:
             t.type = self.after_columns_tokens.get(t.value.upper(), t.type)
             if t.type != "ID":
@@ -133,7 +127,7 @@ class DDLParser(Parser, HQL):
             t.type = "ARRAY"
         if t.type == "TABLE" or t.type == "INDEX":
             self.lexer.is_table = True
-
+            print('table', self.lexer.is_table)
         elif t.type == "SEQUENCE" and self.lexer.is_table:
             t.type = "ID"
         if t.type == "SEQUENCE":
