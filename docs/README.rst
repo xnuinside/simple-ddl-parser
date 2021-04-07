@@ -170,195 +170,73 @@ You can provide target path where you want to dump result with argument **-t**\ 
 More details
 ^^^^^^^^^^^^
 
-This parser take as input SQL DDL statements or files, for example like this:
+``DDLParser(ddl).run()``
+.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument ``output_mode`` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'.
 
-.. code-block:: sql
+Also in .run() method exists argument ``group_by_type`` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entitiy from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 
-
-       CREATE TABLE employees (
-           id SERIAL PRIMARY KEY,
-           first_name VARCHAR (50),
-           last_name VARCHAR (50),
-           birth_date DATE CHECK (birth_date > '1900-01-01'),
-           joined_date DATE CHECK (joined_date > birth_date),
-           salary numeric CHECK(salary > 0),
-           phone_numbers varchar(16) array,
-           tags varchar ARRAY[1]
-       );
-       CREATE TABLE dev.Persons (
-           ID int NOT NULL,
-           LastName varchar(255) NOT NULL,
-           FirstName varchar(255),
-           Age int,
-           City varchar(255),
-           Country varchar(255),
-           CONSTRAINT CHK_Person CHECK (Age>=19 AND City='Sandnes')
-       );
-
-       ALTER TABLE dev.Persons ADD CHECK (Age>=18 AND City='Sandnes');
-
-       ALTER TABLE dev.Persons Add CONSTRAINT ck_person  CHECK (Age>=18 AND City='Sandnes');
-       Alter Table dev.Persons ADD CONSTRAINT fk_group FOREIGN KEY (id) REFERENCES employees (id); 
-       create unique index person_pk on dev.Persons (ID) ;
-       create index person_ix2 on dev.Persons (City, Country);
-
-And produce output like this (information about table name, schema, columns, types and properties):
+To make work little bit easy you can set group_by_type=True and you will get output already sorted by types, like:
 
 .. code-block:: python
 
-   [{
-     'table_name': 'employees',
-     'index': [],
-     'primary_key': ['id'],
-     'schema': None,
-     'alter': {},
-     'checks': [],
-     'columns': [{'check': None,
-                  'default': None,
-                  'name': 'id',
-                  'nullable': False,
-                  'references': None,
-                  'size': None,
-                  'type': 'SERIAL',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'first_name',
-                  'nullable': True,
-                  'references': None,
-                  'size': 50,
-                  'type': 'VARCHAR',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'last_name',
-                  'nullable': True,
-                  'references': None,
-                  'size': 50,
-                  'type': 'VARCHAR',
-                  'unique': False},
-                 {'check': "birth_date > '1900-01-01'",
-                  'default': None,
-                  'name': 'birth_date',
-                  'nullable': True,
-                  'references': None,
-                  'size': None,
-                  'type': 'DATE',
-                  'unique': False},
-                 {'check': 'joined_date > birth_date',
-                  'default': None,
-                  'name': 'joined_date',
-                  'nullable': True,
-                  'references': None,
-                  'size': None,
-                  'type': 'DATE',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'phone_numbers',
-                  'nullable': True,
-                  'references': None,
-                  'size': 16,
-                  'type': 'varchar[]',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'tags',
-                  'nullable': True,
-                  'references': None,
-                  'size': None,
-                  'type': 'varchar[1]',
-                  'unique': False}]},
 
-       {'table_name': 'Persons',
-       'index': [{'columns': ['ID'], 'index_name': 'person_pk', 'unique': True},
-                   {'columns': ['City', 'Country'],
-                   'index_name': 'person_ix2',
-                   'unique': False}],
-       'primary_key': [],
-       'schema': 'dev', 'partitioned_by': [],
-       'alter': {'checks': [{'constraint_name': None,
-                           'statement': ['Age>=18', 'AND', "City='Sandnes'"]},
-                          {'constraint_name': 'ck_person',
-                           'statement': ['Age>=18', 'AND', "City='Sandnes'"]}],
-               'columns': [{'constraint_name': 'fk_group',
-                            'name': 'id',
-                            'references': {'column': 'id',
-                                           'schema': None,
-                                           'table': 'employees'}}]},
-     'checks': [{'constraint_name': 'CHK_Person',
-                 'statement': "Age>=19 AND City='Sandnes'"}],
-     'columns': [{'check': None,
-                  'default': None,
-                  'name': 'ID',
-                  'nullable': False,
-                  'references': None,
-                  'size': None,
-                  'type': 'int',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'LastName',
-                  'nullable': False,
-                  'references': None,
-                  'size': 255,
-                  'type': 'varchar',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'FirstName',
-                  'nullable': True,
-                  'references': None,
-                  'size': 255,
-                  'type': 'varchar',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'Age',
-                  'nullable': True,
-                  'references': None,
-                  'size': None,
-                  'type': 'int',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'City',
-                  'nullable': True,
-                  'references': None,
-                  'size': 255,
-                  'type': 'varchar',
-                  'unique': False},
-                 {'check': None,
-                  'default': None,
-                  'name': 'Country',
-                  'nullable': True,
-                  'references': None,
-                  'size': 255,
-                  'type': 'varchar',
-                  'unique': False}]
-                  }]
+       { 
+           'tables': [all_pasrsed_tables], 
+           'sequences': [all_pasrsed_sequences], 
+           'types': [all_pasrsed_types], 
+           'domains': [all_pasrsed_domains],
+           ...
+       }
 
-SEQUENCES
-^^^^^^^^^
+For example:
 
-When we parse SEQUENCES each property stored as a separate dict KEY, for example for sequence:
+.. code-block:: python
 
-.. code-block:: sql
 
+       ddl = """
+       CREATE TYPE "schema--notification"."ContentType" AS
+           ENUM ('TEXT','MARKDOWN','HTML');
+           CREATE TABLE "schema--notification"."notification" (
+               content_type "schema--notification"."ContentType"
+           );
        CREATE SEQUENCE dev.incremental_ids
-       INCREMENT 1
-       START 1
-       MINVALUE 1
-       MAXVALUE 9223372036854775807
-       CACHE 1;
+           INCREMENT 10
+           START 0
+           MINVALUE 0
+           MAXVALUE 9223372036854775807
+           CACHE 1;
+       """
 
-Will be output:
+       result = DDLParser(ddl).run(group_by_type=True)
 
-.. code-block:: python
+       # result will be:
 
-       [
-           {'schema': 'dev', 'partitioned_by': [], 'incremental_ids': 'document_id_seq', 'increment': 1, 'start': 1, 'minvalue': 1, 'maxvalue': 9223372036854775807, 'cache': 1}
-       ]
+       {'sequences': [{'cache': 1,
+                       'increment': 10,
+                       'maxvalue': 9223372036854775807,
+                       'minvalue': 0,
+                       'schema': 'dev',
+                       'sequence_name': 'incremental_ids',
+                       'start': 0}],
+       'tables': [{'alter': {},
+                   'checks': [],
+                   'columns': [{'check': None,
+                               'default': None,
+                               'name': 'content_type',
+                               'nullable': True,
+                               'references': None,
+                               'size': None,
+                               'type': '"schema--notification"."ContentType"',
+                               'unique': False}],
+                   'index': [],
+                   'partitioned_by': [],
+                   'primary_key': [],
+                   'schema': '"schema--notification"',
+                   'table_name': '"notification"'}],
+       'types': [{'base_type': 'ENUM',
+                   'properties': {'values': ["'TEXT'", "'MARKDOWN'", "'HTML'"]},
+                   'schema': '"schema--notification"',
+                   'type_name': '"ContentType"'}]}
 
 ALTER statements
 ^^^^^^^^^^^^^^^^
@@ -404,6 +282,12 @@ Supported Statements
   PARTITIONED BY statement
 
 * 
+  CREATE SEQUENCE with words: INCREMENT, START, MINVALUE, MAXVALUE, CACHE
+
+* 
+  CREATE TYPE statement:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT
+
+* 
   LIKE statement (in this and only in this case to output will be added 'like' keyword with information about table from that we did like - 'like': {'schema': None, 'table_name': 'Old_Users'}).
 
 HQL Dialect statements
@@ -422,8 +306,11 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 #. Add 'oracle' output_mode: add support for STORAGE statement, ENCRYPT column parameter
 #. Add support for GENERATED ALWAYS AS statement
 #. Add support for CREATE TABLESPACE statement & TABLESPACE statement in table defenition.
+#. Add support for statement CREATE DOMAIN
 #. Add COMMENT ON statement support
 #. Add CREATE DATABASE statement support
+#. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
+#. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
 
 non-feature todo
 ----------------
@@ -461,6 +348,16 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 
 Changelog
 ---------
+
+**v0.11.0**
+
+
+#. Now table can has name 'table'
+#. Added base support for statement CREATE TYPE:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT (not all properties & types supported yet.)
+#. Added argument 'group_by_type' in 'run' method that will group output by type of parsed entities like: 
+   'tables': [all_pasrsed_tables], 'sequences': [all_pasrsed_sequences], 'types': [all_pasrsed_types], 'domains': [all_pasrsed_domains]
+#. Type in column defenition also can be "schema"."YourCustomType"
+#. " now are not dissapeared if you use them in DDL.
 
 **v0.10.2**
 

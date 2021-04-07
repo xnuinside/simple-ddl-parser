@@ -323,6 +323,14 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.11.0**
+1. Now table can has name 'table'
+2. Added base support for statement CREATE TYPE:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT (not all properties & types supported yet.)
+3. Added argument 'group_by_type' in 'run' method that will group output by type of parsed entities like: 
+'tables': [all_pasrsed_tables], 'sequences': [all_pasrsed_sequences], 'types': [all_pasrsed_types], 'domains': [all_pasrsed_domains]
+4. Type in column defenition also can be "schema"."YourCustomType"
+5. " now are not dissapeared if you use them in DDL.
+
 **v0.10.2**
 1. Fix regex that find '--' in table names (to avoid issue with -- comment lines near string defaults)
 
