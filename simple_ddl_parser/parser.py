@@ -1,6 +1,6 @@
 import os
 from ply import lex, yacc
-from typing import Dict, List, Optional, Tuple, Literal
+from typing import Dict, List, Optional, Tuple
 from simple_ddl_parser.output import dump_data_to_file, result_format
 import re
 
@@ -110,7 +110,7 @@ class Parser:
         dump: bool = False,
         dump_path="schemas",
         file_path: Optional[str] = None,
-        output_mode: Literal["sql", "hql"] = "sql",
+        output_mode: str = "sql",
         group_by_type: bool = False,
     ) -> List[Dict]:
         """
