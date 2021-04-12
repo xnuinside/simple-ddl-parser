@@ -1,8 +1,8 @@
 ## Simple DDL Parser
 
-![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) 
+![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser)
 
-Build with ply (lex & yacc in python). A lot of samples in 'tests/'
+Build with ply (lex & yacc in python). A lot of samples in 'tests/'. If you like library and use it, please, don't forget set 'star' on github. It's really helpful to understand that someone use it :) Thank you!
 
 ### How does it work?
 
@@ -32,7 +32,7 @@ A lot of statements and output result you can find in tests on the github - http
 
 ### Extract additional information from HQL (& other dialects)
 
-In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This propertie will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'. 
+In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This propertie will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'.
 Also some fields hidden in HQL, because they are simple not exists in HIVE, for example 'deferrable_initially'
 To get this 'hql' specific details about table in output please use 'output_mode' argument in run() method.
 
@@ -79,11 +79,12 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
     ... 
   }
 
-
-
 ```
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
+
+Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
+
 
 ### From python code
 
@@ -161,7 +162,7 @@ You can provide target path where you want to dump result with argument **-t**, 
 ### More details
 
 `DDLParser(ddl).run()`
-.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'.
+.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
 
 Also in .run() method exists argument `group_by_type` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entitiy from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 
@@ -256,7 +257,7 @@ To dump result in json use argument .run(dump=True)
 
 You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
-### Supported Statements
+## Supported Statements
 
 - CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY
 
@@ -272,12 +273,18 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - LIKE statement (in this and only in this case to output will be added 'like' keyword with information about table from that we did like - 'like': {'schema': None, 'table_name': 'Old_Users'}).
 
-## HQL Dialect statements
+### HQL Dialect statements
 
 - PARTITIONED BY statement
 - ROW FORMAT
 - STORED AS
 - LOCATION, FIELDS TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
+
+### MSSQL
+
+- type IDENTITY statement
+- FOREIGN KEY REFERENCES statement
+- 'max' specifier in column size
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 

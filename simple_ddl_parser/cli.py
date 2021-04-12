@@ -2,6 +2,8 @@ import argparse
 import os
 import sys
 from simple_ddl_parser import parse_from_file
+from simple_ddl_parser.output.common import output_modes
+
 import pprint
 
 
@@ -36,7 +38,7 @@ def cli():
         "-o",
         "--output-mode",
         default="sql",
-        help="Parse without saving to the file. Only print result to the console.",
+        help=f"Output mode that will be used to format result. Possible variants: {output_modes}",
     )
     return sdb_cli
 

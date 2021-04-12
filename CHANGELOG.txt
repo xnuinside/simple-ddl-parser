@@ -1,3 +1,11 @@
+
+**v0.12.0**
+1. Added support for MSSQL: types with 2 words like 'int IDENTITY', 
+FOREIGN KEY REFERENCES statement, supported 'max' as type size, CONSTRAINT ... UNIQUE statement in table defenition
+2. Added output_mode types: 'mysql', 'mssql' for SQL Server, 'oracle'. If chosed one of the above - 
+added key 'unique_constraint' in table defenition by default.
+
+
 **v0.11.0**
 1. Now table can has name 'table'
 2. Added base support for statement CREATE TYPE:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT (not all properties & types supported yet.)
