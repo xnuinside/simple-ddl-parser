@@ -280,11 +280,13 @@ You also can provide a path where you want to have a dumps with schema with argu
 - STORED AS
 - LOCATION, FIELDS TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
 
-### MSSQL
+### MSSQL / MySQL/ Oracle
 
 - type IDENTITY statement
 - FOREIGN KEY REFERENCES statement
 - 'max' specifier in column size
+- CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
+
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 

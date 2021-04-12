@@ -311,6 +311,8 @@ class DDLParser(Parser, HQL):
         | expr COMMA pkey
         | expr COMMA uniq
         | expr COMMA constraint uniq
+        | expr COMMA constraint check_ex
+        | expr COMMA constraint foreign ref
         | expr RP
         """
         p[0] = p[1]
@@ -333,13 +335,14 @@ class DDLParser(Parser, HQL):
         if isinstance(p_list[-1], dict) and "constraint" in p_list[-2]:
             columns = remove_par(p_list[-1]["unique_statement"])
             columns.remove(",")
-            p[0].update(
+            p[0].update({'constraints': 
                 {
-                    "unique_constraint": {
+                    "unique": {
                         "columns": columns,
                         "name": p_list[-2]["constraint"]["name"],
                     }
                 }
+            }
             )
 
     def p_expression_like_table(self, p):
