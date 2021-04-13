@@ -674,6 +674,14 @@ def test_check_with_constraint():
                 },
                 {"constraint_name": None, "statement": "LastName != FirstName"},
             ],
+            "constraints": {
+                "checks": [
+                    {
+                        "constraint_name": "CHK_Person",
+                        "statement": "Age>=18 AND City='Sandnes'",
+                    }
+                ]
+            },
             "table_name": "Persons",
             "schema": None,
             "partitioned_by": [],

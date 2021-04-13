@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 from typing import Dict, List
 from simple_ddl_parser.parser import Parser
 from simple_ddl_parser.dialects.hql import HQL
@@ -19,6 +20,7 @@ class DDLParser(Parser, HQL):
         "DOMAIN": "DOMAIN",
         "REPLACE": "REPLACE",
         "OR": "OR",
+        "CLUSTERED": "CLUSTERED"
     }
     common_statements = {
         "CHECK": "CHECK",
@@ -289,8 +291,13 @@ class DDLParser(Parser, HQL):
         """create_index : CREATE INDEX ID
         | CREATE UNIQUE INDEX ID
         | create_index ON ID
+        | CREATE CLUSTERED INDEX ID 
         """
         p_list = list(p)
+        if 'CLUSTERED' in p_list:
+            clustered = True
+        else:
+            clustered = False
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
@@ -298,8 +305,9 @@ class DDLParser(Parser, HQL):
                 "schema": None,
                 "index_name": p_list[-1],
                 "unique": "UNIQUE" in p_list,
+                "clustered": clustered
             }
-
+            
     def p_expression_table(self, p):
         """expr : table_name defcolumn
         | table_name LP defcolumn
@@ -311,13 +319,13 @@ class DDLParser(Parser, HQL):
         | expr COMMA pkey
         | expr COMMA uniq
         | expr COMMA constraint uniq
-        | expr COMMA constraint check_ex
         | expr COMMA constraint foreign ref
+        | expr COMMA foreign ref
         | expr RP
         """
         p[0] = p[1]
         p_list = list(p)
-        print(p_list[2:], "2")
+        print(p_list[2:], "2ddd")
         if p_list[-1] != "," and p_list[-1] != ")":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
@@ -328,23 +336,43 @@ class DDLParser(Parser, HQL):
                         check = {"constraint_name": None, "statement": check}
                 else:
                     check = p_list[-1]["check"]
+                    
+                    print('cheeeek', check)
+                    p[0] = self.set_constraint(p[0], 'checks', check, check['constraint_name'])
                 p[0]["checks"].append(check)
             else:
                 p[0].update(p_list[-1])
 
-        if isinstance(p_list[-1], dict) and "constraint" in p_list[-2]:
-            columns = remove_par(p_list[-1]["unique_statement"])
-            columns.remove(",")
-            p[0].update({'constraints': 
-                {
-                    "unique": {
-                        "columns": columns,
-                        "name": p_list[-2]["constraint"]["name"],
-                    }
-                }
-            }
-            )
-
+        if isinstance(p_list[-1], dict):
+            if "constraint" in p_list[-2] and p_list[-1].get("unique_statement"):
+                p[0] = self.set_constraint(p[0], 'uniques', {"columns": p_list[-1]["unique_statement"]}, 
+                                                        p_list[-2]["constraint"]["name"])
+            elif p_list[-1].get("references"):
+                if len(p_list) > 4 and "constraint" in p_list[3]:
+                    p[0] = self.set_constraint(p[0], 'references', 
+                                            p_list[-1]["references"], 
+                                            p_list[3]['constraint']['name'])
+                elif isinstance(p_list[-2], list):
+                    if not 'ref_columns' in p[0]:
+                        p[0]['ref_columns'] = []
+                    
+                    for num, column in enumerate(p_list[-2]):
+                        ref = deepcopy(p_list[-1]['references'])
+                        ref['column'] = ref['columns'][num]
+                        del ref['columns']
+                        ref['name'] = column
+                        p[0]['ref_columns'].append(ref)
+                print(p[0])
+    @staticmethod
+    def set_constraint(target_dict, _type, constraint, constraint_name):
+        if not target_dict.get('constraints'):
+            target_dict['constraints'] = {}
+        if not target_dict['constraints'].get(_type):
+            target_dict['constraints'][_type] = []
+        constraint.update({'constraint_name': constraint_name})
+        target_dict['constraints'][_type].append(constraint)
+        return target_dict
+        
     def p_expression_like_table(self, p):
         """expr : table_name LIKE ID
         | table_name LIKE ID DOT ID
@@ -608,6 +636,7 @@ class DDLParser(Parser, HQL):
         | constraint check_st
         """
         name = None
+        print('check_ex', list(p))
         if isinstance(p[1], dict):
             if "constraint" in p[1]:
                 p[0] = {
@@ -646,6 +675,7 @@ class DDLParser(Parser, HQL):
         | check_st STRING RP
         """
         p_list = remove_par(list(p))
+        print(p_list)
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
@@ -656,16 +686,28 @@ class DDLParser(Parser, HQL):
     def p_expression_alter(self, p):
         """expr : alter_foreign ref
         | alter_check
+        | alter_unique
         """
         p[0] = p[1]
         if len(p) == 3:
             p[0].update(p[2])
+    
+    def p_alter_unique(self, p):
+        """alter_unique : alt_table UNIQUE LP pid RP
+        | alt_table constraint UNIQUE LP pid RP
+        """
 
+        p_list = remove_par(list(p))
+        print(p_list)
+        p[0] = p[1]
+        p[0]["unique"] = {"constraint_name": None, "columns": p_list[-1]}
+        if 'constraint' in p[2]:
+            p[0]["unique"]["constraint_name"] = p[2]['constraint']['name']
+        
     def p_alter_check(self, p):
         """alter_check : alt_table check_st
         | alt_table constraint check_st
         """
-
         p_list = remove_par(list(p))
         p[0] = p[1]
         if isinstance(p[1], dict):
@@ -738,7 +780,7 @@ class DDLParser(Parser, HQL):
     def p_foreign(self, p):
         # todo: need to redone id lists
         """foreign : FOREIGN KEY LP pid RP
-        | FOREIGN KEY"""
+        | FOREIGN KEY """
         p_list = remove_par(list(p))
         print(p_list)
         if len(p_list) == 4:
@@ -783,21 +825,11 @@ class DDLParser(Parser, HQL):
         p[0] = p[1]
 
     def p_uniq(self, p):
-        """uniq : UNIQUE LP ID
-        | uniq COMMA
-        | uniq ID
-        | uniq RP
+        """uniq : UNIQUE LP pid RP
 
         """
-        p_list = list(p)
-        print(p_list, "ddd")
-        if isinstance(p[1], dict):
-            p[0] = p[1]
-            p[0]["unique_statement"].append(p_list[-1])
-        elif "CONSTRAINT" in p_list:
-            p[0] = {"constraint": {"columns": p[-2], "name": p_list[2]}}
-        else:
-            p[0] = {"unique_statement": [x for x in p[2:] if x != ","]}
+        p_list = remove_par(list(p))
+        p[0] = {"unique_statement": p_list[-1]}
 
     def p_pkey(self, p):
         """pkey : PRIMARY KEY LP pid RP"""

@@ -290,7 +290,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
-1. Add 'oracle' output_mode: add support for STORAGE statement, ENCRYPT column parameter
+1. Add support for oracle: add support for STORAGE statement, ENCRYPT column parameter
 2. Add support for GENERATED ALWAYS AS statement
 3. Add support for CREATE TABLESPACE statement & TABLESPACE statement in table defenition.
 4. Add support for statement CREATE DOMAIN
@@ -298,6 +298,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 6. Add CREATE DATABASE statement support
 7. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 8. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
+9. Add support (ignore correctly)ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 
 
 ## non-feature todo

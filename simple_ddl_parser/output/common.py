@@ -20,17 +20,20 @@ def get_table_from_tables_data(
     return target_table
 
 
-def add_index_to_table(tables_dict: Dict, statement: Dict) -> Dict:
+def add_index_to_table(tables_dict: Dict, statement: Dict, output_mode: str) -> Dict:
 
     table_id = (statement["table_name"], statement["schema"])
     target_table = get_table_from_tables_data(tables_dict, table_id, statement)
     del statement["schema"]
     del statement["table_name"]
+    if output_mode != 'mssql':
+        del statement['clustered']
     target_table["index"].append(statement)
     return tables_dict
 
 
 def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
+    # todo: refactor
     table_id = (statement["alter_table_name"], statement["schema"])
     target_table = get_table_from_tables_data(tables_dict, table_id, statement)
     if "columns" in statement:
@@ -41,7 +44,6 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
                 "name": column["name"],
                 "constraint_name": column.get("constraint_name"),
             }
-
             alter_column["references"] = deepcopy(statement["references"])
             alter_column["references"]["column"] = column_reference
             del alter_column["references"]["columns"]
@@ -53,7 +55,16 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
     elif "check" in statement:
         if not target_table["alter"].get("checks"):
             target_table["alter"]["checks"] = []
+        statement["check"]['statement'] = ' '.join(statement["check"]['statement'])
         target_table["alter"]["checks"].append(statement["check"])
+    elif "unique" in statement:
+        if not target_table["alter"].get("uniques"):
+            target_table["alter"]["uniques"] = []
+        target_table["alter"]["uniques"].append(statement["unique"])
+        for column in target_table['columns']:
+            for column_name in statement["unique"]['columns']:
+                if column['name'] == column_name:
+                    column['unique'] = True
     return tables_dict
 
 
@@ -81,7 +92,8 @@ def result_format(
         table_data = d.populate_dialects_table_data(output_mode, table_data)
         not_table = False
         if len(table) == 1 and "index_name" in table[0]:
-            tables_dict = add_index_to_table(tables_dict, table[0])
+            tables_dict = add_index_to_table(tables_dict, table[0], output_mode)
+            
         elif len(table) == 1 and "alter_table_name" in table[0]:
             tables_dict = add_alter_to_table(tables_dict, table[0])
         else:
@@ -113,7 +125,17 @@ def result_format(
                 for column in table_data["columns"]:
                     if column["name"] in table_data["primary_key"]:
                         column["nullable"] = False
-            
+            # todo: this is hack, need to remove it
+            if 'references' in table_data:
+                del table_data['references']
+            if 'ref_columns' in table_data:
+                for col_ref in table_data['ref_columns']:
+                    name = col_ref['name']
+                    for column in table_data["columns"]:
+                        if name == column["name"]:
+                            del col_ref['name']
+                            column['references'] = col_ref
+                del table_data['ref_columns']
             d.dialects_clean_up(output_mode, table_data)
             
             final_result.append(table_data)

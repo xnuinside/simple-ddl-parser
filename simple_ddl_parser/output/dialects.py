@@ -32,8 +32,8 @@ def add_additional_mssql_keys(table_data: Dict) -> Dict:
     table_data.update(
         {
             "constraints": {
-                'unique': None, 
-                'check': None, 
+                'uniques': None, 
+                'checks': None, 
                 'references': None},
         }
     )
@@ -63,4 +63,5 @@ def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
         # todo: need to figure out how workaround it normally
         if "_ddl_parser_comma_only_str" == table_data["fields_terminated_by"]:
             table_data["fields_terminated_by"] = ","
+        
     return table_data
