@@ -79,7 +79,6 @@ class Parser:
                 if ";" not in statement and num != len(lines) - 1:
                     continue
                 self.set_default_flags_in_lexer()
-                print(statement)
                 _parse_result = yacc.parse(statement)
 
                 if _parse_result:

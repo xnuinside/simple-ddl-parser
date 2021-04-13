@@ -138,7 +138,6 @@ class DDLParser(Parser, HQL):
         if t.type != "ID":
             t.value = t.value.upper()
         self.lexer.last_token = t.type
-        print(t.type, t.value)
         return t
 
     def t_newline(self, t):
@@ -325,7 +324,6 @@ class DDLParser(Parser, HQL):
         """
         p[0] = p[1]
         p_list = list(p)
-        print(p_list[2:], "2ddd")
         if p_list[-1] != "," and p_list[-1] != ")":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
@@ -336,8 +334,6 @@ class DDLParser(Parser, HQL):
                         check = {"constraint_name": None, "statement": check}
                 else:
                     check = p_list[-1]["check"]
-                    
-                    print('cheeeek', check)
                     p[0] = self.set_constraint(p[0], 'checks', check, check['constraint_name'])
                 p[0]["checks"].append(check)
             else:
@@ -362,7 +358,6 @@ class DDLParser(Parser, HQL):
                         del ref['columns']
                         ref['name'] = column
                         p[0]['ref_columns'].append(ref)
-                print(p[0])
     @staticmethod
     def set_constraint(target_dict, _type, constraint, constraint_name):
         if not target_dict.get('constraints'):
@@ -487,8 +482,6 @@ class DDLParser(Parser, HQL):
         | column tid
 
         """
-        print(list(p))
-
         if "." in list(p):
             type_str = f"{p[2]}.{p[4]}"
         else:
@@ -636,7 +629,6 @@ class DDLParser(Parser, HQL):
         | constraint check_st
         """
         name = None
-        print('check_ex', list(p))
         if isinstance(p[1], dict):
             if "constraint" in p[1]:
                 p[0] = {
@@ -675,7 +667,6 @@ class DDLParser(Parser, HQL):
         | check_st STRING RP
         """
         p_list = remove_par(list(p))
-        print(p_list)
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
@@ -698,7 +689,6 @@ class DDLParser(Parser, HQL):
         """
 
         p_list = remove_par(list(p))
-        print(p_list)
         p[0] = p[1]
         p[0]["unique"] = {"constraint_name": None, "columns": p_list[-1]}
         if 'constraint' in p[2]:
@@ -782,7 +772,6 @@ class DDLParser(Parser, HQL):
         """foreign : FOREIGN KEY LP pid RP
         | FOREIGN KEY """
         p_list = remove_par(list(p))
-        print(p_list)
         if len(p_list) == 4:
             columns = p_list[-1]
             p[0] = columns
@@ -797,7 +786,6 @@ class DDLParser(Parser, HQL):
         | ref NOT DEFERRABLE
         """
         p_list = remove_par(list(p))
-        print(p_list)
         if isinstance(p[1], dict):
             p[0] = p[1]
             if "ON" not in p_list and "DEFERRABLE" not in p_list:
@@ -841,7 +829,6 @@ def remove_par(p_list: List[str]) -> List[str]:
     remove_list = ["(", ")"]
     for symbol in remove_list:
         while symbol in p_list:
-            print(p_list, "remove")
             p_list.remove(symbol)
     return p_list
 
