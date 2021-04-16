@@ -2,7 +2,7 @@
 
 ![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser)
 
-Build with ply (lex & yacc in python). A lot of samples in 'tests/'. If you like library and use it, please, don't forget set 'star' on github. It's really helpful to understand that someone use it :) Thank you!
+Build with ply (lex & yacc in python). A lot of samples in 'tests/'. If you like a library and use it - don't forget to set 'star'. 
 
 ### How does it work?
 
@@ -263,7 +263,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
-- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT)
+- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE
 
 - PARTITIONED BY statement
 
@@ -286,6 +286,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 - FOREIGN KEY REFERENCES statement
 - 'max' specifier in column size
 - CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
+- CREATE CLUSTERED INDEX
 
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
@@ -298,7 +299,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 6. Add CREATE DATABASE statement support
 7. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 8. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
-9. Add support (ignore correctly)ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
+9. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 
 
 ## non-feature todo

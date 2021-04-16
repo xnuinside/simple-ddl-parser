@@ -8,6 +8,12 @@ added key 'constraints' in table defenition by default. 'constraints' contain di
 it this is a COSTRAINT .. CHECK 'checks' key will be still in data output, but it will be duplicated to 'constraints': {'checks': ...}
 3. Added support for ALTER ADD ... UNIQUE
 4. Added support for CREATE CLUSTERED INDEX, if output_mode = 'mssql' then index will have additional arg 'clustered'.
+5. Added support for DESC & NULLS in CREATE INDEX statements. Detailed information places in key 'detailed_columns' in 'indexes', example: '
+'index': [{'clustered': False,
+                'columns': ['extra_funds'],
+                'detailed_columns': [{'name': 'extra_funds',
+                                        'nulls': 'LAST',
+                                        'order': 'ASC'}],
 
 **v0.11.0**
 1. Now table can has name 'table'

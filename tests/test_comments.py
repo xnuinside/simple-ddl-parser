@@ -14,9 +14,6 @@ def test_inline_comment():
     ,event_time            timestamp not null default now()
     ,comment           varchar(1000) not null default 'none'
     ) ;
-    create unique index user_history_pk on user_history (runid) ;
-    create index user_history_ix2 on user_history (job_id) ;
-    create index user_history_ix3 on user_history (id) ;
                             
                             
                             
@@ -99,23 +96,7 @@ def test_inline_comment():
             "primary_key": [],
             "alter": {},
             "checks": [],
-            "index": [
-                {
-                    "index_name": "user_history_pk",
-                    "unique": True,
-                    "columns": ["runid"],
-                },
-                {
-                    "index_name": "user_history_ix2",
-                    "unique": False,
-                    "columns": ["job_id"],
-                },
-                {
-                    "index_name": "user_history_ix3",
-                    "unique": False,
-                    "columns": ["id"],
-                },
-            ],
+            "index": [],
             "schema": None,
             "partitioned_by": [],
             "table_name": "user_history",

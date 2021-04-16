@@ -263,14 +263,15 @@ class DDLParser(Parser, HQL):
         p[0]["type_name"] = p_list[-2]
 
     def p_expression_index(self, p):
-        """expr : index_table_name LP pid RP"""
+        """expr : index_table_name LP index_pid RP"""
         p_list = remove_par(list(p))
         p[0] = p[1]
 
-        if not "columns" in p[0]:
-            p[0]["columns"] = p_list[-1]
-        else:
-            p[0]["columns"].append(p_list[-1])
+        for item in ['detailed_columns', 'columns']:
+            if not item in p[0]:
+                p[0][item] = p_list[-1][item]
+            else:
+                p[0][item].extend(p_list[-1][item])
 
     def p_index_table_name(self, p):
         """index_table_name : create_index ON ID
@@ -731,6 +732,31 @@ class DDLParser(Parser, HQL):
         else:
             p[0] = p_list[1]
             p[0].append(p_list[-1])
+            
+    def p_index_pid(self, p):
+        """index_pid :  ID
+        | index_pid ID
+        | index_pid COMMA index_pid
+        """
+        p_list = list(p)
+        if len(p_list) == 2:
+            detailed_column = {"name": p_list[1], 'order': 'ASC', 'nulls': 'LAST'}
+            column = p_list[1]
+            p[0] = {'detailed_columns': [detailed_column], 'columns': [column]}
+        else:
+            p[0] = p[1]
+            if len(p) == 3:
+                if p_list[-1] in ['DESC', 'ASC']:
+                    p[0]['detailed_columns'][0]['order'] = p_list[-1]
+                else:
+                    p[0]['detailed_columns'][0]['nulls'] = p_list[-1]
+                
+                column = p_list[2]
+            elif isinstance(p_list[-1], dict):
+                for i in p_list[-1]['columns']:
+                    p[0]['columns'].append(i)
+                for i in p_list[-1]['detailed_columns']:
+                    p[0]['detailed_columns'].append(i)
 
     def p_alter_foreign(self, p):
         """alter_foreign : alt_table foreign
