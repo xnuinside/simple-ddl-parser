@@ -2,19 +2,10 @@ import os
 import json
 from copy import deepcopy
 from typing import Dict, List, Union, Tuple
+from simple_ddl_parser.output import dialects as d
 
 
-hql_clean_up_list = ["deferrable_initially"]
-sql_clean_up_list = [
-    "external",
-    "external",
-    "stored_as",
-    "location",
-    "row_format",
-    "fields_terminated_by",
-    "collection_items_terminated_by",
-    "map_keys_terminated_by",
-]
+output_modes = ["mssql", "mysql", "oracle", "hql", "sql"]
 
 
 def get_table_from_tables_data(
@@ -29,17 +20,20 @@ def get_table_from_tables_data(
     return target_table
 
 
-def add_index_to_table(tables_dict: Dict, statement: Dict) -> Dict:
+def add_index_to_table(tables_dict: Dict, statement: Dict, output_mode: str) -> Dict:
 
     table_id = (statement["table_name"], statement["schema"])
     target_table = get_table_from_tables_data(tables_dict, table_id, statement)
     del statement["schema"]
     del statement["table_name"]
+    if output_mode != "mssql":
+        del statement["clustered"]
     target_table["index"].append(statement)
     return tables_dict
 
 
 def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
+    # todo: refactor
     table_id = (statement["alter_table_name"], statement["schema"])
     target_table = get_table_from_tables_data(tables_dict, table_id, statement)
     if "columns" in statement:
@@ -50,7 +44,6 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
                 "name": column["name"],
                 "constraint_name": column.get("constraint_name"),
             }
-
             alter_column["references"] = deepcopy(statement["references"])
             alter_column["references"]["column"] = column_reference
             del alter_column["references"]["columns"]
@@ -62,10 +55,38 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
     elif "check" in statement:
         if not target_table["alter"].get("checks"):
             target_table["alter"]["checks"] = []
+        statement["check"]["statement"] = " ".join(statement["check"]["statement"])
         target_table["alter"]["checks"].append(statement["check"])
+    elif "unique" in statement:
+        target_table = set_alter_to_table_data('unique', statement, target_table)
+        target_table = set_unique_columns_from_alter(statement, target_table)
+    elif "default" in statement:
+        target_table = set_alter_to_table_data('default', statement, target_table)
+        target_table = set_default_columns_from_alter(statement, target_table)
     return tables_dict
 
 
+def set_default_columns_from_alter(statement: Dict, target_table: Dict):
+    for column in target_table["columns"]:
+        for column_name in statement["default"]["columns"]:
+            if column["name"] == column_name:
+                column["default"] = statement["default"]['value']
+    return target_table
+
+    
+def set_unique_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
+    for column in target_table["columns"]:
+        for column_name in statement["unique"]["columns"]:
+            if column["name"] == column_name:
+                column["unique"] = True
+    return target_table
+
+def set_alter_to_table_data(key: str, statement: Dict, target_table: Dict) -> Dict:
+    if not target_table["alter"].get(key+'s'):
+        target_table["alter"][key+'s'] = []
+    target_table["alter"][key+'s'].append(statement[key])
+    return target_table
+    
 def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
     if isinstance(check, list):
         check = {"constraint_name": None, "statement": " ".join(check)}
@@ -87,31 +108,22 @@ def result_format(
             "index": [],
             "partitioned_by": [],
         }
-        if output_mode == "hql":
-            table_data = add_additional_hql_keys(table_data)
+        table_data = d.populate_dialects_table_data(output_mode, table_data)
         not_table = False
         if len(table) == 1 and "index_name" in table[0]:
-            tables_dict = add_index_to_table(tables_dict, table[0])
+            tables_dict = add_index_to_table(tables_dict, table[0], output_mode)
+
         elif len(table) == 1 and "alter_table_name" in table[0]:
             tables_dict = add_alter_to_table(tables_dict, table[0])
         else:
             for item in table:
-                if item.get("sequence_name"):
-                    table_data = item
-                    not_table = True
-                    continue
-                if item.get("type_name"):
+                if item.get("sequence_name") or item.get("type_name"):
                     table_data = item
                     not_table = True
                     continue
                 elif item.get("table_name"):
                     table_data.update(item)
-                    if "unique_statement" in table_data:
-                        for column in table_data["columns"]:
-                            if column["name"] in table_data["unique_statement"]:
-                                column["unique"] = True
-                        del table_data["unique_statement"]
-
+                    table_data = set_unique_columns(table_data)
             if not not_table:
                 if table_data.get("table_name"):
                     tables_dict[
@@ -132,17 +144,45 @@ def result_format(
                 for column in table_data["columns"]:
                     if column["name"] in table_data["primary_key"]:
                         column["nullable"] = False
-            if output_mode != "hql":
-                table_data = clean_up_output(table_data, sql_clean_up_list)
-            else:
-                table_data = clean_up_output(table_data, hql_clean_up_list)
-                # todo: need to figure out how workaround it normally
-                if "_ddl_parser_comma_only_str" == table_data["fields_terminated_by"]:
-                    table_data["fields_terminated_by"] = ","
+            # todo: this is hack, need to remove it
+            if "references" in table_data:
+                del table_data["references"]
+            if "ref_columns" in table_data:
+                for col_ref in table_data["ref_columns"]:
+                    name = col_ref["name"]
+                    for column in table_data["columns"]:
+                        if name == column["name"]:
+                            del col_ref["name"]
+                            column["references"] = col_ref
+                del table_data["ref_columns"]
+            d.dialects_clean_up(output_mode, table_data)
+
             final_result.append(table_data)
     if group_by_type:
         final_result = group_by_type_result(final_result)
     return final_result
+
+
+def set_unique_columns(table_data: Dict) -> Dict:
+
+    unique_keys = ["unique_statement", "constraints"]
+
+    for key in unique_keys:
+        if table_data.get(key, None):
+            for column in table_data["columns"]:
+                if key == "constraints":
+                    unique = table_data[key].get("unique", [])
+                    if unique:
+                        check_in = unique["columns"]
+                    else:
+                        check_in = []
+                else:
+                    check_in = table_data[key]
+                if column["name"] in check_in:
+                    column["unique"] = True
+    if "unique_statement" in table_data:
+        del table_data["unique_statement"]
+    return table_data
 
 
 def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
@@ -159,28 +199,6 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
                 break
 
     return result_as_dict
-
-
-def add_additional_hql_keys(table_data: Dict) -> Dict:
-    table_data.update(
-        {
-            "stored_as": None,
-            "location": None,
-            "row_format": None,
-            "fields_terminated_by": None,
-            "map_keys_terminated_by": None,
-            "collection_items_terminated_by": None,
-        }
-    )
-    return table_data
-
-
-def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
-
-    for key in key_list:
-        if key in table_data:
-            del table_data[key]
-    return table_data
 
 
 def add_unique_columns(table_data: Dict) -> Dict:

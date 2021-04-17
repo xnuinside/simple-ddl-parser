@@ -297,7 +297,7 @@ def test_alter_check():
             ],
             "primary_key": [],
             "index": [],
-            "alter": {"checks": [{"constraint_name": None, "statement": ["Age>=18"]}]},
+            "alter": {"checks": [{"constraint_name": None, "statement": "Age>=18"}]},
             "checks": [],
             "table_name": "Persons",
             "schema": None,
@@ -458,13 +458,21 @@ def test_alter_check_combine_all_variants():
             ],
             "primary_key": [],
             "index": [],
-            "alter": {"checks": [{"constraint_name": None, "statement": ["Age>=18"]}]},
+            "alter": {"checks": [{"constraint_name": None, "statement": "Age>=18"}]},
             "checks": [
                 {
                     "constraint_name": "CHK_Person",
                     "statement": "Age>=18 AND City='Sandnes'",
                 }
             ],
+            "constraints": {
+                "checks": [
+                    {
+                        "constraint_name": "CHK_Person",
+                        "statement": "Age>=18 AND City='Sandnes'",
+                    }
+                ]
+            },
             "table_name": "Persons",
             "schema": None,
             "partitioned_by": [],
@@ -549,7 +557,7 @@ def test_alter_check_with_constraint():
                 "checks": [
                     {
                         "constraint_name": "CHK_PersonAge",
-                        "statement": ["Age>=18", "AND", "City='Sandnes'"],
+                        "statement": "Age>=18 AND City='Sandnes'",
                     }
                 ]
             },
@@ -651,6 +659,14 @@ def test_alter_foreiggn_with_constraint():
                     }
                 ]
             },
+            "constraints": {
+                "checks": [
+                    {
+                        "constraint_name": "CHK_Person",
+                        "statement": "Age>=18 AND City='Sandnes'",
+                    }
+                ]
+            },
             "checks": [
                 {
                     "constraint_name": "CHK_Person",
@@ -741,7 +757,7 @@ def test_alter_without_constraint_and_constraint_in_table():
                 "checks": [
                     {
                         "constraint_name": None,
-                        "statement": ["Age>=18", "AND", "City='Sandnes'"],
+                        "statement": "Age>=18 AND City='Sandnes'",
                     }
                 ]
             },
@@ -751,6 +767,14 @@ def test_alter_without_constraint_and_constraint_in_table():
                     "statement": "Age>=18 AND City='Sandnes'",
                 }
             ],
+            "constraints": {
+                "checks": [
+                    {
+                        "constraint_name": "CHK_Person",
+                        "statement": "Age>=18 AND City='Sandnes'",
+                    }
+                ]
+            },
             "table_name": "Persons",
             "schema": None,
             "partitioned_by": [],
@@ -917,11 +941,11 @@ def test_combo_with_alter_and_table_constraints():
                 "checks": [
                     {
                         "constraint_name": None,
-                        "statement": ["Age>=18", "AND", "City='Sandnes"],
+                        "statement": "Age>=18 AND City='Sandnes",
                     },
                     {
                         "constraint_name": "ck_person",
-                        "statement": ["Age>=18", "AND", "City='Sandnes"],
+                        "statement": "Age>=18 AND City='Sandnes",
                     },
                 ],
                 "columns": [
@@ -945,6 +969,14 @@ def test_combo_with_alter_and_table_constraints():
                     "statement": "Age>=18 AND City='Sandnes'",
                 }
             ],
+            "constraints": {
+                "checks": [
+                    {
+                        "constraint_name": "CHK_Person",
+                        "statement": "Age>=18 AND City='Sandnes'",
+                    }
+                ]
+            },
             "table_name": "Persons",
             "schema": None,
             "partitioned_by": [],
@@ -1159,6 +1191,14 @@ CREATE TABLE employees (
                     "statement": "Age>=18 AND City='Sandnes'",
                 }
             ],
+            "constraints": {
+                "checks": [
+                    {
+                        "constraint_name": "CHK_Person",
+                        "statement": "Age>=18 AND City='Sandnes'",
+                    }
+                ]
+            },
             "index": [],
             "schema": None,
             "partitioned_by": [],
@@ -1377,6 +1417,14 @@ CREATE TABLE employees (
             "index": [],
             "partitioned_by": [],
             "primary_key": [],
+            "constraints": {
+                "checks": [
+                    {
+                        "constraint_name": "CHK_Person",
+                        "statement": "Age>=18 AND City='Sandnes'",
+                    }
+                ]
+            },
             "schema": None,
             "table_name": "Persons",
         },

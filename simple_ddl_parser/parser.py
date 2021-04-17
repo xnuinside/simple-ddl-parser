@@ -1,7 +1,7 @@
 import os
 from ply import lex, yacc
-from typing import Dict, List, Optional, Tuple, Literal
-from simple_ddl_parser.output import dump_data_to_file, result_format
+from typing import Dict, List, Optional, Tuple
+from simple_ddl_parser.output.common import dump_data_to_file, result_format
 import re
 
 
@@ -67,7 +67,7 @@ class Parser:
         block_comments = []
         statement = None
         # because exists in hql strings like this - TERMINATED BY '\002'
-        lines = self.data.decode("utf-8").split("\\n")
+        lines = self.data.decode("utf-8").replace("\\t", "").split("\\n")
         for num, line in enumerate(lines):
             line, block_comments = self.pre_process_line(line, block_comments)
             if line.replace("\n", "").replace("\t", "") or num == len(lines) - 1:
@@ -110,7 +110,7 @@ class Parser:
         dump: bool = False,
         dump_path="schemas",
         file_path: Optional[str] = None,
-        output_mode: Literal["sql", "hql"] = "sql",
+        output_mode: str = "sql",
         group_by_type: bool = False,
     ) -> List[Dict]:
         """
@@ -120,7 +120,7 @@ class Parser:
             file name as name for the target output file
         output_mode: change output mode to get information relative to specific dialect,
             for example, in output_mode='hql' you will see also in tables such information as
-            'external', 'stored_as', etc.
+            'external', 'stored_as', etc. Possible variants: ["mssql", "mysql", "oracle", "hql", "sql"]
         group_by_type: if you set True, output will be formed as Dict with keys ['tables', 'sequences', 'types', 'domains']
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each
             Dict == one entity from ddl - one table or sequence or type.

@@ -86,8 +86,9 @@ def test_custom_enum_wihtout_schema():
     ]
     assert expected == result
 
+
 def test_create_type_as_object():
-    
+
     ddl = """
     CREATE OR REPLACE TYPE addr_obj_typ AS OBJECT (
         street          VARCHAR2(30),
@@ -98,23 +99,25 @@ def test_create_type_as_object():
     """
 
     result = DDLParser(ddl).run(group_by_type=True)
-    expected = {'sequences': [],
- 'tables': [],
- 'types': [{'base_type': 'OBJECT',
-            'properties': {'attributes': [{'name': 'street',
-                                           'size': 30,
-                                           'type': 'VARCHAR2'},
-                                          {'name': 'city',
-                                           'size': 20,
-                                           'type': 'VARCHAR2'},
-                                          {'name': 'state',
-                                           'size': 2,
-                                           'type': 'CHAR'},
-                                          {'name': 'zip',
-                                           'size': 5,
-                                           'type': 'NUMBER'}]},
-            'schema': None,
-            'type_name': 'addr_obj_typ'}]}
+    expected = {
+        "sequences": [],
+        "tables": [],
+        "types": [
+            {
+                "base_type": "OBJECT",
+                "properties": {
+                    "attributes": [
+                        {"name": "street", "size": 30, "type": "VARCHAR2"},
+                        {"name": "city", "size": 20, "type": "VARCHAR2"},
+                        {"name": "state", "size": 2, "type": "CHAR"},
+                        {"name": "zip", "size": 5, "type": "NUMBER"},
+                    ]
+                },
+                "schema": None,
+                "type_name": "addr_obj_typ",
+            }
+        ],
+    }
     assert expected == result
 
 
@@ -128,16 +131,22 @@ def test_create_type_with_input_properties():
     """
 
     result = DDLParser(ddl).run(group_by_type=True)
-    
-    expected = {'sequences': [],
-                'tables': [],
-                'types': [{'base_type': '(',
-                            'properties': {'INPUT': 'my_box_in_function',
-                                        'INTERNALLENGTH': '16',
-                                        'OUTPUT': 'my_box_out_function'},
-                            'schema': None,
-                            'type_name': 'box'}]
-                }
-    
+
+    expected = {
+        "sequences": [],
+        "tables": [],
+        "types": [
+            {
+                "base_type": "(",
+                "properties": {
+                    "INPUT": "my_box_in_function",
+                    "INTERNALLENGTH": "16",
+                    "OUTPUT": "my_box_out_function",
+                },
+                "schema": None,
+                "type_name": "box",
+            }
+        ],
+    }
+
     assert expected == result
-    

@@ -1,8 +1,8 @@
 ## Simple DDL Parser
 
-![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) 
+![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser)
 
-Build with ply (lex & yacc in python). A lot of samples in 'tests/'
+Build with ply (lex & yacc in python). A lot of samples in 'tests/'. If you like a library and use it - don't forget to set 'star'. 
 
 ### How does it work?
 
@@ -32,7 +32,7 @@ A lot of statements and output result you can find in tests on the github - http
 
 ### Extract additional information from HQL (& other dialects)
 
-In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This propertie will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'. 
+In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This propertie will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'.
 Also some fields hidden in HQL, because they are simple not exists in HIVE, for example 'deferrable_initially'
 To get this 'hql' specific details about table in output please use 'output_mode' argument in run() method.
 
@@ -79,11 +79,12 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
     ... 
   }
 
-
-
 ```
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
+
+Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
+
 
 ### From python code
 
@@ -161,7 +162,7 @@ You can provide target path where you want to dump result with argument **-t**, 
 ### More details
 
 `DDLParser(ddl).run()`
-.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'.
+.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
 
 Also in .run() method exists argument `group_by_type` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entitiy from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 
@@ -256,13 +257,13 @@ To dump result in json use argument .run(dump=True)
 
 You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
-### Supported Statements
+## Supported Statements
 
 - CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY
 
 - STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
-- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT)
+- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR
 
 - PARTITIONED BY statement
 
@@ -272,16 +273,25 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - LIKE statement (in this and only in this case to output will be added 'like' keyword with information about table from that we did like - 'like': {'schema': None, 'table_name': 'Old_Users'}).
 
-## HQL Dialect statements
+### HQL Dialect statements
 
 - PARTITIONED BY statement
 - ROW FORMAT
 - STORED AS
 - LOCATION, FIELDS TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
 
+### MSSQL / MySQL/ Oracle
+
+- type IDENTITY statement
+- FOREIGN KEY REFERENCES statement
+- 'max' specifier in column size
+- CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
+- CREATE CLUSTERED INDEX
+
+
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
-1. Add 'oracle' output_mode: add support for STORAGE statement, ENCRYPT column parameter
+1. Add support for oracle: add support for STORAGE statement, ENCRYPT column parameter
 2. Add support for GENERATED ALWAYS AS statement
 3. Add support for CREATE TABLESPACE statement & TABLESPACE statement in table defenition.
 4. Add support for statement CREATE DOMAIN
@@ -289,6 +299,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 6. Add CREATE DATABASE statement support
 7. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 8. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
+9. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 
 
 ## non-feature todo
@@ -323,6 +334,24 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+
+**v0.12.0**
+1. Added support for MSSQL: types with 2 words like 'int IDENTITY', 
+FOREIGN KEY REFERENCES statement, supported 'max' as type size, CONSTRAINT ... UNIQUE statement in table defenition,
+CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
+2. Added output_mode types: 'mysql', 'mssql' for SQL Server, 'oracle'. If chosed one of the above - 
+added key 'constraints' in table defenition by default. 'constraints' contain dict with keys 'uniques', 'checks', 'references'
+it this is a COSTRAINT .. CHECK 'checks' key will be still in data output, but it will be duplicated to 'constraints': {'checks': ...}
+3. Added support for ALTER ADD ... UNIQUE
+4. Added support for CREATE CLUSTERED INDEX, if output_mode = 'mssql' then index will have additional arg 'clustered'.
+5. Added support for DESC & NULLS in CREATE INDEX statements. Detailed information places in key 'detailed_columns' in 'indexes', example: '
+'index': [{'clustered': False,
+                'columns': ['extra_funds'],
+                'detailed_columns': [{'name': 'extra_funds',
+                                        'nulls': 'LAST',
+                                        'order': 'ASC'}],
+6. Added support for statement ALTER TABLE ... ADD CONSTRAINT ... DEFAULT ... FOR ... ;
+
 **v0.11.0**
 1. Now table can has name 'table'
 2. Added base support for statement CREATE TYPE:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT (not all properties & types supported yet.)
