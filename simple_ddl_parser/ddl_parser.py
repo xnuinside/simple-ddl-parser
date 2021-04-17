@@ -3,6 +3,7 @@ from copy import deepcopy
 from typing import Dict, List
 from simple_ddl_parser.parser import Parser
 from simple_ddl_parser.dialects.hql import HQL
+from simple_ddl_parser import tokens as tok
 
 
 class DDLParser(Parser, HQL):
@@ -10,77 +11,7 @@ class DDLParser(Parser, HQL):
     lex and yacc parser for parse ddl into BQ schemas
     """
 
-    # statements that used at the start of defenition or in statements without columns
-    defenition_statements = {
-        "DROP": "DROP",
-        "CREATE": "CREATE",
-        "TABLE": "TABLE",
-        "ALTER": "ALTER",
-        "TYPE": "TYPE",
-        "DOMAIN": "DOMAIN",
-        "REPLACE": "REPLACE",
-        "OR": "OR",
-        "CLUSTERED": "CLUSTERED"
-    }
-    common_statements = {
-        "CHECK": "CHECK",
-        "CONSTRAINT": "CONSTRAINT",
-        "FOREIGN": "FOREIGN",
-        "INDEX": "INDEX",
-        "SEQUENCE": "SEQUENCE",
-        "REFERENCES": "REFERENCES",
-        "KEY": "KEY",
-        "ADD": "ADD",
-        "AS": "AS",
-        "LIKE": "LIKE",
-        "DEFERRABLE": "DEFERRABLE",
-        "INITIALLY": "INITIALLY",
-        "IF": "IF",
-        "NOT": "NOT",
-        "EXISTS": "EXISTS",
-        "UNIQUE": "UNIQUE",
-        "ON": "ON",
-    }
-
-    columns_defenition = {
-        "DELETE": "DELETE",
-        "UPDATE": "UPDATE",
-        "NULL": "NULL",
-        "PRIMARY": "PRIMARY",
-        "DEFAULT": "DEFAULT",
-        "ARRAY": "ARRAY",
-        ",": "COMMA",
-    }
-    after_columns_tokens = {
-        "PARTITIONED": "PARTITIONED",
-        "BY": "BY",
-        "STORED": "STORED",
-        "LOCATION": "LOCATION",
-        "ROW": "ROW",
-        "FORMAT": "FORMAT",
-        "FIELDS": "FIELDS",
-        "TERMINATED": "TERMINATED",
-        "COLLECTION": "COLLECTION",
-        "ITEMS": "ITEMS",
-        "MAP": "MAP",
-        "KEYS": "KEYS",
-    }
-    sequence_reserved = {
-        "INCREMENT": "INCREMENT",
-        "START": "START",
-        "MINVALUE": "MINVALUE",
-        "MAXVALUE": "MAXVALUE",
-        "CACHE": "CACHE",
-    }
-    tokens = tuple(
-        ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
-        + list(defenition_statements.values())
-        + list(common_statements.values())
-        + list(columns_defenition.values())
-        + list(sequence_reserved.values())
-        + list(after_columns_tokens.values())
-    )
-
+    tokens = tok.tokens
     t_ignore = ";\t  \r"
     t_DOT = r"."
 
@@ -108,21 +39,21 @@ class DDLParser(Parser, HQL):
         else:
             if not self.lexer.is_table:
                 # if is_table mean wi already met INDEX or TABLE statement and the defenition already done and this is a string
-                t.type = self.defenition_statements.get(
+                t.type = tok.defenition_statements.get(
                     t.value.upper(), t.type
                 )  # Check for reserved word
-            t.type = self.common_statements.get(t.value.upper(), t.type)
+            t.type = tok.common_statements.get(t.value.upper(), t.type)
 
         if self.lexer.last_token == "RP" or self.lexer.after_columns:
-            t.type = self.after_columns_tokens.get(t.value.upper(), t.type)
+            t.type = tok.after_columns_tokens.get(t.value.upper(), t.type)
             if t.type != "ID":
                 self.lexer.after_columns = True
             elif self.lexer.columns_def:
-                t.type = self.columns_defenition.get(t.value.upper(), t.type)
+                t.type = tok.columns_defenition.get(t.value.upper(), t.type)
         elif self.lexer.columns_def:
-            t.type = self.columns_defenition.get(t.value.upper(), t.type)
+            t.type = tok.columns_defenition.get(t.value.upper(), t.type)
         elif self.lexer.sequence:
-            t.type = self.sequence_reserved.get(t.value.upper(), "ID")
+            t.type = tok.sequence_reserved.get(t.value.upper(), "ID")
         elif "ARRAY" in t.value:
             t.type = "ARRAY"
         if t.type == "TABLE" or t.type == "INDEX":
@@ -267,7 +198,7 @@ class DDLParser(Parser, HQL):
         p_list = remove_par(list(p))
         p[0] = p[1]
 
-        for item in ['detailed_columns', 'columns']:
+        for item in ["detailed_columns", "columns"]:
             if not item in p[0]:
                 p[0][item] = p_list[-1][item]
             else:
@@ -291,10 +222,10 @@ class DDLParser(Parser, HQL):
         """create_index : CREATE INDEX ID
         | CREATE UNIQUE INDEX ID
         | create_index ON ID
-        | CREATE CLUSTERED INDEX ID 
+        | CREATE CLUSTERED INDEX ID
         """
         p_list = list(p)
-        if 'CLUSTERED' in p_list:
+        if "CLUSTERED" in p_list:
             clustered = True
         else:
             clustered = False
@@ -305,9 +236,9 @@ class DDLParser(Parser, HQL):
                 "schema": None,
                 "index_name": p_list[-1],
                 "unique": "UNIQUE" in p_list,
-                "clustered": clustered
+                "clustered": clustered,
             }
-            
+
     def p_expression_table(self, p):
         """expr : table_name defcolumn
         | table_name LP defcolumn
@@ -335,40 +266,50 @@ class DDLParser(Parser, HQL):
                         check = {"constraint_name": None, "statement": check}
                 else:
                     check = p_list[-1]["check"]
-                    p[0] = self.set_constraint(p[0], 'checks', check, check['constraint_name'])
+                    p[0] = self.set_constraint(
+                        p[0], "checks", check, check["constraint_name"]
+                    )
                 p[0]["checks"].append(check)
             else:
                 p[0].update(p_list[-1])
 
         if isinstance(p_list[-1], dict):
             if "constraint" in p_list[-2] and p_list[-1].get("unique_statement"):
-                p[0] = self.set_constraint(p[0], 'uniques', {"columns": p_list[-1]["unique_statement"]}, 
-                                                        p_list[-2]["constraint"]["name"])
+                p[0] = self.set_constraint(
+                    p[0],
+                    "uniques",
+                    {"columns": p_list[-1]["unique_statement"]},
+                    p_list[-2]["constraint"]["name"],
+                )
             elif p_list[-1].get("references"):
                 if len(p_list) > 4 and "constraint" in p_list[3]:
-                    p[0] = self.set_constraint(p[0], 'references', 
-                                            p_list[-1]["references"], 
-                                            p_list[3]['constraint']['name'])
+                    p[0] = self.set_constraint(
+                        p[0],
+                        "references",
+                        p_list[-1]["references"],
+                        p_list[3]["constraint"]["name"],
+                    )
                 elif isinstance(p_list[-2], list):
-                    if not 'ref_columns' in p[0]:
-                        p[0]['ref_columns'] = []
-                    
+                    if not "ref_columns" in p[0]:
+                        p[0]["ref_columns"] = []
+
                     for num, column in enumerate(p_list[-2]):
-                        ref = deepcopy(p_list[-1]['references'])
-                        ref['column'] = ref['columns'][num]
-                        del ref['columns']
-                        ref['name'] = column
-                        p[0]['ref_columns'].append(ref)
+                        ref = deepcopy(p_list[-1]["references"])
+                        ref["column"] = ref["columns"][num]
+                        del ref["columns"]
+                        ref["name"] = column
+                        p[0]["ref_columns"].append(ref)
+
     @staticmethod
     def set_constraint(target_dict, _type, constraint, constraint_name):
-        if not target_dict.get('constraints'):
-            target_dict['constraints'] = {}
-        if not target_dict['constraints'].get(_type):
-            target_dict['constraints'][_type] = []
-        constraint.update({'constraint_name': constraint_name})
-        target_dict['constraints'][_type].append(constraint)
+        if not target_dict.get("constraints"):
+            target_dict["constraints"] = {}
+        if not target_dict["constraints"].get(_type):
+            target_dict["constraints"][_type] = []
+        constraint.update({"constraint_name": constraint_name})
+        target_dict["constraints"][_type].append(constraint)
         return target_dict
-        
+
     def p_expression_like_table(self, p):
         """expr : table_name LIKE ID
         | table_name LIKE ID DOT ID
@@ -679,11 +620,12 @@ class DDLParser(Parser, HQL):
         """expr : alter_foreign ref
         | alter_check
         | alter_unique
+        | alter_default
         """
         p[0] = p[1]
         if len(p) == 3:
             p[0].update(p[2])
-    
+
     def p_alter_unique(self, p):
         """alter_unique : alt_table UNIQUE LP pid RP
         | alt_table constraint UNIQUE LP pid RP
@@ -692,9 +634,45 @@ class DDLParser(Parser, HQL):
         p_list = remove_par(list(p))
         p[0] = p[1]
         p[0]["unique"] = {"constraint_name": None, "columns": p_list[-1]}
-        if 'constraint' in p[2]:
-            p[0]["unique"]["constraint_name"] = p[2]['constraint']['name']
+        if "constraint" in p[2]:
+            p[0]["unique"]["constraint_name"] = p[2]["constraint"]["name"]
+
+    def p_alter_default(self, p):
+        """alter_default : alt_table ID ID 
+        | alt_table constraint ID ID
+        | alt_table ID STRING 
+        | alt_table constraint ID STRING
+        | alter_default ID
+        | alter_default FOR pid
+        """
+
+        p_list = remove_par(list(p))
+        p[0] = p[1]
         
+        if 'FOR' in p_list:
+            column = p_list[-1]
+            value = None
+        elif p[0].get('default') and 'value' in p[0]['default']:
+            value = p[0]['default']['value'] + ' ' + p_list[-1]
+            column = None
+        else:
+            value = p_list[-1]
+            column = None
+        if not 'default' in p[0]:
+            
+            p[0]["default"] = {
+                "constraint_name": None,
+                "columns": column,
+                "value": value,
+            }
+        else:
+            p[0]["default"].update({
+                "columns":  p[0]["default"].get('column') or column,
+                "value":  value or p[0]["default"].get('value'),
+            })
+        if "constraint" in p[2]:
+            p[0]["default"]["constraint_name"] = p[2]["constraint"]["name"]
+
     def p_alter_check(self, p):
         """alter_check : alt_table check_st
         | alt_table constraint check_st
@@ -732,7 +710,7 @@ class DDLParser(Parser, HQL):
         else:
             p[0] = p_list[1]
             p[0].append(p_list[-1])
-            
+
     def p_index_pid(self, p):
         """index_pid :  ID
         | index_pid ID
@@ -740,23 +718,23 @@ class DDLParser(Parser, HQL):
         """
         p_list = list(p)
         if len(p_list) == 2:
-            detailed_column = {"name": p_list[1], 'order': 'ASC', 'nulls': 'LAST'}
+            detailed_column = {"name": p_list[1], "order": "ASC", "nulls": "LAST"}
             column = p_list[1]
-            p[0] = {'detailed_columns': [detailed_column], 'columns': [column]}
+            p[0] = {"detailed_columns": [detailed_column], "columns": [column]}
         else:
             p[0] = p[1]
             if len(p) == 3:
-                if p_list[-1] in ['DESC', 'ASC']:
-                    p[0]['detailed_columns'][0]['order'] = p_list[-1]
+                if p_list[-1] in ["DESC", "ASC"]:
+                    p[0]["detailed_columns"][0]["order"] = p_list[-1]
                 else:
-                    p[0]['detailed_columns'][0]['nulls'] = p_list[-1]
-                
+                    p[0]["detailed_columns"][0]["nulls"] = p_list[-1]
+
                 column = p_list[2]
             elif isinstance(p_list[-1], dict):
-                for i in p_list[-1]['columns']:
-                    p[0]['columns'].append(i)
-                for i in p_list[-1]['detailed_columns']:
-                    p[0]['detailed_columns'].append(i)
+                for i in p_list[-1]["columns"]:
+                    p[0]["columns"].append(i)
+                for i in p_list[-1]["detailed_columns"]:
+                    p[0]["detailed_columns"].append(i)
 
     def p_alter_foreign(self, p):
         """alter_foreign : alt_table foreign
@@ -796,7 +774,7 @@ class DDLParser(Parser, HQL):
     def p_foreign(self, p):
         # todo: need to redone id lists
         """foreign : FOREIGN KEY LP pid RP
-        | FOREIGN KEY """
+        | FOREIGN KEY"""
         p_list = remove_par(list(p))
         if len(p_list) == 4:
             columns = p_list[-1]
@@ -839,9 +817,7 @@ class DDLParser(Parser, HQL):
         p[0] = p[1]
 
     def p_uniq(self, p):
-        """uniq : UNIQUE LP pid RP
-
-        """
+        """uniq : UNIQUE LP pid RP"""
         p_list = remove_par(list(p))
         p[0] = {"unique_statement": p_list[-1]}
 

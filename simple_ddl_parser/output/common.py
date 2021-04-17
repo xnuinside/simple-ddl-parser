@@ -26,8 +26,8 @@ def add_index_to_table(tables_dict: Dict, statement: Dict, output_mode: str) -> 
     target_table = get_table_from_tables_data(tables_dict, table_id, statement)
     del statement["schema"]
     del statement["table_name"]
-    if output_mode != 'mssql':
-        del statement['clustered']
+    if output_mode != "mssql":
+        del statement["clustered"]
     target_table["index"].append(statement)
     return tables_dict
 
@@ -55,19 +55,38 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
     elif "check" in statement:
         if not target_table["alter"].get("checks"):
             target_table["alter"]["checks"] = []
-        statement["check"]['statement'] = ' '.join(statement["check"]['statement'])
+        statement["check"]["statement"] = " ".join(statement["check"]["statement"])
         target_table["alter"]["checks"].append(statement["check"])
     elif "unique" in statement:
-        if not target_table["alter"].get("uniques"):
-            target_table["alter"]["uniques"] = []
-        target_table["alter"]["uniques"].append(statement["unique"])
-        for column in target_table['columns']:
-            for column_name in statement["unique"]['columns']:
-                if column['name'] == column_name:
-                    column['unique'] = True
+        target_table = set_alter_to_table_data('unique', statement, target_table)
+        target_table = set_unique_columns_from_alter(statement, target_table)
+    elif "default" in statement:
+        target_table = set_alter_to_table_data('default', statement, target_table)
+        target_table = set_default_columns_from_alter(statement, target_table)
     return tables_dict
 
 
+def set_default_columns_from_alter(statement: Dict, target_table: Dict):
+    for column in target_table["columns"]:
+        for column_name in statement["default"]["columns"]:
+            if column["name"] == column_name:
+                column["default"] = statement["default"]['value']
+    return target_table
+
+    
+def set_unique_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
+    for column in target_table["columns"]:
+        for column_name in statement["unique"]["columns"]:
+            if column["name"] == column_name:
+                column["unique"] = True
+    return target_table
+
+def set_alter_to_table_data(key: str, statement: Dict, target_table: Dict) -> Dict:
+    if not target_table["alter"].get(key+'s'):
+        target_table["alter"][key+'s'] = []
+    target_table["alter"][key+'s'].append(statement[key])
+    return target_table
+    
 def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
     if isinstance(check, list):
         check = {"constraint_name": None, "statement": " ".join(check)}
@@ -93,7 +112,7 @@ def result_format(
         not_table = False
         if len(table) == 1 and "index_name" in table[0]:
             tables_dict = add_index_to_table(tables_dict, table[0], output_mode)
-            
+
         elif len(table) == 1 and "alter_table_name" in table[0]:
             tables_dict = add_alter_to_table(tables_dict, table[0])
         else:
@@ -126,18 +145,18 @@ def result_format(
                     if column["name"] in table_data["primary_key"]:
                         column["nullable"] = False
             # todo: this is hack, need to remove it
-            if 'references' in table_data:
-                del table_data['references']
-            if 'ref_columns' in table_data:
-                for col_ref in table_data['ref_columns']:
-                    name = col_ref['name']
+            if "references" in table_data:
+                del table_data["references"]
+            if "ref_columns" in table_data:
+                for col_ref in table_data["ref_columns"]:
+                    name = col_ref["name"]
                     for column in table_data["columns"]:
                         if name == column["name"]:
-                            del col_ref['name']
-                            column['references'] = col_ref
-                del table_data['ref_columns']
+                            del col_ref["name"]
+                            column["references"] = col_ref
+                del table_data["ref_columns"]
             d.dialects_clean_up(output_mode, table_data)
-            
+
             final_result.append(table_data)
     if group_by_type:
         final_result = group_by_type_result(final_result)
@@ -145,26 +164,27 @@ def result_format(
 
 
 def set_unique_columns(table_data: Dict) -> Dict:
-    
-    unique_keys = ['unique_statement', 'constraints']
-    
+
+    unique_keys = ["unique_statement", "constraints"]
+
     for key in unique_keys:
         if table_data.get(key, None):
             for column in table_data["columns"]:
-                if key == 'constraints':
-                    unique = table_data[key].get('unique', [])
+                if key == "constraints":
+                    unique = table_data[key].get("unique", [])
                     if unique:
-                        check_in = unique['columns']
+                        check_in = unique["columns"]
                     else:
                         check_in = []
                 else:
                     check_in = table_data[key]
                 if column["name"] in check_in:
                     column["unique"] = True
-    if 'unique_statement' in table_data:
-        del table_data['unique_statement']
+    if "unique_statement" in table_data:
+        del table_data["unique_statement"]
     return table_data
-                    
+
+
 def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
     result_as_dict = {"tables": [], "types": [], "sequences": []}
     keys_map = {

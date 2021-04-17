@@ -263,7 +263,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
-- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE
+- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR
 
 - PARTITIONED BY statement
 
@@ -344,6 +344,13 @@ added key 'constraints' in table defenition by default. 'constraints' contain di
 it this is a COSTRAINT .. CHECK 'checks' key will be still in data output, but it will be duplicated to 'constraints': {'checks': ...}
 3. Added support for ALTER ADD ... UNIQUE
 4. Added support for CREATE CLUSTERED INDEX, if output_mode = 'mssql' then index will have additional arg 'clustered'.
+5. Added support for DESC & NULLS in CREATE INDEX statements. Detailed information places in key 'detailed_columns' in 'indexes', example: '
+'index': [{'clustered': False,
+                'columns': ['extra_funds'],
+                'detailed_columns': [{'name': 'extra_funds',
+                                        'nulls': 'LAST',
+                                        'order': 'ASC'}],
+6. Added support for statement ALTER TABLE ... ADD CONSTRAINT ... DEFAULT ... FOR ... ;
 
 **v0.11.0**
 1. Now table can has name 'table'

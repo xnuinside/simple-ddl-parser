@@ -16,7 +16,7 @@ Simple DDL Parser
    :alt: badge3
 
 
-Build with ply (lex & yacc in python). A lot of samples in 'tests/'. If you like library and use it, please, don't forget set 'star' on github. It's really helpful to understand that someone use it :) Thank you!
+Build with ply (lex & yacc in python). A lot of samples in 'tests/'. If you like a library and use it - don't forget to set 'star'. 
 
 How does it work?
 ^^^^^^^^^^^^^^^^^
@@ -278,7 +278,7 @@ Supported Statements
   STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
 * 
-  ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT)
+  ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR
 
 * 
   PARTITIONED BY statement
@@ -309,6 +309,7 @@ MSSQL / MySQL/ Oracle
 * FOREIGN KEY REFERENCES statement
 * 'max' specifier in column size
 * CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
+* CREATE CLUSTERED INDEX
 
 TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -322,7 +323,7 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 #. Add CREATE DATABASE statement support
 #. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 #. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
-#. Add support (ignore correctly)ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
+#. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 
 non-feature todo
 ----------------
@@ -372,6 +373,16 @@ Changelog
    it this is a COSTRAINT .. CHECK 'checks' key will be still in data output, but it will be duplicated to 'constraints': {'checks': ...}
 #. Added support for ALTER ADD ... UNIQUE
 #. Added support for CREATE CLUSTERED INDEX, if output_mode = 'mssql' then index will have additional arg 'clustered'.
+#. Added support for DESC & NULLS in CREATE INDEX statements. Detailed information places in key 'detailed_columns' in 'indexes', example: '
+   'index': [{'clustered': False,
+   .. code-block::
+
+               'columns': ['extra_funds'],
+               'detailed_columns': [{'name': 'extra_funds',
+                                       'nulls': 'LAST',
+                                       'order': 'ASC'}],
+
+#. Added support for statement ALTER TABLE ... ADD CONSTRAINT ... DEFAULT ... FOR ... ;
 
 **v0.11.0**
 
