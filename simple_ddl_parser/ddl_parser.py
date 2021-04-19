@@ -503,11 +503,16 @@ class DDLParser(Parser, HQL):
     def p_def(self, p):
         """def : DEFAULT ID
         | DEFAULT STRING
+        | DEFAULT LP pid RP
         | def ID
         | def LP RP
         """
         p_list = list(p)
-        default = p[2]
+        if len(p_list) == 5 and isinstance(p[3], list):
+            default = p[3][0]
+        else:
+            default = p[2]
+        
         if default.isnumeric():
             default = int(default)
         if isinstance(p[1], dict):
@@ -521,9 +526,7 @@ class DDLParser(Parser, HQL):
                         p[0]["default"] += f" {i}"
                     p[0]["default"] = (
                         p[0]["default"]
-                        .replace('"', "")
-                        .replace("'", "")
-                        .replace("\\'", "'")
+                        .replace("))", ")")
                     )
         else:
             p[0] = {"default": default}
@@ -701,16 +704,19 @@ class DDLParser(Parser, HQL):
     def p_pid(self, p):
         """pid :  ID
         | STRING
+        | STRING LP RP
+        | ID LP RP
         | pid COMMA ID
         | pid COMMA STRING
         """
         p_list = list(p)
-        if not isinstance(p_list[1], list):
+        if len(p_list) == 4 and isinstance(p[1], str):
+            p[0] = ["".join(p[1:])]
+        elif not isinstance(p_list[1], list):
             p[0] = [p_list[1]]
         else:
             p[0] = p_list[1]
             p[0].append(p_list[-1])
-
     def p_index_pid(self, p):
         """index_pid :  ID
         | index_pid ID
