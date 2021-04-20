@@ -985,3 +985,69 @@ CREATE TYPE "schema--notification"."ContentType" AS
     result = DDLParser(ddl).run(group_by_type=True)
 
     assert result == expected
+
+
+def test_do_not_fail_on_brackets_in_default():
+    
+    ddl = """
+
+    CREATE TABLE "content_filters" (
+    "category" int,
+    "channels" varchar[],
+    "words" varchar[],
+    "created_at" timestamp DEFAULT (now()),
+    "updated_at" timestamp
+    );
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': '"category"',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': 'int',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': '"channels"',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': 'varchar[]',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': '"words"',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': 'varchar[]',
+                          'unique': False},
+                         {'check': None,
+                          'default': 'now()',
+                          'name': '"created_at"',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': 'timestamp',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': '"updated_at"',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': 'timestamp',
+                          'unique': False}],
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': [],
+             'schema': None,
+             'table_name': '"content_filters"'}],
+ 'types': []}
+    assert expected == result

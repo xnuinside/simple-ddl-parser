@@ -362,6 +362,12 @@ Any questions? Ping me in Telegram: https://t.me/xnuinside
 Changelog
 ---------
 
+**v0.12.1**
+
+
+#. () after DEFAULT now does not cause an issue
+#. ' and " does not lost now in DEFAULT values
+
 **v0.12.0**
 
 

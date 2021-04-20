@@ -48,7 +48,7 @@ def test_alter_table_initial_support():
                     "type": "varchar",
                     "size": None,
                     "nullable": False,
-                    "default": "New title",
+                    "default": '"New title"',
                     "check": None,
                     "references": None,
                     "unique": False,
@@ -351,7 +351,7 @@ def test_alter_check_combine_all_variants():
                     "references": None,
                     "unique": False,
                     "nullable": True,
-                    "default": "User Name",
+                    "default": "'User Name'",
                     "check": None,
                 },
                 {
@@ -361,7 +361,7 @@ def test_alter_check_combine_all_variants():
                     "references": None,
                     "unique": False,
                     "nullable": True,
-                    "default": "User Last Name",
+                    "default": "'User Last Name'",
                     "check": None,
                 },
                 {

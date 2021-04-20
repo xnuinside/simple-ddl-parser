@@ -334,6 +334,9 @@ Please describe issue that you want to solve and open the PR, I will review it a
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
 ## Changelog
+**v0.12.1**
+1. () after DEFAULT now does not cause an issue
+2. ' and " does not lost now in DEFAULT values
 
 **v0.12.0**
 1. Added support for MSSQL: types with 2 words like 'int IDENTITY', 
