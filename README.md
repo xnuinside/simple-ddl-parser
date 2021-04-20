@@ -386,3 +386,42 @@ is it EXTERNAL table or not - you need to set 'hql' output_mode.
 2. Added suppport for hql EXTERNAL statement, STORED AS statement, LOCATION statement
 3. Added suppport for PARTITIONED BY statement (for both hql & sql)
 4. Added support for HQL ROW FORMAT statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
+
+**v0.7.4**
+1. Fix behaviour with -- in strings. Allow calid table name like 'table--name'
+
+**v0.7.3**
+1. Added support `/* ... */` block comments
+2. Added support for Mysql '#' comments
+
+**v0.7.1**
+1. Ignore inline with '--' comments
+
+**v0.7.0**
+1. Redone logic of parse CREATE TABLE statements, now they parsed as one statement (not line by line as previous)
+2. Fixed several minor bugs with edge cases in default values and checks
+3. Added support for ALTER FOREIGN KEY statement for several fields in one statement
+
+**v0.6.1**
+1. Fix minor bug with schema in index statements
+
+**v0.6.0**
+1. Added support for SEQUENCE statemensts
+2. Added support for ARRAYs in types
+3. Added support for CREATE INDEX statements
+
+**v0.5.0**
+1. Added support for UNIQUE column attribute
+2. Add command line arg to pass folder with ddls (parse multiple files)
+3. Added support for CHECK Constratint
+4. Added support for FOREIGN Constratint in ALTER TABLE
+
+**v0.4.0**
+1. Added support schema for table in REFERENCES statement in column defenition
+2. Added base support fot Alter table statements (added 'alters' key in table)
+3. Added command line arg to pass path to get the output results
+4. Fixed incorrect null fields parsing
+
+**v0.3.0**
+1. Added support for REFERENCES statement in column defenition
+2. Added command line
