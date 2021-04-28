@@ -1,9 +1,10 @@
 import re
 from copy import deepcopy
 from typing import Dict, List
-from simple_ddl_parser.parser import Parser
-from simple_ddl_parser.dialects.hql import HQL
+
 from simple_ddl_parser import tokens as tok
+from simple_ddl_parser.dialects.hql import HQL
+from simple_ddl_parser.parser import Parser
 
 
 class DDLParser(Parser, HQL):
@@ -15,6 +16,33 @@ class DDLParser(Parser, HQL):
     t_ignore = ";\t  \r"
     t_DOT = r"."
 
+    def get_tag_symbol_value_and_increment(self, t):
+        # todo: need to find less hacky way to parse HQL structure types
+        if "<" == t.value:
+            t.type = "LT"
+            self.lexer.lt_open += 1
+        elif ">" == t.value and not self.lexer.check:
+            t.type = "RT"
+            self.lexer.lt_open -= 1
+        return t
+
+    def after_columns_tokens(self, t):
+        t.type = tok.after_columns_tokens.get(t.value.upper(), t.type)
+        if t.type != "ID":
+            self.lexer.after_columns = True
+        elif self.lexer.columns_def:
+            t.type = tok.columns_defenition.get(t.value.upper(), t.type)
+        return t
+
+    def process_body_tokens(self, t):
+        if self.lexer.last_token == "RP" or self.lexer.after_columns:
+            t = self.after_columns_tokens(t)
+        elif self.lexer.columns_def:
+            t.type = tok.columns_defenition.get(t.value.upper(), t.type)
+        elif self.lexer.sequence:
+            t.type = tok.sequence_reserved.get(t.value.upper(), "ID")
+        return t
+
     def t_STRING(self, t):
         r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\/\\\"]*\'\B"
         t.type = "STRING"
@@ -22,44 +50,29 @@ class DDLParser(Parser, HQL):
 
     def t_ID(self, t):
         r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$'\()!{}\[\]\"]+"
-        t.type = "ID"
-        if t.value == ")":
-            t.type = "RP"
-        elif t.value == "(":
-            t.type = "LP"
-            if not self.lexer.after_columns:
-                self.lexer.columns_def = True
-        # todo: need to find less hacky way to parse HQL structure types
-        elif "<" == t.value and not self.lexer.check:
-            t.type = "LT"
-            self.lexer.lt_open += 1
-        elif ">" == t.value and not self.lexer.check:
-            t.type = "RT"
-            self.lexer.lt_open -= 1
+        t.type = tok.symbol_tokens.get(t.value, "ID")
+        if t.type == "LP" and not self.lexer.after_columns:
+            self.lexer.columns_def = True
+            return t
+        elif not self.lexer.check and t.value in tok.symbol_tokens_no_check:
+            return self.get_tag_symbol_value_and_increment(t)
+        elif "ARRAY" in t.value:
+            t.type = "ARRAY"
+            return t
         else:
             if not self.lexer.is_table:
-                # if is_table mean wi already met INDEX or TABLE statement and the defenition already done and this is a string
+                # if is_table mean wi already met INDEX or TABLE statement and
+                # the defenition already done and this is a string
                 t.type = tok.defenition_statements.get(
                     t.value.upper(), t.type
                 )  # Check for reserved word
+                if t.type == "TABLE" or t.type == "INDEX":
+                    self.lexer.is_table = True
             t.type = tok.common_statements.get(t.value.upper(), t.type)
 
-        if self.lexer.last_token == "RP" or self.lexer.after_columns:
-            t.type = tok.after_columns_tokens.get(t.value.upper(), t.type)
-            if t.type != "ID":
-                self.lexer.after_columns = True
-            elif self.lexer.columns_def:
-                t.type = tok.columns_defenition.get(t.value.upper(), t.type)
-        elif self.lexer.columns_def:
-            t.type = tok.columns_defenition.get(t.value.upper(), t.type)
-        elif self.lexer.sequence:
-            t.type = tok.sequence_reserved.get(t.value.upper(), "ID")
-        elif "ARRAY" in t.value:
-            t.type = "ARRAY"
-        if t.type == "TABLE" or t.type == "INDEX":
-            self.lexer.is_table = True
-        elif t.type == "SEQUENCE" and self.lexer.is_table:
-            t.type = "ID"
+        # get tokens from other token dicts
+        t = self.process_body_tokens(t)
+
         if t.type == "SEQUENCE":
             self.lexer.sequence = True
         if t.type == "COMMA" and self.lexer.lt_open:
@@ -199,7 +212,7 @@ class DDLParser(Parser, HQL):
         p[0] = p[1]
 
         for item in ["detailed_columns", "columns"]:
-            if not item in p[0]:
+            if item not in p[0]:
                 p[0][item] = p_list[-1][item]
             else:
                 p[0][item].extend(p_list[-1][item])
@@ -282,23 +295,27 @@ class DDLParser(Parser, HQL):
                     p_list[-2]["constraint"]["name"],
                 )
             elif p_list[-1].get("references"):
-                if len(p_list) > 4 and "constraint" in p_list[3]:
-                    p[0] = self.set_constraint(
-                        p[0],
-                        "references",
-                        p_list[-1]["references"],
-                        p_list[3]["constraint"]["name"],
-                    )
-                elif isinstance(p_list[-2], list):
-                    if not "ref_columns" in p[0]:
-                        p[0]["ref_columns"] = []
+                p[0] = self.add_ref_information_to_table(p, p_list)
 
-                    for num, column in enumerate(p_list[-2]):
-                        ref = deepcopy(p_list[-1]["references"])
-                        ref["column"] = ref["columns"][num]
-                        del ref["columns"]
-                        ref["name"] = column
-                        p[0]["ref_columns"].append(ref)
+    def add_ref_information_to_table(self, p, p_list):
+        if len(p_list) > 4 and "constraint" in p_list[3]:
+            p[0] = self.set_constraint(
+                p[0],
+                "references",
+                p_list[-1]["references"],
+                p_list[3]["constraint"]["name"],
+            )
+        elif isinstance(p_list[-2], list):
+            if "ref_columns" not in p[0]:
+                p[0]["ref_columns"] = []
+
+            for num, column in enumerate(p_list[-2]):
+                ref = deepcopy(p_list[-1]["references"])
+                ref["column"] = ref["columns"][num]
+                del ref["columns"]
+                ref["name"] = column
+                p[0]["ref_columns"].append(ref)
+        return p[0]
 
     @staticmethod
     def set_constraint(target_dict, _type, constraint, constraint_name):
@@ -443,14 +460,7 @@ class DDLParser(Parser, HQL):
             append = "[]" if not arr_split[-1] else arr_split[-1]
             p[0]["type"] = p[0]["type"] + append
         elif isinstance(p_list[-1], list):
-            if len(p_list) == 4:
-                p[0]["type"] = f"{p[2]} {p[3][0]}"
-            elif p[0]["type"]:
-                if len(p[0]["type"]) == 1 and isinstance(p[0]["type"], list):
-                    p[0]["type"] = p[0]["type"][0]
-                p[0]["type"] = f'{p[0]["type"]} {p_list[-1][0]}'
-            else:
-                p[0]["type"] = p_list[-1][0]
+            p[0] = self.get_complex_type(p, p_list)
         else:
             match = re.match(r"[0-9]+", p_list[2])
             if bool(match) or p_list[2] == "max":
@@ -465,6 +475,18 @@ class DDLParser(Parser, HQL):
             elif isinstance(p_list[-1], str) and p_list[-1] not in p[0]["type"]:
                 p[0]["type"] += f" {p_list[-1]}"
 
+    @staticmethod
+    def get_complex_type(p, p_list):
+        if len(p_list) == 4:
+            p[0]["type"] = f"{p[2]} {p[3][0]}"
+        elif p[0]["type"]:
+            if len(p[0]["type"]) == 1 and isinstance(p[0]["type"], list):
+                p[0]["type"] = p[0]["type"][0]
+            p[0]["type"] = f'{p[0]["type"]} {p_list[-1][0]}'
+        else:
+            p[0]["type"] = p_list[-1][0]
+        return p[0]
+
     def extract_references(self, p_list):
         ref_index = p_list.index("REFERENCES")
         ref = {
@@ -475,7 +497,7 @@ class DDLParser(Parser, HQL):
             "on_update": None,
             "deferrable_initially": None,
         }
-        if not "." in p_list[ref_index:]:
+        if "." not in p_list[ref_index:]:
             ref.update({"table": p_list[ref_index + 1]})
             if not len(p_list) == 3:
                 ref.update({"columns": p_list[-1]})
@@ -512,7 +534,7 @@ class DDLParser(Parser, HQL):
             default = p[3][0]
         else:
             default = p[2]
-        
+
         if default.isnumeric():
             default = int(default)
         if isinstance(p[1], dict):
@@ -524,10 +546,7 @@ class DDLParser(Parser, HQL):
                         p[0]["default"] += f"{i}"
                     else:
                         p[0]["default"] += f" {i}"
-                    p[0]["default"] = (
-                        p[0]["default"]
-                        .replace("))", ")")
-                    )
+                    p[0]["default"] = p[0]["default"].replace("))", ")")
         else:
             p[0] = {"default": default}
 
@@ -641,9 +660,9 @@ class DDLParser(Parser, HQL):
             p[0]["unique"]["constraint_name"] = p[2]["constraint"]["name"]
 
     def p_alter_default(self, p):
-        """alter_default : alt_table ID ID 
+        """alter_default : alt_table ID ID
         | alt_table constraint ID ID
-        | alt_table ID STRING 
+        | alt_table ID STRING
         | alt_table constraint ID STRING
         | alter_default ID
         | alter_default FOR pid
@@ -651,28 +670,30 @@ class DDLParser(Parser, HQL):
 
         p_list = remove_par(list(p))
         p[0] = p[1]
-        
-        if 'FOR' in p_list:
+
+        if "FOR" in p_list:
             column = p_list[-1]
             value = None
-        elif p[0].get('default') and 'value' in p[0]['default']:
-            value = p[0]['default']['value'] + ' ' + p_list[-1]
+        elif p[0].get("default") and "value" in p[0]["default"]:
+            value = p[0]["default"]["value"] + " " + p_list[-1]
             column = None
         else:
             value = p_list[-1]
             column = None
-        if not 'default' in p[0]:
-            
+        if "default" not in p[0]:
+
             p[0]["default"] = {
                 "constraint_name": None,
                 "columns": column,
                 "value": value,
             }
         else:
-            p[0]["default"].update({
-                "columns":  p[0]["default"].get('column') or column,
-                "value":  value or p[0]["default"].get('value'),
-            })
+            p[0]["default"].update(
+                {
+                    "columns": p[0]["default"].get("column") or column,
+                    "value": value or p[0]["default"].get("value"),
+                }
+            )
         if "constraint" in p[2]:
             p[0]["default"]["constraint_name"] = p[2]["constraint"]["name"]
 
@@ -717,6 +738,7 @@ class DDLParser(Parser, HQL):
         else:
             p[0] = p_list[1]
             p[0].append(p_list[-1])
+
     def p_index_pid(self, p):
         """index_pid :  ID
         | index_pid ID

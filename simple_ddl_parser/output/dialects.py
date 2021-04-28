@@ -1,6 +1,5 @@
 from typing import Dict, List
 
-
 hql_clean_up_list = ["deferrable_initially"]
 sql_clean_up_list = [
     "external",
@@ -28,12 +27,19 @@ def add_additional_hql_keys(table_data: Dict) -> Dict:
     return table_data
 
 
+def add_additional_oracle_keys(table_data: Dict) -> Dict:
+    table_data.update(
+        {
+            "constraints": {"uniques": None, "checks": None, "references": None},
+        }
+    )
+    return table_data
+
+
 def add_additional_mssql_keys(table_data: Dict) -> Dict:
     table_data.update(
         {
-            "constraints": {"uniques": None, 
-                            "checks": None, 
-                            "references": None},
+            "constraints": {"uniques": None, "checks": None, "references": None},
         }
     )
     return table_data

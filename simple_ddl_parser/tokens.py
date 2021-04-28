@@ -9,13 +9,13 @@ defenition_statements = {
     "REPLACE": "REPLACE",
     "OR": "OR",
     "CLUSTERED": "CLUSTERED",
+    "SEQUENCE": "SEQUENCE",
 }
 common_statements = {
     "CHECK": "CHECK",
     "CONSTRAINT": "CONSTRAINT",
     "FOREIGN": "FOREIGN",
     "INDEX": "INDEX",
-    "SEQUENCE": "SEQUENCE",
     "REFERENCES": "REFERENCES",
     "KEY": "KEY",
     "ADD": "ADD",
@@ -28,7 +28,7 @@ common_statements = {
     "EXISTS": "EXISTS",
     "UNIQUE": "UNIQUE",
     "ON": "ON",
-    "FOR": "FOR"
+    "FOR": "FOR",
 }
 
 columns_defenition = {
@@ -71,3 +71,10 @@ tokens = tuple(
     + list(sequence_reserved.values())
     + list(after_columns_tokens.values())
 )
+
+symbol_tokens = {
+    ")": "RP",
+    "(": "LP",
+}
+
+symbol_tokens_no_check = {"<": "LT", ">": "RT"}
