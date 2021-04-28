@@ -25,12 +25,16 @@ jobs:
         poetry install
       env:
         POETRY_VIRTUALENVS_CREATE: false
+    
+    - name: Run flake8 (suo)
+    uses: suo/flake8-github-action@releases/v1
+    with:
+      checkName: 'flake8_py3'
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8
     - name: Test with pytest
       run: |
         pytest tests/

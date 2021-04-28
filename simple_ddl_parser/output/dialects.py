@@ -27,6 +27,15 @@ def add_additional_hql_keys(table_data: Dict) -> Dict:
     return table_data
 
 
+def add_additional_oracle_keys(table_data: Dict) -> Dict:
+    table_data.update(
+        {
+            "constraints": {"uniques": None, "checks": None, "references": None},
+        }
+    )
+    return table_data
+
+
 def add_additional_mssql_keys(table_data: Dict) -> Dict:
     table_data.update(
         {

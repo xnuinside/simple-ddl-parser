@@ -28,7 +28,7 @@ common_statements = {
     "EXISTS": "EXISTS",
     "UNIQUE": "UNIQUE",
     "ON": "ON",
-    "FOR": "FOR"
+    "FOR": "FOR",
 }
 
 columns_defenition = {
