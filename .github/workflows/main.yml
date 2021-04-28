@@ -27,7 +27,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  tests_3.6:
+  tests_3_6:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -46,7 +46,7 @@ jobs:
       run: |
         pytest tests/
 
-  tests_3.7:
+  tests_3_7:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -65,7 +65,7 @@ jobs:
       run: |
         pytest tests/
 
-  tests_3.8:
+  tests_3_8:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -84,7 +84,7 @@ jobs:
       run: |
         pytest tests/
 
-  tests_3.9:
+  tests_3_9:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
