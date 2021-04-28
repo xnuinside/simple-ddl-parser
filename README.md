@@ -1,6 +1,6 @@
 ## Simple DDL Parser
 
-![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) | ![workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)
+![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) ![workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)
 
 Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
