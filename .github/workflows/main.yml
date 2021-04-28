@@ -26,9 +26,6 @@ jobs:
         checkName: 'flake8_py3'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Lint with flake8
-      run: |
-        flake8
 
   tests:
     runs-on: ubuntu-latest
