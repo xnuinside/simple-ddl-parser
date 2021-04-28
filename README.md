@@ -2,7 +2,7 @@
 
 ![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser)
 
-Build with ply (lex & yacc in python). A lot of samples in 'tests/'. If you like a library and use it - don't forget to set 'star'. 
+Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
 ### How does it work?
 
