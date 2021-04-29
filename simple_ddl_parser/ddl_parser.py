@@ -4,10 +4,11 @@ from typing import Dict, List
 
 from simple_ddl_parser import tokens as tok
 from simple_ddl_parser.dialects.hql import HQL
+from simple_ddl_parser.dialects.oracle import Oracle
 from simple_ddl_parser.parser import Parser
 
 
-class DDLParser(Parser, HQL):
+class DDLParser(Parser, HQL, Oracle):
     """
     lex and yacc parser for parse ddl into BQ schemas
     """
@@ -559,6 +560,7 @@ class DDLParser(Parser, HQL):
         | defcolumn def
         | defcolumn ref
         | defcolumn foreign ref
+        | defcolumn encrypt
         """
         pk = False
         nullable = True

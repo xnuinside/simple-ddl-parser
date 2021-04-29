@@ -29,6 +29,10 @@ common_statements = {
     "UNIQUE": "UNIQUE",
     "ON": "ON",
     "FOR": "FOR",
+    "ENCRYPT": "ENCRYPT",
+    "SALT": "SALT",
+    "NO": "NO",
+    "USING": "USING",
 }
 
 columns_defenition = {
