@@ -315,25 +315,6 @@ This library is an extracted parser code from https://github.com/xnuinside/fakem
 For one of the work projects I needed to convert SQL ddl to Python ORM models in auto way and I tried to use https://github.com/andialbrecht/sqlparse but it works not well enough with ddl for my case (for example, if in ddl used lower case - nothing works, primary keys inside ddl are mapped as column name not reserved word and etc.).
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
-
-### How to run tests
-
-```bash
-
-    git clone https://github.com/xnuinside/simple-ddl-parser.git
-    cd simple-ddl-parser
-    poetry install # if you use poetry
-    # or use `pip install .`
-    pytest tests/ -vv
-
-```
-
-## How to contribute
-
-Please describe issue that you want to solve and open the PR, I will review it as soon as possible.
-
-Any questions? Ping me in Telegram: https://t.me/xnuinside 
-
 ## Changelog
 **v0.12.1**
 1. () after DEFAULT now does not cause an issue
