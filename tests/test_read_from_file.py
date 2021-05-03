@@ -1,4 +1,5 @@
 import os
+
 from simple_ddl_parser import parse_from_file
 
 
@@ -70,6 +71,7 @@ def test_parse_from_file_one_table():
             "primary_key": ['"id"'],
             "index": [],
             "table_name": '"users"',
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -150,6 +152,7 @@ def test_parse_from_file_two_statements():
             "primary_key": ['"id"'],
             "index": [],
             "table_name": '"users"',
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -191,6 +194,7 @@ def test_parse_from_file_two_statements():
             "primary_key": ['"id"'],
             "index": [],
             "table_name": '"languages"',
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
             "alter": {},

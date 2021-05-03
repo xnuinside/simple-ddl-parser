@@ -60,6 +60,7 @@ after_columns_tokens = {
     "KEYS": "KEYS",
     # oracle
     "STORAGE": "STORAGE",
+    "TABLESPACE": "TABLESPACE",
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",

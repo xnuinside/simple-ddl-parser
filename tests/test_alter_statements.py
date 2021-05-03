@@ -2,9 +2,7 @@ from simple_ddl_parser import DDLParser
 
 
 def test_alter_table_initial_support():
-    ddl = """  
-        
-        CREATE TABLE "materials" (
+    ddl = """CREATE TABLE "materials" (
         "id" int PRIMARY KEY,
         "title" varchar NOT NULL default "New title",
         "description" varchar,
@@ -25,7 +23,6 @@ def test_alter_table_initial_support():
         "created_at" timestamp NOT NULL,
         "updated_at" timestamp NOT NULL
         );
-        
         ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id") REFERENCES "materials" ("id");
 
         ALTER TABLE "material_attachments" ADD FOREIGN KEY ("attachment_id") REFERENCES "attachments" ("id");
@@ -100,8 +97,8 @@ def test_alter_table_initial_support():
             "alter": {},
             "checks": [],
             "table_name": '"materials"',
+            "tablespace": None,
             "schema": None,
-            "partitioned_by": [],
         },
         {
             "columns": [
@@ -159,6 +156,7 @@ def test_alter_table_initial_support():
             },
             "checks": [],
             "table_name": '"material_attachments"',
+            "tablespace": None,
             "schema": None,
         },
         {
@@ -220,8 +218,8 @@ def test_alter_table_initial_support():
             "alter": {},
             "checks": [],
             "table_name": '"attachments"',
+            "tablespace": None,
             "schema": None,
-            "partitioned_by": [],
         },
     ]
     parse_results = DDLParser(ddl).run()
@@ -229,8 +227,7 @@ def test_alter_table_initial_support():
 
 
 def test_alter_check():
-    ddl = """ 
-    CREATE TABLE Persons (
+    ddl = """CREATE TABLE Persons (
         ID int NOT NULL,
         LastName varchar(255) NOT NULL,
         FirstName varchar(255),
@@ -300,6 +297,7 @@ def test_alter_check():
             "alter": {"checks": [{"constraint_name": None, "statement": "Age>=18"}]},
             "checks": [],
             "table_name": "Persons",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -400,6 +398,7 @@ def test_alter_check_combine_all_variants():
             "alter": {},
             "checks": [],
             "table_name": "employees",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         },
@@ -474,6 +473,7 @@ def test_alter_check_combine_all_variants():
                 ]
             },
             "table_name": "Persons",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         },
@@ -494,8 +494,8 @@ def test_alter_check_with_constraint():
         City varchar(255),
 
         );
-        Alter Table Persons ADD CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes');   
-    """
+        Alter Table Persons ADD CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes');
+"""
     ).run()
     expected = [
         {
@@ -563,6 +563,7 @@ def test_alter_check_with_constraint():
             },
             "checks": [],
             "table_name": "Persons",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -582,9 +583,7 @@ def test_alter_foreiggn_with_constraint():
         CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
         );
 
-        Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id) REFERENCES employees (id); 
-
-
+        Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id) REFERENCES employees (id);
         """
     ).run()
     expected = [
@@ -674,6 +673,7 @@ def test_alter_foreiggn_with_constraint():
                 }
             ],
             "table_name": "Persons",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -776,6 +776,7 @@ def test_alter_without_constraint_and_constraint_in_table():
                 ]
             },
             "table_name": "Persons",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -802,12 +803,9 @@ def test_combo_with_alter_and_table_constraints():
         City varchar(255),
         CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
     );
-    
     ALTER TABLE Persons ADD CHECK (Age>=18 AND City='Sandnes);
-    
     ALTER TABLE Persons Add CONSTRAINT ck_person  CHECK (Age>=18 AND City='Sandnes);
-    Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id) REFERENCES employees (id); 
-        """
+    Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id) REFERENCES employees (id);"""
     ).run()
 
     expected = [
@@ -879,6 +877,7 @@ def test_combo_with_alter_and_table_constraints():
             "alter": {},
             "checks": [],
             "table_name": "employees",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         },
@@ -978,6 +977,7 @@ def test_combo_with_alter_and_table_constraints():
                 ]
             },
             "table_name": "Persons",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         },
@@ -1006,8 +1006,8 @@ CREATE TABLE employees (
             birth_date DATE CHECK (birth_date > '1900-01-01'),
             CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
         );
-        Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id, Age, birth_date) REFERENCES employees (id, Age, birth_date);          
-"""
+        Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id, Age, birth_date) REFERENCES employees (id, Age, birth_date);
+"""  # noqa E501
     ).run()
     expected = [
         {
@@ -1080,6 +1080,7 @@ CREATE TABLE employees (
             "schema": None,
             "partitioned_by": [],
             "table_name": "employees",
+            "tablespace": None,
         },
         {
             "columns": [
@@ -1203,6 +1204,7 @@ CREATE TABLE employees (
             "schema": None,
             "partitioned_by": [],
             "table_name": "Persons",
+            "tablespace": None,
         },
     ]
     assert expected == parse_results
@@ -1229,9 +1231,8 @@ CREATE TABLE employees (
             birth_date DATE CHECK (birth_date > '1900-01-01'),
             CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
         );
-        Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id, Age) REFERENCES employees (id, Age, birth_date);          
-        Alter Table Persons ADD CONSTRAINT new_fk FOREIGN KEY (birth_date) REFERENCES employees (birth_date);          
-"""
+        Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id, Age) REFERENCES employees (id, Age, birth_date);
+        Alter Table Persons ADD CONSTRAINT new_fk FOREIGN KEY (birth_date) REFERENCES employees (birth_date);"""
     ).run()
     expected = [
         {
@@ -1304,6 +1305,7 @@ CREATE TABLE employees (
             "primary_key": ["id"],
             "schema": None,
             "table_name": "employees",
+            "tablespace": None,
         },
         {
             "alter": {
@@ -1427,6 +1429,7 @@ CREATE TABLE employees (
             },
             "schema": None,
             "table_name": "Persons",
+            "tablespace": None,
         },
     ]
     assert expected == parse_results

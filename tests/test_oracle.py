@@ -98,6 +98,7 @@ CREATE TABLE employee_2 (
                 "primary_key": [],
                 "schema": None,
                 "table_name": "employee",
+                "tablespace": None,
             },
             {
                 "alter": {},
@@ -154,6 +155,7 @@ CREATE TABLE employee_2 (
                 "primary_key": [],
                 "schema": None,
                 "table_name": "employee_2",
+                "tablespace": None,
             },
         ],
         "types": [],
@@ -250,6 +252,7 @@ def test_oracle_output_mode():
                 "schema": None,
                 "storage": None,
                 "table_name": "employee",
+                "tablespace": None,
             },
             {
                 "alter": {},
@@ -307,6 +310,7 @@ def test_oracle_output_mode():
                 "schema": None,
                 "storage": None,
                 "table_name": "employee_2",
+                "tablespace": None,
             },
         ],
         "types": [],
@@ -374,6 +378,7 @@ def test_storage():
                 "schema": None,
                 "storage": {"initial": "5m", "maxextents": "Unlimited", "next": "5m"},
                 "table_name": "emp_table",
+                "tablespace": None,
             }
         ],
         "types": [],

@@ -14,10 +14,7 @@ def test_inline_comment():
     ,event_time            timestamp not null default now()
     ,comment           varchar(1000) not null default 'none'
     ) ;
-                            
-                            
-                            
-                            """
+"""
     ).run()
     expected = [
         {
@@ -100,6 +97,7 @@ def test_inline_comment():
             "schema": None,
             "partitioned_by": [],
             "table_name": "user_history",
+            "tablespace": None,
         }
     ]
     assert expected == parse_result
@@ -113,7 +111,7 @@ def test_block_comments():
         select a from b
 
         outer comment end */
-        create table A(/* 
+        create table A(/*
                 inner comment2 */
             data_sync_id bigint not null ,
             sync_start timestamp  not null,
@@ -174,6 +172,7 @@ def test_block_comments():
             "schema": None,
             "partitioned_by": [],
             "table_name": "A",
+            "tablespace": None,
         }
     ]
     assert expected == parse_result
@@ -182,14 +181,13 @@ def test_block_comments():
 def test_mysql_comments_support():
     ddl = """
         # this is mysql comment1
-        
     /* outer comment start
     bla bla bla
     /* inner comment */
     select a from b
 
     outer comment end */
-    create table A(/* 
+    create table A(/*
             inner comment2 */
         data_sync_id bigint not null ,
         sync_start timestamp  not null,
@@ -251,6 +249,7 @@ def test_mysql_comments_support():
             "schema": None,
             "partitioned_by": [],
             "table_name": "A",
+            "tablespace": None,
         }
     ]
     assert expected == parse_result
@@ -341,6 +340,7 @@ def test_two_defices_in_string_work_ok():
             "schema": '"my--custom--schema"',
             "partitioned_by": [],
             "table_name": '"users"',
+            "tablespace": None,
         }
     ]
     assert expected == parse_result

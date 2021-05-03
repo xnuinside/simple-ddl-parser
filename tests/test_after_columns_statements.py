@@ -121,6 +121,7 @@ def test_partitioned_by_hql():
             "index": [],
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
             "partitioned_by": [{"name": "batch_id", "type": "int", "size": None}],
         }
     ]
@@ -248,6 +249,7 @@ def test_partitioned_by_postgresql():
             "index": [],
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
             "partitioned_by": ["batch_id"],
         }
     ]
@@ -374,6 +376,7 @@ def test_stored_as_parsed_but_not_showed():
             "partitioned_by": [{"name": "batch_id", "type": "int", "size": None}],
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
         }
     ]
     assert expected == result
@@ -499,6 +502,7 @@ def test_location_parsed_but_not_showed():
             "partitioned_by": [{"name": "batch_id", "type": "int", "size": None}],
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
         }
     ]
 
@@ -628,6 +632,7 @@ def partitioned_by_multiple_tables_hql():
             "external": True,
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
         }
     ]
     assert expected == result
@@ -697,6 +702,7 @@ def test_row_format_is_not_showed():
             "partitioned_by": [],
             "schema": "default",
             "table_name": "salesorderdetail",
+            "tablespace": None,
         }
     ]
     assert expected == result
@@ -768,6 +774,7 @@ def test_fields_terminated_by_not_showed():
             "partitioned_by": [],
             "schema": "default",
             "table_name": "salesorderdetail",
+            "tablespace": None,
         }
     ]
     assert expected == result
@@ -841,8 +848,11 @@ def test_collection_items_terminated_by_not_showed():
             "external": False,
             "schema": "default",
             "table_name": "salesorderdetail",
+            "tablespace": None,
         }
     ]
+
+    assert expected == result
 
 
 def test_map_keys_terminated_not_showed():
@@ -914,7 +924,81 @@ def test_map_keys_terminated_not_showed():
             "partitioned_by": [],
             "schema": "default",
             "table_name": "salesorderdetail",
+            "tablespace": None,
         }
     ]
 
+    assert expected == result
+
+
+def test_tablespace_statement():
+    ddl = """
+    Create Table emp_table (
+    empno Number,
+    ename Varchar2(100),
+    sal Number,
+    photo Blob
+    )
+    Tablespace my_table_space
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "empno",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "Number",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "ename",
+                        "nullable": True,
+                        "references": None,
+                        "size": 100,
+                        "type": "Varchar2",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "sal",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "Number",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "photo",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "Blob",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "emp_table",
+                "tablespace": "my_table_space",
+            }
+        ],
+        "types": [],
+    }
     assert expected == result

@@ -37,7 +37,7 @@ def test_sequence_and_table():
     MINVALUE 0
     MAXVALUE 9223372036854775807
     CACHE 1;
-    
+
     CREATE TABLE "countries" (
     "id" int PRIMARY KEY,
     "code" varchar(4) NOT NULL,
@@ -93,6 +93,7 @@ def test_sequence_and_table():
             "alter": {},
             "checks": [],
             "table_name": '"countries"',
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         },

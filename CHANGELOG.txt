@@ -8,10 +8,10 @@ If no ENCRYPT statement will be in table defenition - then value will be 'None',
     'salt': True,
     'encryption_algorithm': 'AES192',
     'integrity_algorithm': 'SHA-1'
-    }
-}
+    }}
+
 3. Added support for oracle STORAGE statement, 'oracle' output_mode now has key 'storage' in table data defenition.
-4. Added support for COMMENT ON statement 
+4. Added support for TABLESPACE statement after columns defenition
 
 **v0.12.1**
 1. () after DEFAULT now does not cause an issue

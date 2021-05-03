@@ -868,6 +868,17 @@ class DDLParser(Parser, HQL, Oracle):
         p_list = remove_par(list(p))
         p[0] = {"primary_key": p_list[-1]}
 
+    def p_tablespace(self, p):
+        """tablespace : TABLESPACE ID"""
+        # Initial 5m Next 5m Maxextents Unlimited
+        p[0] = p[2]
+
+    def p_expr_tablespace(self, p):
+        """expr : expr tablespace"""
+        p_list = list(p)
+        p[0] = p[1]
+        p[0]["tablespace"] = p_list[-1]
+
 
 def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
     """ get useful data from ddl """

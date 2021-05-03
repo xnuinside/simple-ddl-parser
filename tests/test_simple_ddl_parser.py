@@ -79,6 +79,7 @@ def test_run_postgres_first_query():
                 },
             ],
             "table_name": "super_table",
+            "tablespace": None,
             "schema": "prod",
             "partitioned_by": [],
             "alter": {},
@@ -157,6 +158,7 @@ def test_run_query_caps_in_columns():
             "primary_key": ['"ID"'],
             "index": [],
             "table_name": "paths",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -221,6 +223,7 @@ def test_parser_multiple_tables():
             "primary_key": ['"id"'],
             "index": [],
             "table_name": '"countries"',
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -262,6 +265,7 @@ def test_parser_multiple_tables():
             "primary_key": [],
             "index": [],
             "table_name": '"path_owners"',
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -343,6 +347,7 @@ def test_unique_statement_in_columns():
             "alter": {},
             "checks": [],
             "table_name": '"steps"',
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -422,6 +427,7 @@ def test_unique_statement_separate_line():
             "alter": {},
             "checks": [],
             "table_name": '"steps"',
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -510,6 +516,7 @@ def test_check_in_column():
             "alter": {},
             "checks": [],
             "table_name": "employees",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -680,6 +687,7 @@ def test_check_with_constraint():
                 ]
             },
             "table_name": "Persons",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -791,6 +799,7 @@ def test_arrays():
             "alter": {},
             "checks": [],
             "table_name": "arrays_2",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -818,6 +827,7 @@ def test_like_statement():
             "primary_key": [],
             "schema": None,
             "table_name": "New_Users",
+            "tablespace": None,
         }
     ]
 
@@ -877,6 +887,7 @@ def test_defaults_with_comments():
             "primary_key": [],
             "schema": "v2",
             "table_name": "entitlement_requests",
+            "tablespace": None,
         }
     ]
     assert expected == result
@@ -913,6 +924,7 @@ def test_parse_table_name_table():
             "primary_key": ["_id"],
             "schema": '"prefix--schema-name"',
             "table_name": '"table"',
+            "tablespace": None,
         }
     ]
     assert result == expected
@@ -952,6 +964,7 @@ def test_group_by_type_output():
                 "primary_key": [],
                 "schema": '"schema--notification"',
                 "table_name": '"notification"',
+                "tablespace": None,
             }
         ],
         "types": [
@@ -1060,6 +1073,7 @@ def test_do_not_fail_on_brackets_in_default():
                 "primary_key": [],
                 "schema": None,
                 "table_name": '"content_filters"',
+                "tablespace": None,
             }
         ],
         "types": [],

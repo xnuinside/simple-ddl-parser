@@ -44,6 +44,7 @@ def test_int_identity_type():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -113,6 +114,7 @@ def test_mssql_foreign_ref_in_column():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -162,6 +164,7 @@ def test_max_supported_as_column_size():
                 "primary_key": [],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -224,6 +227,7 @@ def test_constraint_unique():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
                 "constraints": {
                     "uniques": [
                         {
@@ -294,6 +298,7 @@ def test_constraint_unique_none():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
                 "constraints": {"uniques": None, "checks": None, "references": None},
             }
         ],
@@ -678,6 +683,7 @@ def test_two_unique_constructs():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -1016,6 +1022,7 @@ def test_foreign_keys():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -1412,6 +1419,7 @@ def test_alter_unique():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -1643,6 +1651,7 @@ def test_defaults_in_alter():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -1721,6 +1730,7 @@ def test_mysql_constraint_pk():
                 "primary_key": ["ID", "LastName"],
                 "schema": None,
                 "table_name": "Persons",
+                "tablespace": None,
             }
         ],
         "types": [],

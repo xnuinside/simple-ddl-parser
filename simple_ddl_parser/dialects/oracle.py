@@ -49,20 +49,3 @@ class Oracle:
         p_list = list(p)
         p[0] = p[1]
         p[0]["storage"] = p_list[-1]
-
-    def p_tablespace(self, p):
-        """tablespace : STORAGE LP"""
-        # Initial 5m Next 5m Maxextents Unlimited
-        p_list = remove_par(list(p))
-        param = {}
-        if len(p_list) == 4:
-            param = {p_list[2].lower(): p_list[3]}
-        if isinstance(p_list[1], dict):
-            p[0] = p[1]
-        else:
-            p[0] = {}
-        p[0].update(param)
-
-    def p_expr_tablespace(self, p):
-        """expr : expr tablespace"""
-        p[0] = p[1]

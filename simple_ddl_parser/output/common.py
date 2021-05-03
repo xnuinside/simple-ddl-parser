@@ -126,6 +126,7 @@ def result_format(
             "checks": [],
             "index": [],
             "partitioned_by": [],
+            "tablespace": None,
         }
         table_data = d.populate_dialects_table_data(output_mode, table_data)
         not_table = False

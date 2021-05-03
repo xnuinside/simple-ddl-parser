@@ -136,6 +136,7 @@ def test_partitioned_by_hql_output_mode_hql():
             "stored_as": None,
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
             "location": None,
             "row_format": None,
             "fields_terminated_by": None,
@@ -244,6 +245,7 @@ def test_partitioned_by_hql_output_mode_hql():
             "schema": "database",
             "stored_as": None,
             "table_name": "table_name2",
+            "tablespace": None,
             "location": None,
             "row_format": None,
             "fields_terminated_by": None,
@@ -375,6 +377,7 @@ def test_stored_as_hql_showed():
             "external": True,
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
             "stored_as": "PARQUET",
             "location": None,
             "row_format": None,
@@ -508,6 +511,7 @@ def test_location_showed():
             "external": True,
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
             "row_format": None,
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
@@ -533,7 +537,7 @@ def partitioned_by_multiple_tables_hql():
         field_long      bigint
     ) PARTITIONED BY (batch_id int, batch_id2 string, batch_32 some_type) STORED AS PARQUET LOCATION 's3://datalake/table_name/v1'
 
-    """
+    """  # noqa E501
 
     result = DDLParser(ddl).run(output_mode="hql")
     expected = [
@@ -644,6 +648,7 @@ def partitioned_by_multiple_tables_hql():
             "external": True,
             "schema": "database",
             "table_name": "table_name",
+            "tablespace": None,
             "row_format": None,
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
@@ -720,6 +725,7 @@ def test_hql_row_format():
             "external": False,
             "schema": "default",
             "table_name": "salesorderdetail",
+            "tablespace": None,
             "row_format": "DELIMITED",
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
@@ -800,6 +806,7 @@ def test_fields_terminated_by_hql():
             "external": False,
             "schema": "default",
             "table_name": "salesorderdetail",
+            "tablespace": None,
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
         }
@@ -879,10 +886,12 @@ def test_collection_items_terminated_by_hql():
             "external": False,
             "schema": "default",
             "table_name": "salesorderdetail",
+            "tablespace": None,
             "collection_items_terminated_by": "'\\002'",
             "map_keys_terminated_by": None,
         }
     ]
+    assert expected == result
 
 
 def test_map_keys_terminated_by_hql():
@@ -959,6 +968,7 @@ def test_map_keys_terminated_by_hql():
             "external": False,
             "schema": "default",
             "table_name": "salesorderdetail",
+            "tablespace": None,
             "collection_items_terminated_by": "'\\002'",
             "map_keys_terminated_by": "'\\003'",
         }
@@ -1005,6 +1015,7 @@ def simple_structure_type_support():
             "schema": "default",
             "stored_as": None,
             "table_name": "salesorderdetail",
+            "tablespace": None,
         }
     ]
 
@@ -1016,13 +1027,13 @@ def test_complex_structure_test_hql():
     CREATE TABLE IF NOT EXISTS default.salesorderdetail(
             column_abc ARRAY <structcolx:string,coly:string>,
             employee_info STRUCT < employer: STRING, id: BIGINT, address: STRING >,
-            employee_description string, 
+            employee_description string,
             column_abc2 ARRAY<structcolx:string,coly:string>,
             column_map MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING >>,
             column_map_no_spaces MAP<STRING,STRUCT<year:INT,place:STRING,details:STRING>>,
             column_struct STRUCT < street_address: STRUCT <street_number: INT, street_name: STRING, street_type: STRING>, country: STRING, postal_code: STRING > not null
             )
-    """
+    """  # noqa E501
 
     result = DDLParser(ddl).run(output_mode="hql")
     expected = [
@@ -1116,6 +1127,7 @@ def test_complex_structure_test_hql():
             "schema": "default",
             "stored_as": None,
             "table_name": "salesorderdetail",
+            "tablespace": None,
         }
     ]
     assert expected == result

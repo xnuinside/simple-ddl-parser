@@ -325,6 +325,7 @@ def test_several_indexes_types():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -626,6 +627,7 @@ def test_clustered_index():
                 "primary_key": ["id"],
                 "schema": None,
                 "table_name": "sqlserverlist",
+                "tablespace": None,
             }
         ],
         "types": [],
@@ -759,6 +761,7 @@ def test_indexes_in_table_wint_no_schema():
                 },
             ],
             "table_name": "pipeline",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
         }
@@ -892,6 +895,7 @@ def test_indexes_in_table():
                 },
             ],
             "table_name": "pipeline",
+            "tablespace": None,
             "schema": "dev",
             "partitioned_by": [],
         }
