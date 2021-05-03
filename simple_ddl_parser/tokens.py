@@ -47,6 +47,7 @@ columns_defenition = {
 after_columns_tokens = {
     "PARTITIONED": "PARTITIONED",
     "BY": "BY",
+    # hql
     "STORED": "STORED",
     "LOCATION": "LOCATION",
     "ROW": "ROW",
@@ -57,6 +58,8 @@ after_columns_tokens = {
     "ITEMS": "ITEMS",
     "MAP": "MAP",
     "KEYS": "KEYS",
+    # oracle
+    "STORAGE": "STORAGE",
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",

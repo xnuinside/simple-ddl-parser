@@ -1,3 +1,6 @@
+from simple_ddl_parser.utils import remove_par
+
+
 class Oracle:
     def p_encrypt(self, p):
         """encrypt : ENCRYPT
@@ -7,7 +10,6 @@ class Oracle:
         | encrypt STRING
         """
         p_list = list(p)
-        print(p_list)
         if isinstance(p[1], dict):
             p[0] = p[1]
             if "NO" in p_list:
@@ -25,3 +27,42 @@ class Oracle:
                     "integrity_algorithm": "SHA-1",
                 }
             }
+
+    def p_storage(self, p):
+        """storage : STORAGE LP
+        | storage ID ID
+        | storage ID ID RP
+        """
+        # Initial 5m Next 5m Maxextents Unlimited
+        p_list = remove_par(list(p))
+        param = {}
+        if len(p_list) == 4:
+            param = {p_list[2].lower(): p_list[3]}
+        if isinstance(p_list[1], dict):
+            p[0] = p[1]
+        else:
+            p[0] = {}
+        p[0].update(param)
+
+    def p_expr_storage(self, p):
+        """expr : expr storage"""
+        p_list = list(p)
+        p[0] = p[1]
+        p[0]["storage"] = p_list[-1]
+
+    def p_tablespace(self, p):
+        """tablespace : STORAGE LP"""
+        # Initial 5m Next 5m Maxextents Unlimited
+        p_list = remove_par(list(p))
+        param = {}
+        if len(p_list) == 4:
+            param = {p_list[2].lower(): p_list[3]}
+        if isinstance(p_list[1], dict):
+            p[0] = p[1]
+        else:
+            p[0] = {}
+        p[0].update(param)
+
+    def p_expr_tablespace(self, p):
+        """expr : expr tablespace"""
+        p[0] = p[1]

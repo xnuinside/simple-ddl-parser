@@ -6,6 +6,7 @@ from simple_ddl_parser import tokens as tok
 from simple_ddl_parser.dialects.hql import HQL
 from simple_ddl_parser.dialects.oracle import Oracle
 from simple_ddl_parser.parser import Parser
+from simple_ddl_parser.utils import remove_par
 
 
 class DDLParser(Parser, HQL, Oracle):
@@ -264,6 +265,7 @@ class DDLParser(Parser, HQL, Oracle):
         | expr COMMA pkey
         | expr COMMA uniq
         | expr COMMA constraint uniq
+        | expr COMMA constraint pkey
         | expr COMMA constraint foreign ref
         | expr COMMA foreign ref
         | expr RP
@@ -288,13 +290,23 @@ class DDLParser(Parser, HQL, Oracle):
                 p[0].update(p_list[-1])
 
         if isinstance(p_list[-1], dict):
-            if "constraint" in p_list[-2] and p_list[-1].get("unique_statement"):
-                p[0] = self.set_constraint(
-                    p[0],
-                    "uniques",
-                    {"columns": p_list[-1]["unique_statement"]},
-                    p_list[-2]["constraint"]["name"],
-                )
+            if "constraint" in p_list[-2]:
+                if p_list[-1].get("unique_statement"):
+                    p[0] = self.set_constraint(
+                        p[0],
+                        "uniques",
+                        {"columns": p_list[-1]["unique_statement"]},
+                        p_list[-2]["constraint"]["name"],
+                    )
+                else:
+                    print(p_list)
+                    p[0] = self.set_constraint(
+                        p[0],
+                        "primary_keys",
+                        {"columns": p_list[-1]["primary_key"]},
+                        p_list[-2]["constraint"]["name"],
+                    )
+
             elif p_list[-1].get("references"):
                 p[0] = self.add_ref_information_to_table(p, p_list)
 
@@ -855,14 +867,6 @@ class DDLParser(Parser, HQL, Oracle):
         """pkey : PRIMARY KEY LP pid RP"""
         p_list = remove_par(list(p))
         p[0] = {"primary_key": p_list[-1]}
-
-
-def remove_par(p_list: List[str]) -> List[str]:
-    remove_list = ["(", ")"]
-    for symbol in remove_list:
-        while symbol in p_list:
-            p_list.remove(symbol)
-    return p_list
 
 
 def parse_from_file(file_path: str, **kwargs) -> List[Dict]:

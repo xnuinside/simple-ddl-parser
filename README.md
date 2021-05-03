@@ -4,6 +4,14 @@
 
 Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
+### Is it Stable?
+
+Yes, library already has about 4000 usage per day, you can check statistics by yourself - https://pypistats.org/packages/simple-ddl-parser.
+
+As maintainer I guarantee that not any backward incompatible changes will be done in patch or minor version. Only additionals & new features.
+
+However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version `1.0.*` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version `0.26.0` :)
+
 ### How does it work?
 
 Parser tested on different DDLs for PostgreSQL & Hive. But idea to support as much as possible DDL dialects, I already added such things as support  MySQL '#' comments. If you need to add something - please provide DDL example & information abotu that is it SQL dialect & DB.
@@ -86,7 +94,6 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
 Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
-
 
 ### From python code
 
@@ -287,21 +294,22 @@ You also can provide a path where you want to have a dumps with schema with argu
 - type IDENTITY statement
 - FOREIGN KEY REFERENCES statement
 - 'max' specifier in column size
-- CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
+- CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY, CONSTRAINT ... PRIMARY KEY
 - CREATE CLUSTERED INDEX
+
+### Oracle
+
+- ENCRYPT column property [+ NO SALT, SALT, USING]
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
-1. Add support for oracle: add support for STORAGE statement, ENCRYPT column parameter
-2. Add support for GENERATED ALWAYS AS statement
-3. Add support for CREATE TABLESPACE statement & TABLESPACE statement in table defenition.
-4. Add support for statement CREATE DOMAIN
-5. Add COMMENT ON statement support
-6. Add CREATE DATABASE statement support
-7. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
-8. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
-9. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
-
+1. Add support for GENERATED ALWAYS AS statement
+2. Add support for CREATE TABLESPACE statement & TABLESPACE statement in table defenition.
+3. Add support for statement CREATE DOMAIN
+4. Add CREATE DATABASE statement support
+5. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
+6. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
+7. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 
 ## non-feature todo
 

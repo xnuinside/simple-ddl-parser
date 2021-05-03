@@ -585,7 +585,6 @@ CHECK (LastName != FirstName)
             "primary_key": [],
             "index": [],
             "alter": {},
-            "checks": [],
             "checks": [{"name": None, "statement": "LastName != FirstName"}],
             "table_name": "Persons",
             "schema": None,
@@ -598,7 +597,6 @@ CHECK (LastName != FirstName)
 
 def test_check_with_constraint():
     ddl = """
-    
     CREATE TABLE Persons (
     ID int NOT NULL,
     LastName varchar(255) NOT NULL,
@@ -608,7 +606,6 @@ def test_check_with_constraint():
     CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes'),
     CHECK (LastName != FirstName)
     );
-    
     """
     expected = [
         {
@@ -801,7 +798,6 @@ def test_arrays():
     assert expected == parse_results
 
 
-
 def test_like_statement():
 
     ddl = """
@@ -988,7 +984,7 @@ CREATE TYPE "schema--notification"."ContentType" AS
 
 
 def test_do_not_fail_on_brackets_in_default():
-    
+
     ddl = """
 
     CREATE TABLE "content_filters" (
@@ -1001,53 +997,71 @@ def test_do_not_fail_on_brackets_in_default():
     """
 
     result = DDLParser(ddl).run(group_by_type=True)
-    expected = {'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'columns': [{'check': None,
-                          'default': None,
-                          'name': '"category"',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'int',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"channels"',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'varchar[]',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"words"',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'varchar[]',
-                          'unique': False},
-                         {'check': None,
-                          'default': 'now()',
-                          'name': '"created_at"',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'timestamp',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"updated_at"',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'timestamp',
-                          'unique': False}],
-             'index': [],
-             'partitioned_by': [],
-             'primary_key': [],
-             'schema': None,
-             'table_name': '"content_filters"'}],
- 'types': []}
+    expected = {
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"category"',
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"channels"',
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar[]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"words"',
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar[]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": "now()",
+                        "name": '"created_at"',
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "timestamp",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"updated_at"',
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "timestamp",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": '"content_filters"',
+            }
+        ],
+        "types": [],
+    }
     assert expected == result
