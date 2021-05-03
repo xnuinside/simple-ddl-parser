@@ -126,6 +126,7 @@ def result_format(
             "checks": [],
             "index": [],
             "partitioned_by": [],
+            "tablespace": None,
         }
         table_data = d.populate_dialects_table_data(output_mode, table_data)
         not_table = False
@@ -153,7 +154,7 @@ def result_format(
     return final_result
 
 
-def process_not_table_item(table_data: Dict, tables_dict: Dict):
+def process_not_table_item(table_data: Dict, tables_dict: Dict) -> Dict:
     if table_data.get("table_name"):
         tables_dict[(table_data["table_name"], table_data["schema"])] = table_data
     else:
@@ -161,7 +162,7 @@ def process_not_table_item(table_data: Dict, tables_dict: Dict):
             "\n Something goes wrong. Possible you try to parse unsupported statement \n "
         )
     if not table_data.get("primary_key"):
-        table_data = check_pk_in_columns(table_data)
+        table_data = check_pk_in_columns_and_constraints(table_data)
     else:
         table_data = remove_pk_from_columns(table_data)
 
@@ -241,12 +242,15 @@ def remove_pk_from_columns(table_data: Dict) -> Dict:
     return table_data
 
 
-def check_pk_in_columns(table_data: Dict) -> Dict:
+def check_pk_in_columns_and_constraints(table_data: Dict) -> Dict:
     pk = []
     for column in table_data["columns"]:
         if column["primary_key"]:
             pk.append(column["name"])
         del column["primary_key"]
+    if table_data.get("constraints") and table_data["constraints"].get("primary_keys"):
+        for key_constraints in table_data["constraints"]["primary_keys"]:
+            pk.extend(key_constraints["columns"])
     table_data["primary_key"] = pk
     return table_data
 

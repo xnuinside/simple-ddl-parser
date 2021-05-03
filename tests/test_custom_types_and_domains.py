@@ -39,6 +39,7 @@ def test_custom_enum():
             "primary_key": [],
             "schema": '"schema--notification"',
             "table_name": '"notification"',
+            "tablespace": None,
         },
     ]
     assert expected == result
@@ -82,6 +83,7 @@ def test_custom_enum_wihtout_schema():
             "primary_key": [],
             "schema": '"schema--notification"',
             "table_name": '"notification"',
+            "tablespace": None,
         },
     ]
     assert expected == result

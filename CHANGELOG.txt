@@ -1,5 +1,17 @@
 **v0.14.0**
 1. Added support for CONSTRAINT ... PRIMARY KEY ...
+2. Added support for ENCRYPT [+ NO SALT, SALT, USING] statements for Oracle dialect. All default values taken from this doc https://docs.oracle.com/en/database/oracle/oracle-database/21/asoag/encrypting-columns-tables2.html
+Now if you use output_mode='oracle' in column will be showed new property 'encrypt'. 
+If no ENCRYPT statement will be in table defenition - then value will be 'None', but if ENCRYPT exists when in encrypt property you will find this information:
+
+{'encrypt' : {
+    'salt': True,
+    'encryption_algorithm': 'AES192',
+    'integrity_algorithm': 'SHA-1'
+    }}
+
+3. Added support for oracle STORAGE statement, 'oracle' output_mode now has key 'storage' in table data defenition.
+4. Added support for TABLESPACE statement after columns defenition
 
 **v0.12.1**
 1. () after DEFAULT now does not cause an issue

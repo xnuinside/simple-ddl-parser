@@ -29,6 +29,10 @@ common_statements = {
     "UNIQUE": "UNIQUE",
     "ON": "ON",
     "FOR": "FOR",
+    "ENCRYPT": "ENCRYPT",
+    "SALT": "SALT",
+    "NO": "NO",
+    "USING": "USING",
 }
 
 columns_defenition = {
@@ -43,6 +47,7 @@ columns_defenition = {
 after_columns_tokens = {
     "PARTITIONED": "PARTITIONED",
     "BY": "BY",
+    # hql
     "STORED": "STORED",
     "LOCATION": "LOCATION",
     "ROW": "ROW",
@@ -53,6 +58,9 @@ after_columns_tokens = {
     "ITEMS": "ITEMS",
     "MAP": "MAP",
     "KEYS": "KEYS",
+    # oracle
+    "STORAGE": "STORAGE",
+    "TABLESPACE": "TABLESPACE",
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",

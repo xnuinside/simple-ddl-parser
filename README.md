@@ -4,9 +4,18 @@
 
 Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
+### Is it Stable?
+
+Yes, library already has about 4000 usage per day, you can check statistics by yourself - https://pypistats.org/packages/simple-ddl-parser.
+
+As maintainer I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
+
+However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version `1.0.*` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version `0.26.0` :)
+
 ### How does it work?
 
-Parser tested on different DDLs for PostgreSQL & Hive. But idea to support as much as possible DDL dialects, I already added such things as support  MySQL '#' comments. If you need to add something - please provide DDL example & information abotu that is it SQL dialect & DB.
+Parser tested on different DDLs for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (Vertica, Oracle, Hive, MsSQL, etc.). You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser.
+**If you need some statement, that not supported by parser yet**: please provide DDL example & information about that is it SQL dialect or DB.
 
 Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
 
@@ -86,7 +95,6 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
 Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
-
 
 ### From python code
 
@@ -275,6 +283,10 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - LIKE statement (in this and only in this case to output will be added 'like' keyword with information about table from that we did like - 'like': {'schema': None, 'table_name': 'Old_Users'}).
 
+- TABLESPACE statement
+
+- COMMENT ON statement
+
 ### HQL Dialect statements
 
 - PARTITIONED BY statement
@@ -287,21 +299,25 @@ You also can provide a path where you want to have a dumps with schema with argu
 - type IDENTITY statement
 - FOREIGN KEY REFERENCES statement
 - 'max' specifier in column size
-- CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
+- CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY, CONSTRAINT ... PRIMARY KEY
 - CREATE CLUSTERED INDEX
+
+### Oracle
+
+- ENCRYPT column property [+ NO SALT, SALT, USING]
+- STORAGE column property
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
-1. Add support for oracle: add support for STORAGE statement, ENCRYPT column parameter
-2. Add support for GENERATED ALWAYS AS statement
-3. Add support for CREATE TABLESPACE statement & TABLESPACE statement in table defenition.
+1. Add support for GENERATED ALWAYS AS statement
+2. Add support for CREATE TABLESPACE statement
+3. Add support for properties for TABLESPACE like `TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE`
 4. Add support for statement CREATE DOMAIN
-5. Add COMMENT ON statement support
-6. Add CREATE DATABASE statement support
-7. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
-8. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
-9. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
-
+5. Add CREATE DATABASE statement support
+6. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
+7. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
+8. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
+9. Add support for COMMENT ON statement
 
 ## non-feature todo
 
@@ -315,26 +331,22 @@ This library is an extracted parser code from https://github.com/xnuinside/fakem
 For one of the work projects I needed to convert SQL ddl to Python ORM models in auto way and I tried to use https://github.com/andialbrecht/sqlparse but it works not well enough with ddl for my case (for example, if in ddl used lower case - nothing works, primary keys inside ddl are mapped as column name not reserved word and etc.).
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
-
-### How to run tests
-
-```bash
-
-    git clone https://github.com/xnuinside/simple-ddl-parser.git
-    cd simple-ddl-parser
-    poetry install # if you use poetry
-    # or use `pip install .`
-    pytest tests/ -vv
-
-```
-
-## How to contribute
-
-Please describe issue that you want to solve and open the PR, I will review it as soon as possible.
-
-Any questions? Ping me in Telegram: https://t.me/xnuinside 
-
 ## Changelog
+**v0.14.0**
+1. Added support for CONSTRAINT ... PRIMARY KEY ...
+2. Added support for ENCRYPT [+ NO SALT, SALT, USING] statements for Oracle dialect. All default values taken from this doc https://docs.oracle.com/en/database/oracle/oracle-database/21/asoag/encrypting-columns-tables2.html
+Now if you use output_mode='oracle' in column will be showed new property 'encrypt'. 
+If no ENCRYPT statement will be in table defenition - then value will be 'None', but if ENCRYPT exists when in encrypt property you will find this information:
+
+{'encrypt' : {
+    'salt': True,
+    'encryption_algorithm': 'AES192',
+    'integrity_algorithm': 'SHA-1'
+    }}
+
+3. Added support for oracle STORAGE statement, 'oracle' output_mode now has key 'storage' in table data defenition.
+4. Added support for TABLESPACE statement after columns defenition
+
 **v0.12.1**
 1. () after DEFAULT now does not cause an issue
 2. ' and " does not lost now in DEFAULT values

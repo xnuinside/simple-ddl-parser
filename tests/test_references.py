@@ -71,6 +71,7 @@ def test_references_on():
             "schema": None,
             "stored_as": None,
             "table_name": "order_items",
+            "tablespace": None,
         }
     ]
 
@@ -91,7 +92,7 @@ def test_references_on():
 def test_references():
     ddl = """
     CREATE table users_events(
-    event_id  varchar not null REFERENCES events (id), 
+    event_id  varchar not null REFERENCES events (id),
     user_id varchar not null REFERENCES users (id),
     ) ;
     """
@@ -136,6 +137,7 @@ def test_references():
             "primary_key": [],
             "index": [],
             "table_name": "users_events",
+            "tablespace": None,
             "schema": None,
             "partitioned_by": [],
             "alter": {},
@@ -189,6 +191,7 @@ def test_references_with_schema():
             "primary_key": ["data_sync_id"],
             "index": [],
             "table_name": "super_table",
+            "tablespace": None,
             "schema": "prod",
             "partitioned_by": [],
             "alter": {},
@@ -208,7 +211,7 @@ def test_ref_in_alter():
     create table ChildTableName(
             parentTable varchar
             );
-    ALTER TABLE ChildTableName 
+    ALTER TABLE ChildTableName
     ADD CONSTRAINT "fk_t1_t2_tt"
     FOREIGN KEY ("parentTable")
     REFERENCES parentTable ("columnName")
@@ -253,6 +256,7 @@ def test_ref_in_alter():
             "primary_key": [],
             "schema": None,
             "table_name": "ChildTableName",
+            "tablespace": None,
         }
     ]
     assert expected == result
@@ -318,6 +322,7 @@ def test_defferable_initially():
             "primary_key": ["id"],
             "schema": None,
             "table_name": "child",
+            "tablespace": None,
         }
     ]
     assert expected == result
@@ -384,6 +389,7 @@ def test_deferrable_initially_not():
             "primary_key": ["id"],
             "schema": None,
             "table_name": "child",
+            "tablespace": None,
         }
     ]
     assert expected == result
