@@ -795,7 +795,7 @@ def test_collection_items_terminated_by_not_showed():
         STORED AS TEXTFILE
     """
 
-    result = DDLParser(ddl).run(output_mode="hql")
+    result = DDLParser(ddl).run()
     expected = [
         {
             "columns": [
@@ -845,7 +845,6 @@ def test_collection_items_terminated_by_not_showed():
             "checks": [],
             "index": [],
             "partitioned_by": [],
-            "external": False,
             "schema": "default",
             "table_name": "salesorderdetail",
             "tablespace": None,
