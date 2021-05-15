@@ -1079,3 +1079,44 @@ def test_do_not_fail_on_brackets_in_default():
         "types": [],
     }
     assert expected == result
+
+
+def test_default_and_primary_inline():
+
+    ddl = """
+    CREATE TABLE foo
+    (
+        entity_id        UUID PRIMARY KEY DEFAULT getId()
+    );
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "entity_id",
+                        "type": "UUID",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": "getId()",
+                        "check": None,
+                    }
+                ],
+                "primary_key": ["entity_id"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "foo",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+    }
+    assert expected == result

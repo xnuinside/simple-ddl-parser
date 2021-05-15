@@ -9,9 +9,11 @@ sql_clean_up_list = [
     "stored_as",
     "location",
     "row_format",
+    "lines_terminated_by",
     "fields_terminated_by",
     "collection_items_terminated_by",
     "map_keys_terminated_by",
+    "comment",
 ]
 
 
@@ -20,7 +22,10 @@ def add_additional_hql_keys(table_data: Dict) -> Dict:
         {
             "stored_as": None,
             "location": None,
+            "comment": None,
             "row_format": None,
+            "fields_terminated_by": None,
+            "lines_terminated_by": None,
             "fields_terminated_by": None,
             "map_keys_terminated_by": None,
             "collection_items_terminated_by": None,

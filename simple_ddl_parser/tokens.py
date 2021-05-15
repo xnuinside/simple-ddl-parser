@@ -52,12 +52,14 @@ after_columns_tokens = {
     "LOCATION": "LOCATION",
     "ROW": "ROW",
     "FORMAT": "FORMAT",
-    "FIELDS": "FIELDS",
     "TERMINATED": "TERMINATED",
     "COLLECTION": "COLLECTION",
     "ITEMS": "ITEMS",
     "MAP": "MAP",
     "KEYS": "KEYS",
+    "SERDE": "SERDE",
+    "WITH": "WITH",
+    "SERDEPROPERTIES": "SERDEPROPERTIES",
     # oracle
     "STORAGE": "STORAGE",
     "TABLESPACE": "TABLESPACE",
@@ -72,7 +74,7 @@ sequence_reserved = {
 
 
 tokens = tuple(
-    ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
+    ["ID", "DOT", "STRING", "DQ_STRING", "LP", "RP", "LT", "RT", "COMMAT"]
     + list(defenition_statements.values())
     + list(common_statements.values())
     + list(columns_defenition.values())

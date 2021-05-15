@@ -1,3 +1,8 @@
+**v0.15.0**
+1. Garbage like '‘’' quotes are ignored now and changed to normal. 
+2. Added support for HQL: LINES TERMINATED BY, COMMENT (for table), ROW FORMAT SERDE, WITH SERDEPROPERTIES (
+  "input.regex" =  "<regex>")
+
 **v0.14.0**
 1. Added support for CONSTRAINT ... PRIMARY KEY ...
 2. Added support for ENCRYPT [+ NO SALT, SALT, USING] statements for Oracle dialect. All default values taken from this doc https://docs.oracle.com/en/database/oracle/oracle-database/21/asoag/encrypting-columns-tables2.html

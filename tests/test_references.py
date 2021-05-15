@@ -6,7 +6,6 @@ def test_references_on():
         {
             "alter": {},
             "checks": [],
-            "collection_items_terminated_by": None,
             "columns": [
                 {
                     "check": None,
@@ -60,16 +59,10 @@ def test_references_on():
                     "unique": False,
                 },
             ],
-            "external": False,
-            "fields_terminated_by": None,
             "index": [],
-            "location": None,
-            "map_keys_terminated_by": None,
             "partitioned_by": [],
             "primary_key": ["product_no", "order_id"],
-            "row_format": None,
             "schema": None,
-            "stored_as": None,
             "table_name": "order_items",
             "tablespace": None,
         }
@@ -84,7 +77,7 @@ def test_references_on():
     );
     """
 
-    result = DDLParser(ddl).run(output_mode="hql")
+    result = DDLParser(ddl).run()
 
     assert expected == result
 

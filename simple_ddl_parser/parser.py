@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple
 from ply import lex, yacc
 
 from simple_ddl_parser.output.common import dump_data_to_file, result_format
+from simple_ddl_parser.utils import find_first_unpair_closed_par
 
 
 class Parser:
@@ -36,14 +37,6 @@ class Parser:
         code_line = ""
         comma_only_str = r"((\')|(' ))+(,)*((\')|( '))+\B"
         line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", line)
-
-        # todo: not sure how to workaround ',' normal way
-        line = (
-            line.replace(",", " , ")
-            .replace("(", " ( ")
-            .replace(")", " ) ")
-            .replace("\\x", "\\0")
-        )
         if "(" not in line:
             line = line.replace("<", " < ").replace(">", " > ")
         if line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM):
@@ -63,13 +56,38 @@ class Parser:
             code_line += code_line.split(CL_COM)[1]
         return code_line, block_comments
 
+    def pre_process_data(self, data):
+        data = data.decode("utf-8")
+        # todo: not sure how to workaround ',' normal way
+        if "input.regex" in data:
+            regex = data.split('"input.regex"')[1].split("=")[1]
+            index = find_first_unpair_closed_par(regex)
+            regex = regex[:index]
+            data = data.replace(regex, " lexer_state_regex ")
+            data = data.replace('"input.regex"', "parse_m_input_regex")
+            self.lexer.state = {"lexer_state_regex": regex}
+        data = (
+            data.replace(",", " , ")
+            .replace("(", " ( ")
+            .replace(")", " ) ")
+            .replace("\\x", "\\0")
+            .replace("‘", "'")
+            .replace("’", "'")
+            .replace("\\u2018", "'")
+            .replace("\\u2019", "'")
+            .replace("'\\t'", "'pars_m_t'")
+            .replace("'\\n'", "'pars_m_n'")
+        )
+        print(data)
+        return data
+
     def parse_data(self):
         tables = []
         table = []
         block_comments = []
         statement = None
-        # because exists in hql strings like this - TERMINATED BY '\002'
-        lines = self.data.decode("utf-8").replace("\\t", "").split("\\n")
+        data = self.pre_process_data(self.data)
+        lines = data.replace("\\t", "").split("\\n")
         for num, line in enumerate(lines):
             line, block_comments = self.pre_process_line(line, block_comments)
             if line.replace("\n", "").replace("\t", "") or num == len(lines) - 1:
@@ -101,6 +119,7 @@ class Parser:
             "after_columns",
             "check",
             "is_table",
+            "last_par",
         ]
         for attr in attrs:
             setattr(self.lexer, attr, False)

@@ -37,7 +37,7 @@ class DDLParser(Parser, HQL, Oracle):
         return t
 
     def process_body_tokens(self, t):
-        if self.lexer.last_token == "RP" or self.lexer.after_columns:
+        if self.lexer.last_par == "RP" or self.lexer.after_columns:
             t = self.after_columns_tokens(t)
         elif self.lexer.columns_def:
             t.type = tok.columns_defenition.get(t.value.upper(), t.type)
@@ -46,8 +46,9 @@ class DDLParser(Parser, HQL, Oracle):
         return t
 
     def t_STRING(self, t):
-        r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\/\\\"]*\'\B"
+        r"((\')([a-zA-Z_,0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"]*\w)(\')){1}"
         t.type = "STRING"
+        print(t.value)
         return t
 
     def t_ID(self, t):
@@ -83,7 +84,13 @@ class DDLParser(Parser, HQL, Oracle):
             self.lexer.check = True
         if t.type != "ID":
             t.value = t.value.upper()
+        return self.set_last_token(t)
+
+    def set_last_token(self, t):
         self.lexer.last_token = t.type
+        if t.type in ["RP", "LP"]:
+            self.lexer.last_par = t.type
+        print(t.type, t.value)
         return t
 
     def t_newline(self, t):
@@ -582,9 +589,11 @@ class DDLParser(Parser, HQL, Oracle):
         references = None
         p[0] = p[1]
         p_list = list(p)
+        print(p_list)
         if ("KEY" in p or "key" in p) and ("PRIMARY" in p or "primary" in p):
             pk = True
             nullable = False
+            print("HI")
         elif "unique" in p or "UNIQUE" in p:
             unique = True
         elif isinstance(p_list[-1], dict) and "references" in p_list[-1]:
@@ -595,12 +604,17 @@ class DDLParser(Parser, HQL, Oracle):
             if isinstance(item, dict):
                 p[0].update(item)
 
-        p[0].update({"primary_key": pk, "references": references, "unique": unique})
-        p[0]["nullable"] = p[0].get("nullable", nullable)
+        p[0]["references"] = p[0].get("references", references)
+        p[0]["unique"] = unique if unique is not False else p[0].get("unique", unique)
+        p[0]["primary_key"] = pk if pk is not False else p[0].get("primary_key", pk)
+        p[0]["nullable"] = (
+            nullable if nullable is not True else p[0].get("nullable", nullable)
+        )
         p[0]["default"] = p[0].get("default", default)
         p[0]["check"] = p[0].get("check", check)
         if p[0]["check"]:
             p[0]["check"] = " ".join(p[0]["check"])
+        print(p[0])
 
     def p_check_ex(self, p):
         """check_ex :  check_st
@@ -741,6 +755,8 @@ class DDLParser(Parser, HQL, Oracle):
         | STRING
         | STRING LP RP
         | ID LP RP
+        | pid ID
+        | pid ID LP RP
         | pid COMMA ID
         | pid COMMA STRING
         """

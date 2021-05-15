@@ -142,6 +142,8 @@ def test_partitioned_by_hql_output_mode_hql():
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
+            "lines_terminated_by": None,
+            "comment": None,
         },
         {
             "columns": [
@@ -251,6 +253,8 @@ def test_partitioned_by_hql_output_mode_hql():
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
+            "lines_terminated_by": None,
+            "comment": None,
         },
     ]
 
@@ -384,6 +388,8 @@ def test_stored_as_hql_showed():
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
     assert expected == result
@@ -516,6 +522,8 @@ def test_location_showed():
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
     assert expected == result
@@ -653,6 +661,8 @@ def partitioned_by_multiple_tables_hql():
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
     assert expected == result
@@ -730,6 +740,8 @@ def test_hql_row_format():
             "fields_terminated_by": None,
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
     assert expected == result
@@ -809,6 +821,8 @@ def test_fields_terminated_by_hql():
             "tablespace": None,
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
     assert expected == result
@@ -889,6 +903,8 @@ def test_collection_items_terminated_by_hql():
             "tablespace": None,
             "collection_items_terminated_by": "'\\002'",
             "map_keys_terminated_by": None,
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
     assert expected == result
@@ -971,6 +987,8 @@ def test_map_keys_terminated_by_hql():
             "tablespace": None,
             "collection_items_terminated_by": "'\\002'",
             "map_keys_terminated_by": "'\\003'",
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
 
@@ -1016,6 +1034,8 @@ def simple_structure_type_support():
             "stored_as": None,
             "table_name": "salesorderdetail",
             "tablespace": None,
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
 
@@ -1128,6 +1148,390 @@ def test_complex_structure_test_hql():
             "stored_as": None,
             "table_name": "salesorderdetail",
             "tablespace": None,
+            "lines_terminated_by": None,
+            "comment": None,
         }
     ]
+    assert expected == result
+
+
+def test_comment_and_lines():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS employee ( eid int, name String,
+    salary String, destination String)
+    COMMENT ‘Employee details’
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ‘\t’
+    LINES TERMINATED BY ‘\n’
+    STORED AS TEXTFILE;
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "eid",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "name",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "String",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "salary",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "String",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "destination",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "String",
+                        "unique": False,
+                    },
+                ],
+                "comment": "'Employee details'",
+                "external": False,
+                "fields_terminated_by": "'\t'",
+                "index": [],
+                "lines_terminated_by": "'\n'",
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": "DELIMITED",
+                "schema": None,
+                "stored_as": "TEXTFILE",
+                "table_name": "employee",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_simple_serde():
+
+    ddl = """
+    CREATE TABLE apachelog (
+    host STRING,
+    identity STRING,
+    user STRING,
+    time STRING,
+    request STRING,
+    status STRING,
+    size STRING,
+    referer STRING,
+    agent STRING)
+    ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe'
+    STORED AS TEXTFILE;
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "host",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "identity",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "user",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "time",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "request",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "status",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "size",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "referer",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "agent",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                ],
+                "comment": None,
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": {
+                    "java_class": "'org.apache.hadoop.hive.serde2.RegexSerDe'",
+                    "serde": True,
+                },
+                "schema": None,
+                "stored_as": "TEXTFILE",
+                "table_name": "apachelog",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_with_serde_properties():
+
+    ddl = """
+    CREATE TABLE apachelog (
+    host STRING,
+    identity STRING,
+    user STRING,
+    time STRING,
+    request STRING,
+    status STRING,
+    size STRING,
+    referer STRING,
+    agent STRING)
+    ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe'
+    WITH SERDEPROPERTIES (
+    "input.regex" = "([^]*) ([^]*) ([^]*) (-|\\[^\\]*\\]) ([^ \"]*|\"[^\"]*\") (-|[0-9]*)
+    (-|[0-9]*)(?: ([^ \"]*|\".*\") ([^ \"]*|\".*\"))?")
+    STORED AS TEXTFILE;
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "host",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "identity",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "user",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "time",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "request",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "status",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "size",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "referer",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "agent",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                ],
+                "comment": None,
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": {
+                    "java_class": "'org.apache.hadoop.hive.serde2.RegexSerDe'",
+                    "properties": {
+                        "parse_m_input_regex": ' "([^]*) '
+                        "([^]*) "
+                        "([^]*) "
+                        "(-|\\\\[^\\\\]*\\\\]) "
+                        "([^ "
+                        '"]*|"[^"]*") '
+                        "(-|[0-9]*) "
+                        "\\n    "
+                        "(-|[0-9]*)(?: "
+                        "([^ "
+                        '"]*|".*") '
+                        "([^ "
+                        '"]*|".*"))?"'
+                    },
+                    "serde": True,
+                },
+                "schema": None,
+                "stored_as": "TEXTFILE",
+                "table_name": "apachelog",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
     assert expected == result
