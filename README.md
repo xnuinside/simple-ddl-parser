@@ -6,7 +6,7 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
 ### Is it Stable?
 
-Yes, library already has about 4000 usage per day, you can check statistics by yourself - https://pypistats.org/packages/simple-ddl-parser.
+Yes, library already has about 3500+ usage per day - https://pypistats.org/packages/simple-ddl-parser.
 
 As maintainer I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
 
@@ -291,7 +291,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - PARTITIONED BY statement
 - ROW FORMAT, ROW FORMAT SERDE
-- WITH SERDEPROPERTIES ("input.regex" =  "<regex>")
+- WITH SERDEPROPERTIES ("input.regex" =  "..some regex..")
 - STORED AS
 - COMMENT
 - LOCATION

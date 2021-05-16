@@ -46,13 +46,13 @@ class DDLParser(Parser, HQL, Oracle):
         return t
 
     def t_STRING(self, t):
-        r"((\')([a-zA-Z_,0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"]*\w)(\')){1}"
+        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"]*\w)(\')){1}"
         t.type = "STRING"
         print(t.value)
         return t
 
     def t_ID(self, t):
-        r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$'\()!{}\[\]\"]+"
+        r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"]+"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         if t.type == "LP" and not self.lexer.after_columns:
             self.lexer.columns_def = True
@@ -306,7 +306,6 @@ class DDLParser(Parser, HQL, Oracle):
                         p_list[-2]["constraint"]["name"],
                     )
                 else:
-                    print(p_list)
                     p[0] = self.set_constraint(
                         p[0],
                         "primary_keys",
@@ -542,9 +541,46 @@ class DDLParser(Parser, HQL, Oracle):
                 nullable = False
         p[0] = {"nullable": nullable}
 
+    def p_f_call(self, p):
+        """f_call : ID LP RP
+        | ID LP f_call RP
+        | ID LP multi_id RP
+        """
+        p_list = list(p)
+        if isinstance(p[1], list):
+            p[0] = p[1]
+            p[0].append(p_list[-1])
+        else:
+            value = "".join(p_list[1:])
+            p[0] = value
+
+    def p_multi_id(self, p):
+        """multi_id : ID
+        | multi_id ID
+        | f_call
+        | multi_id f_call
+        """
+        p_list = list(p)
+        if isinstance(p[1], list):
+            p[0] = p[1]
+            p[0].append(p_list[-1])
+        else:
+            value = " ".join(p_list[1:])
+            p[0] = value
+
+    def p_funct_expr(self, p):
+        """funct_expr : LP multi_id RP
+        | multi_id
+        """
+        if len(p) > 2:
+            p[0] = p[2]
+        else:
+            p[0] = p[1]
+
     def p_def(self, p):
         """def : DEFAULT ID
         | DEFAULT STRING
+        | DEFAULT funct_expr
         | DEFAULT LP pid RP
         | def ID
         | def LP RP
@@ -563,9 +599,9 @@ class DDLParser(Parser, HQL, Oracle):
                 if isinstance(p[2], str):
                     p[2] = p[2].replace("\\'", "'")
                     if i == ")" or i == "(":
-                        p[0]["default"] += f"{i}"
+                        p[0]["default"] = str(p[0]["default"]) + f"{i}"
                     else:
-                        p[0]["default"] += f" {i}"
+                        p[0]["default"] = str(p[0]["default"]) + f" {i}"
                     p[0]["default"] = p[0]["default"].replace("))", ")")
         else:
             p[0] = {"default": default}
@@ -589,11 +625,9 @@ class DDLParser(Parser, HQL, Oracle):
         references = None
         p[0] = p[1]
         p_list = list(p)
-        print(p_list)
         if ("KEY" in p or "key" in p) and ("PRIMARY" in p or "primary" in p):
             pk = True
             nullable = False
-            print("HI")
         elif "unique" in p or "UNIQUE" in p:
             unique = True
         elif isinstance(p_list[-1], dict) and "references" in p_list[-1]:
@@ -614,7 +648,6 @@ class DDLParser(Parser, HQL, Oracle):
         p[0]["check"] = p[0].get("check", check)
         if p[0]["check"]:
             p[0]["check"] = " ".join(p[0]["check"])
-        print(p[0])
 
     def p_check_ex(self, p):
         """check_ex :  check_st
@@ -755,8 +788,6 @@ class DDLParser(Parser, HQL, Oracle):
         | STRING
         | STRING LP RP
         | ID LP RP
-        | pid ID
-        | pid ID LP RP
         | pid COMMA ID
         | pid COMMA STRING
         """

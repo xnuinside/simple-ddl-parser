@@ -66,6 +66,7 @@ class Parser:
             data = data.replace(regex, " lexer_state_regex ")
             data = data.replace('"input.regex"', "parse_m_input_regex")
             self.lexer.state = {"lexer_state_regex": regex}
+
         data = (
             data.replace(",", " , ")
             .replace("(", " ( ")
@@ -78,7 +79,6 @@ class Parser:
             .replace("'\\t'", "'pars_m_t'")
             .replace("'\\n'", "'pars_m_n'")
         )
-        print(data)
         return data
 
     def parse_data(self):
@@ -99,6 +99,7 @@ class Parser:
                 if ";" not in statement and num != len(lines) - 1:
                     continue
                 self.set_default_flags_in_lexer()
+                print(statement)
                 _parse_result = yacc.parse(statement)
 
                 if _parse_result:

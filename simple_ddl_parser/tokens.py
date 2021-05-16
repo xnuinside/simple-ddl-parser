@@ -74,7 +74,7 @@ sequence_reserved = {
 
 
 tokens = tuple(
-    ["ID", "DOT", "STRING", "DQ_STRING", "LP", "RP", "LT", "RT", "COMMAT"]
+    ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
     + list(defenition_statements.values())
     + list(common_statements.values())
     + list(columns_defenition.values())

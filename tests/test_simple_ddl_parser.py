@@ -1120,3 +1120,64 @@ def test_default_and_primary_inline():
         "sequences": [],
     }
     assert expected == result
+
+
+def test_default_expression():
+
+    ddl = """
+    CREATE TABLE foo
+    (
+        bar_timestamp  bigint DEFAULT 1002 * extract(epoch from now()) * 1000,
+        bar_timestamp2  bigint DEFAULT (1002 * extract(epoch from now()) * 1000)
+    );
+    """
+    """
+    CREATE TABLE IF NOT EXISTS test_table
+    (col1 int COMMENT 'Integer Column',
+    col2 string COMMENT 'String Column'
+    )
+    COMMENT 'This is test table'
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ','
+    STORED AS TEXTFILE;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "bar_timestamp",
+                        "type": "bigint",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": "1002 * extract(epoch from now()) * 1000",
+                        "check": None,
+                    },
+                    {
+                        "name": "bar_timestamp2",
+                        "type": "bigint",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": "1002 * extract(epoch from now()) * 1000",
+                        "check": None,
+                    },
+                ],
+                "primary_key": [],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "foo",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+    }
+    assert expected == result
