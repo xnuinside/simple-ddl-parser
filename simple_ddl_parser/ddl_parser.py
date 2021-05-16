@@ -48,7 +48,6 @@ class DDLParser(Parser, HQL, Oracle):
     def t_STRING(self, t):
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"]*\w)(\')){1}"
         t.type = "STRING"
-        print(t.value)
         return t
 
     def t_ID(self, t):
@@ -90,7 +89,6 @@ class DDLParser(Parser, HQL, Oracle):
         self.lexer.last_token = t.type
         if t.type in ["RP", "LP"]:
             self.lexer.last_par = t.type
-        print(t.type, t.value)
         return t
 
     def t_newline(self, t):
@@ -448,18 +446,9 @@ class DDLParser(Parser, HQL, Oracle):
         for i in list(p)[2:]:
             p[0][0] += i
 
-    def p_column(self, p):
-        """column : ID ID
-        | ID ID DOT ID
-        | ID tid
-        | column LP ID RP
-        | column ID
-        | column LP ID COMMA ID RP
-        | column ARRAY
-        | ID ARRAY tid
-        | column tid
+    @staticmethod
+    def set_base_column_propery(p: list) -> Dict:
 
-        """
         if "." in list(p):
             type_str = f"{p[2]}.{p[4]}"
         else:
@@ -469,7 +458,22 @@ class DDLParser(Parser, HQL, Oracle):
         else:
             size = None
             p[0] = {"name": p[1], "type": type_str, "size": size}
+        return p[0]
 
+    def p_column(self, p):
+        """column : ID ID
+        | ID ID DOT ID
+        | ID tid
+        | column comment
+        | column LP ID RP
+        | column ID
+        | column LP ID COMMA ID RP
+        | column ARRAY
+        | ID ARRAY tid
+        | column tid
+
+        """
+        p[0] = self.set_base_column_propery(p)
         p_list = remove_par(list(p))
 
         if "[]" == p_list[-1]:
@@ -480,6 +484,8 @@ class DDLParser(Parser, HQL, Oracle):
             p[0]["type"] = p[0]["type"] + append
         elif isinstance(p_list[-1], list):
             p[0] = self.get_complex_type(p, p_list)
+        elif "comment" in p_list[-1]:
+            p[0]["comment"] = p_list[-1]["comment"]
         else:
             match = re.match(r"[0-9]+", p_list[2])
             if bool(match) or p_list[2] == "max":
@@ -608,6 +614,7 @@ class DDLParser(Parser, HQL, Oracle):
 
     def p_defcolumn(self, p):
         """defcolumn : column
+        | defcolumn comment
         | defcolumn null
         | defcolumn PRIMARY KEY
         | defcolumn UNIQUE
@@ -914,6 +921,11 @@ class DDLParser(Parser, HQL, Oracle):
         """pkey : PRIMARY KEY LP pid RP"""
         p_list = remove_par(list(p))
         p[0] = {"primary_key": p_list[-1]}
+
+    def p_comment(self, p):
+        """comment : ID STRING"""
+        p_list = remove_par(list(p))
+        p[0] = {"comment": p_list[-1]}
 
     def p_tablespace(self, p):
         """tablespace : TABLESPACE ID"""

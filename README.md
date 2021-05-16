@@ -321,6 +321,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 7. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
 8. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 9. Add support for COMMENT ON statement
+10. Add support for case COMMENT column after DEFAULT word like `col1 int DEFAULT '1' COMMENT 'Integer Column'`
 
 ## non-feature todo
 
@@ -335,6 +336,15 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
+**v0.15.0**
+1. Garbage like '‘’' quotes are ignored now and changed to normal. 
+2. Added support for HQL: LINES TERMINATED BY, COMMENT (for table), ROW FORMAT SERDE, WITH SERDEPROPERTIES (
+  "input.regex" =  "..some regex..")
+3. Fixed issue when primary key with default option was not parsed correct - https://github.com/xnuinside/simple-ddl-parser/issues/40
+4. Fixed issue when expression in default value was not parsed correct - https://github.com/xnuinside/simple-ddl-parser/issues/39
+5. Added support for comments in Columns (except one case when COMMENT goes after DEFAULT word, in this case does not parse correct now - will be fixed in next releases)
+
+
 **v0.14.0**
 1. Added support for CONSTRAINT ... PRIMARY KEY ...
 2. Added support for ENCRYPT [+ NO SALT, SALT, USING] statements for Oracle dialect. All default values taken from this doc https://docs.oracle.com/en/database/oracle/oracle-database/21/asoag/encrypting-columns-tables2.html

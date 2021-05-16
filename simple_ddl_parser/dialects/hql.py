@@ -14,7 +14,6 @@ class HQL:
         """
         p_list = list(p)
         p[0] = {"serde": p_list[-1] == "SERDE"}
-        print(p_list)
 
     def p_expression_row_format(self, p):
         """expr : expr row_format ID
@@ -28,12 +27,10 @@ class HQL:
             format = check_spec(p_list[-1])
 
         p[0]["row_format"] = format
-        print(p_list, "row_format")
 
     def p_assigment(self, p):
         """assigment : ID ID ID"""
         p_list = list(p)
-        print(p_list)
         p[0] = {p[1]: self.lexer.state.get(p_list[-1])}
 
     def p_expression_with_serdie(self, p):
@@ -43,7 +40,6 @@ class HQL:
         row_format = p[0]["row_format"]
         row_format["properties"] = p_list[-2]
         p[0]["row_format"] = row_format
-        print(p_list)
 
     def p_expression_comment(self, p):
         """expr : expr ID STRING"""

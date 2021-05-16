@@ -1181,3 +1181,58 @@ def test_default_expression():
         "sequences": [],
     }
     assert expected == result
+
+
+def test_comments_in_columns():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS test_table
+    (col1 int PRIMARY KEY COMMENT 'Integer Column',
+    col2 string UNIQUE COMMENT 'String Column'
+    )
+    COMMENT 'This is test table'
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ','
+    STORED AS TEXTFILE;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "col1",
+                        "type": "int",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                        "comment": "'Integer Column'",
+                    },
+                    {
+                        "name": "col2",
+                        "type": "string",
+                        "size": None,
+                        "references": None,
+                        "unique": True,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                        "comment": "'String Column'",
+                    },
+                ],
+                "primary_key": ["col1"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "test_table",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+    }
+    assert expected == result
