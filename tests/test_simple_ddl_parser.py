@@ -1079,3 +1079,160 @@ def test_do_not_fail_on_brackets_in_default():
         "types": [],
     }
     assert expected == result
+
+
+def test_default_and_primary_inline():
+
+    ddl = """
+    CREATE TABLE foo
+    (
+        entity_id        UUID PRIMARY KEY DEFAULT getId()
+    );
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "entity_id",
+                        "type": "UUID",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": "getId()",
+                        "check": None,
+                    }
+                ],
+                "primary_key": ["entity_id"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "foo",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+    }
+    assert expected == result
+
+
+def test_default_expression():
+
+    ddl = """
+    CREATE TABLE foo
+    (
+        bar_timestamp  bigint DEFAULT 1002 * extract(epoch from now()) * 1000,
+        bar_timestamp2  bigint DEFAULT (1002 * extract(epoch from now()) * 1000)
+    );
+    """
+    """
+    CREATE TABLE IF NOT EXISTS test_table
+    (col1 int COMMENT 'Integer Column',
+    col2 string COMMENT 'String Column'
+    )
+    COMMENT 'This is test table'
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ','
+    STORED AS TEXTFILE;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "bar_timestamp",
+                        "type": "bigint",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": "1002 * extract(epoch from now()) * 1000",
+                        "check": None,
+                    },
+                    {
+                        "name": "bar_timestamp2",
+                        "type": "bigint",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": "1002 * extract(epoch from now()) * 1000",
+                        "check": None,
+                    },
+                ],
+                "primary_key": [],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "foo",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+    }
+    assert expected == result
+
+
+def test_comments_in_columns():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS test_table
+    (col1 int PRIMARY KEY COMMENT 'Integer Column',
+    col2 string UNIQUE COMMENT 'String Column'
+    )
+    COMMENT 'This is test table'
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ','
+    STORED AS TEXTFILE;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "col1",
+                        "type": "int",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                        "comment": "'Integer Column'",
+                    },
+                    {
+                        "name": "col2",
+                        "type": "string",
+                        "size": None,
+                        "references": None,
+                        "unique": True,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                        "comment": "'String Column'",
+                    },
+                ],
+                "primary_key": ["col1"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "test_table",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+    }
+    assert expected == result

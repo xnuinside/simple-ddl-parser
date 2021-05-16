@@ -37,7 +37,7 @@ class DDLParser(Parser, HQL, Oracle):
         return t
 
     def process_body_tokens(self, t):
-        if self.lexer.last_token == "RP" or self.lexer.after_columns:
+        if self.lexer.last_par == "RP" or self.lexer.after_columns:
             t = self.after_columns_tokens(t)
         elif self.lexer.columns_def:
             t.type = tok.columns_defenition.get(t.value.upper(), t.type)
@@ -46,12 +46,12 @@ class DDLParser(Parser, HQL, Oracle):
         return t
 
     def t_STRING(self, t):
-        r"\'[a-zA-Z_,0-9:><\=\-\+\~\%$'\!(){}\[\]\/\\\"]*\'\B"
+        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"]*\w)(\')){1}"
         t.type = "STRING"
         return t
 
     def t_ID(self, t):
-        r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$'\()!{}\[\]\"]+"
+        r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"]+"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         if t.type == "LP" and not self.lexer.after_columns:
             self.lexer.columns_def = True
@@ -83,7 +83,12 @@ class DDLParser(Parser, HQL, Oracle):
             self.lexer.check = True
         if t.type != "ID":
             t.value = t.value.upper()
+        return self.set_last_token(t)
+
+    def set_last_token(self, t):
         self.lexer.last_token = t.type
+        if t.type in ["RP", "LP"]:
+            self.lexer.last_par = t.type
         return t
 
     def t_newline(self, t):
@@ -299,7 +304,6 @@ class DDLParser(Parser, HQL, Oracle):
                         p_list[-2]["constraint"]["name"],
                     )
                 else:
-                    print(p_list)
                     p[0] = self.set_constraint(
                         p[0],
                         "primary_keys",
@@ -442,18 +446,9 @@ class DDLParser(Parser, HQL, Oracle):
         for i in list(p)[2:]:
             p[0][0] += i
 
-    def p_column(self, p):
-        """column : ID ID
-        | ID ID DOT ID
-        | ID tid
-        | column LP ID RP
-        | column ID
-        | column LP ID COMMA ID RP
-        | column ARRAY
-        | ID ARRAY tid
-        | column tid
+    @staticmethod
+    def set_base_column_propery(p: list) -> Dict:
 
-        """
         if "." in list(p):
             type_str = f"{p[2]}.{p[4]}"
         else:
@@ -463,7 +458,22 @@ class DDLParser(Parser, HQL, Oracle):
         else:
             size = None
             p[0] = {"name": p[1], "type": type_str, "size": size}
+        return p[0]
 
+    def p_column(self, p):
+        """column : ID ID
+        | ID ID DOT ID
+        | ID tid
+        | column comment
+        | column LP ID RP
+        | column ID
+        | column LP ID COMMA ID RP
+        | column ARRAY
+        | ID ARRAY tid
+        | column tid
+
+        """
+        p[0] = self.set_base_column_propery(p)
         p_list = remove_par(list(p))
 
         if "[]" == p_list[-1]:
@@ -474,6 +484,8 @@ class DDLParser(Parser, HQL, Oracle):
             p[0]["type"] = p[0]["type"] + append
         elif isinstance(p_list[-1], list):
             p[0] = self.get_complex_type(p, p_list)
+        elif "comment" in p_list[-1]:
+            p[0]["comment"] = p_list[-1]["comment"]
         else:
             match = re.match(r"[0-9]+", p_list[2])
             if bool(match) or p_list[2] == "max":
@@ -535,9 +547,46 @@ class DDLParser(Parser, HQL, Oracle):
                 nullable = False
         p[0] = {"nullable": nullable}
 
+    def p_f_call(self, p):
+        """f_call : ID LP RP
+        | ID LP f_call RP
+        | ID LP multi_id RP
+        """
+        p_list = list(p)
+        if isinstance(p[1], list):
+            p[0] = p[1]
+            p[0].append(p_list[-1])
+        else:
+            value = "".join(p_list[1:])
+            p[0] = value
+
+    def p_multi_id(self, p):
+        """multi_id : ID
+        | multi_id ID
+        | f_call
+        | multi_id f_call
+        """
+        p_list = list(p)
+        if isinstance(p[1], list):
+            p[0] = p[1]
+            p[0].append(p_list[-1])
+        else:
+            value = " ".join(p_list[1:])
+            p[0] = value
+
+    def p_funct_expr(self, p):
+        """funct_expr : LP multi_id RP
+        | multi_id
+        """
+        if len(p) > 2:
+            p[0] = p[2]
+        else:
+            p[0] = p[1]
+
     def p_def(self, p):
         """def : DEFAULT ID
         | DEFAULT STRING
+        | DEFAULT funct_expr
         | DEFAULT LP pid RP
         | def ID
         | def LP RP
@@ -556,15 +605,16 @@ class DDLParser(Parser, HQL, Oracle):
                 if isinstance(p[2], str):
                     p[2] = p[2].replace("\\'", "'")
                     if i == ")" or i == "(":
-                        p[0]["default"] += f"{i}"
+                        p[0]["default"] = str(p[0]["default"]) + f"{i}"
                     else:
-                        p[0]["default"] += f" {i}"
+                        p[0]["default"] = str(p[0]["default"]) + f" {i}"
                     p[0]["default"] = p[0]["default"].replace("))", ")")
         else:
             p[0] = {"default": default}
 
     def p_defcolumn(self, p):
         """defcolumn : column
+        | defcolumn comment
         | defcolumn null
         | defcolumn PRIMARY KEY
         | defcolumn UNIQUE
@@ -595,8 +645,12 @@ class DDLParser(Parser, HQL, Oracle):
             if isinstance(item, dict):
                 p[0].update(item)
 
-        p[0].update({"primary_key": pk, "references": references, "unique": unique})
-        p[0]["nullable"] = p[0].get("nullable", nullable)
+        p[0]["references"] = p[0].get("references", references)
+        p[0]["unique"] = unique if unique is not False else p[0].get("unique", unique)
+        p[0]["primary_key"] = pk if pk is not False else p[0].get("primary_key", pk)
+        p[0]["nullable"] = (
+            nullable if nullable is not True else p[0].get("nullable", nullable)
+        )
         p[0]["default"] = p[0].get("default", default)
         p[0]["check"] = p[0].get("check", check)
         if p[0]["check"]:
@@ -867,6 +921,11 @@ class DDLParser(Parser, HQL, Oracle):
         """pkey : PRIMARY KEY LP pid RP"""
         p_list = remove_par(list(p))
         p[0] = {"primary_key": p_list[-1]}
+
+    def p_comment(self, p):
+        """comment : ID STRING"""
+        p_list = remove_par(list(p))
+        p[0] = {"comment": p_list[-1]}
 
     def p_tablespace(self, p):
         """tablespace : TABLESPACE ID"""

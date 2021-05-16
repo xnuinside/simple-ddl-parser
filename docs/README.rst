@@ -25,7 +25,7 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 Is it Stable?
 ^^^^^^^^^^^^^
 
-Yes, library already has about 4000 usage per day, you can check statistics by yourself - https://pypistats.org/packages/simple-ddl-parser.
+Yes, library already has about 3500+ usage per day - https://pypistats.org/packages/simple-ddl-parser.
 
 As maintainer I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
 
@@ -318,9 +318,12 @@ HQL Dialect statements
 
 
 * PARTITIONED BY statement
-* ROW FORMAT
+* ROW FORMAT, ROW FORMAT SERDE
+* WITH SERDEPROPERTIES ("input.regex" =  "..some regex..")
 * STORED AS
-* LOCATION, FIELDS TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
+* COMMENT
+* LOCATION
+* FIELDS TERMINATED BY, LINES TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
 
 MSSQL / MySQL/ Oracle
 ^^^^^^^^^^^^^^^^^^^^^
@@ -352,6 +355,7 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 #. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
 #. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 #. Add support for COMMENT ON statement
+#. Add support for case COMMENT column after DEFAULT word like ``col1 int DEFAULT '1' COMMENT 'Integer Column'``
 
 non-feature todo
 ----------------
@@ -370,6 +374,16 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 
 Changelog
 ---------
+
+**v0.15.0**
+
+
+#. Garbage like '‘’' quotes are ignored now and changed to normal. 
+#. Added support for HQL: LINES TERMINATED BY, COMMENT (for table), ROW FORMAT SERDE, WITH SERDEPROPERTIES (
+   "input.regex" =  "..some regex..")
+#. Fixed issue when primary key with default option was not parsed correct - https://github.com/xnuinside/simple-ddl-parser/issues/40
+#. Fixed issue when expression in default value was not parsed correct - https://github.com/xnuinside/simple-ddl-parser/issues/39
+#. Added support for comments in Columns (except one case when COMMENT goes after DEFAULT word, in this case does not parse correct now - will be fixed in next releases)
 
 **v0.14.0**
 
