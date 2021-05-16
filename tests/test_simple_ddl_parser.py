@@ -1131,16 +1131,6 @@ def test_default_expression():
         bar_timestamp2  bigint DEFAULT (1002 * extract(epoch from now()) * 1000)
     );
     """
-    """
-    CREATE TABLE IF NOT EXISTS test_table
-    (col1 int COMMENT 'Integer Column',
-    col2 string COMMENT 'String Column'
-    )
-    COMMENT 'This is test table'
-    ROW FORMAT DELIMITED
-    FIELDS TERMINATED BY ','
-    STORED AS TEXTFILE;
-    """
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "tables": [
