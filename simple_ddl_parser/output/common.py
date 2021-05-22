@@ -137,7 +137,11 @@ def result_format(
             tables_dict = add_alter_to_table(tables_dict, table[0])
         else:
             for item in table:
-                if item.get("sequence_name") or item.get("type_name"):
+                if (
+                    item.get("sequence_name")
+                    or item.get("type_name")
+                    or item.get("domain_name")
+                ):
                     table_data = item
                     not_table = True
                     continue
@@ -213,11 +217,12 @@ def set_unique_columns(table_data: Dict) -> Dict:
 
 
 def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
-    result_as_dict = {"tables": [], "types": [], "sequences": []}
+    result_as_dict = {"tables": [], "types": [], "sequences": [], "domains": []}
     keys_map = {
         "table_name": "tables",
         "sequence_name": "sequences",
         "type_name": "types",
+        "domain_name": "domains",
     }
     for item in final_result:
         for key in keys_map:

@@ -13,6 +13,7 @@ def test_int_identity_type():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -66,6 +67,7 @@ def test_mssql_foreign_ref_in_column():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -133,6 +135,7 @@ def test_max_supported_as_column_size():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -186,6 +189,7 @@ def test_constraint_unique():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -257,6 +261,7 @@ def test_constraint_unique_none():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -351,6 +356,7 @@ def test_two_unique_constructs():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -731,6 +737,7 @@ def test_foreign_keys():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -1076,6 +1083,7 @@ def test_alter_unique():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {
@@ -1458,6 +1466,7 @@ def test_defaults_in_alter():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {
@@ -1674,6 +1683,7 @@ def test_mysql_constraint_pk():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},

@@ -932,6 +932,7 @@ def test_parse_table_name_table():
 
 def test_group_by_type_output():
     expected = {
+        "domains": [],
         "sequences": [
             {
                 "cache": 1,
@@ -1012,6 +1013,7 @@ def test_do_not_fail_on_brackets_in_default():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -1118,6 +1120,7 @@ def test_default_and_primary_inline():
         ],
         "types": [],
         "sequences": [],
+        "domains": [],
     }
     assert expected == result
 
@@ -1169,6 +1172,7 @@ def test_default_expression():
         ],
         "types": [],
         "sequences": [],
+        "domains": [],
     }
     assert expected == result
 
@@ -1224,5 +1228,85 @@ def test_comments_in_columns():
         ],
         "types": [],
         "sequences": [],
+        "domains": [],
+    }
+    assert expected == result
+
+
+def test_default_null():
+    ddl = """
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT a_d_d(),
+  name TEXT DEFAULT NULL
+);
+"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "id",
+                        "type": "UUID",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": "a_d_d()",
+                        "check": None,
+                    },
+                    {
+                        "name": "name",
+                        "type": "TEXT",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": "NULL",
+                        "check": None,
+                    },
+                ],
+                "primary_key": ["id"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "users",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+    }
+    assert expected == result
+
+
+def test_domains():
+
+    ddl = """
+    CREATE DOMAIN domain_1 AS CHAR(10);
+    CREATE DOMAIN domain_2 CHAR(16);
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [
+            {
+                "schema": None,
+                "domain_name": "domain_1",
+                "base_type": "CHAR",
+                "properties": {},
+            },
+            {
+                "schema": None,
+                "domain_name": "DOMAIN",
+                "base_type": "CHAR",
+                "properties": {},
+            },
+        ],
     }
     assert expected == result

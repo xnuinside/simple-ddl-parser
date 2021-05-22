@@ -315,13 +315,12 @@ You also can provide a path where you want to have a dumps with schema with argu
 1. Add support for GENERATED ALWAYS AS statement
 2. Add support for CREATE TABLESPACE statement
 3. Add support for properties for TABLESPACE like `TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE`
-4. Add support for statement CREATE DOMAIN
-5. Add CREATE DATABASE statement support
-6. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
-7. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
-8. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
-9. Add support for COMMENT ON statement
-10. Add support for case COMMENT column after DEFAULT word like `col1 int DEFAULT '1' COMMENT 'Integer Column'`
+4. Add CREATE DATABASE statement support
+5. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
+6. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
+7. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
+8. Add support for COMMENT ON statement
+9. Add support for case COMMENT column after DEFAULT word like `col1 int DEFAULT '1' COMMENT 'Integer Column'`
 
 ## non-feature todo
 

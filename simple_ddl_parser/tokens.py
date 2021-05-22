@@ -43,7 +43,9 @@ columns_defenition = {
     "ARRAY": "ARRAY",
     ",": "COMMA",
     "DEFAULT": "DEFAULT",
+    "GENERATED": "GENERATED",
 }
+
 after_columns_tokens = {
     "PARTITIONED": "PARTITIONED",
     "BY": "BY",

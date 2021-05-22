@@ -1169,6 +1169,7 @@ def test_comment_and_lines():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -1257,6 +1258,7 @@ def test_simple_serde():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
@@ -1401,6 +1403,7 @@ def test_with_serde_properties():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "sequences": [],
+        "domains": [],
         "tables": [
             {
                 "alter": {},
