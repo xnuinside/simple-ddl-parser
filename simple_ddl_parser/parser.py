@@ -35,7 +35,7 @@ class Parser:
         IN_COM = "--"
         MYSQL_COM = "#"
         code_line = ""
-        comma_only_str = r"((\')|(' ))+(,)*((\')|( '))+\B"
+        comma_only_str = r"((\')|(' ))+(,)((\')|( '))+\B"
         line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", line)
         if "(" not in line:
             line = line.replace("<", " < ").replace(">", " > ")
@@ -99,7 +99,6 @@ class Parser:
                 if ";" not in statement and num != len(lines) - 1:
                     continue
                 self.set_default_flags_in_lexer()
-                print(statement)
                 _parse_result = yacc.parse(statement)
 
                 if _parse_result:
@@ -121,6 +120,7 @@ class Parser:
             "check",
             "is_table",
             "last_par",
+            "lp_open",
         ]
         for attr in attrs:
             setattr(self.lexer, attr, False)

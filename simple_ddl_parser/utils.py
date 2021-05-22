@@ -9,7 +9,11 @@ def remove_par(p_list: List[str]) -> List[str]:
     return p_list
 
 
-spec_mapper = {"'pars_m_t'": "'\t'", "'pars_m_n'": "'\n'", "'pars_m_dq'": '"'}
+spec_mapper = {
+    "'pars_m_t'": "'\t'",
+    "'pars_m_n'": "'\n'",
+    "'pars_m_dq'": '"',
+}
 
 
 def check_spec(value: str) -> str:

@@ -41,6 +41,8 @@ def test_several_indexes_types():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "sequences": [],
+        "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -372,6 +374,8 @@ def test_clustered_index():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "sequences": [],
+        "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},

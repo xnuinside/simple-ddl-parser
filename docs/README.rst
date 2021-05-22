@@ -287,7 +287,7 @@ Supported Statements
 
 
 * 
-  CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY
+  CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED
 
 * 
   STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
@@ -312,6 +312,12 @@ Supported Statements
 
 * 
   COMMENT ON statement
+
+* 
+  CREATE SCHEMA [IF NOT EXISTS] ... [AUTHORIZATION] ...
+
+* 
+  CREATE DOMAIN [AS]
 
 HQL Dialect statements
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -346,10 +352,8 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-#. Add support for GENERATED ALWAYS AS statement
 #. Add support for CREATE TABLESPACE statement
 #. Add support for properties for TABLESPACE like ``TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE``
-#. Add support for statement CREATE DOMAIN
 #. Add CREATE DATABASE statement support
 #. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 #. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
@@ -374,6 +378,15 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 
 Changelog
 ---------
+
+**v0.16.0**
+
+
+#. Fixed the issue when NULL column after DEFAULT used as default value.
+#. Added support for generated columns, statatements: AS , GENERATED ALWAYS, STORED in Column Defenitions, in output it placed to key 'generated'. Keyword 'generated' showed only if column is generated.
+#. Half of changelogs moved to ARCHIVE_CHANGELOG.txt
+#. Added base support for CREATE DOMAIN statement
+#. Added base support for CREATE SCHEMA [IF NOT EXISTS] ... [AUTHORIZATION] statement, added new type keyword 'schemas'
 
 **v0.15.0**
 
@@ -440,94 +453,3 @@ Changelog
    'tables': [all_pasrsed_tables], 'sequences': [all_pasrsed_sequences], 'types': [all_pasrsed_types], 'domains': [all_pasrsed_domains]
 #. Type in column defenition also can be "schema"."YourCustomType"
 #. " now are not dissapeared if you use them in DDL.
-
-**v0.10.2**
-
-
-#. Fix regex that find '--' in table names (to avoid issue with -- comment lines near string defaults)
-
-**v0.10.1**
-
-
-#. Added support for CREATE TABLE ... LIKE statement
-#. Add support for DEFERRABLE INITIALLY, NOT DEFERRABLE statements
-
-**v0.9.0**
-
-
-#. Added support for REFERENCES without field name, like ``product_no integer REFERENCES products ON DELETE RESTRICT``
-#. Added support for REFERENCES ON statement
-
-**v0.8.1**
-
-
-#. Added support for HQL Structured types like ARRAY < STRUCT <street: STRING, city: STRING, country: STRING >>, 
-   MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING >>, 
-   STRUCT < street_address: STRUCT <street_number: INT, street_name: STRING, street_type: STRING>, country: STRING, postal_code: STRING >
-
-**v0.8.0**
-
-
-#. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).
-   Mode change result output. For example, in hql exists statement EXTERNAL. If you want to see in table information 
-   is it EXTERNAL table or not - you need to set 'hql' output_mode.
-#. Added suppport for hql EXTERNAL statement, STORED AS statement, LOCATION statement
-#. Added suppport for PARTITIONED BY statement (for both hql & sql)
-#. Added support for HQL ROW FORMAT statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
-
-**v0.7.4**
-
-
-#. Fix behaviour with -- in strings. Allow calid table name like 'table--name'
-
-**v0.7.3**
-
-
-#. Added support ``/* ... */`` block comments
-#. Added support for Mysql '#' comments
-
-**v0.7.1**
-
-
-#. Ignore inline with '--' comments
-
-**v0.7.0**
-
-
-#. Redone logic of parse CREATE TABLE statements, now they parsed as one statement (not line by line as previous)
-#. Fixed several minor bugs with edge cases in default values and checks
-#. Added support for ALTER FOREIGN KEY statement for several fields in one statement
-
-**v0.6.1**
-
-
-#. Fix minor bug with schema in index statements
-
-**v0.6.0**
-
-
-#. Added support for SEQUENCE statemensts
-#. Added support for ARRAYs in types
-#. Added support for CREATE INDEX statements
-
-**v0.5.0**
-
-
-#. Added support for UNIQUE column attribute
-#. Add command line arg to pass folder with ddls (parse multiple files)
-#. Added support for CHECK Constratint
-#. Added support for FOREIGN Constratint in ALTER TABLE
-
-**v0.4.0**
-
-
-#. Added support schema for table in REFERENCES statement in column defenition
-#. Added base support fot Alter table statements (added 'alters' key in table)
-#. Added command line arg to pass path to get the output results
-#. Fixed incorrect null fields parsing
-
-**v0.3.0**
-
-
-#. Added support for REFERENCES statement in column defenition
-#. Added command line

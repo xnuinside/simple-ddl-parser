@@ -22,6 +22,8 @@ CREATE TABLE employee_2 (
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -184,6 +186,8 @@ def test_oracle_output_mode():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="oracle")
     expected = {
         "sequences": [],
+        "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -321,6 +325,8 @@ def test_oracle_output_mode():
 def test_storage():
     expected = {
         "sequences": [],
+        "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},

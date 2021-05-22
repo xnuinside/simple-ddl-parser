@@ -944,6 +944,8 @@ def test_tablespace_statement():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
