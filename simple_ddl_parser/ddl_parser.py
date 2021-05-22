@@ -35,7 +35,9 @@ class DDLParser(Parser, BaseSQL, HQL, Oracle):
         return t
 
     def process_body_tokens(self, t):
-        if self.lexer.last_par == "RP" or self.lexer.after_columns:
+        if (
+            self.lexer.last_par == "RP" and not self.lexer.lp_open
+        ) or self.lexer.after_columns:
             t = self.after_columns_tokens(t)
         elif self.lexer.columns_def:
             t.type = tok.columns_defenition.get(t.value.upper(), t.type)
@@ -44,14 +46,15 @@ class DDLParser(Parser, BaseSQL, HQL, Oracle):
         return t
 
     def t_STRING(self, t):
-        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"]*\w)(\')){1}"
+        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"]*)(\')){1}"
         t.type = "STRING"
         return t
 
     def t_ID(self, t):
-        r"[a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"]+"
+        r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         if t.type == "LP" and not self.lexer.after_columns:
+            self.lexer.lp_open += 1
             self.lexer.columns_def = True
             return t
         elif not self.lexer.check and t.value in tok.symbol_tokens_no_check:
@@ -86,8 +89,9 @@ class DDLParser(Parser, BaseSQL, HQL, Oracle):
     def set_last_token(self, t):
         self.lexer.last_token = t.type
         if t.type in ["RP", "LP"]:
+            if t.type == "RP" and self.lexer.lp_open:
+                self.lexer.lp_open -= 1
             self.lexer.last_par = t.type
-        print(t.type, t.value)
         return t
 
     def t_newline(self, t):

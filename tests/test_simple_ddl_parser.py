@@ -1353,3 +1353,166 @@ def test_schema_with_authorisation():
         ],
     }
     assert expected == result
+
+
+def test_generated_always():
+    ddl = """
+CREATE TABLE people (
+    height_cm numeric,
+    height_in numeric GENERATED ALWAYS AS (height_cm / 2.54),
+    height_in_stored numeric GENERATED ALWAYS AS (height_cm / 2.54) STORED,
+);
+"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "height_cm",
+                        "type": "numeric",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "height_in",
+                        "type": "numeric",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                        "generated": {
+                            "always": True,
+                            "as": "height_cm / 2.54",
+                            "stored": False,
+                        },
+                    },
+                    {
+                        "name": "height_in_stored",
+                        "type": "numeric",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                        "generated": {
+                            "always": True,
+                            "as": "height_cm / 2.54",
+                            "stored": True,
+                        },
+                    },
+                ],
+                "primary_key": [],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "people",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+    }
+    assert expected == result
+
+
+def test_generated_always_with_concat():
+    ddl = """
+    DROP TABLE IF EXISTS contacts;
+
+    CREATE TABLE contacts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        first_name VARCHAR(50) NOT NULL,
+        last_name VARCHAR(50) NOT NULL,
+        fullname varchar(101) GENERATED ALWAYS AS (CONCAT(first_name,' ',last_name)),
+        email VARCHAR(100) NOT NULL
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "id",
+                        "type": "INT AUTO_INCREMENT",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "first_name",
+                        "type": "VARCHAR",
+                        "size": 50,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "last_name",
+                        "type": "VARCHAR",
+                        "size": 50,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "fullname",
+                        "type": "varchar",
+                        "size": 101,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                        "generated": {
+                            "always": True,
+                            "as": "CONCAT(first_name,' ',last_name)",
+                            "stored": False,
+                        },
+                    },
+                    {
+                        "name": "email",
+                        "type": "VARCHAR",
+                        "size": 100,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                ],
+                "primary_key": ["id"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "contacts",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+    }
+    assert expected == result
