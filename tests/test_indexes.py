@@ -42,6 +42,7 @@ def test_several_indexes_types():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -374,6 +375,7 @@ def test_clustered_index():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},

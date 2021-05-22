@@ -104,6 +104,7 @@ def test_create_type_as_object():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [],
         "types": [
             {
@@ -138,6 +139,7 @@ def test_create_type_with_input_properties():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [],
         "types": [
             {

@@ -23,6 +23,7 @@ CREATE TABLE employee_2 (
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -186,6 +187,7 @@ def test_oracle_output_mode():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -324,6 +326,7 @@ def test_storage():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},

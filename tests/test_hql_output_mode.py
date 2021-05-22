@@ -1170,6 +1170,7 @@ def test_comment_and_lines():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -1259,6 +1260,7 @@ def test_simple_serde():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -1404,6 +1406,7 @@ def test_with_serde_properties():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},

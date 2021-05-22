@@ -141,6 +141,7 @@ def result_format(
                     item.get("sequence_name")
                     or item.get("type_name")
                     or item.get("domain_name")
+                    or item.get("schema_name")
                 ):
                     table_data = item
                     not_table = True
@@ -217,12 +218,19 @@ def set_unique_columns(table_data: Dict) -> Dict:
 
 
 def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
-    result_as_dict = {"tables": [], "types": [], "sequences": [], "domains": []}
+    result_as_dict = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+    }
     keys_map = {
         "table_name": "tables",
         "sequence_name": "sequences",
         "type_name": "types",
         "domain_name": "domains",
+        "schema_name": "schemas",
     }
     for item in final_result:
         for key in keys_map:

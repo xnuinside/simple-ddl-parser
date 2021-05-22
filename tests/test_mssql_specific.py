@@ -14,6 +14,7 @@ def test_int_identity_type():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -68,6 +69,7 @@ def test_mssql_foreign_ref_in_column():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -136,6 +138,7 @@ def test_max_supported_as_column_size():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -190,6 +193,7 @@ def test_constraint_unique():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -262,6 +266,7 @@ def test_constraint_unique_none():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -357,6 +362,7 @@ def test_two_unique_constructs():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -738,6 +744,7 @@ def test_foreign_keys():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -1084,6 +1091,7 @@ def test_alter_unique():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {
@@ -1467,6 +1475,7 @@ def test_defaults_in_alter():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {
@@ -1684,6 +1693,7 @@ def test_mysql_constraint_pk():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},

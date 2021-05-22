@@ -945,6 +945,7 @@ def test_tablespace_statement():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},

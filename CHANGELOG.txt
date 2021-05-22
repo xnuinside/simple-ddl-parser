@@ -3,6 +3,7 @@
 2. Added support for generated columns, statatements: AS , GENERATED ALWAYS, STORED in Column Defenitions, in output it placed to key 'generated'. Keyword 'generated' showed only if column is generated.
 3. Half of changelogs moved to ARCHIVE_CHANGELOG.txt
 4. Added base support for CREATE DOMAIN statement
+5. Added base support for CREATE SCHEMA [IF NOT EXISTS] ... [AUTHORIZATION] statement, added new type keyword 'schemas'
 
 
 **v0.15.0**

@@ -933,6 +933,7 @@ def test_parse_table_name_table():
 def test_group_by_type_output():
     expected = {
         "domains": [],
+        "schemas": [],
         "sequences": [
             {
                 "cache": 1,
@@ -1014,6 +1015,7 @@ def test_do_not_fail_on_brackets_in_default():
     expected = {
         "sequences": [],
         "domains": [],
+        "schemas": [],
         "tables": [
             {
                 "alter": {},
@@ -1121,6 +1123,7 @@ def test_default_and_primary_inline():
         "types": [],
         "sequences": [],
         "domains": [],
+        "schemas": [],
     }
     assert expected == result
 
@@ -1173,6 +1176,7 @@ def test_default_expression():
         "types": [],
         "sequences": [],
         "domains": [],
+        "schemas": [],
     }
     assert expected == result
 
@@ -1229,6 +1233,7 @@ def test_comments_in_columns():
         "types": [],
         "sequences": [],
         "domains": [],
+        "schemas": [],
     }
     assert expected == result
 
@@ -1279,6 +1284,7 @@ CREATE TABLE IF NOT EXISTS users (
         "types": [],
         "sequences": [],
         "domains": [],
+        "schemas": [],
     }
     assert expected == result
 
@@ -1294,6 +1300,7 @@ def test_domains():
         "tables": [],
         "types": [],
         "sequences": [],
+        "schemas": [],
         "domains": [
             {
                 "schema": None,
@@ -1307,6 +1314,42 @@ def test_domains():
                 "base_type": "CHAR",
                 "properties": {},
             },
+        ],
+    }
+    assert expected == result
+
+
+def test_schema():
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [{"schema_name": "bob"}, {"schema_name": "schema_name"}],
+    }
+
+    ddl = """
+    CREATE SCHEMA bob;
+    CREATE SCHEMA IF NOT EXISTS schema_name;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result
+
+
+def test_schema_with_authorisation():
+    ddl = """
+    CREATE SCHEMA AUTHORIZATION joe;
+    CREATE SCHEMA new_one AUTHORIZATION user;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [
+            {"schema_name": "joe", "authorization": "joe"},
+            {"schema_name": "new_one", "authorization": "user"},
         ],
     }
     assert expected == result
