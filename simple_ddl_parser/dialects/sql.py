@@ -161,10 +161,12 @@ class Type:
         | type_name LP id_equals RP
         """
         p_list = list(p)
+        print(p_list)
         p[0] = p[1]
         p[0]["base_type"] = p[2]
         p[0]["properties"] = {}
-        if p[0]["base_type"] == "ENUM":
+        base_type = p[0]["base_type"].upper()
+        if base_type == "ENUM":
             p[0]["properties"]["values"] = p_list[4]
         elif p[0]["base_type"] == "OBJECT":
             if "type" in p_list[4][0]:
@@ -172,6 +174,7 @@ class Type:
         else:
             if isinstance(p_list[-2], list):
                 for item in p_list[-2]:
+                    print(item)
                     p[0]["properties"].update(item)
 
     def p_type_name(self, p):
