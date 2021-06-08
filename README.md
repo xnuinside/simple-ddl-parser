@@ -338,7 +338,7 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
-**v0.16.1**
+**v0.16.2**
 1. Fixed issue with enum in lowercase
 
 

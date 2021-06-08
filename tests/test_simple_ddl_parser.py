@@ -1516,3 +1516,69 @@ def test_generated_always_with_concat():
         "schemas": [],
     }
     assert expected == result
+
+
+def test_enum_in_lowercase():
+
+    ddl = """
+    CREATE TYPE my_status AS enum (
+        'NEW',
+        'IN_PROGRESS',
+        'FINISHED'
+    );
+
+    CREATE TABLE foo
+    (
+        entity_id        UUID PRIMARY KEY DEFAULT getId(),
+        status           my_status
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "entity_id",
+                        "type": "UUID",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": "getId()",
+                        "check": None,
+                    },
+                    {
+                        "name": "status",
+                        "type": "my_status",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                ],
+                "primary_key": ["entity_id"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "foo",
+            }
+        ],
+        "types": [
+            {
+                "schema": None,
+                "type_name": "my_status",
+                "base_type": "enum",
+                "properties": {"values": ["'NEW'", "'IN_PROGRESS'", "'FINISHED'"]},
+            }
+        ],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+    }
+    assert result == expected
