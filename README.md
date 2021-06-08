@@ -338,6 +338,10 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
+**v0.16.1**
+1. Fixed issue with enum in lowercase
+
+
 **v0.16.0**
 1. Fixed the issue when NULL column after DEFAULT used as default value.
 2. Added support for generated columns, statatements: AS , GENERATED ALWAYS, STORED in Column Defenitions, in output it placed to key 'generated'. Keyword 'generated' showed only if column is generated.

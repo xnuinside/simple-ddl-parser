@@ -379,6 +379,11 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 Changelog
 ---------
 
+**v0.16.1**
+
+
+#. Fixed issue with enum in lowercase
+
 **v0.16.0**
 
 
