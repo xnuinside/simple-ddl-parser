@@ -161,7 +161,6 @@ class Type:
         | type_name LP id_equals RP
         """
         p_list = list(p)
-        print(p_list)
         p[0] = p[1]
         p[0]["base_type"] = p[2]
         p[0]["properties"] = {}
