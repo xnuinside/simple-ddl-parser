@@ -379,6 +379,13 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 Changelog
 ---------
 
+**v0.16.3**
+
+
+#. Fixed issue then using columns names equals some tokens like, for example, ``key`` caused the error. 
+   But still words 'foreign' and 'constraint' as column names cause the empty result. I hope they rarely used.
+   Will be fixed in next releases.
+
 **v0.16.2**
 
 

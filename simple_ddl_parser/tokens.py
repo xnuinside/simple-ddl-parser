@@ -12,9 +12,6 @@ defenition_statements = {
     "SEQUENCE": "SEQUENCE",
 }
 common_statements = {
-    "CHECK": "CHECK",
-    "CONSTRAINT": "CONSTRAINT",
-    "FOREIGN": "FOREIGN",
     "INDEX": "INDEX",
     "REFERENCES": "REFERENCES",
     "KEY": "KEY",
@@ -33,19 +30,26 @@ common_statements = {
     "SALT": "SALT",
     "NO": "NO",
     "USING": "USING",
+    "PRIMARY": "PRIMARY",
+    "CHECK": "CHECK",
 }
 
 columns_defenition = {
     "DELETE": "DELETE",
     "UPDATE": "UPDATE",
     "NULL": "NULL",
-    "PRIMARY": "PRIMARY",
     "ARRAY": "ARRAY",
     ",": "COMMA",
     "DEFAULT": "DEFAULT",
     "GENERATED": "GENERATED",
 }
+first_liners = {
+    "CONSTRAINT": "CONSTRAINT",
+    "FOREIGN": "FOREIGN",
+}
 
+common_statements.update(first_liners)
+defenition_statements.update(common_statements)
 after_columns_tokens = {
     "PARTITIONED": "PARTITIONED",
     "BY": "BY",

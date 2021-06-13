@@ -1582,3 +1582,55 @@ def test_enum_in_lowercase():
         "schemas": [],
     }
     assert result == expected
+
+
+def test_column_names_with_names_like_tokens_works_well():
+    ddl = """
+    CREATE TABLE foo
+    (
+        entity_id        UUID PRIMARY KEY DEFAULT getId(),
+        key              VARCHAR(256)
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "entity_id",
+                        "type": "UUID",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": "getId()",
+                        "check": None,
+                    },
+                    {
+                        "name": "key",
+                        "type": "VARCHAR",
+                        "size": 256,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                ],
+                "primary_key": ["entity_id"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "foo",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+    }
+    assert expected == result
