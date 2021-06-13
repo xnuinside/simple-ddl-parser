@@ -62,16 +62,16 @@ class DDLParser(Parser, BaseSQL, HQL, Oracle):
         elif "ARRAY" in t.value:
             t.type = "ARRAY"
             return t
-        else:
-            if not self.lexer.is_table:
-                # if is_table mean wi already met INDEX or TABLE statement and
-                # the defenition already done and this is a string
-                t.type = tok.defenition_statements.get(
-                    t.value.upper(), t.type
-                )  # Check for reserved word
-                if t.type == "TABLE" or t.type == "INDEX":
-                    self.lexer.is_table = True
+        elif not self.lexer.is_table:
+            # if is_table mean wi already met INDEX or TABLE statement and
+            # the defenition already done and this is a string
+            t.type = tok.defenition_statements.get(
+                t.value.upper(), t.type
+            )  # Check for reserved word
+        elif self.lexer.last_token != "COMMA":
             t.type = tok.common_statements.get(t.value.upper(), t.type)
+        else:
+            t.type = tok.first_liners.get(t.value.upper(), t.type)
 
         # get tokens from other token dicts
         t = self.process_body_tokens(t)
@@ -92,6 +92,10 @@ class DDLParser(Parser, BaseSQL, HQL, Oracle):
             if t.type == "RP" and self.lexer.lp_open:
                 self.lexer.lp_open -= 1
             self.lexer.last_par = t.type
+        elif t.type == "TYPE" or t.type == "DOMAIN":
+            self.lexer.is_table = False
+        elif t.type == "TABLE" or t.type == "INDEX":
+            self.lexer.is_table = True
         return t
 
     def t_newline(self, t):

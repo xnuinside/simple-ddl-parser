@@ -30,6 +30,59 @@ class Table:
 
 
 class Column:
+    def set_base_column_propery(self, p: list) -> Dict:
+
+        if "." in list(p):
+            type_str = f"{p[2]}.{p[4]}"
+        else:
+            type_str = p[2]
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+        else:
+            size = None
+            p[0] = {"name": p[1], "type": type_str, "size": size}
+        return p[0]
+
+    def p_column(self, p):
+        """column : ID ID
+        | ID ID DOT ID
+        | ID tid
+        | column comment
+        | column LP ID RP
+        | column ID
+        | column LP ID COMMA ID RP
+        | column ARRAY
+        | ID ARRAY tid
+        | column tid
+
+        """
+        p[0] = self.set_base_column_propery(p)
+        p_list = remove_par(list(p))
+
+        if "[]" == p_list[-1]:
+            p[0]["type"] = p[0]["type"] + "[]"
+        elif "ARRAY" in p_list[-1]:
+            arr_split = p_list[-1].split("ARRAY")
+            append = "[]" if not arr_split[-1] else arr_split[-1]
+            p[0]["type"] = p[0]["type"] + append
+        elif isinstance(p_list[-1], list):
+            p[0] = self.get_complex_type(p, p_list)
+        elif "comment" in p_list[-1]:
+            p[0]["comment"] = p_list[-1]["comment"]
+        else:
+            match = re.match(r"[0-9]+", p_list[2])
+            if bool(match) or p_list[2] == "max":
+                if p_list[2].isnumeric():
+                    size = int(p_list[2])
+                else:
+                    size = p_list[2]
+                if len(p_list) == 3:
+                    p[0]["size"] = size
+                else:
+                    p[0]["size"] = (int(p_list[2]), int(p_list[4]))
+            elif isinstance(p_list[-1], str) and p_list[-1] not in p[0]["type"]:
+                p[0]["type"] += f" {p_list[-1]}"
+
     def p_defcolumn(self, p):
         """defcolumn : column
         | defcolumn comment
@@ -173,7 +226,6 @@ class Type:
         else:
             if isinstance(p_list[-2], list):
                 for item in p_list[-2]:
-                    print(item)
                     p[0]["properties"].update(item)
 
     def p_type_name(self, p):
@@ -294,6 +346,7 @@ class BaseSQL(Table, Drop, Domain, Column, AfterColumns, Type, Schema):
         | expr COMMA foreign
         | expr COMMA pkey
         | expr COMMA uniq
+        | expr COMMA statem_by_id
         | expr COMMA constraint uniq
         | expr COMMA constraint pkey
         | expr COMMA constraint foreign ref
@@ -458,60 +511,6 @@ class BaseSQL(Table, Drop, Domain, Column, AfterColumns, Type, Schema):
             p[0][0] += i
 
     @staticmethod
-    def set_base_column_propery(p: list) -> Dict:
-
-        if "." in list(p):
-            type_str = f"{p[2]}.{p[4]}"
-        else:
-            type_str = p[2]
-        if isinstance(p[1], dict):
-            p[0] = p[1]
-        else:
-            size = None
-            p[0] = {"name": p[1], "type": type_str, "size": size}
-        return p[0]
-
-    def p_column(self, p):
-        """column : ID ID
-        | ID ID DOT ID
-        | ID tid
-        | column comment
-        | column LP ID RP
-        | column ID
-        | column LP ID COMMA ID RP
-        | column ARRAY
-        | ID ARRAY tid
-        | column tid
-
-        """
-        p[0] = self.set_base_column_propery(p)
-        p_list = remove_par(list(p))
-
-        if "[]" == p_list[-1]:
-            p[0]["type"] = p[0]["type"] + "[]"
-        elif "ARRAY" in p_list[-1]:
-            arr_split = p_list[-1].split("ARRAY")
-            append = "[]" if not arr_split[-1] else arr_split[-1]
-            p[0]["type"] = p[0]["type"] + append
-        elif isinstance(p_list[-1], list):
-            p[0] = self.get_complex_type(p, p_list)
-        elif "comment" in p_list[-1]:
-            p[0]["comment"] = p_list[-1]["comment"]
-        else:
-            match = re.match(r"[0-9]+", p_list[2])
-            if bool(match) or p_list[2] == "max":
-                if p_list[2].isnumeric():
-                    size = int(p_list[2])
-                else:
-                    size = p_list[2]
-                if len(p_list) == 3:
-                    p[0]["size"] = size
-                else:
-                    p[0]["size"] = (int(p_list[2]), int(p_list[4]))
-            elif isinstance(p_list[-1], str) and p_list[-1] not in p[0]["type"]:
-                p[0]["type"] += f" {p_list[-1]}"
-
-    @staticmethod
     def get_complex_type(p, p_list):
         if len(p_list) == 4:
             p[0]["type"] = f"{p[2]} {p[3][0]}"
@@ -635,9 +634,7 @@ class BaseSQL(Table, Drop, Domain, Column, AfterColumns, Type, Schema):
         """
 
         p_list = list(p)
-        con_ind = p_list.index("CONSTRAINT")
-        name = p_list[con_ind + 1]
-        p[0] = {"constraint": {"name": name}}
+        p[0] = {"constraint": {"name": p_list[-1]}}
 
     def p_generated(self, p):
         """
@@ -761,6 +758,8 @@ class BaseSQL(Table, Drop, Domain, Column, AfterColumns, Type, Schema):
     def p_pid(self, p):
         """pid :  ID
         | STRING
+        | pid ID
+        | pid STRING
         | STRING LP RP
         | ID LP RP
         | pid COMMA ID
@@ -884,6 +883,18 @@ class BaseSQL(Table, Drop, Domain, Column, AfterColumns, Type, Schema):
         """uniq : UNIQUE LP pid RP"""
         p_list = remove_par(list(p))
         p[0] = {"unique_statement": p_list[-1]}
+
+    def p_statem_by_id(self, p):
+        """statem_by_id : ID LP pid RP
+        | ID KEY LP pid RP
+        """
+        p_list = remove_par(list(p))
+        if p[1].upper() == "UNIQUE":
+            p[0] = {"unique_statement": p_list[-1]}
+        elif p[1].upper() == "CHECK":
+            p[0] = {"check": p_list[-1]}
+        elif p[1].upper() == "PRIMARY":
+            p[0] = {"primary_key": p_list[-1]}
 
     def p_pkey(self, p):
         """pkey : PRIMARY KEY LP pid RP"""
