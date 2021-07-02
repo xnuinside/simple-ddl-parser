@@ -10,6 +10,7 @@ defenition_statements = {
     "OR": "OR",
     "CLUSTERED": "CLUSTERED",
     "SEQUENCE": "SEQUENCE",
+    "TABLESPACE": "TABLESPACE",
 }
 common_statements = {
     "INDEX": "INDEX",
@@ -80,12 +81,14 @@ sequence_reserved = {
 
 
 tokens = tuple(
-    ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
-    + list(defenition_statements.values())
-    + list(common_statements.values())
-    + list(columns_defenition.values())
-    + list(sequence_reserved.values())
-    + list(after_columns_tokens.values())
+    set(
+        ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
+        + list(defenition_statements.values())
+        + list(common_statements.values())
+        + list(columns_defenition.values())
+        + list(sequence_reserved.values())
+        + list(after_columns_tokens.values())
+    )
 )
 
 symbol_tokens = {

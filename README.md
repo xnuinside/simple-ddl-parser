@@ -291,6 +291,10 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - CREATE DOMAIN [AS]
 
+- CREATE [SMALLFILE | BIGFILE] [TEMPORARY] TABLESPACE statement
+
+- CREATE DATABASE
+
 ### HQL Dialect statements
 
 - PARTITIONED BY statement
@@ -316,14 +320,11 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
-1. Add support for CREATE TABLESPACE statement
-2. Add support for properties for TABLESPACE like `TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE`
-3. Add CREATE DATABASE statement support
-4. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
-5. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
-6. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
-7. Add support for COMMENT ON statement
-8. Add support for case COMMENT column after DEFAULT word like `col1 int DEFAULT '1' COMMENT 'Integer Column'`
+1. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
+2. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
+3. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
+4. Add support for COMMENT ON statement
+5. Add support for case COMMENT column after DEFAULT word like `col1 int DEFAULT '1' COMMENT 'Integer Column'`
 
 ## non-feature todo
 
@@ -338,6 +339,12 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
+**v0.17.0**
+1. All dependencies were updated for the latest version.
+2. Added base support for CREATE [BIGFILE | SMALLFILE] [TEMPORARY] TABLESPACE 
+3. Added support for create table properties like `TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE`
+4. Added support for CREATE DATABASE statement
+
 **v0.16.3**
 1. Fixed issue then using columns names equals some tokens like, for example, `key` caused the error. 
 But still words 'foreign' and 'constraint' as column names cause the empty result. I hope they rarely used.

@@ -92,7 +92,7 @@ class DDLParser(Parser, BaseSQL, HQL, Oracle):
             if t.type == "RP" and self.lexer.lp_open:
                 self.lexer.lp_open -= 1
             self.lexer.last_par = t.type
-        elif t.type == "TYPE" or t.type == "DOMAIN":
+        elif t.type == "TYPE" or t.type == "DOMAIN" or t.type == "TABLESPACE":
             self.lexer.is_table = False
         elif t.type == "TABLE" or t.type == "INDEX":
             self.lexer.is_table = True

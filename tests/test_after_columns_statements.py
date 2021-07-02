@@ -997,9 +997,99 @@ def test_tablespace_statement():
                 "primary_key": [],
                 "schema": None,
                 "table_name": "emp_table",
-                "tablespace": "my_table_space",
+                "tablespace": {
+                    "tablespace_name": "my_table_space",
+                    "properties": None,
+                    "type": None,
+                    "temporary": False,
+                },
             }
         ],
         "types": [],
     }
+    assert expected == result
+
+
+def test_tablespace_with_properties():
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "empno",
+                        "type": "Number",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "ename",
+                        "type": "Varchar2",
+                        "size": 100,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "sal",
+                        "type": "Number",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "photo",
+                        "type": "Blob",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                ],
+                "primary_key": [],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": {
+                    "tablespace_name": "user_data",
+                    "properties": {
+                        "ENABLE": "STORAGE",
+                        "IN": "ROW",
+                        "CHUNK": "8K",
+                        "RETENTION": "CACHE",
+                    },
+                    "temporary": False,
+                    "type": None,
+                },
+                "schema": None,
+                "table_name": "emp_table",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+    }
+
+    ddl = """
+        Create Table emp_table (
+        empno Number,
+        ename Varchar2(100),
+        sal Number,
+        photo Blob
+        )
+        TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
     assert expected == result

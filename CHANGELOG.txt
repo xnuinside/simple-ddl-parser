@@ -1,3 +1,9 @@
+**v0.17.0**
+1. All dependencies were updated for the latest version.
+2. Added base support for CREATE [BIGFILE | SMALLFILE] [TEMPORARY] TABLESPACE 
+3. Added support for create table properties like `TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE`
+4. Added support for CREATE DATABASE statement
+
 **v0.16.3**
 1. Fixed issue then using columns names equals some tokens like, for example, `key` caused the error. 
 But still words 'foreign' and 'constraint' as column names cause the empty result. I hope they rarely used.

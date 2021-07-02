@@ -1634,3 +1634,140 @@ def test_column_names_with_names_like_tokens_works_well():
         "schemas": [],
     }
     assert expected == result
+
+
+def test_added_create_tablespace():
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "tablespaces": [
+            {
+                "tablespace_name": "tbs1",
+                "properties": {"DATAFILE": "'tbs1_data.dbf'", "SIZE": "1m"},
+                "type": None,
+                "temporary": False,
+            }
+        ],
+    }
+
+    ddl = """
+    CREATE TABLESPACE tbs1
+    DATAFILE 'tbs1_data.dbf'
+    SIZE 1m;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result
+
+
+def test_tablespace_small_big():
+    ddl = """
+CREATE BIGFILE TABLESPACE tbs_perm_03
+  DATAFILE 'tbs_perm_03.dat'
+    SIZE 10M
+    AUTOEXTEND ON;
+
+CREATE SMALLFILE TABLESPACE tbs_perm_03
+  DATAFILE 'tbs_perm_03.dat'
+    SIZE 10M
+    AUTOEXTEND ON;
+"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "tablespaces": [
+            {
+                "tablespace_name": "tbs_perm_03",
+                "properties": {
+                    "DATAFILE": "'tbs_perm_03.dat'",
+                    "SIZE": "10M",
+                    "AUTOEXTEND": "ON",
+                },
+                "type": "BIGFILE",
+                "temporary": False,
+            },
+            {
+                "tablespace_name": "tbs_perm_03",
+                "properties": {
+                    "DATAFILE": "'tbs_perm_03.dat'",
+                    "SIZE": "10M",
+                    "AUTOEXTEND": "ON",
+                },
+                "type": "SMALLFILE",
+                "temporary": False,
+            },
+        ],
+    }
+    assert expected == result
+
+
+def test_tablespaces_temporary():
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "tablespaces": [
+            {
+                "tablespace_name": "tbs_perm_03",
+                "properties": {
+                    "DATAFILE": "'tbs_perm_03.dat'",
+                    "SIZE": "10M",
+                    "AUTOEXTEND": "ON",
+                },
+                "type": "BIGFILE",
+                "temporary": True,
+            },
+            {
+                "tablespace_name": "tbs_perm_04",
+                "properties": {
+                    "DATAFILE": "'tbs_perm_03.dat'",
+                    "SIZE": "10M",
+                    "AUTOEXTEND": "ON",
+                },
+                "type": None,
+                "temporary": True,
+            },
+        ],
+    }
+    ddl = """
+    CREATE BIGFILE TEMPORARY TABLESPACE tbs_perm_03
+    DATAFILE 'tbs_perm_03.dat'
+        SIZE 10M
+        AUTOEXTEND ON;
+
+    CREATE TEMPORARY TABLESPACE tbs_perm_04
+    DATAFILE 'tbs_perm_03.dat'
+        SIZE 10M
+        AUTOEXTEND ON;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result
+
+
+def test_create_database():
+
+    ddl = """
+    CREATE DATABASE yourdbname;
+    CREATE DATABASE "yourdbname2";
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "databases": [
+            {"database_name": "yourdbname"},
+            {"database_name": '"yourdbname2"'},
+        ],
+    }
+    assert expected == result
