@@ -13,6 +13,75 @@ class AfterColumns:
         p[0]["partitioned_by"] = p_list[-2]
 
 
+class Database:
+    def p_expression_create_database(self, p):
+        """expr : expr CREATE ID ID """
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]["database_name"] = p_list[-1]
+
+
+class TableSpaces:
+    @staticmethod
+    def get_tablespace_data(p_list):
+        if p_list[1] == "TABLESPACE":
+            _type = None
+            temp = False
+        else:
+            if p_list[1].upper() == "TEMPORARY":
+                _type = None
+                temp = True
+            else:
+                _type = p_list[1]
+                if p_list[2].upper() == "TEMPORARY":
+                    temp = True
+                else:
+                    temp = False
+        if isinstance(p_list[-1], dict):
+            properties = p_list[-1]
+            tablespace_name = p_list[-2]
+        else:
+            properties = None
+            tablespace_name = p_list[-1]
+        result = {
+            "tablespace_name": tablespace_name,
+            "properties": properties,
+            "type": _type,
+            "temporary": temp,
+        }
+        return result
+
+    def p_expression_create_tablespace(self, p):
+        """expr : CREATE TABLESPACE ID properties
+        | CREATE ID TABLESPACE ID properties
+        | CREATE ID TABLESPACE ID
+        | CREATE TABLESPACE ID
+        | CREATE ID ID TABLESPACE ID
+        | CREATE ID ID TABLESPACE ID properties
+        """
+        p_list = list(p)
+        p[0] = self.get_tablespace_data(p_list[1:])
+
+    def p_properties(self, p):
+        """properties : property
+        | properties property"""
+        p_list = list(p)
+        if len(p_list) == 3:
+            p[0] = p[1]
+            p[0].update(p[2])
+        else:
+            p[0] = p[1]
+
+    def p_property(self, p):
+        """property : ID ID
+        | ID STRING
+        | ID ON
+        | ID STORAGE
+        | ID ROW
+        """
+        p[0] = {p[1]: p[2]}
+
+
 class Table:
     def p_create_table(self, p):
         """create_table : CREATE TABLE IF NOT EXISTS
@@ -275,7 +344,9 @@ class Domain:
         p[0]["domain_name"] = p_list[-2]
 
 
-class BaseSQL(Table, Drop, Domain, Column, AfterColumns, Type, Schema):
+class BaseSQL(
+    Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces, Database
+):
     def p_id_equals(self, p):
         """id_equals : ID ID ID
         | id_equals COMMA
@@ -907,9 +978,11 @@ class BaseSQL(Table, Drop, Domain, Column, AfterColumns, Type, Schema):
         p[0] = {"comment": p_list[-1]}
 
     def p_tablespace(self, p):
-        """tablespace : TABLESPACE ID"""
+        """tablespace : TABLESPACE ID
+        | TABLESPACE ID properties
+        """
         # Initial 5m Next 5m Maxextents Unlimited
-        p[0] = p[2]
+        p[0] = self.get_tablespace_data(list(p))
 
     def p_expr_tablespace(self, p):
         """expr : expr tablespace"""

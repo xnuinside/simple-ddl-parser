@@ -319,6 +319,12 @@ Supported Statements
 * 
   CREATE DOMAIN [AS]
 
+* 
+  CREATE [SMALLFILE | BIGFILE] [TEMPORARY] TABLESPACE statement
+
+* 
+  CREATE DATABASE
+
 HQL Dialect statements
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -352,9 +358,6 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-#. Add support for CREATE TABLESPACE statement
-#. Add support for properties for TABLESPACE like ``TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE``
-#. Add CREATE DATABASE statement support
 #. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 #. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
 #. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
@@ -378,6 +381,14 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 
 Changelog
 ---------
+
+**v0.17.0**
+
+
+#. All dependencies were updated for the latest version.
+#. Added base support for CREATE [BIGFILE | SMALLFILE] [TEMPORARY] TABLESPACE 
+#. Added support for create table properties like ``TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE``
+#. Added support for CREATE DATABASE statement
 
 **v0.16.3**
 

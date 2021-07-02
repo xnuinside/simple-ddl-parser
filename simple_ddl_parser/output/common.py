@@ -137,18 +137,13 @@ def result_format(
             tables_dict = add_alter_to_table(tables_dict, table[0])
         else:
             for item in table:
-                if (
-                    item.get("sequence_name")
-                    or item.get("type_name")
-                    or item.get("domain_name")
-                    or item.get("schema_name")
-                ):
+                if item.get("table_name"):
+                    table_data.update(item)
+                    table_data = set_unique_columns(table_data)
+                else:
                     table_data = item
                     not_table = True
                     continue
-                elif item.get("table_name"):
-                    table_data.update(item)
-                    table_data = set_unique_columns(table_data)
             if not not_table:
                 table_data = process_not_table_item(table_data, tables_dict)
             table_data = normalize_ref_columns_in_fincal_output(table_data)
@@ -231,11 +226,17 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "type_name": "types",
         "domain_name": "domains",
         "schema_name": "schemas",
+        "tablespace_name": "tablespaces",
+        "database_name": "databases",
     }
     for item in final_result:
         for key in keys_map:
             if key in item:
-                result_as_dict[keys_map.get(key)].append(item)
+                _type = result_as_dict.get(keys_map.get(key))
+                if _type is None:
+                    result_as_dict[keys_map.get(key)] = []
+                    _type = result_as_dict[keys_map.get(key)]
+                _type.append(item)
                 break
 
     return result_as_dict
