@@ -99,6 +99,13 @@ class Table:
 
 
 class Column:
+    
+    def p_column_property(self, p):
+        """c_property : ID ID
+        """
+        p_list = list(p)
+        p[0] = {"property": {p_list[1]: p_list[-1]}}
+
     def set_base_column_propery(self, p: list) -> Dict:
 
         if "." in list(p):
@@ -112,22 +119,28 @@ class Column:
             p[0] = {"name": p[1], "type": type_str, "size": size}
         return p[0]
 
+    def p_c_type(self, p):
+        """c_type : ID
+        | ID DOT ID
+        | tid
+        | ARRAY
+        | ARRAY c_type"""
+        p_list = remove_par(list(p))
+        print(p_list, 'type')
+        if len(p_list) == 2:
+            _type = p_list[-1]
+        p[0] = _type
+
     def p_column(self, p):
-        """column : ID ID
-        | ID ID DOT ID
-        | ID tid
+        """column : ID c_type
         | column comment
         | column LP ID RP
         | column ID
         | column LP ID COMMA ID RP
-        | column ARRAY
-        | ID ARRAY tid
-        | column tid
-
         """
         p[0] = self.set_base_column_propery(p)
         p_list = remove_par(list(p))
-
+        print(p_list, 'column')
         if "[]" == p_list[-1]:
             p[0]["type"] = p[0]["type"] + "[]"
         elif "ARRAY" in p_list[-1]:
@@ -150,7 +163,14 @@ class Column:
                 else:
                     p[0]["size"] = (int(p_list[2]), int(p_list[4]))
             elif isinstance(p_list[-1], str) and p_list[-1] not in p[0]["type"]:
-                p[0]["type"] += f" {p_list[-1]}"
+                if not p[0]["size"]:
+                    p[0]["type"] += f" {p_list[-1]}"
+                else:
+                    if not p[0].get("property"):
+                        p[0]["property"] = {p_list[-1]: None}
+                    else:
+                        p[0]["property"][list(p[0]["property"].keys())[0]] = p_list[-1]
+
 
     def p_defcolumn(self, p):
         """defcolumn : column
@@ -164,6 +184,7 @@ class Column:
         | defcolumn foreign ref
         | defcolumn encrypt
         | defcolumn generated
+        | defcolumn c_property
         """
         pk = False
         nullable = True
@@ -184,6 +205,12 @@ class Column:
             references = p_list[-1]["references"]
         for item in p[1:]:
             if isinstance(item, dict):
+                print(item, 'item')
+                
+                if 'property' in item:
+                    for key, value in item["property"].items():
+                        p[0][key] = value
+                    del item["property"]
                 p[0].update(item)
 
         p[0]["references"] = p[0].get("references", references)

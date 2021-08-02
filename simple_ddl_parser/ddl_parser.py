@@ -96,6 +96,7 @@ class DDLParser(Parser, BaseSQL, HQL, Oracle):
             self.lexer.is_table = False
         elif t.type == "TABLE" or t.type == "INDEX":
             self.lexer.is_table = True
+        print(t.value, t.type)
         return t
 
     def t_newline(self, t):
