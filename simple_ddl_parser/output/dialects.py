@@ -29,6 +29,7 @@ def add_additional_hql_keys(table_data: Dict) -> Dict:
             "fields_terminated_by": None,
             "map_keys_terminated_by": None,
             "collection_items_terminated_by": None,
+            "external": table_data.get("external", False),
         }
     )
     return table_data
@@ -44,9 +45,30 @@ def add_additional_oracle_keys(table_data: Dict) -> Dict:
     return table_data
 
 
+def add_additional_redshift_keys(table_data: Dict) -> Dict:
+    table_data.update(
+        {
+            "diststyle": None,
+            "distkey": None,
+            "sortkey": {"type": None, "keys": []},
+            "encode": None,
+            "temp": False,
+        }
+    )
+    return table_data
+
+
 def add_additional_oracle_keys_in_column(table_data: Dict) -> Dict:
     table_data.update({"encrypt": None})
     return table_data
+
+
+def add_additional_redshift_keys_in_column(column_data: Dict, table_data: Dict) -> Dict:
+    column_data["encode"] = column_data.get("encode", None)
+    if column_data.get("distkey"):
+        table_data["distkey"] = column_data["name"]
+        del column_data["distkey"]
+    return column_data, table_data
 
 
 def add_additional_mssql_keys(table_data: Dict) -> Dict:
@@ -72,6 +94,8 @@ def populate_dialects_table_data(output_mode: str, table_data: Dict) -> Dict:
         table_data = add_additional_mssql_keys(table_data)
     elif output_mode == "oracle":
         table_data = add_additional_oracle_keys(table_data)
+    elif output_mode == "redshift":
+        table_data = add_additional_redshift_keys(table_data)
     return table_data
 
 
@@ -86,4 +110,11 @@ def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
     if output_mode == "oracle":
         for column in table_data["columns"]:
             column = add_additional_oracle_keys_in_column(column)
+    elif output_mode == "redshift":
+        for column in table_data["columns"]:
+            column, table_data = add_additional_redshift_keys_in_column(
+                column, table_data
+            )
+            if table_data.get("encode"):
+                column["encode"] = column["encode"] or table_data.get("encode")
     return table_data

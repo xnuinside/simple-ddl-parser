@@ -142,7 +142,7 @@ class Parser:
             file name as name for the target output file
         output_mode: change output mode to get information relative to specific dialect,
             for example, in output_mode='hql' you will see also in tables such information as
-            'external', 'stored_as', etc. Possible variants: ["mssql", "mysql", "oracle", "hql", "sql"]
+            'external', 'stored_as', etc. Possible variants: ["mssql", "mysql", "oracle", "hql", "sql", "redshift"]
         group_by_type: if you set True, output will be formed as Dict with keys ['tables',
                 'sequences', 'types', 'domains']
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each

@@ -42,6 +42,7 @@ columns_defenition = {
     "ARRAY": "ARRAY",
     ",": "COMMA",
     "DEFAULT": "DEFAULT",
+    "ENCODE": "ENCODE",
     "GENERATED": "GENERATED",
 }
 first_liners = {

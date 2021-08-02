@@ -1,3 +1,18 @@
+**v0.18.0**
+**Features**
+1. Added base support fot AWS Redshift SQL dialect. 
+Added support for ENCODE property in column.
+Added new --output-mode='redshift' that add to column 'encrypt' property by default.
+Also add table properties: distkeys, sortkey, diststyle, encode (table level encode), temp.
+
+Supported Redshift statements: SORTKEY, DISTSTYLE, DISTKEY, ENCODE
+
+CREATE TEMP / TEMPORARY TABLE
+
+syntax like with LIKE statement:
+
+create temp table tempevent(like event); 
+
 **v0.17.0**
 1. All dependencies were updated for the latest version.
 2. Added base support for CREATE [BIGFILE | SMALLFILE] [TEMPORARY] TABLESPACE 
