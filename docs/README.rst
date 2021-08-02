@@ -25,7 +25,7 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 Is it Stable?
 ^^^^^^^^^^^^^
 
-Yes, library already has about 3500+ usage per day - https://pypistats.org/packages/simple-ddl-parser.
+Yes, library already has about 5000+ usage per day - https://pypistats.org/packages/simple-ddl-parser.
 
 As maintainer I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
 
@@ -34,7 +34,7 @@ However, in process of adding support for new statements & features I see that o
 How does it work?
 ^^^^^^^^^^^^^^^^^
 
-Parser tested on different DDLs for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (Vertica, Oracle, Hive, MsSQL, etc.). You can check dialects sections after ``Supported Statements`` section to get more information that statements from dialects already supported by parser.
+Parser tested on different DDLs for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS Redshift, Oracle, Hive, MsSQL, etc.). You can check dialects sections after ``Supported Statements`` section to get more information that statements from dialects already supported by parser.
 **If you need some statement, that not supported by parser yet**\ : please provide DDL example & information about that is it SQL dialect or DB.
 
 Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
@@ -114,7 +114,7 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
-Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
+Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql", "redshift"]
 
 From python code
 ^^^^^^^^^^^^^^^^
@@ -354,6 +354,20 @@ Oracle
 * ENCRYPT column property [+ NO SALT, SALT, USING]
 * STORAGE column property
 
+AWS Redshift Dialect statements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+* ENCODE column property
+* SORTKEY, DISTSTYLE, DISTKEY, ENCODE table properties
+* 
+  CREATE TEMP / TEMPORARY TABLE
+
+* 
+  syntax like with LIKE statement:
+
+  ``create temp table tempevent(like event);``
+
 TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -381,6 +395,23 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 
 Changelog
 ---------
+
+**v0.18.0**
+**Features**
+
+
+#. Added base support fot AWS Redshift SQL dialect. 
+   Added support for ENCODE property in column.
+   Added new --output-mode='redshift' that add to column 'encrypt' property by default.
+   Also add table properties: distkeys, sortkey, diststyle, encode (table level encode), temp.
+
+Supported Redshift statements: SORTKEY, DISTSTYLE, DISTKEY, ENCODE
+
+CREATE TEMP / TEMPORARY TABLE
+
+syntax like with LIKE statement:
+
+create temp table tempevent(like event); 
 
 **v0.17.0**
 

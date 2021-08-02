@@ -1,6 +1,6 @@
 import re
 from copy import deepcopy
-from typing import Dict
+from typing import Dict, List
 
 from simple_ddl_parser.utils import remove_par
 
@@ -92,13 +92,19 @@ class Table:
         """
         # ID - for EXTERNAL
         # get schema & table name
-        external = False
+        p[0] = {}
         if p[2].upper() == "EXTERNAL":
-            external = True
-        p[0] = {"external": external}
+            p[0] = {"external": True}
+        if p[2].upper() == "TEMP" or p[2].upper() == "TEMPORARY":
+            p[0] = {"temp": True}
 
 
 class Column:
+    def p_column_property(self, p):
+        """c_property : ID ID"""
+        p_list = list(p)
+        p[0] = {"property": {p_list[1]: p_list[-1]}}
+
     def set_base_column_propery(self, p: list) -> Dict:
 
         if "." in list(p):
@@ -112,50 +118,105 @@ class Column:
             p[0] = {"name": p[1], "type": type_str, "size": size}
         return p[0]
 
+    @staticmethod
+    def parse_complex_type(p_list: List[str]) -> str:
+        # for complex <> types
+        start_index = 1
+        _type = ""
+        if isinstance(p_list[1], dict):
+            _type = p_list[1]["type"]
+            start_index = 2
+        for elem in p_list[start_index:]:
+            if isinstance(elem, list):
+                for _elem in elem:
+                    _type += f" {_elem.rstrip()}"
+            elif "ARRAY" in elem:
+                _type += elem
+            else:
+                _type += f" {elem}"
+        return _type
+
+    def p_c_type(self, p):
+        """c_type : ID
+        | ID ID
+        | ID DOT ID
+        | tid
+        | ARRAY
+        | c_type ARRAY
+        | c_type tid
+        """
+        p[0] = {}
+        p_list = remove_par(list(p))
+        _type = None
+
+        if len(p_list) == 2:
+            _type = p_list[-1]
+        elif isinstance(p[1], str) and p[1].lower() == "encode":
+            p[0] = {"property": {"encode": p[2]}}
+        else:
+            _type = self.parse_complex_type(p_list)
+        if _type:
+            if isinstance(p_list[-1], str) and p_list[-1].lower() == "distkey":
+                p[0] = {"property": {"distkey": True}}
+                _type = _type.split("distkey")[0]
+            _type = _type.strip().replace('" . "', '"."')
+            if "<" not in _type and "ARRAY" in _type:
+                if "[" not in p_list[-1]:
+                    _type = _type.replace("ARRAY", "[]")
+                else:
+                    _type = _type.replace("ARRAY", "")
+            elif "<" in _type and "[]" in _type:
+                _type = _type.replace("[]", "ARRAY")
+
+        p[0]["type"] = _type
+
+    @staticmethod
+    def get_size(p_list: List):
+        size = None
+        if p_list[-1].isnumeric():
+            size = int(p_list[-1])
+        else:
+            size = p_list[-1]
+        if len(p_list) != 3:
+            size = (int(p_list[-3]), int(p_list[-1]))
+        return size
+
     def p_column(self, p):
-        """column : ID ID
-        | ID ID DOT ID
-        | ID tid
+        """column : ID c_type
         | column comment
         | column LP ID RP
-        | column ID
+        | column LP ID RP c_type
         | column LP ID COMMA ID RP
-        | column ARRAY
-        | ID ARRAY tid
-        | column tid
-
+        | column LP ID COMMA ID RP c_type
         """
         p[0] = self.set_base_column_propery(p)
         p_list = remove_par(list(p))
-
-        if "[]" == p_list[-1]:
-            p[0]["type"] = p[0]["type"] + "[]"
-        elif "ARRAY" in p_list[-1]:
-            arr_split = p_list[-1].split("ARRAY")
-            append = "[]" if not arr_split[-1] else arr_split[-1]
-            p[0]["type"] = p[0]["type"] + append
-        elif isinstance(p_list[-1], list):
-            p[0] = self.get_complex_type(p, p_list)
-        elif "comment" in p_list[-1]:
-            p[0]["comment"] = p_list[-1]["comment"]
-        else:
-            match = re.match(r"[0-9]+", p_list[2])
-            if bool(match) or p_list[2] == "max":
-                if p_list[2].isnumeric():
-                    size = int(p_list[2])
-                else:
-                    size = p_list[2]
-                if len(p_list) == 3:
-                    p[0]["size"] = size
-                else:
-                    p[0]["size"] = (int(p_list[2]), int(p_list[4]))
-            elif isinstance(p_list[-1], str) and p_list[-1] not in p[0]["type"]:
-                p[0]["type"] += f" {p_list[-1]}"
+        if isinstance(p_list[-1], dict) and "type" in p_list[-1] and len(p_list) <= 3:
+            p[0]["type"] = p_list[-1]["type"]
+            if p_list[-1].get("property"):
+                for key, value in p_list[-1]["property"].items():
+                    p[0][key] = value
+        elif isinstance(p_list[-1], dict):
+            if p_list[-1].get("type"):
+                p[0]["type"] += f"{p_list[-1]['type'].strip()}"
+            elif p_list[-1].get("property"):
+                for key, value in p_list[-1]["property"].items():
+                    p[0][key] = value
+            p_list.pop(-1)
+        if (
+            not isinstance(p_list[-1], dict)
+            and bool(re.match(r"[0-9]+", p_list[-1]))
+            or p_list[-1] == "max"
+        ):
+            p[0]["size"] = self.get_size(p_list)
+        elif isinstance(p_list[-1], str) and p_list[-1] not in p[0]["type"]:
+            p[0]["type"] += f" {p_list[-1]}"
 
     def p_defcolumn(self, p):
         """defcolumn : column
         | defcolumn comment
         | defcolumn null
+        | defcolumn encode
         | defcolumn PRIMARY KEY
         | defcolumn UNIQUE
         | defcolumn check_ex
@@ -164,6 +225,7 @@ class Column:
         | defcolumn foreign ref
         | defcolumn encrypt
         | defcolumn generated
+        | defcolumn c_property
         """
         pk = False
         nullable = True
@@ -184,6 +246,10 @@ class Column:
             references = p_list[-1]["references"]
         for item in p[1:]:
             if isinstance(item, dict):
+                if "property" in item:
+                    for key, value in item["property"].items():
+                        p[0][key] = value
+                    del item["property"]
                 p[0].update(item)
 
         p[0]["references"] = p[0].get("references", references)
@@ -194,6 +260,8 @@ class Column:
         )
         p[0]["default"] = p[0].get("default", default)
         p[0]["check"] = p[0].get("check", check)
+        if isinstance(p_list[-1], dict) and p_list[-1].get("encode"):
+            p[0]["encode"] = p[0].get("encode", p_list[-1]["encode"])
         if p[0]["check"]:
             p[0]["check"] = " ".join(p[0]["check"])
 
@@ -422,6 +490,7 @@ class BaseSQL(
         | expr COMMA constraint pkey
         | expr COMMA constraint foreign ref
         | expr COMMA foreign ref
+        | expr encode
         | expr RP
         """
         p[0] = p[1]
@@ -496,10 +565,12 @@ class BaseSQL(
     def p_expression_like_table(self, p):
         """expr : table_name LIKE ID
         | table_name LIKE ID DOT ID
+        | table_name LP LIKE ID DOT ID RP
+        | table_name LP LIKE ID RP
         """
         # get schema & table name
-        p_list = list(p)
-        if len(p) > 4:
+        p_list = remove_par(list(p))
+        if len(p_list) > 4:
             if "." in p:
                 schema = p_list[-3]
                 table_name = p_list[-1]
