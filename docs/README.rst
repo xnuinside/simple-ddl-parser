@@ -114,7 +114,7 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
-Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql", "redshift"]
+Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql", "redshift", "snowflake"]
 
 From python code
 ^^^^^^^^^^^^^^^^
@@ -287,7 +287,7 @@ Supported Statements
 
 
 * 
-  CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED
+  CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED, COLLATE
 
 * 
   STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
@@ -323,7 +323,7 @@ Supported Statements
   CREATE [SMALLFILE | BIGFILE] [TEMPORARY] TABLESPACE statement
 
 * 
-  CREATE DATABASE
+  CREATE DATABASE + Properties parsing
 
 HQL Dialect statements
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -368,6 +368,14 @@ AWS Redshift Dialect statements
 
   ``create temp table tempevent(like event);``
 
+Snowflake Dialect statements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+* CREATE .. CLONE statements for table, database and schema
+* CREATE TABLE .. CLUSTER BY ..
+* CONSTRAINT .. [NOT] ENFORCED 
+
 TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -396,10 +404,23 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 Changelog
 ---------
 
-**v0.18.0**
+**v0.19.0**
 **Features**
 
 
+#. Added support for base Snowflake SQL Dialect.
+   Added new --output-mode='snowflake' (add "clone" key)
+
+Added support for CREATE .. CLONE with same behaviour as CREATE .. LIKE
+Added support for CREATE .. CLONE for schemas and database - displayed in output as {"clone": {"from": ... }}
+CREATE TABLE .. CLUSTER BY ..
+CONSTRAINT .. [NOT] ENFORCED (value stored in 'primary_key_enforced')
+
+
+#. in CREATE DATABASE properties that goes after name like key=value now parsed valid. Check examples in tests
+#. Added support for varchar COLLATE column property
+   **v0.18.0**
+   **Features**
 #. Added base support fot AWS Redshift SQL dialect. 
    Added support for ENCODE property in column.
    Added new --output-mode='redshift' that add to column 'encrypt' property by default.

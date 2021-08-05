@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Union
 
 from simple_ddl_parser.output import dialects as d
 
-output_modes = ["mssql", "mysql", "oracle", "hql", "sql"]
+output_modes = ["mssql", "mysql", "oracle", "hql", "sql", "snowflake", "redshift"]
 
 
 def get_table_from_tables_data(

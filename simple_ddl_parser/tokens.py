@@ -3,6 +3,8 @@ defenition_statements = {
     "DROP": "DROP",
     "CREATE": "CREATE",
     "TABLE": "TABLE",
+    "DATABASE": "DATABASE",
+    "SCHEMA": "SCHEMA",
     "ALTER": "ALTER",
     "TYPE": "TYPE",
     "DOMAIN": "DOMAIN",
@@ -19,6 +21,7 @@ common_statements = {
     "ADD": "ADD",
     "AS": "AS",
     "LIKE": "LIKE",
+    "CLONE": "CLONE",
     "DEFERRABLE": "DEFERRABLE",
     "INITIALLY": "INITIALLY",
     "IF": "IF",
@@ -42,6 +45,8 @@ columns_defenition = {
     "ARRAY": "ARRAY",
     ",": "COMMA",
     "DEFAULT": "DEFAULT",
+    "COLLATE": "COLLATE",
+    "ENFORCED": "ENFORCED",
     "ENCODE": "ENCODE",
     "GENERATED": "GENERATED",
 }
@@ -67,6 +72,7 @@ after_columns_tokens = {
     "KEYS": "KEYS",
     "SERDE": "SERDE",
     "WITH": "WITH",
+    "CLUSTER": "CLUSTER",
     "SERDEPROPERTIES": "SERDEPROPERTIES",
     # oracle
     "STORAGE": "STORAGE",

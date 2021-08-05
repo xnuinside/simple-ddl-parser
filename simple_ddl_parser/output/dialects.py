@@ -58,9 +58,18 @@ def add_additional_redshift_keys(table_data: Dict) -> Dict:
     return table_data
 
 
-def add_additional_oracle_keys_in_column(table_data: Dict) -> Dict:
-    table_data.update({"encrypt": None})
+def add_additional_snowflake_keys(table_data: Dict) -> Dict:
+    table_data.update({"clone": None, "primary_key_enforced": None})
     return table_data
+
+
+def add_additional_oracle_keys_in_column(column_data: Dict) -> Dict:
+    column_data.update({"encrypt": None})
+    return column_data
+
+
+def add_additional_snowflake_keys_in_column(column_data: Dict) -> Dict:
+    return column_data
 
 
 def add_additional_redshift_keys_in_column(column_data: Dict, table_data: Dict) -> Dict:
@@ -96,6 +105,8 @@ def populate_dialects_table_data(output_mode: str, table_data: Dict) -> Dict:
         table_data = add_additional_oracle_keys(table_data)
     elif output_mode == "redshift":
         table_data = add_additional_redshift_keys(table_data)
+    elif output_mode == "snowflake":
+        table_data = add_additional_snowflake_keys(table_data)
     return table_data
 
 
@@ -110,8 +121,11 @@ def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
     if output_mode == "oracle":
         for column in table_data["columns"]:
             column = add_additional_oracle_keys_in_column(column)
-    elif output_mode == "redshift":
+    elif output_mode == "snowflake":
         for column in table_data["columns"]:
+            column = add_additional_snowflake_keys_in_column(column)
+    elif output_mode == "redshift":
+        for column in table_data.get("columns", []):
             column, table_data = add_additional_redshift_keys_in_column(
                 column, table_data
             )

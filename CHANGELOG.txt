@@ -1,3 +1,16 @@
+**v0.19.0**
+**Features**
+
+1. Added support for base Snowflake SQL Dialect.
+Added new --output-mode='snowflake' (add "clone" key)
+
+Added support for CREATE .. CLONE with same behaviour as CREATE .. LIKE
+Added support for CREATE .. CLONE for schemas and database - displayed in output as {"clone": {"from": ... }}
+CREATE TABLE .. CLUSTER BY ..
+CONSTRAINT .. [NOT] ENFORCED (value stored in 'primary_key_enforced')
+
+2. in CREATE DATABASE properties that goes after name like key=value now parsed valid. Check examples in tests
+3. Added support for varchar COLLATE column property
 **v0.18.0**
 **Features**
 1. Added base support fot AWS Redshift SQL dialect. 
