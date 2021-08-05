@@ -367,8 +367,8 @@ Added support for CREATE .. CLONE for schemas and database - displayed in output
 CREATE TABLE .. CLUSTER BY ..
 CONSTRAINT .. [NOT] ENFORCED (value stored in 'primary_key_enforced')
 
-2. in CREATE DATABASE properties that goes after name like key=vlaue now parsed valid. Check examples in tests
-
+2. in CREATE DATABASE properties that goes after name like key=value now parsed valid. Check examples in tests
+3. Added support for varchar COLLATE column property
 **v0.18.0**
 **Features**
 1. Added base support fot AWS Redshift SQL dialect. 

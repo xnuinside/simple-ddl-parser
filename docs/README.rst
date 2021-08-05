@@ -417,12 +417,10 @@ CREATE TABLE .. CLUSTER BY ..
 CONSTRAINT .. [NOT] ENFORCED (value stored in 'primary_key_enforced')
 
 
-#. in CREATE DATABASE properties that goes after name like key=vlaue now parsed valid. Check examples in tests
-
-**v0.18.0**
-**Features**
-
-
+#. in CREATE DATABASE properties that goes after name like key=value now parsed valid. Check examples in tests
+#. Added support for varchar COLLATE column property
+   **v0.18.0**
+   **Features**
 #. Added base support fot AWS Redshift SQL dialect. 
    Added support for ENCODE property in column.
    Added new --output-mode='redshift' that add to column 'encrypt' property by default.
