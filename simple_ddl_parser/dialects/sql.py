@@ -14,11 +14,22 @@ class AfterColumns:
 
 
 class Database:
-    def p_expression_create_database(self, p):
-        """expr : expr CREATE ID ID """
+    def p_database_base(self, p):
+        """database_base : CREATE DATABASE ID
+        | database_base clone
+        """
         p[0] = p[1]
         p_list = list(p)
-        p[0]["database_name"] = p_list[-1]
+        if isinstance(p_list[-1], dict):
+            p[0].update(p_list[-1])
+        else:
+            p[0]["database_name"] = p_list[-1]
+
+    def p_expression_create_database(self, p):
+        """expr : expr database_base"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0].update(p_list[-1])
 
 
 class TableSpaces:
@@ -221,6 +232,8 @@ class Column:
         | defcolumn UNIQUE
         | defcolumn check_ex
         | defcolumn def
+        | defcolumn collate
+        | defcolumn enforced
         | defcolumn ref
         | defcolumn foreign ref
         | defcolumn encrypt
@@ -294,22 +307,39 @@ class Column:
 class Schema:
     def p_expression_schema(self, p):
         """expr : create
-        | create ID
+        | expr ID
+        | expr clone
         """
         p[0] = p[1]
-        if len(p) > 2:
+        p_list = list(p)
+
+        if isinstance(p_list[-1], dict):
+            p[0].update(p_list[-1])
+        elif len(p) > 2:
             p[0]["authorization"] = p[2]
 
     def p_create(self, p):
-        """create : CREATE ID ID ID
-        | CREATE ID ID
-        | CREATE ID IF NOT EXISTS ID
+        """create : CREATE SCHEMA ID ID
+        | CREATE SCHEMA ID ID ID
+        | CREATE SCHEMA ID
+        | CREATE SCHEMA IF NOT EXISTS ID
+        | CREATE DATABASE ID
+        | create ID ID ID
+        | create ID ID STRING
         """
         p_list = list(p)
-        if p_list[-2] == "AUTHORIZATION":
-            p[0] = {f"{p[2].lower()}_name": p_list[-1], "authorization": p_list[-1]}
-        elif p_list[-1] == "AUTHORIZATION":
-            p[0] = {f"{p[2].lower()}_name": p_list[-2], "authorization": None}
+        auth = "AUTHORIZATION"
+        if isinstance(p_list[1], dict):
+            p[0] = p_list[1]
+            if not p[0].get("properties"):
+                p[0]["properties"] = {p_list[-3]: p_list[-1]}
+            else:
+                p[0]["properties"].update({p_list[-3]: p_list[-1]})
+        elif auth in p_list:
+            if p_list[3] != auth:
+                p[0] = {f"{p[2].lower()}_name": p_list[3], auth.lower(): p_list[-1]}
+            elif p_list[3] == auth:
+                p[0] = {f"{p[2].lower()}_name": p_list[4], auth.lower(): p_list[4]}
         else:
             p[0] = {f"{p[2].lower()}_name": p_list[-1]}
 
@@ -413,7 +443,7 @@ class Domain:
 
 
 class BaseSQL(
-    Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces, Database
+    Database, Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces
 ):
     def p_id_equals(self, p):
         """id_equals : ID ID ID
@@ -475,6 +505,17 @@ class BaseSQL(
                 "clustered": clustered,
             }
 
+    def extract_check_data(self, p, p_list):
+        if isinstance(p_list[-1]["check"], list):
+            check = " ".join(p_list[-1]["check"])
+            if isinstance(check, str):
+                check = {"constraint_name": None, "statement": check}
+        else:
+            check = p_list[-1]["check"]
+            p[0] = self.set_constraint(p[0], "checks", check, check["constraint_name"])
+        p[0]["checks"].append(check)
+        return p[0]
+
     def p_expression_table(self, p):
         """expr : table_name defcolumn
         | table_name LP defcolumn
@@ -488,8 +529,10 @@ class BaseSQL(
         | expr COMMA statem_by_id
         | expr COMMA constraint uniq
         | expr COMMA constraint pkey
+        | expr COMMA constraint pkey enforced
         | expr COMMA constraint foreign ref
         | expr COMMA foreign ref
+        | expr COMMA table_properties
         | expr encode
         | expr RP
         """
@@ -499,16 +542,10 @@ class BaseSQL(
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
             elif "check" in p_list[-1]:
-                if isinstance(p_list[-1]["check"], list):
-                    check = " ".join(p_list[-1]["check"])
-                    if isinstance(check, str):
-                        check = {"constraint_name": None, "statement": check}
-                else:
-                    check = p_list[-1]["check"]
-                    p[0] = self.set_constraint(
-                        p[0], "checks", check, check["constraint_name"]
-                    )
-                p[0]["checks"].append(check)
+                p[0] = self.extract_check_data(p, p_list)
+            elif "enforced" in p_list[-1]:
+                p_list[-2].update(p_list[-1])
+                p[0].update({"primary_key_enforced": p_list[-1]["enforced"]})
             else:
                 p[0].update(p_list[-1])
 
@@ -562,11 +599,17 @@ class BaseSQL(
         target_dict["constraints"][_type].append(constraint)
         return target_dict
 
+    def p_likke(self, p):
+        """likke : LIKE
+        | CLONE
+        """
+        p[0] = None
+
     def p_expression_like_table(self, p):
-        """expr : table_name LIKE ID
-        | table_name LIKE ID DOT ID
-        | table_name LP LIKE ID DOT ID RP
-        | table_name LP LIKE ID RP
+        """expr : table_name likke ID
+        | table_name likke ID DOT ID
+        | table_name LP likke ID DOT ID RP
+        | table_name LP likke ID RP
         """
         # get schema & table name
         p_list = remove_par(list(p))
@@ -583,7 +626,7 @@ class BaseSQL(
     def p_table_name(self, p):
         """table_name : create_table ID DOT ID
         | create_table ID
-        | table_name LIKE ID
+        | table_name likke ID
         | table_name DOT ID
         """
         # get schema & table name
@@ -769,6 +812,20 @@ class BaseSQL(
                     p[0]["default"] = p[0]["default"].replace("))", ")")
         else:
             p[0] = {"default": default}
+
+    def p_enforced(self, p):
+        """enforced : ENFORCED
+        | NOT ENFORCED
+        """
+        p_list = list(p)
+        p[0] = {"enforced": len(p_list) == 1}
+
+    def p_collate(self, p):
+        """collate : COLLATE ID
+        | COLLATE STRING
+        """
+        p_list = list(p)
+        p[0] = {"collate": p_list[-1]}
 
     def p_constraint(self, p):
         """

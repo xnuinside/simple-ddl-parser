@@ -1771,3 +1771,56 @@ def test_create_database():
         ],
     }
     assert expected == result
+
+
+def test_collate():
+    ddl = """
+    CREATE TABLE test1 (
+        a text COLLATE "de_DE",
+        b text COLLATE "es_ES"
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "collate": '"de_DE"',
+                        "default": None,
+                        "name": "a",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "text",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "collate": '"es_ES"',
+                        "default": None,
+                        "name": "b",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "text",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "test1",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
