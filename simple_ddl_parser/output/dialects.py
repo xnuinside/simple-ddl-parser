@@ -45,6 +45,12 @@ def add_additional_oracle_keys(table_data: Dict) -> Dict:
     return table_data
 
 
+def update_bigquery_output(table_data: Dict) -> Dict:
+    table_data["dataset"] = table_data["schema"]
+    del table_data["schema"]
+    return table_data
+
+
 def add_additional_redshift_keys(table_data: Dict) -> Dict:
     table_data.update(
         {
@@ -97,20 +103,25 @@ def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
 
 
 def populate_dialects_table_data(output_mode: str, table_data: Dict) -> Dict:
-    if output_mode == "hql":
-        table_data = add_additional_hql_keys(table_data)
-    elif output_mode in ["mssql", "mysql"]:
-        table_data = add_additional_mssql_keys(table_data)
-    elif output_mode == "oracle":
-        table_data = add_additional_oracle_keys(table_data)
-    elif output_mode == "redshift":
-        table_data = add_additional_redshift_keys(table_data)
-    elif output_mode == "snowflake":
-        table_data = add_additional_snowflake_keys(table_data)
+
+    mehtod_mapper = {
+        "hql": add_additional_hql_keys,
+        "mssql": add_additional_mssql_keys,
+        "mysql": add_additional_mssql_keys,
+        "oracle": add_additional_oracle_keys,
+        "redshift": add_additional_redshift_keys,
+        "snowflake": add_additional_snowflake_keys,
+    }
+
+    method = mehtod_mapper.get(output_mode)
+
+    if method:
+        table_data = method(table_data)
+
     return table_data
 
 
-def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
+def key_cleaning(table_data: Dict, output_mode: str) -> Dict:
     if output_mode != "hql":
         table_data = clean_up_output(table_data, sql_clean_up_list)
     else:
@@ -118,9 +129,19 @@ def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
         # todo: need to figure out how workaround it normally
         if "_ddl_parser_comma_only_str" == table_data["fields_terminated_by"]:
             table_data["fields_terminated_by"] = ","
+    return table_data
+
+
+def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
+    key_cleaning(table_data, output_mode)
+    update_mappers_for_table_properties = {"bigquery": update_bigquery_output}
+    update_table_prop = update_mappers_for_table_properties.get(output_mode)
+    if update_table_prop:
+        table_data = update_table_prop(table_data)
     if output_mode == "oracle":
         for column in table_data["columns"]:
             column = add_additional_oracle_keys_in_column(column)
+
     elif output_mode == "snowflake":
         for column in table_data["columns"]:
             column = add_additional_snowflake_keys_in_column(column)

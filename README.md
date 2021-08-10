@@ -337,11 +337,12 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
+-1. Add base support for BigQuery DDL dialect.
+0. Add support for ALTER TABLE ... ADD COLUMN
 1. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
-2. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
-3. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
-4. Add support for COMMENT ON statement
-5. Add support for case COMMENT column after DEFAULT word like `col1 int DEFAULT '1' COMMENT 'Integer Column'`
+2. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
+3. Add support for COMMENT ON statement
+4. Add support for case COMMENT column after DEFAULT word like `col1 int DEFAULT '1' COMMENT 'Integer Column'`
 
 ## non-feature todo
 

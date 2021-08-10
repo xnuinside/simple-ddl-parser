@@ -5,7 +5,16 @@ from typing import Dict, List, Tuple, Union
 
 from simple_ddl_parser.output import dialects as d
 
-output_modes = ["mssql", "mysql", "oracle", "hql", "sql", "snowflake", "redshift"]
+output_modes = [
+    "mssql",
+    "mysql",
+    "oracle",
+    "hql",
+    "sql",
+    "snowflake",
+    "redshift",
+    "bigquery",
+]
 
 
 def get_table_from_tables_data(
@@ -84,10 +93,13 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
 
 
 def set_default_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
+    print(statement)
     for column in target_table["columns"]:
-        for column_name in statement["default"]["columns"]:
-            if column["name"] == column_name:
-                column["default"] = statement["default"]["value"]
+        print(statement["default"]["columns"])
+        if statement["default"]["columns"]:
+            for column_name in statement["default"]["columns"]:
+                if column["name"] == column_name:
+                    column["default"] = statement["default"]["value"]
     return target_table
 
 
