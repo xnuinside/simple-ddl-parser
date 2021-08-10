@@ -1824,3 +1824,56 @@ def test_collate():
         "types": [],
     }
     assert expected == result
+
+
+def test_tabs_not_fails_ddl():
+
+    ddl = """
+    CREATE TABLE IF NOT EXISTS schema.table
+    (
+        field_1\tSTRING,
+        field_2\tTIMESTAMP
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "field_1",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "field_2",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "TIMESTAMP",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": "schema",
+                "table_name": "table",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

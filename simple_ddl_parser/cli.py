@@ -1,10 +1,10 @@
 import argparse
 import os
+import pprint
 import sys
+
 from simple_ddl_parser import parse_from_file
 from simple_ddl_parser.output.common import output_modes
-
-import pprint
 
 
 def version(**kwargs):
@@ -59,7 +59,7 @@ def run_for_file(args):
 
 
 def correct_extension(file_name: str) -> bool:
-    ext = ["ddl", "sql", "hql", ""]
+    ext = ["ddl", "sql", "hql", "", "bql"]
     split_name = file_name.split(".")
     if len(split_name) >= 2:
         ext_file = split_name[1]
