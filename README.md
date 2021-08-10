@@ -357,6 +357,14 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
+**v0.19.1**
+Fixes:
+1. Issue with '\t' reported in https://github.com/xnuinside/simple-ddl-parser/issues/53
+
+Features:
+1. Added base for future BigQuery support: added output_mode="bigquery". Pay attention that there is no schemas in BigQuery, so schemas are Datasets.
+
+
 **v0.19.0**
 **Features**
 
@@ -370,6 +378,7 @@ CONSTRAINT .. [NOT] ENFORCED (value stored in 'primary_key_enforced')
 
 2. in CREATE DATABASE properties that goes after name like key=value now parsed valid. Check examples in tests
 3. Added support for varchar COLLATE column property
+
 **v0.18.0**
 **Features**
 1. Added base support fot AWS Redshift SQL dialect. 

@@ -380,8 +380,10 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+
+
+#. Add support for ALTER TABLE ... ADD COLUMN
 #. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
-#. Add support for MEMBER PROCEDURE, STATIC FUNCTION, CONSTRUCTOR FUNCTION,  in TYPE
 #. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 #. Add support for COMMENT ON statement
 #. Add support for case COMMENT column after DEFAULT word like ``col1 int DEFAULT '1' COMMENT 'Integer Column'``
@@ -404,6 +406,17 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 Changelog
 ---------
 
+**v0.19.1**
+Fixes:
+
+
+#. Issue with '\t' reported in https://github.com/xnuinside/simple-ddl-parser/issues/53
+
+Features:
+
+
+#. Added base for future BigQuery support: added output_mode="bigquery". Pay attention that there is no schemas in BigQuery, so schemas are Datasets.
+
 **v0.19.0**
 **Features**
 
@@ -419,8 +432,11 @@ CONSTRAINT .. [NOT] ENFORCED (value stored in 'primary_key_enforced')
 
 #. in CREATE DATABASE properties that goes after name like key=value now parsed valid. Check examples in tests
 #. Added support for varchar COLLATE column property
-   **v0.18.0**
-   **Features**
+
+**v0.18.0**
+**Features**
+
+
 #. Added base support fot AWS Redshift SQL dialect. 
    Added support for ENCODE property in column.
    Added new --output-mode='redshift' that add to column 'encrypt' property by default.
