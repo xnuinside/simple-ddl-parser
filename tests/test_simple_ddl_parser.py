@@ -1877,3 +1877,17 @@ def test_tabs_not_fails_ddl():
         "types": [],
     }
     assert expected == result
+
+
+def test_quotes():
+        
+    ddl = """
+    CREATE TABLE IF NOT EXISTS `shema`.table
+    (
+        field_1        BIGINT,
+        `partition`   STRING,
+    );
+    """
+    parse_result = DDLParser(ddl).run(output_mode="hql")
+    expected = [{'columns': [{'name': 'field_1', 'type': 'BIGINT', 'size': None, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}, {'name': '`partition`', 'type': 'STRING', 'size': None, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [], 'tablespace': None, 'stored_as': None, 'location': None, 'comment': None, 'row_format': None, 'fields_terminated_by': None, 'lines_terminated_by': None, 'map_keys_terminated_by': None, 'collection_items_terminated_by': None, 'external': False, 'schema': '`shema`', 'table_name': 'table'}]
+    assert expected == parse_result

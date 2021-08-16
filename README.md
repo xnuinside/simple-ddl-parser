@@ -357,6 +357,9 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
+**v0.19.2**
+1. Added support for ` quotes in column & tables names
+
 **v0.19.1**
 Fixes:
 1. Issue with '\t' reported in https://github.com/xnuinside/simple-ddl-parser/issues/53
