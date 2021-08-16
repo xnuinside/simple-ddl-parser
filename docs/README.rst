@@ -406,6 +406,11 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 Changelog
 ---------
 
+**v0.19.2**
+
+
+#. Added support for ` quotes in column & tables names
+
 **v0.19.1**
 Fixes:
 
