@@ -1,3 +1,6 @@
+**v0.19.3**
+1. Added support for PARTITION BY (previously was only PARTITIONED BY from HQL)
+
 **v0.19.2**
 1. Added support for ` quotes in column & tables names
 

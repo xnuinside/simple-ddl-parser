@@ -296,7 +296,7 @@ Supported Statements
   ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR
 
 * 
-  PARTITIONED BY statement
+  PARTITION BY statement
 
 * 
   CREATE SEQUENCE with words: INCREMENT, START, MINVALUE, MAXVALUE, CACHE
@@ -405,6 +405,11 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 
 Changelog
 ---------
+
+**v0.19.3**
+
+
+#. Added support for PARTITION BY (previously was only PARTITIONED BY from HQL)
 
 **v0.19.2**
 

@@ -132,127 +132,78 @@ def test_partitioned_by_hql():
 def test_partitioned_by_postgresql():
 
     ddl = """
-    CREATE EXTERNAL TABLE IF NOT EXISTS database.table_name
-    (
-        day_long_nm     string,
-        calendar_dt     date,
-        source_batch_id string,
-        field_qty       decimal(10, 0),
-        field_bool      boolean,
-        field_float     float,
-        create_tmst     timestamp,
-        field_double    double,
-        field_long      bigint
-    ) PARTITIONED BY (batch_id)
+CREATE TABLE measurement (
+    city_id         int not null,
+    logdate         date not null,
+    peaktemp        int,
+    unitsales       int
+) PARTITION BY RANGE (logdate);
 
     """
 
-    result = DDLParser(ddl).run()
+    result = DDLParser(ddl).run(group_by_type=True)
 
-    expected = [
-        {
-            "columns": [
-                {
-                    "name": "day_long_nm",
-                    "type": "string",
-                    "size": None,
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-                {
-                    "name": "calendar_dt",
-                    "type": "date",
-                    "size": None,
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-                {
-                    "name": "source_batch_id",
-                    "type": "string",
-                    "size": None,
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-                {
-                    "name": "field_qty",
-                    "type": "decimal",
-                    "size": (10, 0),
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-                {
-                    "name": "field_bool",
-                    "type": "boolean",
-                    "size": None,
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-                {
-                    "name": "field_float",
-                    "type": "float",
-                    "size": None,
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-                {
-                    "name": "create_tmst",
-                    "type": "timestamp",
-                    "size": None,
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-                {
-                    "name": "field_double",
-                    "type": "double",
-                    "size": None,
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-                {
-                    "name": "field_long",
-                    "type": "bigint",
-                    "size": None,
-                    "references": None,
-                    "unique": False,
-                    "nullable": True,
-                    "default": None,
-                    "check": None,
-                },
-            ],
-            "primary_key": [],
-            "alter": {},
-            "checks": [],
-            "index": [],
-            "schema": "database",
-            "table_name": "table_name",
-            "tablespace": None,
-            "partitioned_by": ["batch_id"],
-        }
-    ]
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "city_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "logdate",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "date",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "peaktemp",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "unitsales",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partition_by": {"columns": ["logdate"], "type": "RANGE"},
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "measurement",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
 
     assert expected == result
 
