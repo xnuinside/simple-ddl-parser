@@ -275,7 +275,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR
 
-- PARTITIONED BY statement
+- PARTITION BY statement
 
 - CREATE SEQUENCE with words: INCREMENT, START, MINVALUE, MAXVALUE, CACHE
 
@@ -357,6 +357,9 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
+**v0.19.3**
+1. Added support for PARTITION BY (previously was only PARTITIONED BY from HQL)
+
 **v0.19.2**
 1. Added support for ` quotes in column & tables names
 

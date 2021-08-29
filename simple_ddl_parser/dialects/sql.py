@@ -6,11 +6,16 @@ from simple_ddl_parser.utils import remove_par
 
 
 class AfterColumns:
-    def p_expression_partitioned_by(self, p):
-        """expr : expr PARTITIONED BY LP pid RP"""
+    def p_expression_partition_by(self, p):
+        """expr : expr PARTITION BY LP pid RP
+        | expr PARTITION BY ID LP pid RP"""
         p[0] = p[1]
         p_list = list(p)
-        p[0]["partitioned_by"] = p_list[-2]
+        _type = None
+        if p[4].lower() != "(":
+            _type = p[4]
+
+        p[0]["partition_by"] = {"columns": p_list[-2], "type": _type}
 
 
 class Database:

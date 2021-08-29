@@ -59,6 +59,7 @@ common_statements.update(first_liners)
 defenition_statements.update(common_statements)
 after_columns_tokens = {
     "PARTITIONED": "PARTITIONED",
+    "PARTITION": "PARTITION",
     "BY": "BY",
     # hql
     "STORED": "STORED",

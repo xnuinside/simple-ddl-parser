@@ -402,3 +402,104 @@ Storage ( Initial 5m Next 5m Maxextents Unlimited )
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="oracle")
     assert expected == result
+
+
+def test_partition_by():
+    ddl = """
+CREATE TABLE order_items
+    ( order_id           NUMBER(12) NOT NULL,
+      line_item_id       NUMBER(3)  NOT NULL,
+      product_id         NUMBER(6)  NOT NULL,
+      unit_price         NUMBER(8,2),
+      quantity           NUMBER(8),
+      CONSTRAINT order_items_fk
+      FOREIGN KEY(order_id) REFERENCES orders(order_id)
+    )
+    PARTITION BY REFERENCE(order_items_fk);
+"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "order_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": 12,
+                        "type": "NUMBER",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "line_item_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": 3,
+                        "type": "NUMBER",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "product_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": 6,
+                        "type": "NUMBER",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "unit_price",
+                        "nullable": True,
+                        "references": None,
+                        "size": (8, 2),
+                        "type": "NUMBER",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "quantity",
+                        "nullable": True,
+                        "references": None,
+                        "size": 8,
+                        "type": "NUMBER",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "references": [
+                        {
+                            "columns": ["order_id"],
+                            "constraint_name": "order_items_fk",
+                            "deferrable_initially": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "schema": None,
+                            "table": "orders",
+                        }
+                    ]
+                },
+                "index": [],
+                "partition_by": {"columns": ["order_items_fk"], "type": "REFERENCE"},
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "order_items",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
