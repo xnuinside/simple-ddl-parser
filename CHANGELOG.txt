@@ -1,4 +1,4 @@
-**v0.19.3**
+**v0.19.4**
 1. Added support for PARTITION BY (previously was only PARTITIONED BY from HQL)
 
 **v0.19.2**

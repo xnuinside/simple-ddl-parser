@@ -1044,3 +1044,75 @@ def test_tablespace_with_properties():
     """
     result = DDLParser(ddl).run(group_by_type=True)
     assert expected == result
+
+
+def test_partition_by_without_parths():
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "table_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT64",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "a_column",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "another_column",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "BOOLEAN",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "a_partion_column",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partition_by": {"columns": ["a_partion_column"], "type": None},
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "table_name",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+
+    ddl = """
+    CREATE TABLE table_name (
+    table_id INT64, a_column STRING,
+    another_column BOOLEAN, a_partion_column DATE ) PARTITION BY a_partion_column;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result

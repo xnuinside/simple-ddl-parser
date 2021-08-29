@@ -8,14 +8,19 @@ from simple_ddl_parser.utils import remove_par
 class AfterColumns:
     def p_expression_partition_by(self, p):
         """expr : expr PARTITION BY LP pid RP
-        | expr PARTITION BY ID LP pid RP"""
+        | expr PARTITION BY ID LP pid RP
+        | expr PARTITION BY pid
+        | expr PARTITION BY ID pid"""
         p[0] = p[1]
         p_list = list(p)
         _type = None
-        if p[4].lower() != "(":
+        if isinstance(p[4], list):
+            columns = p[4]
+        else:
+            columns = p_list[-2]
+        if isinstance(p[4], str) and p[4].lower() != "(":
             _type = p[4]
-
-        p[0]["partition_by"] = {"columns": p_list[-2], "type": _type}
+        p[0]["partition_by"] = {"columns": columns, "type": _type}
 
 
 class Database:
