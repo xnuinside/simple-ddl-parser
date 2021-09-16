@@ -93,9 +93,7 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
 
 
 def set_default_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
-    print(statement)
     for column in target_table["columns"]:
-        print(statement["default"]["columns"])
         if statement["default"]["columns"]:
             for column_name in statement["default"]["columns"]:
                 if column["name"] == column_name:

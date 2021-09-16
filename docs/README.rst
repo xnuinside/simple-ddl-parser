@@ -386,7 +386,6 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 #. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 #. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 #. Add support for COMMENT ON statement
-#. Add support for case COMMENT column after DEFAULT word like ``col1 int DEFAULT '1' COMMENT 'Integer Column'``
 
 non-feature todo
 ----------------
@@ -406,7 +405,13 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 Changelog
 ---------
 
-**v0.19.3**
+**v0.19.5**
+Fixes:
+
+
+#. Fixed issues with COMMENT statement in column definitions. Add bunch of tests, now they expect working ok.
+
+**v0.19.4**
 
 
 #. Added support for PARTITION BY (previously was only PARTITIONED BY from HQL)
