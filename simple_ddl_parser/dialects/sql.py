@@ -220,6 +220,8 @@ class Column:
         elif isinstance(p_list[-1], dict):
             if p_list[-1].get("type"):
                 p[0]["type"] += f"{p_list[-1]['type'].strip()}"
+            elif p_list[-1].get("comment"):
+                p[0].update(p_list[-1])
             elif p_list[-1].get("property"):
                 for key, value in p_list[-1]["property"].items():
                     p[0][key] = value
@@ -1111,7 +1113,7 @@ class BaseSQL(
         p[0] = {"primary_key": p_list[-1]}
 
     def p_comment(self, p):
-        """comment : ID STRING"""
+        """comment : COMMENT STRING"""
         p_list = remove_par(list(p))
         p[0] = {"comment": p_list[-1]}
 

@@ -342,7 +342,6 @@ You also can provide a path where you want to have a dumps with schema with argu
 1. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 2. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 3. Add support for COMMENT ON statement
-4. Add support for case COMMENT column after DEFAULT word like `col1 int DEFAULT '1' COMMENT 'Integer Column'`
 
 ## non-feature todo
 
@@ -357,7 +356,13 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
-**v0.19.3**
+**v0.19.5**
+Fixes:
+
+1. Fixed issues with COMMENT statement in column definitions. Add bunch of tests, now they expect working ok.
+
+
+**v0.19.4**
 1. Added support for PARTITION BY (previously was only PARTITIONED BY from HQL)
 
 **v0.19.2**

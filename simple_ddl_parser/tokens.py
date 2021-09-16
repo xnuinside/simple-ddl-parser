@@ -27,15 +27,12 @@ common_statements = {
     "IF": "IF",
     "NOT": "NOT",
     "EXISTS": "EXISTS",
-    "UNIQUE": "UNIQUE",
     "ON": "ON",
     "FOR": "FOR",
     "ENCRYPT": "ENCRYPT",
     "SALT": "SALT",
     "NO": "NO",
     "USING": "USING",
-    "PRIMARY": "PRIMARY",
-    "CHECK": "CHECK",
 }
 
 columns_defenition = {
@@ -49,10 +46,14 @@ columns_defenition = {
     "ENFORCED": "ENFORCED",
     "ENCODE": "ENCODE",
     "GENERATED": "GENERATED",
+    "COMMENT": "COMMENT",
 }
 first_liners = {
     "CONSTRAINT": "CONSTRAINT",
     "FOREIGN": "FOREIGN",
+    "PRIMARY": "PRIMARY",
+    "UNIQUE": "UNIQUE",
+    "CHECK": "CHECK",
 }
 
 common_statements.update(first_liners)

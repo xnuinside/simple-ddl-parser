@@ -48,44 +48,54 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
         return t
 
     def t_STRING(self, t):
-        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"]*)(\')){1}"
+        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&|]*)(\')){1}"
         t.type = "STRING"
         return t
 
     def t_ID(self, t):
         r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"\`]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
+        skip_id_tokens = ["(", ")", ","]
         if t.type == "LP" and not self.lexer.after_columns:
             self.lexer.lp_open += 1
             self.lexer.columns_def = True
             return t
-        elif not self.lexer.check and t.value in tok.symbol_tokens_no_check:
-            return self.get_tag_symbol_value_and_increment(t)
-        elif "ARRAY" in t.value:
-            t.type = "ARRAY"
-            return t
-        elif not self.lexer.is_table:
-            # if is_table mean wi already met INDEX or TABLE statement and
-            # the defenition already done and this is a string
-            t.type = tok.defenition_statements.get(
-                t.value.upper(), t.type
-            )  # Check for reserved word
-        elif self.lexer.last_token != "COMMA":
-            t.type = tok.common_statements.get(t.value.upper(), t.type)
+        elif (
+            t.value not in skip_id_tokens
+            and self.lexer.is_table
+            and self.lexer.lp_open
+            and self.lexer.last_token == "COMMA"
+            and t.value.upper() not in tok.first_liners
+        ):
+            t.type = "ID"
         else:
-            t.type = tok.first_liners.get(t.value.upper(), t.type)
+            if not self.lexer.check and t.value in tok.symbol_tokens_no_check:
+                return self.get_tag_symbol_value_and_increment(t)
+            elif "ARRAY" in t.value:
+                t.type = "ARRAY"
+                return t
+            elif not self.lexer.is_table:
+                # if is_table mean wi already met INDEX or TABLE statement and
+                # the defenition already done and this is a string
+                t.type = tok.defenition_statements.get(
+                    t.value.upper(), t.type
+                )  # Check for reserved word
+            elif self.lexer.last_token != "COMMA":
+                t.type = tok.common_statements.get(t.value.upper(), t.type)
+            else:
+                t.type = tok.first_liners.get(t.value.upper(), t.type)
 
-        # get tokens from other token dicts
-        t = self.process_body_tokens(t)
+            # get tokens from other token dicts
+            t = self.process_body_tokens(t)
 
-        if t.type == "SEQUENCE":
-            self.lexer.sequence = True
-        if t.type == "COMMA" and self.lexer.lt_open:
-            t.type = "COMMAT"
-        if t.type == "CHECK":
-            self.lexer.check = True
-        if t.type != "ID":
-            t.value = t.value.upper()
+            if t.type == "SEQUENCE":
+                self.lexer.sequence = True
+            if t.type == "COMMA" and self.lexer.lt_open:
+                t.type = "COMMAT"
+            if t.type == "CHECK":
+                self.lexer.check = True
+            if t.type != "ID":
+                t.value = t.value.upper()
         return self.set_last_token(t)
 
     def set_last_token(self, t):

@@ -42,7 +42,7 @@ class HQL:
         p[0]["row_format"] = row_format
 
     def p_expression_comment(self, p):
-        """expr : expr ID STRING"""
+        """expr : expr COMMENT STRING"""
         p[0] = p[1]
         p_list = list(p)
         p[0]["comment"] = check_spec(p_list[-1])
