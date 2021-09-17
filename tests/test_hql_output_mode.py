@@ -1642,3 +1642,49 @@ def test_special_characters_in_comment():
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     assert expected == result
+
+
+def test_partitioned_by_multiple_columns():
+    ddl = """
+    CREATE EXTERNAL TABLE test (
+    test STRING NULL COMMENT 'xxxx',
+    )
+    PARTITIONED BY (snapshot STRING, cluster STRING)
+    """
+    parse_result = DDLParser(ddl).run(output_mode="hql", group_by_type=True)
+    expected = {'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'collection_items_terminated_by': None,
+             'columns': [{'check': None,
+                          'comment': "'xxxx'",
+                          'default': None,
+                          'name': 'test',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': 'STRING',
+                          'unique': False}],
+             'comment': None,
+             'external': True,
+             'fields_terminated_by': None,
+             'index': [],
+             'lines_terminated_by': None,
+             'location': None,
+             'map_keys_terminated_by': None,
+             'partitioned_by': [{'name': 'snapshot',
+                                 'size': None,
+                                 'type': 'STRING'},
+                                {'name': 'cluster',
+                                 'size': None,
+                                 'type': 'STRING'}],
+             'primary_key': [],
+             'row_format': None,
+             'schema': None,
+             'stored_as': None,
+             'table_name': 'test',
+             'tablespace': None}],
+ 'types': []}
+    assert parse_result == expected

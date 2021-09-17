@@ -1,3 +1,13 @@
+**v0.20.0**
+Fixes:
+
+1. Fixed issue with PARTITIONED BY multiple columns in HQL - https://github.com/xnuinside/simple-ddl-parser/issues/66
+
+
+Features:
+
+1. Added support for HQL statement TBLPROPERTIES - https://github.com/xnuinside/simple-ddl-parser/issues/65
+
 **v0.19.5**
 Fixes:
 
