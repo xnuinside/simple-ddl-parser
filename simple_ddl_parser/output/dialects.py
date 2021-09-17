@@ -127,7 +127,7 @@ def key_cleaning(table_data: Dict, output_mode: str) -> Dict:
     else:
         table_data = clean_up_output(table_data, hql_clean_up_list)
         # todo: need to figure out how workaround it normally
-        if "_ddl_parser_comma_only_str" == table_data["fields_terminated_by"]:
+        if "_ddl_parser_comma_only_str" == table_data.get("fields_terminated_by"):
             table_data["fields_terminated_by"] = ","
     return table_data
 

@@ -336,6 +336,7 @@ HQL Dialect statements
 * COMMENT
 * LOCATION
 * FIELDS TERMINATED BY, LINES TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
+* TBLPROPERTIES ('parquet.compression'='SNAPPY' & etc.)
 
 MSSQL / MySQL/ Oracle
 ^^^^^^^^^^^^^^^^^^^^^
@@ -386,6 +387,7 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 #. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 #. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 #. Add support for COMMENT ON statement
+#. Add support for  SKEWED BY for HQL
 
 non-feature todo
 ----------------
@@ -404,6 +406,19 @@ So I remembered about Parser in Fakeme and just extracted it & improved.
 
 Changelog
 ---------
+
+**v0.19.6**
+Fixes:
+
+
+#. Fixed issue with PARTITIONED BY multiple columns in HQL - https://github.com/xnuinside/simple-ddl-parser/issues/66
+#. Question symbol '?' now handled valid in strings - https://github.com/xnuinside/simple-ddl-parser/issues/64
+#. Fixed issue with escaping symbols & added tests -https://github.com/xnuinside/simple-ddl-parser/issues/63
+
+Features:
+
+
+#. Added support for HQL statement TBLPROPERTIES - https://github.com/xnuinside/simple-ddl-parser/issues/65
 
 **v0.19.5**
 Fixes:

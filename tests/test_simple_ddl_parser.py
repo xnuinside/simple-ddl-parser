@@ -1933,3 +1933,105 @@ def test_quotes():
         }
     ]
     assert expected == parse_result
+
+
+def test_escaping_symbols_normal_str():
+    ddl = """
+    CREATE EXTERNAL TABLE test (
+    job_id STRING COMMENT 'test\\'s'
+    )
+    STORED AS PARQUET LOCATION 'hdfs://test'
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "comment": "'test\\'s'",
+                        "default": None,
+                        "name": "job_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": True,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": "'hdfs://test'",
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": "PARQUET",
+                "table_name": "test",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_escaping_symbols_raw_string():
+    ddl = r"""
+    CREATE EXTERNAL TABLE test (
+    job_id STRING COMMENT 'test\'s'
+    )
+    STORED AS PARQUET LOCATION 'hdfs://test'
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "comment": "'test\\'s'",
+                        "default": None,
+                        "name": "job_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": True,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": "'hdfs://test'",
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": "PARQUET",
+                "table_name": "test",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected

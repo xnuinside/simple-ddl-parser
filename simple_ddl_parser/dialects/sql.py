@@ -2,7 +2,7 @@ import re
 from copy import deepcopy
 from typing import Dict, List
 
-from simple_ddl_parser.utils import remove_par
+from simple_ddl_parser.utils import check_spec, remove_par
 
 
 class AfterColumns:
@@ -955,17 +955,6 @@ class BaseSQL(
             p[0]["check"]["constraint_name"] = p[2]["constraint"]["name"]
         p[0]["check"]["statement"] = p_list[-1]["check"]
 
-    def p_pid_with_type(self, p):
-        """pid_with_type :  column
-        | pid_with_type COMMA column
-        """
-        p_list = list(p)
-        if not isinstance(p_list[1], list):
-            p[0] = [p_list[1]]
-        else:
-            p[0] = p_list[1]
-            p[0].append(p_list[-1])
-
     def p_pid(self, p):
         """pid :  ID
         | STRING
@@ -1115,7 +1104,7 @@ class BaseSQL(
     def p_comment(self, p):
         """comment : COMMENT STRING"""
         p_list = remove_par(list(p))
-        p[0] = {"comment": p_list[-1]}
+        p[0] = {"comment": check_spec(p_list[-1])}
 
     def p_tablespace(self, p):
         """tablespace : TABLESPACE ID
