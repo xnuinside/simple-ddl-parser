@@ -48,7 +48,7 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
         return t
 
     def t_STRING(self, t):
-        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&|]*)(\')){1}"
+        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&|?]*)(\')){1}"
         t.type = "STRING"
         return t
 
@@ -56,7 +56,6 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
         r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"\`]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         skip_id_tokens = ["(", ")", ","]
-        print(self.lexer.is_table, t.value not in skip_id_tokens, self.lexer.lp_open)
         if t.type == "LP":
             self.lexer.lp_open += 1
             self.lexer.columns_def = True
@@ -109,7 +108,6 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
             self.lexer.is_table = False
         elif t.type == "TABLE" or t.type == "INDEX":
             self.lexer.is_table = True
-        print(t.value, t.type)
         return t
 
     def t_newline(self, t):

@@ -76,6 +76,7 @@ after_columns_tokens = {
     "WITH": "WITH",
     "CLUSTER": "CLUSTER",
     "SERDEPROPERTIES": "SERDEPROPERTIES",
+    "TBLPROPERTIES": "TBLPROPERTIES",
     # oracle
     "STORAGE": "STORAGE",
     "TABLESPACE": "TABLESPACE",
@@ -91,7 +92,7 @@ sequence_reserved = {
 
 tokens = tuple(
     set(
-        ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
+        ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT", "NEWLINE"]
         + list(defenition_statements.values())
         + list(common_statements.values())
         + list(columns_defenition.values())

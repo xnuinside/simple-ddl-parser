@@ -2,7 +2,7 @@ import re
 from copy import deepcopy
 from typing import Dict, List
 
-from simple_ddl_parser.utils import remove_par
+from simple_ddl_parser.utils import check_spec, remove_par
 
 
 class AfterColumns:
@@ -1104,7 +1104,7 @@ class BaseSQL(
     def p_comment(self, p):
         """comment : COMMENT STRING"""
         p_list = remove_par(list(p))
-        p[0] = {"comment": p_list[-1]}
+        p[0] = {"comment": check_spec(p_list[-1])}
 
     def p_tablespace(self, p):
         """tablespace : TABLESPACE ID

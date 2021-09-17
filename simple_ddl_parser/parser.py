@@ -78,6 +78,7 @@ class Parser:
             .replace("\\u2019", "'")
             .replace("'\\t'", "'pars_m_t'")
             .replace("'\\n'", "'pars_m_n'")
+            .replace("\\'", "pars_m_single")
             .replace("\\t", " ")
         )
         return data

@@ -1,8 +1,9 @@
-**v0.20.0**
+**v0.19.6**
 Fixes:
 
 1. Fixed issue with PARTITIONED BY multiple columns in HQL - https://github.com/xnuinside/simple-ddl-parser/issues/66
-
+2. Question symbol '?' now handled valid in strings - https://github.com/xnuinside/simple-ddl-parser/issues/64
+3. Fixed issue with escaping symbols & added tests -https://github.com/xnuinside/simple-ddl-parser/issues/63
 
 Features:
 

@@ -304,6 +304,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 - COMMENT
 - LOCATION
 - FIELDS TERMINATED BY, LINES TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
+- TBLPROPERTIES ('parquet.compression'='SNAPPY' & etc.)
 
 ### MSSQL / MySQL/ Oracle
 
@@ -342,6 +343,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 1. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 2. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 3. Add support for COMMENT ON statement
+4. Add support for  SKEWED BY for HQL
 
 ## non-feature todo
 
@@ -356,6 +358,17 @@ For one of the work projects I needed to convert SQL ddl to Python ORM models in
 So I remembered about Parser in Fakeme and just extracted it & improved. 
 
 ## Changelog
+**v0.19.6**
+Fixes:
+
+1. Fixed issue with PARTITIONED BY multiple columns in HQL - https://github.com/xnuinside/simple-ddl-parser/issues/66
+2. Question symbol '?' now handled valid in strings - https://github.com/xnuinside/simple-ddl-parser/issues/64
+3. Fixed issue with escaping symbols & added tests -https://github.com/xnuinside/simple-ddl-parser/issues/63
+
+Features:
+
+1. Added support for HQL statement TBLPROPERTIES - https://github.com/xnuinside/simple-ddl-parser/issues/65
+
 **v0.19.5**
 Fixes:
 

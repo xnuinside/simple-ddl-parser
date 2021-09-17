@@ -13,11 +13,20 @@ spec_mapper = {
     "'pars_m_t'": "'\t'",
     "'pars_m_n'": "'\n'",
     "'pars_m_dq'": '"',
+    "pars_m_single": "'",
 }
 
 
 def check_spec(value: str) -> str:
-    return spec_mapper.get(value, value)
+    replace_value = spec_mapper.get(value)
+    if not replace_value:
+        for item in spec_mapper:
+            if item in value:
+                replace_value = value.replace(item, spec_mapper[item])
+                break
+        else:
+            replace_value = value
+    return replace_value
 
 
 def find_symbols_not_in_str(str_1: str, str_2: str) -> str:

@@ -1606,7 +1606,7 @@ def test_special_characters_in_comment():
                 "columns": [
                     {
                         "check": None,
-                        "comment": "'t# est | & * % $ // * 6 % !'",
+                        "comment": "'t# est | & * % $ // * 6 % !?'",
                         "default": None,
                         "name": "job_id",
                         "nullable": True,
@@ -1636,7 +1636,7 @@ def test_special_characters_in_comment():
     }
     ddl = """
     CREATE EXTERNAL TABLE test (
-    job_id STRING COMMENT 't# est | & * % $ // * 6 % !'
+    job_id STRING COMMENT 't# est | & * % $ // * 6 % !?'
     )
     STORED AS PARQUET LOCATION 'hdfs://test'
     """
@@ -1652,39 +1652,106 @@ def test_partitioned_by_multiple_columns():
     PARTITIONED BY (snapshot STRING, cluster STRING)
     """
     parse_result = DDLParser(ddl).run(output_mode="hql", group_by_type=True)
-    expected = {'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'collection_items_terminated_by': None,
-             'columns': [{'check': None,
-                          'comment': "'xxxx'",
-                          'default': None,
-                          'name': 'test',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'STRING',
-                          'unique': False}],
-             'comment': None,
-             'external': True,
-             'fields_terminated_by': None,
-             'index': [],
-             'lines_terminated_by': None,
-             'location': None,
-             'map_keys_terminated_by': None,
-             'partitioned_by': [{'name': 'snapshot',
-                                 'size': None,
-                                 'type': 'STRING'},
-                                {'name': 'cluster',
-                                 'size': None,
-                                 'type': 'STRING'}],
-             'primary_key': [],
-             'row_format': None,
-             'schema': None,
-             'stored_as': None,
-             'table_name': 'test',
-             'tablespace': None}],
- 'types': []}
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "comment": "'xxxx'",
+                        "default": None,
+                        "name": "test",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": True,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [
+                    {"name": "snapshot", "size": None, "type": "STRING"},
+                    {"name": "cluster", "size": None, "type": "STRING"},
+                ],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": None,
+                "table_name": "test",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
     assert parse_result == expected
+
+
+def test_table_properties():
+    ddl = """
+    CREATE EXTERNAL TABLE test (
+    job_id STRING COMMENT 'test'
+    )
+    STORED AS PARQUET LOCATION 'hdfs://test'
+    TBLPROPERTIES (
+    'parquet.compression'='SNAPPY',
+    'parquet.compression2'='SNAPPY2'
+    )
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "comment": "'test'",
+                        "default": None,
+                        "name": "job_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": True,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": "'hdfs://test'",
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": "PARQUET",
+                "table_name": "test",
+                "tablespace": None,
+                "tblproperties": {
+                    "'parquet.compression'": "'SNAPPY'",
+                    "'parquet.compression2'": "'SNAPPY2'",
+                },
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
