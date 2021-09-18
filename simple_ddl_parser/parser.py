@@ -7,6 +7,12 @@ from ply import lex, yacc
 from simple_ddl_parser.output.common import dump_data_to_file, result_format
 from simple_ddl_parser.utils import find_first_unpair_closed_par
 
+OP_COM = "/*"
+CL_COM = "*/"
+
+IN_COM = "--"
+MYSQL_COM = "#"
+
 
 class Parser:
     """
@@ -28,26 +34,30 @@ class Parser:
         self.yacc = yacc.yacc(module=self, debug=False)
         self.columns_closed = False
 
-    @staticmethod
-    def pre_process_line(line: str, block_comments: List[str]) -> Tuple[str, List]:
-        OP_COM = "/*"
-        CL_COM = "*/"
-        IN_COM = "--"
-        MYSQL_COM = "#"
+    def pre_process_line(self, line: str, block_comments: List[str]) -> Tuple[str, List]:
         code_line = ""
         comma_only_str = r"((\')|(' ))+(,)((\')|( '))+\B"
         line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", line)
         if "(" not in line:
             line = line.replace("<", " < ").replace(">", " > ")
-        if line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM):
-            return code_line, block_comments
 
-        if IN_COM in line:
-            if re.search(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+", line):
-                return line, block_comments
+        if not (line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM)):
+            code_line, block_comments = self.process_inline_comments(line, code_line, block_comments)
+        return code_line, block_comments
+
+    @staticmethod
+    def process_in_comment(line: str):
+        if re.search(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+", line):
+            code_line = line
+        else:
             code_line = line.split(IN_COM)[0]
+        return code_line
+
+    def process_inline_comments(self, line: str, code_line: str, block_comments: List) -> Tuple[str, List]:
+        if IN_COM in line:
+            code_line = self.process_in_comment(line)
         elif CL_COM not in line and OP_COM not in line:
-            return line, block_comments
+            code_line = line
         if OP_COM in line:
             code_line += line.split(OP_COM)[0]
             block_comments.append(OP_COM)
@@ -97,31 +107,37 @@ class Parser:
 
             line, block_comments = self.pre_process_line(line, block_comments)
 
-            if line.replace("\n", "").replace("\t", "") or num == len(lines) - 1:
-                line = line.strip()
+            line = line.strip().replace("\n", "").replace("\t", "")
+
+            if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
+                final_line = line.strip().endswith(";")
                 if statement is None:
                     statement = line
                 else:
                     statement += f" {line}"
 
-                if statement.endswith(';'):
+                if final_line:
+                    # end of sql operation, remove ; from end of line
                     statement = statement[:-1]
-                else:
-                    if num != len(lines) - 1:
+                elif num != len(lines) - 1:
                         # continue combine lines in one massive
                         continue
 
                 self.set_default_flags_in_lexer()
 
-                _parse_result = yacc.parse(statement)
-
-                if (line.strip().endswith(";") or num == len(lines) - 1) and _parse_result:
-                    tables.append(_parse_result)
+                self.parse_statement(tables, statement)
 
                 statement = None
 
         return tables
+
+    @staticmethod
+    def parse_statement(tables: List, statement: str):
+        _parse_result = yacc.parse(statement)
+
+        if _parse_result:
+            tables.append(_parse_result)
 
     def set_default_flags_in_lexer(self):
         attrs = [
