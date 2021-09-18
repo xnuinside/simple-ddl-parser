@@ -12,9 +12,12 @@ As maintainer I guarantee that any backward incompatible changes will not be don
 
 However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version `1.0.*` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version `0.26.0` :)
 
-### How does it work?
 
-Parser tested on different DDLs for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS Redshift, Oracle, Hive, MsSQL, etc.). You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser.
+### How does it work?
+Parser tested on different DDLs mostly for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS 
+Redshift, Oracle, Hive, MsSQL, etc.). You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser.
+
+### Feel free to open Issue with DDL sample
 **If you need some statement, that not supported by parser yet**: please provide DDL example & information about that is it SQL dialect or DB.
 
 Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
@@ -300,7 +303,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 - PARTITIONED BY statement
 - ROW FORMAT, ROW FORMAT SERDE
 - WITH SERDEPROPERTIES ("input.regex" =  "..some regex..")
-- STORED AS
+- STORED AS (AVRO, PARQUET, etc), STORED AS INPUTFORMAT, OUTPUTFORMAT
 - COMMENT
 - LOCATION
 - FIELDS TERMINATED BY, LINES TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
@@ -342,20 +345,22 @@ You also can provide a path where you want to have a dumps with schema with argu
 0. Add support for ALTER TABLE ... ADD COLUMN
 1. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 2. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
-3. Add support for COMMENT ON statement
-4. Add support for  SKEWED BY for HQL
+4. Add support for SKEWED BY for HQL
 
 ## non-feature todo
 
 0. Provide API to get result as Python Object
 1. Add online demo (UI) to parse ddl
 
-### Historical context
 
-This library is an extracted parser code from https://github.com/xnuinside/fakeme (Library for fake relation data generation, that I used in several work projects, but did not have time to make from it normal open source library)
+### Thanks for involving & contributions
 
-For one of the work projects I needed to convert SQL ddl to Python ORM models in auto way and I tried to use https://github.com/andialbrecht/sqlparse but it works not well enough with ddl for my case (for example, if in ddl used lower case - nothing works, primary keys inside ddl are mapped as column name not reserved word and etc.).
-So I remembered about Parser in Fakeme and just extracted it & improved. 
+Big thanks for the involving & contribution with test cases with DDL samples & opening issues goes to:
+
+* https://github.com/kukigai , 
+* https://github.com/Awalkman90 ,
+* https://github.com/geob3d
+
 
 ## Changelog
 **v0.19.6**

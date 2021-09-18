@@ -94,10 +94,20 @@ class HQL:
         p[0]["collection_items_terminated_by"] = check_spec(p_list[-1])
 
     def p_expression_stored_as(self, p):
-        """expr : expr STORED AS ID"""
+        """expr : expr STORED AS ID
+        |  expr STORED AS ID STRING
+        |  expr STORED AS ID STRING ID STRING
+        """
         p[0] = p[1]
         p_list = list(p)
-        p[0]["stored_as"] = p_list[-1]
+        if len(p_list) >= 6:
+            # only input or output format
+            p[0]["stored_as"] = {p_list[-2].lower(): p_list[-1]}
+            if len(p_list) == 8:
+                # both input & output
+                p[0]["stored_as"].update({p_list[-4].lower(): p_list[-3]})
+        else:
+            p[0]["stored_as"] = p_list[-1]
 
     def p_expression_partitioned_by_hql(self, p):
         """expr : expr PARTITIONED BY pid_with_type """
