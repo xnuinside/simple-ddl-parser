@@ -6,7 +6,7 @@ from simple_ddl_parser.utils import check_spec, remove_par
 
 
 class AfterColumns:
-    def p_expression_partition_by(self, p):
+    def p_expression_partition_by(self, p: List) -> None:
         """expr : expr PARTITION BY LP pid RP
         | expr PARTITION BY ID LP pid RP
         | expr PARTITION BY pid
@@ -24,7 +24,7 @@ class AfterColumns:
 
 
 class Database:
-    def p_database_base(self, p):
+    def p_database_base(self, p: List) -> None:
         """database_base : CREATE DATABASE ID
         | database_base clone
         """
@@ -35,7 +35,7 @@ class Database:
         else:
             p[0]["database_name"] = p_list[-1]
 
-    def p_expression_create_database(self, p):
+    def p_expression_create_database(self, p: List) -> None:
         """expr : expr database_base"""
         p[0] = p[1]
         p_list = list(p)
@@ -72,7 +72,7 @@ class TableSpaces:
         }
         return result
 
-    def p_expression_create_tablespace(self, p):
+    def p_expression_create_tablespace(self, p: List) -> None:
         """expr : CREATE TABLESPACE ID properties
         | CREATE ID TABLESPACE ID properties
         | CREATE ID TABLESPACE ID
@@ -83,7 +83,7 @@ class TableSpaces:
         p_list = list(p)
         p[0] = self.get_tablespace_data(p_list[1:])
 
-    def p_properties(self, p):
+    def p_properties(self, p: List) -> None:
         """properties : property
         | properties property"""
         p_list = list(p)
@@ -93,7 +93,7 @@ class TableSpaces:
         else:
             p[0] = p[1]
 
-    def p_property(self, p):
+    def p_property(self, p: List) -> None:
         """property : ID ID
         | ID STRING
         | ID ON
@@ -157,7 +157,7 @@ class Column:
                 _type += f" {elem}"
         return _type
 
-    def p_c_type(self, p):
+    def p_c_type(self, p: List) -> None:
         """c_type : ID
         | ID ID
         | ID DOT ID
@@ -177,23 +177,26 @@ class Column:
         else:
             _type = self.parse_complex_type(p_list)
         if _type:
-            if isinstance(p_list[-1], str) and p_list[-1].lower() == "distkey":
-                p[0] = {"property": {"distkey": True}}
-                _type = _type.split("distkey")[0]
-            _type = _type.strip().replace('" . "', '"."')
-            if "<" not in _type and "ARRAY" in _type:
-                if "[" not in p_list[-1]:
-                    _type = _type.replace("ARRAY", "[]")
-                else:
-                    _type = _type.replace("ARRAY", "")
-            elif "<" in _type and "[]" in _type:
-                _type = _type.replace("[]", "ARRAY")
-
+            _type = self.process_type(_type, p_list, p)
         p[0]["type"] = _type
 
     @staticmethod
+    def process_type(_type: str, p_list: List, p: List) -> str:
+        if isinstance(p_list[-1], str) and p_list[-1].lower() == "distkey":
+            p[0] = {"property": {"distkey": True}}
+            _type = _type.split("distkey")[0]
+        _type = _type.strip().replace('" . "', '"."')
+        if "<" not in _type and "ARRAY" in _type:
+            if "[" not in p_list[-1]:
+                _type = _type.replace("ARRAY", "[]")
+            else:
+                _type = _type.replace("ARRAY", "")
+        elif "<" in _type and "[]" in _type:
+            _type = _type.replace("[]", "ARRAY")
+        return _type
+
+    @staticmethod
     def get_size(p_list: List):
-        size = None
         if p_list[-1].isnumeric():
             size = int(p_list[-1])
         else:
@@ -202,7 +205,18 @@ class Column:
             size = (int(p_list[-3]), int(p_list[-1]))
         return size
 
-    def p_column(self, p):
+    @staticmethod
+    def get_column_details(p_list: List, p: List):
+        if p_list[-1].get("type"):
+            p[0]["type"] += f"{p_list[-1]['type'].strip()}"
+        elif p_list[-1].get("comment"):
+            p[0].update(p_list[-1])
+        elif p_list[-1].get("property"):
+            for key, value in p_list[-1]["property"].items():
+                p[0][key] = value
+        p_list.pop(-1)
+
+    def p_column(self, p: List) -> None:
         """column : ID c_type
         | column comment
         | column LP ID RP
@@ -211,29 +225,25 @@ class Column:
         | column LP ID COMMA ID RP c_type
         """
         p[0] = self.set_base_column_propery(p)
+
         p_list = remove_par(list(p))
+
         if isinstance(p_list[-1], dict) and "type" in p_list[-1] and len(p_list) <= 3:
             p[0]["type"] = p_list[-1]["type"]
             if p_list[-1].get("property"):
                 for key, value in p_list[-1]["property"].items():
                     p[0][key] = value
         elif isinstance(p_list[-1], dict):
-            if p_list[-1].get("type"):
-                p[0]["type"] += f"{p_list[-1]['type'].strip()}"
-            elif p_list[-1].get("comment"):
-                p[0].update(p_list[-1])
-            elif p_list[-1].get("property"):
-                for key, value in p_list[-1]["property"].items():
-                    p[0][key] = value
-            p_list.pop(-1)
+            self.get_column_details(p_list, p)
+        self.set_column_size(p_list, p)
+
+    def set_column_size(self, p_list: List, p: List):
         if (
             not isinstance(p_list[-1], dict)
             and bool(re.match(r"[0-9]+", p_list[-1]))
             or p_list[-1] == "max"
         ):
             p[0]["size"] = self.get_size(p_list)
-        elif isinstance(p_list[-1], str) and p_list[-1] not in p[0]["type"]:
-            p[0]["type"] += f" {p_list[-1]}"
 
     @staticmethod
     def set_property(p: List) -> List:
@@ -265,7 +275,7 @@ class Column:
             references = p_list[-1]["references"]
         return pk, default, unique, references, nullable
 
-    def p_defcolumn(self, p):
+    def p_defcolumn(self, p: List) -> None:
         """defcolumn : column
         | defcolumn comment
         | defcolumn null
@@ -302,7 +312,7 @@ class Column:
         if p[0]["check"]:
             p[0]["check"] = " ".join(p[0]["check"])
 
-    def p_check_ex(self, p):
+    def p_check_ex(self, p: List) -> None:
         """check_ex :  check_st
         | constraint check_st
         """
@@ -329,7 +339,7 @@ class Column:
 
 
 class Schema:
-    def p_expression_schema(self, p):
+    def p_expression_schema(self, p: List) -> None:
         """expr : create
         | expr ID
         | expr clone
@@ -342,7 +352,7 @@ class Schema:
         elif len(p) > 2:
             p[0]["authorization"] = p[2]
 
-    def p_create(self, p):
+    def p_create(self, p: List) -> None:
         """create : CREATE SCHEMA ID ID
         | CREATE SCHEMA ID ID ID
         | CREATE SCHEMA ID
@@ -369,7 +379,7 @@ class Schema:
 
 
 class Drop:
-    def p_expression_drop_table(self, p):
+    def p_expression_drop_table(self, p: List) -> None:
         """expr : DROP TABLE ID
         | DROP TABLE ID DOT ID
         """
@@ -386,7 +396,7 @@ class Drop:
 
 
 class Type:
-    def p_multiple_column_names(self, p):
+    def p_multiple_column_names(self, p: List) -> None:
         """multiple_column_names : column
         | multiple_column_names COMMA
         | multiple_column_names column
@@ -399,7 +409,7 @@ class Type:
             if p_list[-1] != ",":
                 p[0].append(p_list[-1])
 
-    def p_expression_type_as(self, p):
+    def p_expression_type_as(self, p: List) -> None:
         """expr : type_name ID LP pid RP
         | type_name ID LP multiple_column_names RP
         | type_name LP id_equals RP
@@ -419,7 +429,7 @@ class Type:
                 for item in p_list[-2]:
                     p[0]["properties"].update(item)
 
-    def p_type_name(self, p):
+    def p_type_name(self, p: List) -> None:
         """type_name : type_create ID AS
         | type_create ID DOT ID AS
         | type_create ID DOT ID
@@ -434,7 +444,7 @@ class Type:
             p[0]["schema"] = p[2]
             p[0]["type_name"] = p_list[4]
 
-    def p_type_create(self, p):
+    def p_type_create(self, p: List) -> None:
         """type_create : CREATE TYPE
         | CREATE OR REPLACE TYPE
         """
@@ -442,7 +452,7 @@ class Type:
 
 
 class Domain:
-    def p_expression_domain_as(self, p):
+    def p_expression_domain_as(self, p: List) -> None:
         """expr : domain_name ID LP pid RP"""
         p_list = list(p)
         p[0] = p[1]
@@ -451,7 +461,7 @@ class Domain:
         if p[0]["base_type"] == "ENUM":
             p[0]["properties"]["values"] = p_list[4]
 
-    def p_domain_name(self, p):
+    def p_domain_name(self, p: List) -> None:
         """domain_name : CREATE DOMAIN ID AS
         | CREATE DOMAIN ID DOT ID AS
         | CREATE DOMAIN ID DOT ID
@@ -469,7 +479,7 @@ class Domain:
 class BaseSQL(
     Database, Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces
 ):
-    def p_id_equals(self, p):
+    def p_id_equals(self, p: List) -> None:
         """id_equals : ID ID ID
         | id_equals COMMA
         | id_equals COMMA ID ID ID
@@ -483,7 +493,7 @@ class BaseSQL(
                 p[0] = p[1]
                 p[0].append(property)
 
-    def p_expression_index(self, p):
+    def p_expression_index(self, p: List) -> None:
         """expr : index_table_name LP index_pid RP"""
         p_list = remove_par(list(p))
         p[0] = p[1]
@@ -494,7 +504,7 @@ class BaseSQL(
             else:
                 p[0][item].extend(p_list[-1][item])
 
-    def p_index_table_name(self, p):
+    def p_index_table_name(self, p: List) -> None:
         """index_table_name : create_index ON ID
         | create_index ON ID DOT ID
         """
@@ -508,7 +518,7 @@ class BaseSQL(
             table_name = p_list[-1]
         p[0].update({"schema": schema, "table_name": table_name})
 
-    def p_create_index(self, p):
+    def p_create_index(self, p: List) -> None:
         """create_index : CREATE INDEX ID
         | CREATE UNIQUE INDEX ID
         | create_index ON ID
@@ -540,7 +550,7 @@ class BaseSQL(
         p[0]["checks"].append(check)
         return p[0]
 
-    def p_expression_table(self, p):
+    def p_expression_table(self, p: List) -> None:
         """expr : table_name defcolumn
         | table_name LP defcolumn
         | expr COMMA defcolumn
@@ -623,13 +633,13 @@ class BaseSQL(
         target_dict["constraints"][_type].append(constraint)
         return target_dict
 
-    def p_likke(self, p):
+    def p_likke(self, p: List) -> None:
         """likke : LIKE
         | CLONE
         """
         p[0] = None
 
-    def p_expression_like_table(self, p):
+    def p_expression_like_table(self, p: List) -> None:
         """expr : table_name likke ID
         | table_name likke ID DOT ID
         | table_name LP likke ID DOT ID RP
@@ -647,7 +657,7 @@ class BaseSQL(
         p[0] = p[1]
         p[0].update({"like": {"schema": schema, "table_name": table_name}})
 
-    def p_table_name(self, p):
+    def p_table_name(self, p: List) -> None:
         """table_name : create_table ID DOT ID
         | create_table ID
         | table_name likke ID
@@ -668,7 +678,7 @@ class BaseSQL(
             {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
         )
 
-    def p_expression_seq(self, p):
+    def p_expression_seq(self, p: List) -> None:
         """expr : seq_name
         | expr INCREMENT ID
         | expr START ID
@@ -682,7 +692,7 @@ class BaseSQL(
         if len(p) > 2:
             p[0].update({p[2].lower(): int(p_list[-1])})
 
-    def p_seq_name(self, p):
+    def p_seq_name(self, p: List) -> None:
         """seq_name : create_seq ID DOT ID
         | create_seq ID
         """
@@ -697,7 +707,7 @@ class BaseSQL(
             seq_name = p_list[-1]
         p[0] = {"schema": schema, "sequence_name": seq_name}
 
-    def p_create_seq(self, p):
+    def p_create_seq(self, p: List) -> None:
         """create_seq : CREATE SEQUENCE IF NOT EXISTS
         | CREATE SEQUENCE
 
@@ -705,7 +715,7 @@ class BaseSQL(
         # get schema & table name
         pass
 
-    def p_tid(self, p):
+    def p_tid(self, p: List) -> None:
         """tid : LT ID
         | tid ID
         | tid COMMAT
@@ -756,7 +766,7 @@ class BaseSQL(
 
         return ref
 
-    def p_null(self, p):
+    def p_null(self, p: List) -> None:
         """null : NULL
         | NOT NULL
         """
@@ -766,7 +776,7 @@ class BaseSQL(
                 nullable = False
         p[0] = {"nullable": nullable}
 
-    def p_f_call(self, p):
+    def p_f_call(self, p: List) -> None:
         """f_call : ID LP RP
         | ID LP f_call RP
         | ID LP multi_id RP
@@ -784,7 +794,7 @@ class BaseSQL(
                 value += elem
             p[0] = value
 
-    def p_multi_id(self, p):
+    def p_multi_id(self, p: List) -> None:
         """multi_id : ID
         | multi_id ID
         | f_call
@@ -798,7 +808,7 @@ class BaseSQL(
             value = " ".join(p_list[1:])
             p[0] = value
 
-    def p_funct_expr(self, p):
+    def p_funct_expr(self, p: List) -> None:
         """funct_expr : LP multi_id RP
         | multi_id
         """
@@ -807,7 +817,7 @@ class BaseSQL(
         else:
             p[0] = p[1]
 
-    def p_def(self, p):
+    def p_def(self, p: List) -> None:
         """def : DEFAULT ID
         | DEFAULT STRING
         | DEFAULT NULL
@@ -837,21 +847,21 @@ class BaseSQL(
         else:
             p[0] = {"default": default}
 
-    def p_enforced(self, p):
+    def p_enforced(self, p: List) -> None:
         """enforced : ENFORCED
         | NOT ENFORCED
         """
         p_list = list(p)
         p[0] = {"enforced": len(p_list) == 1}
 
-    def p_collate(self, p):
+    def p_collate(self, p: List) -> None:
         """collate : COLLATE ID
         | COLLATE STRING
         """
         p_list = list(p)
         p[0] = {"collate": p_list[-1]}
 
-    def p_constraint(self, p):
+    def p_constraint(self, p: List) -> None:
         """
         constraint : CONSTRAINT ID
         """
@@ -859,7 +869,7 @@ class BaseSQL(
         p_list = list(p)
         p[0] = {"constraint": {"name": p_list[-1]}}
 
-    def p_generated(self, p):
+    def p_generated(self, p: List) -> None:
         """
         generated : gen_always funct_expr
         | gen_always funct_expr ID
@@ -873,13 +883,13 @@ class BaseSQL(
         _as = p[2]
         p[0] = {"generated": {"always": True, "as": _as, "stored": stored}}
 
-    def p_gen_always(self, p):
+    def p_gen_always(self, p: List) -> None:
         """
         gen_always : GENERATED ID AS
         """
         p[0] = {"generated": {"always": True}}
 
-    def p_check_st(self, p):
+    def p_check_st(self, p: List) -> None:
         """check_st : CHECK LP ID
         | check_st ID
         | check_st STRING
@@ -894,7 +904,7 @@ class BaseSQL(
         for item in p_list[2:]:
             p[0]["check"].append(item)
 
-    def p_expression_alter(self, p):
+    def p_expression_alter(self, p: List) -> None:
         """expr : alter_foreign ref
         | alter_check
         | alter_unique
@@ -904,7 +914,7 @@ class BaseSQL(
         if len(p) == 3:
             p[0].update(p[2])
 
-    def p_alter_unique(self, p):
+    def p_alter_unique(self, p: List) -> None:
         """alter_unique : alt_table UNIQUE LP pid RP
         | alt_table constraint UNIQUE LP pid RP
         """
@@ -931,7 +941,7 @@ class BaseSQL(
             value = p_list[-1]
         return column, value
 
-    def p_alter_default(self, p):
+    def p_alter_default(self, p: List) -> None:
         """alter_default : alt_table ID ID
         | alt_table constraint ID ID
         | alt_table ID STRING
@@ -960,7 +970,7 @@ class BaseSQL(
         if "constraint" in p[2]:
             p[0]["default"]["constraint_name"] = p[2]["constraint"]["name"]
 
-    def p_alter_check(self, p):
+    def p_alter_check(self, p: List) -> None:
         """alter_check : alt_table check_st
         | alt_table constraint check_st
         """
@@ -974,7 +984,7 @@ class BaseSQL(
             p[0]["check"]["constraint_name"] = p[2]["constraint"]["name"]
         p[0]["check"]["statement"] = p_list[-1]["check"]
 
-    def p_pid(self, p):
+    def p_pid(self, p: List) -> None:
         """pid :  ID
         | STRING
         | pid ID
@@ -993,7 +1003,7 @@ class BaseSQL(
             p[0] = p_list[1]
             p[0].append(p_list[-1])
 
-    def p_index_pid(self, p):
+    def p_index_pid(self, p: List) -> None:
         """index_pid :  ID
         | index_pid ID
         | index_pid COMMA index_pid
@@ -1018,7 +1028,7 @@ class BaseSQL(
                 for i in p_list[-1]["detailed_columns"]:
                     p[0]["detailed_columns"].append(i)
 
-    def p_alter_foreign(self, p):
+    def p_alter_foreign(self, p: List) -> None:
         """alter_foreign : alt_table foreign
         | alt_table constraint foreign
         """
@@ -1039,7 +1049,7 @@ class BaseSQL(
             if isinstance(p_list[2], dict) and "constraint" in p_list[2]:
                 column.update({"constraint_name": p_list[2]["constraint"]["name"]})
 
-    def p_alt_table_name(self, p):
+    def p_alt_table_name(self, p: List) -> None:
         """alt_table : ALTER TABLE ID ADD
         | ALTER TABLE ID DOT ID ADD
         """
@@ -1062,7 +1072,7 @@ class BaseSQL(
             columns = p_list[-1]
             p[0] = columns
 
-    def p_ref(self, p):
+    def p_ref(self, p: List) -> None:
         """ref : REFERENCES ID DOT ID
         | REFERENCES ID
         | ref LP pid RP
@@ -1098,12 +1108,12 @@ class BaseSQL(
         "expr : pkey"
         p[0] = p[1]
 
-    def p_uniq(self, p):
+    def p_uniq(self, p: List) -> None:
         """uniq : UNIQUE LP pid RP"""
         p_list = remove_par(list(p))
         p[0] = {"unique_statement": p_list[-1]}
 
-    def p_statem_by_id(self, p):
+    def p_statem_by_id(self, p: List) -> None:
         """statem_by_id : ID LP pid RP
         | ID KEY LP pid RP
         """
@@ -1115,24 +1125,24 @@ class BaseSQL(
         elif p[1].upper() == "PRIMARY":
             p[0] = {"primary_key": p_list[-1]}
 
-    def p_pkey(self, p):
+    def p_pkey(self, p: List) -> None:
         """pkey : PRIMARY KEY LP pid RP"""
         p_list = remove_par(list(p))
         p[0] = {"primary_key": p_list[-1]}
 
-    def p_comment(self, p):
+    def p_comment(self, p: List) -> None:
         """comment : COMMENT STRING"""
         p_list = remove_par(list(p))
         p[0] = {"comment": check_spec(p_list[-1])}
 
-    def p_tablespace(self, p):
+    def p_tablespace(self, p: List) -> None:
         """tablespace : TABLESPACE ID
         | TABLESPACE ID properties
         """
         # Initial 5m Next 5m Maxextents Unlimited
         p[0] = self.get_tablespace_data(list(p))
 
-    def p_expr_tablespace(self, p):
+    def p_expr_tablespace(self, p: List) -> None:
         """expr : expr tablespace"""
         p_list = list(p)
         p[0] = p[1]
