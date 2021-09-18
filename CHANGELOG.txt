@@ -3,7 +3,9 @@ Fixes:
 1. Add support for more special symbols to strings - https://github.com/xnuinside/simple-ddl-parser/issues/68
 
 Features:
-1. Added support for HQL statements: STORED AS INPUTFORMAT, OUTPUTFORMAT - https://github.com/xnuinside/simple-ddl-parser/issues/69
+1. Added support for HQL statements:
+    STORED AS INPUTFORMAT, OUTPUTFORMAT - https://github.com/xnuinside/simple-ddl-parser/issues/69
+    SKEWED BY
 
 **v0.19.6**
 Fixes:

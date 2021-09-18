@@ -20,7 +20,6 @@ common_statements = {
     "KEY": "KEY",
     "ADD": "ADD",
     "AS": "AS",
-    "LIKE": "LIKE",
     "CLONE": "CLONE",
     "DEFERRABLE": "DEFERRABLE",
     "INITIALLY": "INITIALLY",
@@ -49,6 +48,7 @@ columns_defenition = {
     "COMMENT": "COMMENT",
 }
 first_liners = {
+    "LIKE": "LIKE",
     "CONSTRAINT": "CONSTRAINT",
     "FOREIGN": "FOREIGN",
     "PRIMARY": "PRIMARY",
@@ -77,6 +77,7 @@ after_columns_tokens = {
     "CLUSTER": "CLUSTER",
     "SERDEPROPERTIES": "SERDEPROPERTIES",
     "TBLPROPERTIES": "TBLPROPERTIES",
+    "SKEWED": "SKEWED",
     # oracle
     "STORAGE": "STORAGE",
     "TABLESPACE": "TABLESPACE",

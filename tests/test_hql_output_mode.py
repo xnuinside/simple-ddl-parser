@@ -1606,7 +1606,7 @@ def test_special_characters_in_comment():
                 "columns": [
                     {
                         "check": None,
-                        "comment": "'t# est | & * % $ // * 6 % !?;;±§@~^'",
+                        "comment": "'t# est | & * % $ // * 6 % !?;;\\0b1\\0a7@~^'",
                         "default": None,
                         "name": "job_id",
                         "nullable": True,
@@ -1771,8 +1771,17 @@ def test_output_input_format():
     LOCATION
     'hdfs://xxxx'
     """
-    from simple_ddl_parser import DDLParser
     parse_results = DDLParser(ddl).run(output_mode="hql")
     expected = [{'columns': [{'name': 'test', 'type': 'STRING', 'size': None, 'references': None, 'unique': False,
                               'nullable': True, 'default': None, 'check': None, 'comment': "'xxxx'"}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [], 'tablespace': None, 'stored_as': {'outputformat': "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'", 'inputformat': "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'"}, 'location': "'hdfs://xxxx'", 'comment': None, 'row_format': {'serde': True, 'java_class': "'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'"}, 'fields_terminated_by': None, 'lines_terminated_by': None, 'map_keys_terminated_by': None, 'collection_items_terminated_by': None, 'external': True, 'schema': None, 'table_name': 'test'}]
+    assert expected == parse_results
+
+
+def test_skewed_by():
+    ddl = """
+    CREATE TABLE list_bucket_single (key STRING, value STRING)
+      SKEWED BY (key) ON (1,5,6) STORED AS DIRECTORIES;
+    """
+    parse_results = DDLParser(ddl).run(output_mode="hql")
+    expected =[{'columns': [{'name': 'key', 'type': 'STRING', 'size': None, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}, {'name': 'value', 'type': 'STRING', 'size': None, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [], 'tablespace': None, 'stored_as': 'DIRECTORIES', 'location': None, 'comment': None, 'row_format': None, 'fields_terminated_by': None, 'lines_terminated_by': None, 'map_keys_terminated_by': None, 'collection_items_terminated_by': None, 'external': False, 'schema': None, 'table_name': 'list_bucket_single', 'skewed_by': {'key': 'key', 'on': ['1', '5', '6']}}]
     assert expected == parse_results

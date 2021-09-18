@@ -48,24 +48,32 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
         return t
 
     def t_STRING(self, t):
-        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?±§@~]*)(\')){1}"
+        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
-        print(t.type, t.value)
         return t
 
     def t_ID(self, t):
         r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"\`]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         skip_id_tokens = ["(", ")", ","]
+        print(
+                t.value not in skip_id_tokens
+                and self.lexer.is_table
+                and self.lexer.lp_open
+                and (self.lexer.last_token == "COMMA" or self.lexer.last_token == "LP")
+                and t.value.upper() not in tok.first_liners
+        )
         if t.type == "LP":
             self.lexer.lp_open += 1
             self.lexer.columns_def = True
+            self.lexer.last_token = "LP"
             return t
+
         elif (
             t.value not in skip_id_tokens
             and self.lexer.is_table
             and self.lexer.lp_open
-            and self.lexer.last_token == "COMMA"
+            and (self.lexer.last_token == "COMMA" or self.lexer.last_token == "LP")
             and t.value.upper() not in tok.first_liners
         ):
             t.type = "ID"
@@ -109,7 +117,6 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
             self.lexer.is_table = False
         elif t.type == "TABLE" or t.type == "INDEX":
             self.lexer.is_table = True
-        print(t.type, t.value)
         return t
 
     def t_newline(self, t):

@@ -308,6 +308,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 - LOCATION
 - FIELDS TERMINATED BY, LINES TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
 - TBLPROPERTIES ('parquet.compression'='SNAPPY' & etc.)
+- SKEWED BY
 
 ### MSSQL / MySQL/ Oracle
 
@@ -345,7 +346,6 @@ You also can provide a path where you want to have a dumps with schema with argu
 0. Add support for ALTER TABLE ... ADD COLUMN
 1. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 2. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
-4. Add support for SKEWED BY for HQL
 
 ## non-feature todo
 
