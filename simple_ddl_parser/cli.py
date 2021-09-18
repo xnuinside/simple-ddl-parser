@@ -7,10 +7,6 @@ from simple_ddl_parser import parse_from_file
 from simple_ddl_parser.output.common import output_modes
 
 
-def version(**kwargs):
-    return "0.2.0"
-
-
 def cli():
     sdb_cli = argparse.ArgumentParser(description="Simple DDL Parser")
 
