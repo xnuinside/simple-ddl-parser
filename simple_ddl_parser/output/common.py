@@ -128,29 +128,27 @@ def init_table_data() -> Dict:
     }
 
 
-def process_alter_and_index_result(tables_dict: Dict, table: List, output_mode: str) -> Dict:
-    if "index_name" in table[0]:
-        tables_dict = add_index_to_table(tables_dict, table[0], output_mode)
+def process_alter_and_index_result(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
+    if table.get("index_name"):
+        tables_dict = add_index_to_table(tables_dict, table, output_mode)
 
-    elif "alter_table_name" in table[0]:
-        tables_dict = add_alter_to_table(tables_dict, table[0])
+    elif table.get("alter_table_name"):
+        tables_dict = add_alter_to_table(tables_dict, table)
 
     return tables_dict
 
 
-def process_entities(tables_dict: Dict, table: List, output_mode: str) -> Dict:
+def process_entities(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
     """ process tables, types, sequence and etc. data """
     table_data = init_table_data()
     table_data = d.populate_dialects_table_data(output_mode, table_data)
     not_table = False
-    for item in table:
-        if item.get("table_name"):
-            table_data.update(item)
-            table_data = set_unique_columns(table_data)
-        else:
-            table_data = item
-            not_table = True
-            continue
+    if table.get("table_name"):
+        table_data.update(table)
+        table_data = set_unique_columns(table_data)
+    else:
+        table_data = table
+        not_table = True
     if not not_table:
         table_data = process_not_table_item(table_data, tables_dict)
     table_data = normalize_ref_columns_in_final_output(table_data)
@@ -168,7 +166,7 @@ def result_format(
     tables_dict = {}
     for table in result:
         # process each item in parser output
-        if len(table) == 1 and ("index_name" in table[0] or "alter_table_name" in table[0]):
+        if "index_name" in table or "alter_table_name" in table:
             tables_dict = process_alter_and_index_result(tables_dict, table, output_mode)
         else:
             # process tables, types, sequence and etc. data
