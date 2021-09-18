@@ -95,12 +95,14 @@ class Parser:
             if line.replace("\n", "").replace("\t", "") or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
                 if statement is not None:
-                    statement += f" {line}"
+                    statement += f" {line.strip()}"
                 else:
-                    statement = line
-                if ";" not in statement and num != len(lines) - 1:
+                    statement = line.strip()
+                if not statement.endswith(';') and num != len(lines) - 1:
                     continue
                 self.set_default_flags_in_lexer()
+                if statement.endswith(';'):
+                    statement = statement[:-1]
                 _parse_result = yacc.parse(statement)
 
                 if _parse_result:

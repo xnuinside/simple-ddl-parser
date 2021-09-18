@@ -15,7 +15,7 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
     """
 
     tokens = tok.tokens
-    t_ignore = ";\t  \r"
+    t_ignore = "\t  \r"
     t_DOT = r"."
 
     def get_tag_symbol_value_and_increment(self, t):
@@ -48,7 +48,7 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
         return t
 
     def t_STRING(self, t):
-        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&|?]*)(\')){1}"
+        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
         return t
 
@@ -59,12 +59,14 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
         if t.type == "LP":
             self.lexer.lp_open += 1
             self.lexer.columns_def = True
+            self.lexer.last_token = "LP"
             return t
+
         elif (
             t.value not in skip_id_tokens
             and self.lexer.is_table
             and self.lexer.lp_open
-            and self.lexer.last_token == "COMMA"
+            and (self.lexer.last_token == "COMMA" or self.lexer.last_token == "LP")
             and t.value.upper() not in tok.first_liners
         ):
             t.type = "ID"

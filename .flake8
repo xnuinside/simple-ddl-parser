@@ -1,5 +1,5 @@
 [flake8]
-exclude = .github,.git,__pycache__,docs/source/conf.py,old,build,dist,simple_ddl_parser/parsetab.py,simple_ddl_parser/test.py
+exclude = .github,.git,__pycache__,docs/source/conf.py,old,build,dist,simple_ddl_parser/parsetab.py,./test.py,simple_ddl_parser/test.py
 max-complexity = 10
 max-line-length = 120
 ignore = C901, W503
