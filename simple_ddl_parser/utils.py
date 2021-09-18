@@ -29,15 +29,6 @@ def check_spec(value: str) -> str:
     return replace_value
 
 
-def find_symbols_not_in_str(str_1: str, str_2: str) -> str:
-    # method for development to fast search that symbols are not in parser
-    str_1 = set(str_1)
-    str_2 = set(str_2)
-    not_in_str_2 = str_1 - str_2
-    print(f"Symbols not in str 2: {not_in_str_2}")
-    return not_in_str_2
-
-
 def find_first_unpair_closed_par(str_: str) -> int:
     stack = []
     n = -1

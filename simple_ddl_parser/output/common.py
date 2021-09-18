@@ -1,7 +1,7 @@
 import json
 import os
 from copy import deepcopy
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 from simple_ddl_parser.output import dialects as d
 
@@ -18,7 +18,7 @@ output_modes = [
 
 
 def get_table_from_tables_data(
-    tables_dict: Dict, table_id: Tuple[str, str], statement: Dict
+    tables_dict: Dict, table_id: Tuple[str, str]
 ) -> Dict:
     """ get table by name and schema or rise exception """
     target_table = tables_dict.get(table_id)
@@ -32,7 +32,7 @@ def get_table_from_tables_data(
 def add_index_to_table(tables_dict: Dict, statement: Dict, output_mode: str) -> Dict:
     """ populate 'index' key in output data """
     table_id = (statement["table_name"], statement["schema"])
-    target_table = get_table_from_tables_data(tables_dict, table_id, statement)
+    target_table = get_table_from_tables_data(tables_dict, table_id)
 
     del statement["schema"]
     del statement["table_name"]
@@ -74,7 +74,7 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
     """ add 'alter' statement to the table """
     table_id = (statement["alter_table_name"], statement["schema"])
 
-    target_table = get_table_from_tables_data(tables_dict, table_id, statement)
+    target_table = get_table_from_tables_data(tables_dict, table_id)
 
     if "columns" in statement:
         prepare_alter_columns(target_table, statement)
@@ -114,13 +114,6 @@ def set_alter_to_table_data(key: str, statement: Dict, target_table: Dict) -> Di
         target_table["alter"][key + "s"] = []
     target_table["alter"][key + "s"].append(statement[key])
     return target_table
-
-
-def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
-    if isinstance(check, list):
-        check = {"constraint_name": None, "statement": " ".join(check)}
-    table_data["checks"].append(check)
-    return table_data
 
 
 def init_table_data() -> Dict:

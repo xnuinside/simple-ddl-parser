@@ -128,13 +128,6 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
             self.lexer.is_table = True
         return t
 
-    def t_newline(self, t):
-        r"\n+"
-        self.lexer.lineno += len(t.value)
-        t.type = "NEWLINE"
-        if self.lexer.paren_count == 0:
-            return t
-
     def t_error(self, t):
         raise SyntaxError("Unknown symbol %r" % (t.value[0],))
 
