@@ -19,7 +19,7 @@ class Parser:
         Subclass must include tokens for parser and rules
     """
 
-    def __init__(self, content) -> None:
+    def __init__(self, content: str) -> None:
         """ init parser for file """
         self.tables = []
         self.data = content.encode("unicode_escape")
