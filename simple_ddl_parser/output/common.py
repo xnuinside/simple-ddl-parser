@@ -123,41 +123,63 @@ def set_checks_to_table(table_data: Dict, check: Union[List, Dict]) -> Dict:
     return table_data
 
 
+def init_table_data() -> Dict:
+    return {
+        "columns": [],
+        "primary_key": None,
+        "alter": {},
+        "checks": [],
+        "index": [],
+        "partitioned_by": [],
+        "tablespace": None,
+    }
+
+
+def process_alter_and_index_result(tables_dict: Dict, table: List, output_mode: str) -> Dict:
+    if "index_name" in table[0]:
+        tables_dict = add_index_to_table(tables_dict, table[0], output_mode)
+
+    elif "alter_table_name" in table[0]:
+        tables_dict = add_alter_to_table(tables_dict, table[0])
+
+    return tables_dict
+
+
+def process_entities(tables_dict: Dict, table: List, output_mode: str) -> Dict:
+    """ process tables, types, sequence and etc. data """
+    table_data = init_table_data()
+    table_data = d.populate_dialects_table_data(output_mode, table_data)
+    not_table = False
+    for item in table:
+        if item.get("table_name"):
+            table_data.update(item)
+            table_data = set_unique_columns(table_data)
+        else:
+            table_data = item
+            not_table = True
+            continue
+    if not not_table:
+        table_data = process_not_table_item(table_data, tables_dict)
+    table_data = normalize_ref_columns_in_final_output(table_data)
+    d.dialects_clean_up(output_mode, table_data)
+    return table_data
+
+
 def result_format(
-    result: List[Dict], output_mode: str, group_by_type: bool
+        result: List[Dict],
+        output_mode: str,
+        group_by_type: bool
 ) -> List[Dict]:
+    """ method to format final output after parser """
     final_result = []
     tables_dict = {}
     for table in result:
-        table_data = {
-            "columns": [],
-            "primary_key": None,
-            "alter": {},
-            "checks": [],
-            "index": [],
-            "partitioned_by": [],
-            "tablespace": None,
-        }
-        table_data = d.populate_dialects_table_data(output_mode, table_data)
-        not_table = False
-        if len(table) == 1 and "index_name" in table[0]:
-            tables_dict = add_index_to_table(tables_dict, table[0], output_mode)
-
-        elif len(table) == 1 and "alter_table_name" in table[0]:
-            tables_dict = add_alter_to_table(tables_dict, table[0])
+        # process each item in parser output
+        if len(table) == 1 and ("index_name" in table[0] or "alter_table_name" in table[0]):
+            tables_dict = process_alter_and_index_result(tables_dict, table, output_mode)
         else:
-            for item in table:
-                if item.get("table_name"):
-                    table_data.update(item)
-                    table_data = set_unique_columns(table_data)
-                else:
-                    table_data = item
-                    not_table = True
-                    continue
-            if not not_table:
-                table_data = process_not_table_item(table_data, tables_dict)
-            table_data = normalize_ref_columns_in_fincal_output(table_data)
-            d.dialects_clean_up(output_mode, table_data)
+            # process tables, types, sequence and etc. data
+            table_data = process_entities(tables_dict, table, output_mode)
             final_result.append(table_data)
     if group_by_type:
         final_result = group_by_type_result(final_result)
@@ -185,7 +207,7 @@ def process_not_table_item(table_data: Dict, tables_dict: Dict) -> Dict:
     return table_data
 
 
-def normalize_ref_columns_in_fincal_output(table_data: Dict) -> Dict:
+def normalize_ref_columns_in_final_output(table_data: Dict) -> Dict:
     # todo: this is hack, need to remove it
     if "references" in table_data:
         del table_data["references"]
@@ -200,23 +222,29 @@ def normalize_ref_columns_in_fincal_output(table_data: Dict) -> Dict:
     return table_data
 
 
+def set_column_unique_param(table_data: Dict, key: str) -> Dict:
+    for column in table_data["columns"]:
+        if key == "constraints":
+            unique = table_data[key].get("unique", [])
+            if unique:
+                check_in = unique["columns"]
+            else:
+                check_in = []
+        else:
+            check_in = table_data[key]
+        if column["name"] in check_in:
+            column["unique"] = True
+    return table_data
+
+
 def set_unique_columns(table_data: Dict) -> Dict:
 
     unique_keys = ["unique_statement", "constraints"]
 
     for key in unique_keys:
         if table_data.get(key, None):
-            for column in table_data["columns"]:
-                if key == "constraints":
-                    unique = table_data[key].get("unique", [])
-                    if unique:
-                        check_in = unique["columns"]
-                    else:
-                        check_in = []
-                else:
-                    check_in = table_data[key]
-                if column["name"] in check_in:
-                    column["unique"] = True
+            # get column names from unique constraints & statements
+            table_data = set_column_unique_param(table_data, key)
     if "unique_statement" in table_data:
         del table_data["unique_statement"]
     return table_data

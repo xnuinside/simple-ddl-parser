@@ -1,6 +1,6 @@
 import re
 from copy import deepcopy
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from simple_ddl_parser.utils import check_spec, remove_par
 
@@ -104,7 +104,7 @@ class TableSpaces:
 
 
 class Table:
-    def p_create_table(self, p):
+    def p_create_table(self, p: List):
         """create_table : CREATE TABLE IF NOT EXISTS
         | CREATE TABLE
         | CREATE ID TABLE IF NOT EXISTS
@@ -121,12 +121,12 @@ class Table:
 
 
 class Column:
-    def p_column_property(self, p):
+    def p_column_property(self, p: List):
         """c_property : ID ID"""
         p_list = list(p)
         p[0] = {"property": {p_list[1]: p_list[-1]}}
 
-    def set_base_column_propery(self, p: list) -> Dict:
+    def set_base_column_propery(self, p: List) -> Dict:
 
         if "." in list(p):
             type_str = f"{p[2]}.{p[4]}"
@@ -235,6 +235,36 @@ class Column:
         elif isinstance(p_list[-1], str) and p_list[-1] not in p[0]["type"]:
             p[0]["type"] += f" {p_list[-1]}"
 
+    @staticmethod
+    def set_property(p: List) -> List:
+        for item in p[1:]:
+            if isinstance(item, dict):
+                if "property" in item:
+                    for key, value in item["property"].items():
+                        p[0][key] = value
+                    del item["property"]
+                p[0].update(item)
+        return p
+
+    @staticmethod
+    def get_column_properties(p_list: List) -> Tuple:
+        pk = False
+        nullable = True
+        default = None
+        unique = False
+        references = None
+        if isinstance(p_list[-1], str):
+            if p_list[-1].upper() == "KEY":
+                pk = True
+                nullable = False
+            elif p_list[-1].upper() == "UNIQUE":
+                unique = True
+        elif isinstance(p_list[-1], dict) and "references" in p_list[-1]:
+            p_list[-1]["references"]["column"] = p_list[-1]["references"]["columns"][0]
+            del p_list[-1]["references"]["columns"]
+            references = p_list[-1]["references"]
+        return pk, default, unique, references, nullable
+
     def p_defcolumn(self, p):
         """defcolumn : column
         | defcolumn comment
@@ -252,39 +282,21 @@ class Column:
         | defcolumn generated
         | defcolumn c_property
         """
-        pk = False
-        nullable = True
-        default = None
-        unique = False
-        check = None
-        references = None
         p[0] = p[1]
         p_list = list(p)
-        if ("KEY" in p or "key" in p) and ("PRIMARY" in p or "primary" in p):
-            pk = True
-            nullable = False
-        elif "unique" in p or "UNIQUE" in p:
-            unique = True
-        elif isinstance(p_list[-1], dict) and "references" in p_list[-1]:
-            p_list[-1]["references"]["column"] = p_list[-1]["references"]["columns"][0]
-            del p_list[-1]["references"]["columns"]
-            references = p_list[-1]["references"]
-        for item in p[1:]:
-            if isinstance(item, dict):
-                if "property" in item:
-                    for key, value in item["property"].items():
-                        p[0][key] = value
-                    del item["property"]
-                p[0].update(item)
+
+        pk, default, unique, references, nullable = self.get_column_properties(p_list)
+
+        self.set_property(p)
 
         p[0]["references"] = p[0].get("references", references)
-        p[0]["unique"] = unique if unique is not False else p[0].get("unique", unique)
-        p[0]["primary_key"] = pk if pk is not False else p[0].get("primary_key", pk)
+        p[0]["unique"] = unique or p[0].get("unique", unique)
+        p[0]["primary_key"] = pk or p[0].get("primary_key", pk)
         p[0]["nullable"] = (
             nullable if nullable is not True else p[0].get("nullable", nullable)
         )
         p[0]["default"] = p[0].get("default", default)
-        p[0]["check"] = p[0].get("check", check)
+        p[0]["check"] = p[0].get("check", None)
         if isinstance(p_list[-1], dict) and p_list[-1].get("encode"):
             p[0]["encode"] = p[0].get("encode", p_list[-1]["encode"])
         if p[0]["check"]:
@@ -903,6 +915,22 @@ class BaseSQL(
         if "constraint" in p[2]:
             p[0]["unique"]["constraint_name"] = p[2]["constraint"]["name"]
 
+    @staticmethod
+    def get_column_and_value_from_alter(p: List) -> Tuple:
+
+        p_list = remove_par(list(p))
+
+        column = None
+        value = None
+
+        if isinstance(p_list[2], str) and "FOR" == p_list[2].upper():
+            column = p_list[-1]
+        elif p[0].get("default") and p[0]["default"].get('value'):
+            value = p[0]["default"]["value"] + " " + p_list[-1]
+        else:
+            value = p_list[-1]
+        return column, value
+
     def p_alter_default(self, p):
         """alter_default : alt_table ID ID
         | alt_table constraint ID ID
@@ -912,18 +940,9 @@ class BaseSQL(
         | alter_default FOR pid
         """
 
-        p_list = remove_par(list(p))
         p[0] = p[1]
+        column, value = self.get_column_and_value_from_alter(p)
 
-        if "FOR" in p_list:
-            column = p_list[-1]
-            value = None
-        elif p[0].get("default") and "value" in p[0]["default"]:
-            value = p[0]["default"]["value"] + " " + p_list[-1]
-            column = None
-        else:
-            value = p_list[-1]
-            column = None
         if "default" not in p[0]:
 
             p[0]["default"] = {
