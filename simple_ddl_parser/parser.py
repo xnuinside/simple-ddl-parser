@@ -56,16 +56,20 @@ class Parser:
             code_line += code_line.split(CL_COM)[1]
         return code_line, block_comments
 
+    def process_regex_input(self, data):
+        regex = data.split('"input.regex"')[1].split("=")[1]
+        index = find_first_unpair_closed_par(regex)
+        regex = regex[:index]
+        data = data.replace(regex, " lexer_state_regex ")
+        data = data.replace('"input.regex"', "parse_m_input_regex")
+        self.lexer.state = {"lexer_state_regex": regex}
+        return data
+
     def pre_process_data(self, data):
         data = data.decode("utf-8")
         # todo: not sure how to workaround ',' normal way
         if "input.regex" in data:
-            regex = data.split('"input.regex"')[1].split("=")[1]
-            index = find_first_unpair_closed_par(regex)
-            regex = regex[:index]
-            data = data.replace(regex, " lexer_state_regex ")
-            data = data.replace('"input.regex"', "parse_m_input_regex")
-            self.lexer.state = {"lexer_state_regex": regex}
+            data = self.process_regex_input(data)
 
         data = (
             data.replace(",", " , ")
@@ -85,33 +89,38 @@ class Parser:
 
     def parse_data(self):
         tables = []
-        table = []
         block_comments = []
         statement = None
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
         for num, line in enumerate(lines):
+
             line, block_comments = self.pre_process_line(line, block_comments)
+
             if line.replace("\n", "").replace("\t", "") or num == len(lines) - 1:
+                line = line.strip()
                 # to avoid issues when comma or parath are glued to column name
-                if statement is not None:
-                    statement += f" {line.strip()}"
+                if statement is None:
+                    statement = line
                 else:
-                    statement = line.strip()
-                if not statement.endswith(';') and num != len(lines) - 1:
-                    continue
-                self.set_default_flags_in_lexer()
+                    statement += f" {line}"
+
                 if statement.endswith(';'):
                     statement = statement[:-1]
+                else:
+                    if num != len(lines) - 1:
+                        # continue combine lines in one massive
+                        continue
+
+                self.set_default_flags_in_lexer()
+
                 _parse_result = yacc.parse(statement)
 
-                if _parse_result:
-                    table.append(_parse_result)
-                if line.strip().endswith(";") or num == len(lines) - 1:
-                    if table:
-                        tables.append(table)
-                    table = []
+                if (line.strip().endswith(";") or num == len(lines) - 1) and _parse_result:
+                    tables.append(_parse_result)
+
                 statement = None
+
         return tables
 
     def set_default_flags_in_lexer(self):
