@@ -1,7 +1,7 @@
 import json
 import os
 from copy import deepcopy
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 from simple_ddl_parser.output import dialects as d
 
