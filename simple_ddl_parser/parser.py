@@ -121,8 +121,8 @@ class Parser:
                     # end of sql operation, remove ; from end of line
                     statement = statement[:-1]
                 elif num != len(lines) - 1:
-                        # continue combine lines in one massive
-                        continue
+                    # continue combine lines in one massive
+                    continue
 
                 self.set_default_flags_in_lexer()
 
