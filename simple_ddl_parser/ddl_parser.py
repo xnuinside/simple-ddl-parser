@@ -56,13 +56,6 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
         r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"\`]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         skip_id_tokens = ["(", ")", ","]
-        print(
-                t.value not in skip_id_tokens
-                and self.lexer.is_table
-                and self.lexer.lp_open
-                and (self.lexer.last_token == "COMMA" or self.lexer.last_token == "LP")
-                and t.value.upper() not in tok.first_liners
-        )
         if t.type == "LP":
             self.lexer.lp_open += 1
             self.lexer.columns_def = True

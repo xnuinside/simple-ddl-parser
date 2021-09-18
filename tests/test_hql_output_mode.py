@@ -1772,8 +1772,19 @@ def test_output_input_format():
     'hdfs://xxxx'
     """
     parse_results = DDLParser(ddl).run(output_mode="hql")
-    expected = [{'columns': [{'name': 'test', 'type': 'STRING', 'size': None, 'references': None, 'unique': False,
-                              'nullable': True, 'default': None, 'check': None, 'comment': "'xxxx'"}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [], 'tablespace': None, 'stored_as': {'outputformat': "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'", 'inputformat': "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'"}, 'location': "'hdfs://xxxx'", 'comment': None, 'row_format': {'serde': True, 'java_class': "'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'"}, 'fields_terminated_by': None, 'lines_terminated_by': None, 'map_keys_terminated_by': None, 'collection_items_terminated_by': None, 'external': True, 'schema': None, 'table_name': 'test'}]
+    expected = [{'columns': [
+        {'name': 'test', 'type': 'STRING', 'size': None, 'references': None, 'unique': False,
+         'nullable': True, 'default': None, 'check': None, 'comment': "'xxxx'"}
+    ], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [],
+        'tablespace': None,
+        'stored_as':
+            {'outputformat': "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'",
+             'inputformat': "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'"},
+        'location': "'hdfs://xxxx'", 'comment': None,
+        'row_format':
+            {'serde': True, 'java_class': "'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'"},
+        'fields_terminated_by': None, 'lines_terminated_by': None, 'map_keys_terminated_by': None,
+        'collection_items_terminated_by': None, 'external': True, 'schema': None, 'table_name': 'test'}]
     assert expected == parse_results
 
 
@@ -1783,5 +1794,15 @@ def test_skewed_by():
       SKEWED BY (key) ON (1,5,6) STORED AS DIRECTORIES;
     """
     parse_results = DDLParser(ddl).run(output_mode="hql")
-    expected =[{'columns': [{'name': 'key', 'type': 'STRING', 'size': None, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}, {'name': 'value', 'type': 'STRING', 'size': None, 'references': None, 'unique': False, 'nullable': True, 'default': None, 'check': None}], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [], 'tablespace': None, 'stored_as': 'DIRECTORIES', 'location': None, 'comment': None, 'row_format': None, 'fields_terminated_by': None, 'lines_terminated_by': None, 'map_keys_terminated_by': None, 'collection_items_terminated_by': None, 'external': False, 'schema': None, 'table_name': 'list_bucket_single', 'skewed_by': {'key': 'key', 'on': ['1', '5', '6']}}]
+    expected = [
+        {'columns': [
+            {'name': 'key', 'type': 'STRING', 'size': None, 'references': None,
+             'unique': False, 'nullable': True, 'default': None, 'check': None},
+            {'name': 'value', 'type': 'STRING', 'size': None, 'references': None,
+             'unique': False, 'nullable': True, 'default': None, 'check': None}],
+            'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [],
+            'tablespace': None, 'stored_as': 'DIRECTORIES', 'location': None, 'comment': None,
+            'row_format': None, 'fields_terminated_by': None, 'lines_terminated_by': None,
+            'map_keys_terminated_by': None, 'collection_items_terminated_by': None, 'external': False,
+            'schema': None, 'table_name': 'list_bucket_single', 'skewed_by': {'key': 'key', 'on': ['1', '5', '6']}}]
     assert expected == parse_results
