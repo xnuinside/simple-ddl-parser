@@ -6,9 +6,9 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
 ### Is it Stable?
 
-Yes, library already has about 5000+ usage per day - https://pypistats.org/packages/simple-ddl-parser.
+Yes, library already has about 7000+ downloads per day - https://pypistats.org/packages/simple-ddl-parser.
 
-As maintainer I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
+As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
 
 However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version `1.0.*` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version `0.26.0` :)
 
@@ -363,6 +363,15 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 
 ## Changelog
+**v0.19.7**
+Fixes:
+1. Add support for more special symbols to strings - https://github.com/xnuinside/simple-ddl-parser/issues/68
+
+Features:
+1. Added support for HQL statements:
+    STORED AS INPUTFORMAT, OUTPUTFORMAT - https://github.com/xnuinside/simple-ddl-parser/issues/69
+    SKEWED BY
+
 **v0.19.6**
 Fixes:
 
@@ -444,57 +453,3 @@ Will be fixed in next releases.
 3. Half of changelogs moved to ARCHIVE_CHANGELOG.txt
 4. Added base support for CREATE DOMAIN statement
 5. Added base support for CREATE SCHEMA [IF NOT EXISTS] ... [AUTHORIZATION] statement, added new type keyword 'schemas'
-
-
-**v0.15.0**
-1. Garbage like '‘’' quotes are ignored now and changed to normal. 
-2. Added support for HQL: LINES TERMINATED BY, COMMENT (for table), ROW FORMAT SERDE, WITH SERDEPROPERTIES (
-  "input.regex" =  "..some regex..")
-3. Fixed issue when primary key with default option was not parsed correct - https://github.com/xnuinside/simple-ddl-parser/issues/40
-4. Fixed issue when expression in default value was not parsed correct - https://github.com/xnuinside/simple-ddl-parser/issues/39
-5. Added support for comments in Columns (except one case when COMMENT goes after DEFAULT word, in this case does not parse correct now - will be fixed in next releases)
-
-
-**v0.14.0**
-1. Added support for CONSTRAINT ... PRIMARY KEY ...
-2. Added support for ENCRYPT [+ NO SALT, SALT, USING] statements for Oracle dialect. All default values taken from this doc https://docs.oracle.com/en/database/oracle/oracle-database/21/asoag/encrypting-columns-tables2.html
-Now if you use output_mode='oracle' in column will be showed new property 'encrypt'. 
-If no ENCRYPT statement will be in table defenition - then value will be 'None', but if ENCRYPT exists when in encrypt property you will find this information:
-
-{'encrypt' : {
-    'salt': True,
-    'encryption_algorithm': 'AES192',
-    'integrity_algorithm': 'SHA-1'
-    }}
-
-3. Added support for oracle STORAGE statement, 'oracle' output_mode now has key 'storage' in table data defenition.
-4. Added support for TABLESPACE statement after columns defenition
-
-**v0.12.1**
-1. () after DEFAULT now does not cause an issue
-2. ' and " does not lost now in DEFAULT values
-
-**v0.12.0**
-1. Added support for MSSQL: types with 2 words like 'int IDENTITY', 
-FOREIGN KEY REFERENCES statement, supported 'max' as type size, CONSTRAINT ... UNIQUE statement in table defenition,
-CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
-2. Added output_mode types: 'mysql', 'mssql' for SQL Server, 'oracle'. If chosed one of the above - 
-added key 'constraints' in table defenition by default. 'constraints' contain dict with keys 'uniques', 'checks', 'references'
-it this is a COSTRAINT .. CHECK 'checks' key will be still in data output, but it will be duplicated to 'constraints': {'checks': ...}
-3. Added support for ALTER ADD ... UNIQUE
-4. Added support for CREATE CLUSTERED INDEX, if output_mode = 'mssql' then index will have additional arg 'clustered'.
-5. Added support for DESC & NULLS in CREATE INDEX statements. Detailed information places in key 'detailed_columns' in 'indexes', example: '
-'index': [{'clustered': False,
-                'columns': ['extra_funds'],
-                'detailed_columns': [{'name': 'extra_funds',
-                                        'nulls': 'LAST',
-                                        'order': 'ASC'}],
-6. Added support for statement ALTER TABLE ... ADD CONSTRAINT ... DEFAULT ... FOR ... ;
-
-**v0.11.0**
-1. Now table can has name 'table'
-2. Added base support for statement CREATE TYPE:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT (not all properties & types supported yet.)
-3. Added argument 'group_by_type' in 'run' method that will group output by type of parsed entities like: 
-'tables': [all_pasrsed_tables], 'sequences': [all_pasrsed_sequences], 'types': [all_pasrsed_types], 'domains': [all_pasrsed_domains]
-4. Type in column defenition also can be "schema"."YourCustomType"
-5. " now are not dissapeared if you use them in DDL.
