@@ -1,5 +1,6 @@
 import os
 import re
+import json
 from typing import Dict, List, Optional, Tuple
 
 from ply import lex, yacc
@@ -129,7 +130,6 @@ class Parser:
                 self.parse_statement(tables, statement)
 
                 statement = None
-
         return tables
 
     @staticmethod
@@ -163,6 +163,7 @@ class Parser:
         file_path: Optional[str] = None,
         output_mode: str = "sql",
         group_by_type: bool = False,
+        json_dump=False
     ) -> List[Dict]:
         """
         dump: provide 'True' if you need to dump output in file
@@ -177,6 +178,7 @@ class Parser:
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each
             Dict == one entity from ddl - one table or sequence or type.
         """
+
         tables = self.parse_data()
         tables = result_format(tables, output_mode, group_by_type)
         if dump:
@@ -188,4 +190,6 @@ class Parser:
             else:
                 for table in tables:
                     dump_data_to_file(table["table_name"], dump_path, table)
+        if json_dump:
+            tables = json.dumps(tables)
         return tables

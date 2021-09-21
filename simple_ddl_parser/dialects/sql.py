@@ -144,6 +144,7 @@ class Column:
         # for complex <> types
         start_index = 1
         _type = ""
+        print(p_list, "parse_complex_type")
         if isinstance(p_list[1], dict):
             _type = p_list[1]["type"]
             start_index = 2
@@ -151,7 +152,7 @@ class Column:
             if isinstance(elem, list):
                 for _elem in elem:
                     _type += f" {_elem.rstrip()}"
-            elif "ARRAY" in elem:
+            elif "ARRAY" in elem and elem != "ARRAY":
                 _type += elem
             else:
                 _type += f" {elem}"
@@ -168,6 +169,7 @@ class Column:
         """
         p[0] = {}
         p_list = remove_par(list(p))
+        print(p_list, "p_c_type")
         _type = None
 
         if len(p_list) == 2:
@@ -188,7 +190,7 @@ class Column:
         _type = _type.strip().replace('" . "', '"."')
         if "<" not in _type and "ARRAY" in _type:
             if "[" not in p_list[-1]:
-                _type = _type.replace("ARRAY", "[]")
+                _type = _type.replace(" ARRAY", "[]").replace("ARRAY", "[]")
             else:
                 _type = _type.replace("ARRAY", "")
         elif "<" in _type and "[]" in _type:
@@ -721,13 +723,17 @@ class BaseSQL(
         | tid COMMAT
         | tid RT
         """
+        print(list(p), "tid")
         if not isinstance(p[1], list):
             p[0] = [p[1]]
         else:
             p[0] = p[1]
 
         for i in list(p)[2:]:
-            p[0][0] += i
+            if not i == "[]" and not i == ",":
+                p[0][0] += f" {i}"
+            else:
+                p[0][0] += f"{i}"
 
     @staticmethod
     def get_complex_type(p, p_list):
@@ -935,7 +941,7 @@ class BaseSQL(
 
         if isinstance(p_list[2], str) and "FOR" == p_list[2].upper():
             column = p_list[-1]
-        elif p[0].get("default") and p[0]["default"].get('value'):
+        elif p[0].get("default") and p[0]["default"].get("value"):
             value = p[0]["default"]["value"] + " " + p_list[-1]
         else:
             value = p_list[-1]

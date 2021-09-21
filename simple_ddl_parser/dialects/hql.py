@@ -86,11 +86,10 @@ class HQL:
         p[0]["map_keys_terminated_by"] = check_spec(p_list[-1])
 
     def p_expression_skewed_by(self, p):
-        """expr : expr SKEWED BY LP ID RP ON LP pid RP
-        """
+        """expr : expr SKEWED BY LP ID RP ON LP pid RP"""
         p[0] = p[1]
         p_list = remove_par(list(p))
-        p[0]["skewed_by"] = {'key': p_list[4], 'on': p_list[-1]}
+        p[0]["skewed_by"] = {"key": p_list[4], "on": p_list[-1]}
 
     def p_expression_collection_terminated_by(self, p):
         """expr : expr COLLECTION ITEMS TERMINATED BY ID
@@ -117,7 +116,7 @@ class HQL:
             p[0]["stored_as"] = p_list[-1]
 
     def p_expression_partitioned_by_hql(self, p):
-        """expr : expr PARTITIONED BY pid_with_type """
+        """expr : expr PARTITIONED BY pid_with_type"""
         p[0] = p[1]
         p_list = list(p)
         p[0]["partitioned_by"] = p_list[-1]
