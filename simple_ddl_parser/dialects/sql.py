@@ -807,12 +807,17 @@ class BaseSQL(
         | multi_id f_call
         """
         p_list = list(p)
+        print(p_list)
         if isinstance(p[1], list):
             p[0] = p[1]
             p[0].append(p_list[-1])
         else:
             value = " ".join(p_list[1:])
             p[0] = value
+
+    def p_funct_args(self, p: List) -> None:
+        """funct_args : LP multi_id RP"""
+        p[0] = {"args": f"({p[2]})"}
 
     def p_funct_expr(self, p: List) -> None:
         """funct_expr : LP multi_id RP
@@ -901,14 +906,19 @@ class BaseSQL(
         | check_st STRING
         | check_st ID RP
         | check_st STRING RP
+        | check_st funct_args
         """
         p_list = remove_par(list(p))
+        print(p_list)
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
             p[0] = {"check": []}
         for item in p_list[2:]:
-            p[0]["check"].append(item)
+            if isinstance(p_list[-1], dict) and p_list[-1].get("args"):
+                p[0]["check"][-1] += p_list[-1]["args"]
+            else:
+                p[0]["check"].append(item)
 
     def p_expression_alter(self, p: List) -> None:
         """expr : alter_foreign ref

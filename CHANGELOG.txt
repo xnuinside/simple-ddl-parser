@@ -8,6 +8,7 @@ Fixes:
     extracted like 'STRUCT <aARRAY <STRING>,bBOOL>', now this issue was fixed and it parsed as is STRUCT < a
     ARRAY < STRING > ,b BOOL >. Now '>' and '<' always will be with space near them.
 
+    2. CHECK CONSTRAINT with functions. Fix for https://github.com/xnuinside/simple-ddl-parser/issues/76.
 
 
 **v0.19.7**

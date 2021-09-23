@@ -1123,7 +1123,7 @@ def test_complex_structure_test_hql():
                     {
                         "name": "column_struct",
                         "type": "STRUCT < street_address: STRUCT < street_number: INT, street_name: "
-                                "STRING, street_type: STRING >, country: STRING, postal_code: STRING >",
+                        "STRING, street_type: STRING >, country: STRING, postal_code: STRING >",
                         "size": None,
                         "references": None,
                         "unique": False,
