@@ -2077,7 +2077,7 @@ def test_method_in_check():
                     "checks": [
                         {
                             "constraint_name": "my_constraint",
-                            "statement": "my_function(name) IS " "TRUE",
+                            "statement": "my_function(name) IS TRUE",
                         }
                     ]
                 },
