@@ -144,7 +144,6 @@ class Column:
         # for complex <> types
         start_index = 1
         _type = ""
-        print(p_list, "parse_complex_type")
         if isinstance(p_list[1], dict):
             _type = p_list[1]["type"]
             start_index = 2
@@ -169,7 +168,6 @@ class Column:
         """
         p[0] = {}
         p_list = remove_par(list(p))
-        print(p_list, "p_c_type")
         _type = None
 
         if len(p_list) == 2:
@@ -723,7 +721,6 @@ class BaseSQL(
         | tid COMMAT
         | tid RT
         """
-        print(list(p), "tid")
         if not isinstance(p[1], list):
             p[0] = [p[1]]
         else:
@@ -807,7 +804,6 @@ class BaseSQL(
         | multi_id f_call
         """
         p_list = list(p)
-        print(p_list)
         if isinstance(p[1], list):
             p[0] = p[1]
             p[0].append(p_list[-1])
@@ -909,7 +905,6 @@ class BaseSQL(
         | check_st funct_args
         """
         p_list = remove_par(list(p))
-        print(p_list)
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
