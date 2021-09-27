@@ -1,4 +1,4 @@
-**v0.20.0**
+**v0.19.8**
 Features:
     1. Method `DDLParser(...).run(...)` now get argument json=True if you want to get result as json,
     but not as Python Object
