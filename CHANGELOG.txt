@@ -1,3 +1,16 @@
+**v0.19.8**
+Features:
+    1. Method `DDLParser(...).run(...)` now get argument json=True if you want to get result as json,
+    but not as Python Object
+
+Fixes:
+    1. Fixed issue when variables are 'glue' during Struct parse like previously STRUCT<a ARRAY<STRING>,b BOOL> was
+    extracted like 'STRUCT <aARRAY <STRING>,bBOOL>', now this issue was fixed and it parsed as is STRUCT < a
+    ARRAY < STRING > ,b BOOL >. Now '>' and '<' always will be with space near them.
+
+    2. CHECK CONSTRAINT with functions. Fix for https://github.com/xnuinside/simple-ddl-parser/issues/76.
+
+
 **v0.19.7**
 Fixes:
 1. Add support for more special symbols to strings - https://github.com/xnuinside/simple-ddl-parser/issues/68

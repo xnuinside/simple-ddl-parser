@@ -2035,3 +2035,60 @@ def test_escaping_symbols_raw_string():
         "types": [],
     }
     assert result == expected
+
+
+def test_method_in_check():
+
+    ddl = r"""
+    CREATE TABLE foo
+    (
+        entity_id        UUID PRIMARY KEY DEFAULT getId()
+        name             VARCHAR(64),
+        CONSTRAINT my_constraint  CHECK(my_function(name) IS TRUE)
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [
+                    {
+                        "constraint_name": "my_constraint",
+                        "statement": "my_function(name) IS TRUE",
+                    }
+                ],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": "getId() name VARCHAR(64)",
+                        "name": "entity_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "UUID",
+                        "unique": False,
+                    }
+                ],
+                "constraints": {
+                    "checks": [
+                        {
+                            "constraint_name": "my_constraint",
+                            "statement": "my_function(name) IS TRUE",
+                        }
+                    ]
+                },
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["entity_id"],
+                "schema": None,
+                "table_name": "foo",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

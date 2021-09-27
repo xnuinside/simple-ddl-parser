@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from typing import Dict, List, Optional, Tuple
@@ -34,7 +35,9 @@ class Parser:
         self.yacc = yacc.yacc(module=self, debug=False)
         self.columns_closed = False
 
-    def pre_process_line(self, line: str, block_comments: List[str]) -> Tuple[str, List]:
+    def pre_process_line(
+        self, line: str, block_comments: List[str]
+    ) -> Tuple[str, List]:
         code_line = ""
         comma_only_str = r"((\')|(' ))+(,)((\')|( '))+\B"
         line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", line)
@@ -42,7 +45,9 @@ class Parser:
             line = line.replace("<", " < ").replace(">", " > ")
 
         if not (line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM)):
-            code_line, block_comments = self.process_inline_comments(line, code_line, block_comments)
+            code_line, block_comments = self.process_inline_comments(
+                line, code_line, block_comments
+            )
         return code_line, block_comments
 
     @staticmethod
@@ -53,7 +58,9 @@ class Parser:
             code_line = line.split(IN_COM)[0]
         return code_line
 
-    def process_inline_comments(self, line: str, code_line: str, block_comments: List) -> Tuple[str, List]:
+    def process_inline_comments(
+        self, line: str, code_line: str, block_comments: List
+    ) -> Tuple[str, List]:
         if IN_COM in line:
             code_line = self.process_in_comment(line)
         elif CL_COM not in line and OP_COM not in line:
@@ -129,7 +136,6 @@ class Parser:
                 self.parse_statement(tables, statement)
 
                 statement = None
-
         return tables
 
     @staticmethod
@@ -163,6 +169,7 @@ class Parser:
         file_path: Optional[str] = None,
         output_mode: str = "sql",
         group_by_type: bool = False,
+        json_dump=False,
     ) -> List[Dict]:
         """
         dump: provide 'True' if you need to dump output in file
@@ -177,6 +184,7 @@ class Parser:
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each
             Dict == one entity from ddl - one table or sequence or type.
         """
+
         tables = self.parse_data()
         tables = result_format(tables, output_mode, group_by_type)
         if dump:
@@ -188,4 +196,6 @@ class Parser:
             else:
                 for table in tables:
                     dump_data_to_file(table["table_name"], dump_path, table)
+        if json_dump:
+            tables = json.dumps(tables)
         return tables

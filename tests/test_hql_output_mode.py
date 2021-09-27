@@ -1055,103 +1055,108 @@ def test_complex_structure_test_hql():
             )
     """  # noqa E501
 
-    result = DDLParser(ddl).run(output_mode="hql")
-    expected = [
-        {
-            "alter": {},
-            "checks": [],
-            "collection_items_terminated_by": None,
-            "columns": [
-                {
-                    "check": None,
-                    "default": None,
-                    "name": "column_abc",
-                    "nullable": True,
-                    "references": None,
-                    "size": None,
-                    "type": "ARRAY <structcolx:string,coly:string>",
-                    "unique": False,
-                },
-                {
-                    "check": None,
-                    "default": None,
-                    "name": "employee_info",
-                    "nullable": True,
-                    "references": None,
-                    "size": None,
-                    "type": "STRUCT <employer:STRING,id:BIGINT,address:STRING>",
-                    "unique": False,
-                },
-                {
-                    "check": None,
-                    "default": None,
-                    "name": "employee_description",
-                    "nullable": True,
-                    "references": None,
-                    "size": None,
-                    "type": "string",
-                    "unique": False,
-                },
-                {
-                    "check": None,
-                    "default": None,
-                    "name": "column_abc2",
-                    "nullable": True,
-                    "references": None,
-                    "size": None,
-                    "type": "ARRAY <structcolx:string,coly:string>",
-                    "unique": False,
-                },
-                {
-                    "check": None,
-                    "default": None,
-                    "name": "column_map",
-                    "nullable": True,
-                    "references": None,
-                    "size": None,
-                    "type": "MAP <STRING,STRUCT "
-                    "<year:INT,place:STRING,details:STRING>>",
-                    "unique": False,
-                },
-                {
-                    "check": None,
-                    "default": None,
-                    "name": "column_map_no_spaces",
-                    "nullable": True,
-                    "references": None,
-                    "size": None,
-                    "type": "MAP <STRING,STRUCT "
-                    "<year:INT,place:STRING,details:STRING>>",
-                    "unique": False,
-                },
-                {
-                    "check": None,
-                    "default": None,
-                    "name": "column_struct",
-                    "nullable": False,
-                    "references": None,
-                    "size": None,
-                    "type": "STRUCT <street_address:STRUCT "
-                    "<street_number:INT,street_name:STRING,street_type:STRING>,country:STRING,postal_code:STRING>",
-                    "unique": False,
-                },
-            ],
-            "external": False,
-            "fields_terminated_by": None,
-            "index": [],
-            "location": None,
-            "map_keys_terminated_by": None,
-            "partitioned_by": [],
-            "primary_key": [],
-            "row_format": None,
-            "schema": "default",
-            "stored_as": None,
-            "table_name": "salesorderdetail",
-            "tablespace": None,
-            "lines_terminated_by": None,
-            "comment": None,
-        }
-    ]
+    result = DDLParser(ddl).run(output_mode="hql", group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "column_abc",
+                        "type": "ARRAY < structcolx:string, coly:string >",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "employee_info",
+                        "type": "STRUCT < employer: STRING, id: BIGINT, address: STRING >",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "employee_description",
+                        "type": "string",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "column_abc2",
+                        "type": "ARRAY < structcolx:string, coly:string >",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "column_map",
+                        "type": "MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING > >",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "column_map_no_spaces",
+                        "type": "MAP < STRING, STRUCT < year:INT, place:STRING, details:STRING > >",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "column_struct",
+                        "type": "STRUCT < street_address: STRUCT < street_number: INT, street_name: "
+                        "STRING, street_type: STRING >, country: STRING, postal_code: STRING >",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                ],
+                "primary_key": [],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "stored_as": None,
+                "location": None,
+                "comment": None,
+                "row_format": None,
+                "fields_terminated_by": None,
+                "lines_terminated_by": None,
+                "map_keys_terminated_by": None,
+                "collection_items_terminated_by": None,
+                "external": False,
+                "schema": "default",
+                "table_name": "salesorderdetail",
+            }
+        ],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+    }
+
     assert expected == result
 
 
@@ -1772,19 +1777,46 @@ def test_output_input_format():
     'hdfs://xxxx'
     """
     parse_results = DDLParser(ddl).run(output_mode="hql")
-    expected = [{'columns': [
-        {'name': 'test', 'type': 'STRING', 'size': None, 'references': None, 'unique': False,
-         'nullable': True, 'default': None, 'check': None, 'comment': "'xxxx'"}
-    ], 'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [],
-        'tablespace': None,
-        'stored_as':
-            {'outputformat': "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'",
-             'inputformat': "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'"},
-        'location': "'hdfs://xxxx'", 'comment': None,
-        'row_format':
-            {'serde': True, 'java_class': "'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'"},
-        'fields_terminated_by': None, 'lines_terminated_by': None, 'map_keys_terminated_by': None,
-        'collection_items_terminated_by': None, 'external': True, 'schema': None, 'table_name': 'test'}]
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "test",
+                    "type": "STRING",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "comment": "'xxxx'",
+                }
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "tablespace": None,
+            "stored_as": {
+                "outputformat": "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'",
+                "inputformat": "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'",
+            },
+            "location": "'hdfs://xxxx'",
+            "comment": None,
+            "row_format": {
+                "serde": True,
+                "java_class": "'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'",
+            },
+            "fields_terminated_by": None,
+            "lines_terminated_by": None,
+            "map_keys_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "external": True,
+            "schema": None,
+            "table_name": "test",
+        }
+    ]
     assert expected == parse_results
 
 
@@ -1795,14 +1827,47 @@ def test_skewed_by():
     """
     parse_results = DDLParser(ddl).run(output_mode="hql")
     expected = [
-        {'columns': [
-            {'name': 'key', 'type': 'STRING', 'size': None, 'references': None,
-             'unique': False, 'nullable': True, 'default': None, 'check': None},
-            {'name': 'value', 'type': 'STRING', 'size': None, 'references': None,
-             'unique': False, 'nullable': True, 'default': None, 'check': None}],
-            'primary_key': [], 'alter': {}, 'checks': [], 'index': [], 'partitioned_by': [],
-            'tablespace': None, 'stored_as': 'DIRECTORIES', 'location': None, 'comment': None,
-            'row_format': None, 'fields_terminated_by': None, 'lines_terminated_by': None,
-            'map_keys_terminated_by': None, 'collection_items_terminated_by': None, 'external': False,
-            'schema': None, 'table_name': 'list_bucket_single', 'skewed_by': {'key': 'key', 'on': ['1', '5', '6']}}]
+        {
+            "columns": [
+                {
+                    "name": "key",
+                    "type": "STRING",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "value",
+                    "type": "STRING",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "tablespace": None,
+            "stored_as": "DIRECTORIES",
+            "location": None,
+            "comment": None,
+            "row_format": None,
+            "fields_terminated_by": None,
+            "lines_terminated_by": None,
+            "map_keys_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "external": False,
+            "schema": None,
+            "table_name": "list_bucket_single",
+            "skewed_by": {"key": "key", "on": ["1", "5", "6"]},
+        }
+    ]
     assert expected == parse_results

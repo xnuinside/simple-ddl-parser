@@ -27,7 +27,7 @@ Is it Stable?
 
 Yes, library already has about 7000+ downloads per day - https://pypistats.org/packages/simple-ddl-parser.
 
-As maintainer I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
+As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
 
 However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version ``1.0.*`` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version ``0.26.0`` :)
 
@@ -412,6 +412,27 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 Changelog
 ---------
+
+**v0.19.8**
+Features:
+
+.. code-block::
+
+   1. Method `DDLParser(...).run(...)` now get argument json=True if you want to get result as json,
+   but not as Python Object
+
+
+Fixes:
+
+.. code-block::
+
+   1. Fixed issue when variables are 'glue' during Struct parse like previously STRUCT<a ARRAY<STRING>,b BOOL> was
+   extracted like 'STRUCT <aARRAY <STRING>,bBOOL>', now this issue was fixed and it parsed as is STRUCT < a
+   ARRAY < STRING > ,b BOOL >. Now '>' and '<' always will be with space near them.
+
+   2. CHECK CONSTRAINT with functions. Fix for https://github.com/xnuinside/simple-ddl-parser/issues/76.
+
+
 
 **v0.19.7**
 Fixes:

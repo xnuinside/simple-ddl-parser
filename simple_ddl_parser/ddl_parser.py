@@ -83,8 +83,8 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
         return t
 
     def is_token_column_name(self, t):
-        """ many of reserved words can be used as column name,
-        to decide is it a column name or not we need do some checks """
+        """many of reserved words can be used as column name,
+        to decide is it a column name or not we need do some checks"""
         skip_id_tokens = ["(", ")", ","]
         return (
             t.value not in skip_id_tokens
@@ -126,6 +126,7 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
             self.lexer.is_table = False
         elif t.type in ["TABLE", "INDEX"]:
             self.lexer.is_table = True
+        print(t.value, t.type)
         return t
 
     def t_error(self, t):

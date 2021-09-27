@@ -151,7 +151,7 @@ class Column:
             if isinstance(elem, list):
                 for _elem in elem:
                     _type += f" {_elem.rstrip()}"
-            elif "ARRAY" in elem:
+            elif "ARRAY" in elem and elem != "ARRAY":
                 _type += elem
             else:
                 _type += f" {elem}"
@@ -188,7 +188,7 @@ class Column:
         _type = _type.strip().replace('" . "', '"."')
         if "<" not in _type and "ARRAY" in _type:
             if "[" not in p_list[-1]:
-                _type = _type.replace("ARRAY", "[]")
+                _type = _type.replace(" ARRAY", "[]").replace("ARRAY", "[]")
             else:
                 _type = _type.replace("ARRAY", "")
         elif "<" in _type and "[]" in _type:
@@ -727,7 +727,10 @@ class BaseSQL(
             p[0] = p[1]
 
         for i in list(p)[2:]:
-            p[0][0] += i
+            if not i == "[]" and not i == ",":
+                p[0][0] += f" {i}"
+            else:
+                p[0][0] += f"{i}"
 
     @staticmethod
     def get_complex_type(p, p_list):
@@ -807,6 +810,10 @@ class BaseSQL(
         else:
             value = " ".join(p_list[1:])
             p[0] = value
+
+    def p_funct_args(self, p: List) -> None:
+        """funct_args : LP multi_id RP"""
+        p[0] = {"args": f"({p[2]})"}
 
     def p_funct_expr(self, p: List) -> None:
         """funct_expr : LP multi_id RP
@@ -895,6 +902,7 @@ class BaseSQL(
         | check_st STRING
         | check_st ID RP
         | check_st STRING RP
+        | check_st funct_args
         """
         p_list = remove_par(list(p))
         if isinstance(p[1], dict):
@@ -902,7 +910,10 @@ class BaseSQL(
         else:
             p[0] = {"check": []}
         for item in p_list[2:]:
-            p[0]["check"].append(item)
+            if isinstance(p_list[-1], dict) and p_list[-1].get("args"):
+                p[0]["check"][-1] += p_list[-1]["args"]
+            else:
+                p[0]["check"].append(item)
 
     def p_expression_alter(self, p: List) -> None:
         """expr : alter_foreign ref
@@ -935,7 +946,7 @@ class BaseSQL(
 
         if isinstance(p_list[2], str) and "FOR" == p_list[2].upper():
             column = p_list[-1]
-        elif p[0].get("default") and p[0]["default"].get('value'):
+        elif p[0].get("default") and p[0]["default"].get("value"):
             value = p[0]["default"]["value"] + " " + p_list[-1]
         else:
             value = p_list[-1]

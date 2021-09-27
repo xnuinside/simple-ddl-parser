@@ -17,9 +17,7 @@ output_modes = [
 ]
 
 
-def get_table_from_tables_data(
-    tables_dict: Dict, table_id: Tuple[str, str]
-) -> Dict:
+def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str]) -> Dict:
     """ get table by name and schema or rise exception """
     target_table = tables_dict.get(table_id)
     if target_table is None:
@@ -128,7 +126,9 @@ def init_table_data() -> Dict:
     }
 
 
-def process_alter_and_index_result(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
+def process_alter_and_index_result(
+    tables_dict: Dict, table: Dict, output_mode: str
+) -> Dict:
     if table.get("index_name"):
         tables_dict = add_index_to_table(tables_dict, table, output_mode)
 
@@ -157,9 +157,7 @@ def process_entities(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
 
 
 def result_format(
-        result: List[Dict],
-        output_mode: str,
-        group_by_type: bool
+    result: List[Dict], output_mode: str, group_by_type: bool
 ) -> List[Dict]:
     """ method to format final output after parser """
     final_result = []
@@ -167,7 +165,9 @@ def result_format(
     for table in result:
         # process each item in parser output
         if "index_name" in table or "alter_table_name" in table:
-            tables_dict = process_alter_and_index_result(tables_dict, table, output_mode)
+            tables_dict = process_alter_and_index_result(
+                tables_dict, table, output_mode
+            )
         else:
             # process tables, types, sequence and etc. data
             table_data = process_entities(tables_dict, table, output_mode)
