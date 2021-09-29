@@ -1,5 +1,6 @@
 from simple_ddl_parser import DDLParser
 
+
 def test_no_unexpected_logs(capsys):
 
     ddl = """
@@ -13,7 +14,7 @@ def test_no_unexpected_logs(capsys):
     out, err = capsys.readouterr()
     assert out == ""
     assert err == ""
-    result = parser.run(output_mode="hql", group_by_type=True)
+    parser.run(output_mode="hql", group_by_type=True)
     out, err = capsys.readouterr()
     assert out == ""
     assert err == ""
