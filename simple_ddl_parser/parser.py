@@ -184,7 +184,6 @@ class Parser:
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each
             Dict == one entity from ddl - one table or sequence or type.
         """
-
         tables = self.parse_data()
         tables = result_format(tables, output_mode, group_by_type)
         if dump:

@@ -413,6 +413,11 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 Changelog
 ---------
 
+**v0.19.9**
+
+
+#. Fixed issue with the weird log - https://github.com/xnuinside/simple-ddl-parser/issues/78.
+
 **v0.19.8**
 Features:
 
