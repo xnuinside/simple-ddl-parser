@@ -161,6 +161,7 @@ CREATE TABLE employee_2 (
             },
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -318,6 +319,7 @@ def test_oracle_output_mode():
             },
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -388,6 +390,7 @@ def test_storage():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     ddl = """
 
@@ -419,7 +422,7 @@ CREATE TABLE order_items
 """
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -501,5 +504,6 @@ CREATE TABLE order_items
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result

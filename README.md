@@ -310,6 +310,14 @@ You also can provide a path where you want to have a dumps with schema with argu
 - TBLPROPERTIES ('parquet.compression'='SNAPPY' & etc.)
 - SKEWED BY
 
+### MySQL
+
+- ON UPDATE in column without reference 
+
+#### MSSQL 
+
+- CONSTRAINT [CLUSTERED]... PRIMARY KEY
+
 ### MSSQL / MySQL/ Oracle
 
 - type IDENTITY statement

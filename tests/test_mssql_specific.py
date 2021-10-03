@@ -12,7 +12,7 @@ def test_int_identity_type():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -50,6 +50,7 @@ def test_int_identity_type():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -67,7 +68,7 @@ def test_mssql_foreign_ref_in_column():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -122,6 +123,7 @@ def test_mssql_foreign_ref_in_column():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -136,7 +138,7 @@ def test_max_supported_as_column_size():
     """
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -174,6 +176,7 @@ def test_max_supported_as_column_size():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -191,7 +194,7 @@ def test_constraint_unique():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -247,6 +250,7 @@ def test_constraint_unique():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
 
     assert expected == result
@@ -264,7 +268,7 @@ def test_constraint_unique_none():
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -313,6 +317,7 @@ def test_constraint_unique_none():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
 
     assert expected == result
@@ -360,7 +365,7 @@ def test_two_unique_constructs():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -699,6 +704,7 @@ def test_two_unique_constructs():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -742,7 +748,7 @@ def test_foreign_keys():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1040,6 +1046,7 @@ def test_foreign_keys():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -1089,7 +1096,7 @@ def test_alter_unique():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1439,6 +1446,7 @@ def test_alter_unique():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -1473,7 +1481,7 @@ def test_defaults_in_alter():
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1673,6 +1681,7 @@ def test_defaults_in_alter():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -1691,7 +1700,7 @@ def test_mysql_constraint_pk():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1754,5 +1763,68 @@ def test_mysql_constraint_pk():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
+
+
+def test_constraint_primary_key():
+    expected = {'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': '[id]',
+                          'nullable': False,
+                          'references': None,
+                          'size': (1, 1),
+                          'type': '[int] IDENTITY',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': '[user_id]',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': '[int]',
+                          'unique': False}],
+             'constraint': {'CLUSTERED': True,
+                            'name': '[PK_users_WorkSchedule_id]',
+                            'primary_key': {'columns': {'columns': ['[id]'],
+                                                        'detailed_columns': [{'name': '[id]',
+                                                                              'nulls': 'LAST',
+                                                                              'order': 'ASC'}]},
+                                            'constraint_name': '[PK_users_WorkSchedule_id]'}},
+             'constraints': {'primary_key': [{'columns': {'columns': ['[id]'],
+                                                          'detailed_columns': [{'name': '[id]',
+                                                                                'nulls': 'LAST',
+                                                                                'order': 'ASC'}]},
+                                              'constraint_name': '[PK_users_WorkSchedule_id]'}],
+                             'primary_keys': [{'columns': ['[id]', 'ASC'],
+                                               'constraint_name': '[PK_users_WorkSchedule_id]'}]},
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': ['[id]', 'ASC'],
+             'schema': '[dbo]',
+             'table_name': '[users_WorkSchedule]',
+             'tablespace': None}],'ddl_properties': [],
+ 'types': []}
+
+    ddl = """
+    CREATE TABLE [dbo].[users_WorkSchedule](
+    	[id] [int] IDENTITY(1,1) NOT NULL,
+    	[user_id] [int] NULL),
+     CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED 
+    (
+    	[id] ASC
+    ),
+
+     CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY 
+    (
+    	[id] ASC
+    )
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert result == expected

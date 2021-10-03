@@ -102,7 +102,7 @@ def test_create_type_as_object():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [],
@@ -137,7 +137,7 @@ def test_create_type_with_input_properties():
     result = DDLParser(ddl).run(group_by_type=True)
 
     expected = {
-        "sequences": [],
+        "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [],

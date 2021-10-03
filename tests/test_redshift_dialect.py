@@ -12,7 +12,7 @@ def test_base_encode():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="redshift")
 
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -68,6 +68,7 @@ def test_base_encode():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
 
     assert expected == result
@@ -97,7 +98,7 @@ def test_distkey_sortkey():
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="redshift")
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -258,6 +259,7 @@ def test_distkey_sortkey():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -270,7 +272,7 @@ def test_distyle():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="redshift")
 
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -304,6 +306,7 @@ def test_distyle():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -315,7 +318,7 @@ def test_encode_for_full_table():
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="redshift")
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -360,6 +363,7 @@ def test_encode_for_full_table():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -381,7 +385,7 @@ def test_interleaved_sortkey_also_ok():
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="redshift")
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -495,6 +499,7 @@ def test_interleaved_sortkey_also_ok():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -510,7 +515,7 @@ def test_create_temp_table():
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="redshift")
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -566,6 +571,7 @@ def test_create_temp_table():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -582,7 +588,7 @@ def test_create_temp_table():
 
 def test_like_in_parath():
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -605,6 +611,7 @@ def test_like_in_parath():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     ddl = """
     create temp table tempevent(like event);

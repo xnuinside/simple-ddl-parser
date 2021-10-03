@@ -71,6 +71,8 @@ class Parser:
         if CL_COM in code_line and block_comments:
             block_comments.pop(-1)
             code_line += code_line.split(CL_COM)[1]
+
+
         return code_line, block_comments
 
     def process_regex_input(self, data):
@@ -104,18 +106,45 @@ class Parser:
         )
         return data
 
+    @staticmethod
+    def process_set(tables: List, set_line: str) -> None:
+        print(set_line, 'setline')
+        set_line = set_line.split()
+        name = set_line[-2]
+        value = set_line[-3]
+        tables.append({'name': name, 'value': value})
+
     def parse_data(self):
         tables = []
         block_comments = []
         statement = None
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
+        skip_line_words = ['USE', "GO"]
+        set_line = None
         for num, line in enumerate(lines):
+            line = line.strip().replace("\n", "").replace("\t", "")
+            skip = False
+            for word in skip_line_words:
+                if line.startswith(word):
+                    skip = True
+                    break
+            if skip:
+                continue
 
             line, block_comments = self.pre_process_line(line, block_comments)
+            if re.match(r'SET', line):
+                if not set_line:
+                    set_line = line
+                else:
+                    self.process_set(tables, set_line)
+                    set_line = line
+            elif set_line:
+                set_line += line
+                self.process_set(tables, set_line)
+                set_line = None
 
-            line = line.strip().replace("\n", "").replace("\t", "")
-
+            print(repr(line))
             if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
                 final_line = line.strip().endswith(";")
@@ -132,7 +161,7 @@ class Parser:
                     continue
 
                 self.set_default_flags_in_lexer()
-
+                print('statement', statement)
                 self.parse_statement(tables, statement)
 
                 statement = None

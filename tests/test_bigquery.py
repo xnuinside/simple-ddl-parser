@@ -3,7 +3,7 @@ from simple_ddl_parser import DDLParser
 
 def test_dataset_in_output():
     expected = {
-        "domains": [],
+        "domains": [], "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -31,6 +31,7 @@ def test_dataset_in_output():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
 
     ddl = """
@@ -84,8 +85,10 @@ def test_simple_struct():
                 "dataset": "mydataset",
             }
         ],
-        "types": [],
-        "sequences": [],
+
+            "types": [],
+            "ddl_properties": [],
+            "sequences": [], "ddl_properties": [],
         "domains": [],
         "schemas": [],
     }
