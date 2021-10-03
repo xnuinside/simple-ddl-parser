@@ -601,18 +601,20 @@ class BaseSQL(
                         {"columns": p_list[-1]["primary_key"]},
                         p_list[-2]["constraint"]["name"],
                     )
-            elif len(
-                    p_list) >= 4 and isinstance(
+            elif len(p_list) >= 4 and isinstance(
                 p_list[3], dict) and p_list[3].get(
-                'constraint') and len(p_list) == 4:
+                'constraint') and p_list[3]['constraint'].get('primary_key'):
+                del p_list[3]['constraint']['primary_key']
                 p[0] = self.set_constraint(
                     target_dict=p[0],
-                    _type="primary_key",
-                    constraint=p_list[3]['constraint']['primary_key'],
+                    _type="primary_keys",
+                    constraint=p_list[3]['constraint'],
                     constraint_name=p_list[3]["constraint"]["name"],
                 )
             elif p_list[-1].get("references"):
                 p[0] = self.add_ref_information_to_table(p, p_list)
+        if 'constraint' in p[0]:
+            del p[0]['constraint']
 
     def add_ref_information_to_table(self, p, p_list):
         if len(p_list) > 4 and "constraint" in p_list[3]:
@@ -640,6 +642,8 @@ class BaseSQL(
             target_dict["constraints"] = {}
         if not target_dict["constraints"].get(_type):
             target_dict["constraints"][_type] = []
+        if 'name' in constraint:
+            del constraint['name']
         constraint.update({"constraint_name": constraint_name})
         target_dict["constraints"][_type].append(constraint)
         return target_dict

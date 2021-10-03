@@ -108,9 +108,11 @@ class Parser:
 
     @staticmethod
     def process_set(tables: List, set_line: str) -> None:
+        print(set_line, 'set_line')
         set_line = set_line.split()
         name = set_line[-2]
-        value = set_line[-3]
+        value = set_line[-1]
+        print(set_line)
         tables.append({'name': name, 'value': value})
 
     def parse_data(self):
@@ -132,14 +134,15 @@ class Parser:
 
             line, block_comments = self.pre_process_line(line, block_comments)
             line = line.strip().replace("\n", "").replace("\t", "")
+            print(re.match(r'SET', line), 'line', line)
             if re.match(r'SET', line):
+                print(set_line, 'set_line')
                 if not set_line:
                     set_line = line
                 else:
                     self.process_set(tables, set_line)
                     set_line = line
-            elif set_line:
-                set_line += line
+            elif set_line and len(set_line.split()) == 3:
                 self.process_set(tables, set_line)
                 set_line = None
             if line or num == len(lines) - 1:
@@ -159,7 +162,8 @@ class Parser:
 
                 self.set_default_flags_in_lexer()
                 print(statement, 'statementttt')
-                self.parse_statement(tables, statement)
+                if not set_line:
+                    self.parse_statement(tables, statement)
 
                 statement = None
         return tables

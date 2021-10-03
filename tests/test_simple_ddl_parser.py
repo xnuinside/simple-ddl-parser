@@ -2131,8 +2131,8 @@ def test_ddl_properties():
     GO
     """
     result = DDLParser(ddl).run(group_by_type=True)
-    expected = {'ddl_properties': [{'name': 'ANSI_NULLS', 'value': 'SET'},
-                    {'name': 'QUOTED_IDENTIFIER', 'value': 'SET'}],
+    expected = {'ddl_properties': [{'name': 'ANSI_NULLS', 'value': 'ON'},
+                    {'name': 'QUOTED_IDENTIFIER', 'value': 'ON'}],
  'domains': [],
  'schemas': [],
  'sequences': [],

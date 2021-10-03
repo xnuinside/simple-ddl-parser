@@ -1769,7 +1769,8 @@ def test_mysql_constraint_pk():
 
 
 def test_constraint_primary_key():
-    expected = {'domains': [],
+    expected = {'ddl_properties': [],
+ 'domains': [],
  'schemas': [],
  'sequences': [],
  'tables': [{'alter': {},
@@ -1790,26 +1791,20 @@ def test_constraint_primary_key():
                           'size': None,
                           'type': '[int]',
                           'unique': False}],
-             'constraint': {'CLUSTERED': True,
-                            'name': '[PK_users_WorkSchedule_id]',
-                            'primary_key': {'columns': {'columns': ['[id]'],
-                                                        'detailed_columns': [{'name': '[id]',
-                                                                              'nulls': 'LAST',
-                                                                              'order': 'ASC'}]},
-                                            'constraint_name': '[PK_users_WorkSchedule_id]'}},
-             'constraints': {'primary_key': [{'columns': {'columns': ['[id]'],
-                                                          'detailed_columns': [{'name': '[id]',
-                                                                                'nulls': 'LAST',
-                                                                                'order': 'ASC'}]},
-                                              'constraint_name': '[PK_users_WorkSchedule_id]'}],
-                             'primary_keys': [{'columns': ['[id]', 'ASC'],
+             'constraints': {'primary_keys': [{'CLUSTERED': True,
+                                               'columns': {'columns': ['[id]'],
+                                                           'detailed_columns': [{'name': '[id]',
+                                                                                 'nulls': 'LAST',
+                                                                                 'order': 'ASC'}]},
+                                               'constraint_name': '[PK_users_WorkSchedule_id]'},
+                                              {'columns': ['[id]', 'ASC'],
                                                'constraint_name': '[PK_users_WorkSchedule_id]'}]},
              'index': [],
              'partitioned_by': [],
              'primary_key': ['[id]', 'ASC'],
              'schema': '[dbo]',
              'table_name': '[users_WorkSchedule]',
-             'tablespace': None}],'ddl_properties': [],
+             'tablespace': None}],
  'types': []}
 
     ddl = """
@@ -1828,3 +1823,215 @@ def test_constraint_primary_key():
     """
     result = DDLParser(ddl).run(group_by_type=True)
     assert result == expected
+
+
+def test_constraint_with_with():
+    ddl = """
+    USE [mystaffonline]
+    GO
+    /****** Object:  Table [dbo].[users_WorkSchedule]    Script Date: 9/29/2021 9:55:26 PM ******/
+    SET ANSI_NULLS ON
+    GO
+    SET QUOTED_IDENTIFIER ON
+    GO
+    CREATE TABLE [dbo].[users_WorkSchedule](
+    	[id] [int] IDENTITY(1,1) NOT NULL,
+    	[RequestDropDate] [smalldatetime] NULL,
+    	[ShiftClass] [varchar](5) NULL,
+    	[StartHistory] [datetime2](7) GENERATED ALWAYS AS ROW START NOT NULL,
+    	[EndHistory] [datetime2](7) GENERATED ALWAYS AS ROW END NOT NULL,
+     CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED 
+    (
+    	[id] ASC
+    )
+    WITH (PAD_INDEX = OFF, 
+    		STATISTICS_NORECOMPUTE = OFF, 
+    		IGNORE_DUP_KEY = OFF, 
+    		ALLOW_ROW_LOCKS = ON, 
+    		ALLOW_PAGE_LOCKS = ON
+    		)
+    )
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected ={'ddl_properties': [{'name': 'ANSI_NULLS', 'value': 'ON'},
+                    {'name': 'QUOTED_IDENTIFIER', 'value': 'ON'}],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': '[id]',
+                          'nullable': False,
+                          'references': None,
+                          'size': (1, 1),
+                          'type': '[int] IDENTITY',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': '[RequestDropDate]',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': '[smalldatetime]',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': '[ShiftClass]',
+                          'nullable': True,
+                          'references': None,
+                          'size': 5,
+                          'type': '[varchar]',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'generated': {'always': True,
+                                        'as': 'ROW START',
+                                        'stored': False},
+                          'name': '[StartHistory]',
+                          'nullable': False,
+                          'references': None,
+                          'size': 7,
+                          'type': '[datetime2]',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'generated': {'always': True,
+                                        'as': 'ROW END',
+                                        'stored': False},
+                          'name': '[EndHistory]',
+                          'nullable': False,
+                          'references': None,
+                          'size': 7,
+                          'type': '[datetime2]',
+                          'unique': False}],
+             'constraints': {'primary_keys': [{'CLUSTERED': True,
+                                               'columns': {'columns': ['[id]'],
+                                                           'detailed_columns': [{'name': '[id]',
+                                                                                 'nulls': 'LAST',
+                                                                                 'order': 'ASC'}]},
+                                               'constraint_name': '[PK_users_WorkSchedule_id]',
+                                               'with': {'properties': [{'name': 'PAD_INDEX',
+                                                         'value': 'OFF'},
+                                                        {'name': 'STATISTICS_NORECOMPUTE',
+                                                         'value': 'OFF'},
+                                                        {'name': 'IGNORE_DUP_KEY',
+                                                         'value': 'OFF'},
+                                                        {'name': 'ALLOW_ROW_LOCKS',
+                                                         'value': 'ON'},
+                                                        {'name': 'ALLOW_PAGE_LOCKS',
+                                                         'value': 'ON'}], 'on': None}},
+                                              ]},
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': ['detailed_columns', 'columns'],
+             'schema': '[dbo]',
+             'table_name': '[users_WorkSchedule]',
+             'tablespace': None}],
+ 'types': []}
+    assert  expected == result
+
+
+def test_with_on():
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': '[id]',
+                          'nullable': False,
+                          'references': None,
+                          'size': (1, 1),
+                          'type': '[int] IDENTITY',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': '[RequestDropDate]',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': '[smalldatetime]',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': '[ShiftClass]',
+                          'nullable': True,
+                          'references': None,
+                          'size': 5,
+                          'type': '[varchar]',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'generated': {'always': True,
+                                        'as': 'ROW START',
+                                        'stored': False},
+                          'name': '[StartHistory]',
+                          'nullable': False,
+                          'references': None,
+                          'size': 7,
+                          'type': '[datetime2]',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'generated': {'always': True,
+                                        'as': 'ROW END',
+                                        'stored': False},
+                          'name': '[EndHistory]',
+                          'nullable': False,
+                          'references': None,
+                          'size': 7,
+                          'type': '[datetime2]',
+                          'unique': False}],
+             'constraints': {'primary_keys': [{'CLUSTERED': True,
+                                               'columns': {'columns': ['[id]'],
+                                                           'detailed_columns': [{'name': '[id]',
+                                                                                 'nulls': 'LAST',
+                                                                                 'order': 'ASC'}]},
+                                               'constraint_name': '[PK_users_WorkSchedule_id]',
+                                               'with': {'on': '[PRIMARY]',
+                                                        'properties': [{'name': 'PAD_INDEX',
+                                                                        'value': 'OFF'},
+                                                                       {'name': 'STATISTICS_NORECOMPUTE',
+                                                                        'value': 'OFF'},
+                                                                       {'name': 'IGNORE_DUP_KEY',
+                                                                        'value': 'OFF'},
+                                                                       {'name': 'ALLOW_ROW_LOCKS',
+                                                                        'value': 'ON'},
+                                                                       {'name': 'ALLOW_PAGE_LOCKS',
+                                                                        'value': 'ON'}]}}]},
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': ['detailed_columns', 'columns'],
+             'schema': '[dbo]',
+             'table_name': '[users_WorkSchedule]',
+             'tablespace': None}],
+ 'types': []}
+
+    ddl = """
+    CREATE TABLE [dbo].[users_WorkSchedule](
+    	[id] [int] IDENTITY(1,1) NOT NULL,
+    	[RequestDropDate] [smalldatetime] NULL,
+    	[ShiftClass] [varchar](5) NULL,
+    	[StartHistory] [datetime2](7) GENERATED ALWAYS AS ROW START NOT NULL,
+    	[EndHistory] [datetime2](7) GENERATED ALWAYS AS ROW END NOT NULL,
+     CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED 
+    (
+    	[id] ASC
+    )
+    WITH (PAD_INDEX = OFF, 
+    		STATISTICS_NORECOMPUTE = OFF, 
+    		IGNORE_DUP_KEY = OFF, 
+    		ALLOW_ROW_LOCKS = ON, 
+    		ALLOW_PAGE_LOCKS = ON
+    		)
+    )  ON [PRIMARY]
+    )
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result
