@@ -23,5 +23,6 @@ def test_parse_properties_in_create_db():
         "sequences": [],
         "tables": [],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result

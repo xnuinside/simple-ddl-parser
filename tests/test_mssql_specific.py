@@ -12,6 +12,7 @@ def test_int_identity_type():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -67,6 +68,7 @@ def test_mssql_foreign_ref_in_column():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -137,6 +139,7 @@ def test_max_supported_as_column_size():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -192,6 +195,7 @@ def test_constraint_unique():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -265,6 +269,7 @@ def test_constraint_unique_none():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -361,6 +366,7 @@ def test_two_unique_constructs():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1040,6 +1046,7 @@ def test_foreign_keys():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -1090,6 +1097,7 @@ def test_alter_unique():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1474,6 +1482,7 @@ def test_defaults_in_alter():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1692,6 +1701,7 @@ def test_mysql_constraint_pk():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1755,4 +1765,339 @@ def test_mysql_constraint_pk():
         ],
         "types": [],
     }
+    assert expected == result
+
+
+def test_constraint_primary_key():
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[id]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[user_id]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[id]"],
+                                "detailed_columns": [
+                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
+                                ],
+                            },
+                            "constraint_name": "[PK_users_WorkSchedule_id]",
+                        },
+                        {
+                            "columns": ["[id]", "ASC"],
+                            "constraint_name": "[PK_users_WorkSchedule_id]",
+                        },
+                    ]
+                },
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["[id]", "ASC"],
+                "schema": "[dbo]",
+                "table_name": "[users_WorkSchedule]",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+
+    ddl = """CREATE TABLE [dbo].[users_WorkSchedule](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [user_id] [int] NULL),
+        CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED
+    (
+        [id] ASC
+    ),
+
+        CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY
+    (
+        [id] ASC
+    )
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert result == expected
+
+
+def test_constraint_with_with():
+    ddl = """
+    USE [mystaffonline]
+    GO
+    /****** Object:  Table [dbo].[users_WorkSchedule]    Script Date: 9/29/2021 9:55:26 PM ******/
+    SET ANSI_NULLS ON
+    GO
+    SET QUOTED_IDENTIFIER ON
+    GO
+    CREATE TABLE [dbo].[users_WorkSchedule](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [RequestDropDate] [smalldatetime] NULL,
+        [ShiftClass] [varchar](5) NULL,
+        [StartHistory] [datetime2](7) GENERATED ALWAYS AS ROW START NOT NULL,
+        [EndHistory] [datetime2](7) GENERATED ALWAYS AS ROW END NOT NULL,
+        CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED
+        (
+        [id] ASC
+    )
+    WITH (PAD_INDEX = OFF,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON))"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [
+            {"name": "ANSI_NULLS", "value": "ON"},
+            {"name": "QUOTED_IDENTIFIER", "value": "ON"},
+        ],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[id]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[RequestDropDate]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[ShiftClass]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 5,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "generated": {
+                            "always": True,
+                            "as": "ROW START",
+                            "stored": False,
+                        },
+                        "name": "[StartHistory]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 7,
+                        "type": "[datetime2]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "generated": {"always": True, "as": "ROW END", "stored": False},
+                        "name": "[EndHistory]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 7,
+                        "type": "[datetime2]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[id]"],
+                                "detailed_columns": [
+                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
+                                ],
+                            },
+                            "constraint_name": "[PK_users_WorkSchedule_id]",
+                            "with": {
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                                "on": None,
+                            },
+                        },
+                    ]
+                },
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[users_WorkSchedule]",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_with_on():
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[id]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[RequestDropDate]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[ShiftClass]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 5,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "generated": {
+                            "always": True,
+                            "as": "ROW START",
+                            "stored": False,
+                        },
+                        "name": "[StartHistory]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 7,
+                        "type": "[datetime2]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "generated": {"always": True, "as": "ROW END", "stored": False},
+                        "name": "[EndHistory]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 7,
+                        "type": "[datetime2]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[id]"],
+                                "detailed_columns": [
+                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
+                                ],
+                            },
+                            "constraint_name": "[PK_users_WorkSchedule_id]",
+                            "with": {
+                                "on": "[PRIMARY]",
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                            },
+                        }
+                    ]
+                },
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[users_WorkSchedule]",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+
+    ddl = """CREATE TABLE [dbo].[users_WorkSchedule](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [RequestDropDate] [smalldatetime] NULL,
+        [ShiftClass] [varchar](5) NULL,
+        [StartHistory] [datetime2](7) GENERATED ALWAYS AS ROW START NOT NULL,
+        [EndHistory] [datetime2](7) GENERATED ALWAYS AS ROW END NOT NULL,
+        CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED
+        (
+            [id] ASC
+        )
+        WITH (
+            PAD_INDEX = OFF,
+            STATISTICS_NORECOMPUTE = OFF,
+            IGNORE_DUP_KEY = OFF,
+            ALLOW_ROW_LOCKS = ON,
+            ALLOW_PAGE_LOCKS = ON
+        ))  ON [PRIMARY]
+    )"""
+    result = DDLParser(ddl).run(group_by_type=True)
     assert expected == result

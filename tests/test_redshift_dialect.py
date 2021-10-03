@@ -68,6 +68,7 @@ def test_base_encode():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
 
     assert expected == result
@@ -98,6 +99,7 @@ def test_distkey_sortkey():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="redshift")
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -271,6 +273,7 @@ def test_distyle():
 
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -360,6 +363,7 @@ def test_encode_for_full_table():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -495,6 +499,7 @@ def test_interleaved_sortkey_also_ok():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -566,6 +571,7 @@ def test_create_temp_table():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -583,6 +589,7 @@ def test_create_temp_table():
 def test_like_in_parath():
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [

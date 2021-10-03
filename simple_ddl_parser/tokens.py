@@ -54,6 +54,7 @@ first_liners = {
     "PRIMARY": "PRIMARY",
     "UNIQUE": "UNIQUE",
     "CHECK": "CHECK",
+    "WITH": "WITH",
 }
 
 common_statements.update(first_liners)
@@ -73,7 +74,6 @@ after_columns_tokens = {
     "MAP": "MAP",
     "KEYS": "KEYS",
     "SERDE": "SERDE",
-    "WITH": "WITH",
     "CLUSTER": "CLUSTER",
     "SERDEPROPERTIES": "SERDEPROPERTIES",
     "TBLPROPERTIES": "TBLPROPERTIES",

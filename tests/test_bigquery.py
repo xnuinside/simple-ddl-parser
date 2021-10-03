@@ -4,6 +4,7 @@ from simple_ddl_parser import DDLParser
 def test_dataset_in_output():
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -85,6 +86,7 @@ def test_simple_struct():
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],

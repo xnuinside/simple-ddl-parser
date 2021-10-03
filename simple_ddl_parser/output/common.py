@@ -248,6 +248,7 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "sequences": [],
         "domains": [],
         "schemas": [],
+        "ddl_properties": [],
     }
     keys_map = {
         "table_name": "tables",
@@ -257,6 +258,7 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "schema_name": "schemas",
         "tablespace_name": "tablespaces",
         "database_name": "databases",
+        "value": "ddl_properties",
     }
     for item in final_result:
         for key in keys_map:

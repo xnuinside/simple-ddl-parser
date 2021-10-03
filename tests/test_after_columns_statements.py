@@ -145,6 +145,7 @@ CREATE TABLE measurement (
 
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -895,6 +896,7 @@ def test_tablespace_statement():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1028,6 +1030,7 @@ def test_tablespace_with_properties():
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1049,6 +1052,7 @@ def test_tablespace_with_properties():
 def test_partition_by_without_parths():
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [

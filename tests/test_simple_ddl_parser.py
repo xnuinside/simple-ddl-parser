@@ -933,6 +933,7 @@ def test_parse_table_name_table():
 def test_group_by_type_output():
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [
             {
@@ -1014,6 +1015,7 @@ def test_do_not_fail_on_brackets_in_default():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1121,6 +1123,7 @@ def test_default_and_primary_inline():
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1174,6 +1177,7 @@ def test_default_expression():
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1231,6 +1235,7 @@ def test_comments_in_columns():
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1282,6 +1287,7 @@ CREATE TABLE IF NOT EXISTS users (
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1298,6 +1304,7 @@ def test_domains():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "tables": [],
+        "ddl_properties": [],
         "types": [],
         "sequences": [],
         "schemas": [],
@@ -1322,6 +1329,7 @@ def test_domains():
 def test_schema():
     expected = {
         "tables": [],
+        "ddl_properties": [],
         "types": [],
         "sequences": [],
         "domains": [],
@@ -1344,6 +1352,7 @@ def test_schema_with_authorisation():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "tables": [],
+        "ddl_properties": [],
         "types": [],
         "sequences": [],
         "domains": [],
@@ -1420,6 +1429,7 @@ CREATE TABLE people (
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1511,6 +1521,7 @@ def test_generated_always_with_concat():
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1578,6 +1589,7 @@ def test_enum_in_lowercase():
             }
         ],
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
     }
@@ -1629,6 +1641,7 @@ def test_column_names_with_names_like_tokens_works_well():
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1639,6 +1652,7 @@ def test_column_names_with_names_like_tokens_works_well():
 def test_added_create_tablespace():
     expected = {
         "tables": [],
+        "ddl_properties": [],
         "types": [],
         "sequences": [],
         "domains": [],
@@ -1677,6 +1691,7 @@ CREATE SMALLFILE TABLESPACE tbs_perm_03
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "tables": [],
+        "ddl_properties": [],
         "types": [],
         "sequences": [],
         "domains": [],
@@ -1710,6 +1725,7 @@ CREATE SMALLFILE TABLESPACE tbs_perm_03
 def test_tablespaces_temporary():
     expected = {
         "tables": [],
+        "ddl_properties": [],
         "types": [],
         "sequences": [],
         "domains": [],
@@ -1761,6 +1777,7 @@ def test_create_database():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "tables": [],
+        "ddl_properties": [],
         "types": [],
         "sequences": [],
         "domains": [],
@@ -1783,6 +1800,7 @@ def test_collate():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -1838,6 +1856,7 @@ def test_tabs_not_fails_ddl():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -1945,6 +1964,7 @@ def test_escaping_symbols_normal_str():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -1996,6 +2016,7 @@ def test_escaping_symbols_raw_string():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -2050,6 +2071,7 @@ def test_method_in_check():
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -2092,3 +2114,29 @@ def test_method_in_check():
         "types": [],
     }
     assert expected == result
+
+
+def test_ddl_properties():
+    ddl = """
+    USE [mystaffonline]
+    GO
+    /****** Object:  Table [dbo].[users_WorkSchedule]    Script Date: 9/29/2021 9:55:26 PM ******/
+    SET ANSI_NULLS ON
+    GO
+    SET QUOTED_IDENTIFIER ON
+    GO
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [
+            {"name": "ANSI_NULLS", "value": "ON"},
+            {"name": "QUOTED_IDENTIFIER", "value": "ON"},
+        ],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
+
+    assert result == expected

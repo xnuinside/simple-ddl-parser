@@ -2,6 +2,8 @@ from typing import Dict, List
 
 from simple_ddl_parser import tokens as tok
 from simple_ddl_parser.dialects.hql import HQL
+from simple_ddl_parser.dialects.mssql import MSSQL
+from simple_ddl_parser.dialects.mysql import MySQL
 from simple_ddl_parser.dialects.oracle import Oracle
 from simple_ddl_parser.dialects.redshift import Redshift
 from simple_ddl_parser.dialects.snowflake import Snowflake
@@ -9,7 +11,7 @@ from simple_ddl_parser.dialects.sql import BaseSQL
 from simple_ddl_parser.parser import Parser
 
 
-class DDLParser(Parser, Snowflake, BaseSQL, HQL, Oracle, Redshift):
+class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift):
     """
     lex and yacc parser for parse ddl into BQ schemas
     """

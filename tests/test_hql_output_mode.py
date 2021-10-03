@@ -1152,6 +1152,7 @@ def test_complex_structure_test_hql():
             }
         ],
         "types": [],
+        "ddl_properties": [],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1240,6 +1241,7 @@ def test_comment_and_lines():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -1264,6 +1266,7 @@ def test_simple_serde():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -1543,6 +1546,7 @@ def test_with_serde_properties():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
@@ -1557,6 +1561,7 @@ def test_comment_without_null_statement():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -1638,6 +1643,7 @@ def test_special_characters_in_comment():
             }
         ],
         "types": [],
+        "ddl_properties": [],
     }
     ddl = """
     CREATE EXTERNAL TABLE test (
@@ -1659,6 +1665,7 @@ def test_partitioned_by_multiple_columns():
     parse_result = DDLParser(ddl).run(output_mode="hql", group_by_type=True)
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -1717,6 +1724,7 @@ def test_table_properties():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [

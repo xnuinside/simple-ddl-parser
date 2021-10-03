@@ -225,7 +225,6 @@ class Column:
         | column LP ID COMMA ID RP c_type
         """
         p[0] = self.set_base_column_propery(p)
-
         p_list = remove_par(list(p))
 
         if isinstance(p_list[-1], dict) and "type" in p_list[-1] and len(p_list) <= 3:
@@ -283,7 +282,7 @@ class Column:
         | defcolumn PRIMARY KEY
         | defcolumn UNIQUE
         | defcolumn check_ex
-        | defcolumn def
+        | defcolumn default
         | defcolumn collate
         | defcolumn enforced
         | defcolumn ref
@@ -291,6 +290,7 @@ class Column:
         | defcolumn encrypt
         | defcolumn generated
         | defcolumn c_property
+        | defcolumn on_update
         """
         p[0] = p[1]
         p_list = list(p)
@@ -497,7 +497,6 @@ class BaseSQL(
         """expr : index_table_name LP index_pid RP"""
         p_list = remove_par(list(p))
         p[0] = p[1]
-
         for item in ["detailed_columns", "columns"]:
             if item not in p[0]:
                 p[0][item] = p_list[-1][item]
@@ -562,6 +561,7 @@ class BaseSQL(
         | expr COMMA uniq
         | expr COMMA statem_by_id
         | expr COMMA constraint uniq
+        | expr COMMA pkey_constraint
         | expr COMMA constraint pkey
         | expr COMMA constraint pkey enforced
         | expr COMMA constraint foreign ref
@@ -599,7 +599,20 @@ class BaseSQL(
                         {"columns": p_list[-1]["primary_key"]},
                         p_list[-2]["constraint"]["name"],
                     )
-
+            elif (
+                len(p_list) >= 4
+                and isinstance(p_list[3], dict)
+                and p_list[3].get("constraint")
+                and p_list[3]["constraint"].get("primary_key")
+            ):
+                del p_list[3]["constraint"]["primary_key"]
+                p[0] = self.set_constraint(
+                    target_dict=p[0],
+                    _type="primary_keys",
+                    constraint=p_list[3]["constraint"],
+                    constraint_name=p_list[3]["constraint"]["name"],
+                )
+                del p[0]["constraint"]
             elif p_list[-1].get("references"):
                 p[0] = self.add_ref_information_to_table(p, p_list)
 
@@ -624,11 +637,15 @@ class BaseSQL(
         return p[0]
 
     @staticmethod
-    def set_constraint(target_dict, _type, constraint, constraint_name):
+    def set_constraint(
+        target_dict: Dict, _type: str, constraint: Dict, constraint_name: str
+    ) -> Dict:
         if not target_dict.get("constraints"):
             target_dict["constraints"] = {}
         if not target_dict["constraints"].get(_type):
             target_dict["constraints"][_type] = []
+        if "name" in constraint:
+            del constraint["name"]
         constraint.update({"constraint_name": constraint_name})
         target_dict["constraints"][_type].append(constraint)
         return target_dict
@@ -824,14 +841,14 @@ class BaseSQL(
         else:
             p[0] = p[1]
 
-    def p_def(self, p: List) -> None:
-        """def : DEFAULT ID
+    def p_default(self, p: List) -> None:
+        """default : DEFAULT ID
         | DEFAULT STRING
         | DEFAULT NULL
         | DEFAULT funct_expr
         | DEFAULT LP pid RP
-        | def ID
-        | def LP RP
+        | default ID
+        | default LP RP
         """
         p_list = list(p)
         if len(p_list) == 5 and isinstance(p[3], list):
@@ -1137,9 +1154,13 @@ class BaseSQL(
             p[0] = {"primary_key": p_list[-1]}
 
     def p_pkey(self, p: List) -> None:
-        """pkey : PRIMARY KEY LP pid RP"""
+        """pkey : pkey_statement LP pid RP"""
         p_list = remove_par(list(p))
         p[0] = {"primary_key": p_list[-1]}
+
+    def p_pkey_statement(self, p: List) -> None:
+        """pkey_statement : PRIMARY KEY"""
+        p[0] = {"primary_key": None}
 
     def p_comment(self, p: List) -> None:
         """comment : COMMENT STRING"""
