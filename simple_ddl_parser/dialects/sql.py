@@ -226,7 +226,6 @@ class Column:
         """
         p[0] = self.set_base_column_propery(p)
         p_list = remove_par(list(p))
-        print(p_list)
 
         if isinstance(p_list[-1], dict) and "type" in p_list[-1] and len(p_list) <= 3:
             p[0]["type"] = p_list[-1]["type"]
@@ -416,7 +415,6 @@ class Type:
         | type_name LP id_equals RP
         """
         p_list = list(p)
-        print(p_list, 'type')
         p[0] = p[1]
         p[0]["base_type"] = p[2]
         p[0]["properties"] = {}
@@ -601,20 +599,22 @@ class BaseSQL(
                         {"columns": p_list[-1]["primary_key"]},
                         p_list[-2]["constraint"]["name"],
                     )
-            elif len(p_list) >= 4 and isinstance(
-                p_list[3], dict) and p_list[3].get(
-                'constraint') and p_list[3]['constraint'].get('primary_key'):
-                del p_list[3]['constraint']['primary_key']
+            elif (
+                len(p_list) >= 4
+                and isinstance(p_list[3], dict)
+                and p_list[3].get("constraint")
+                and p_list[3]["constraint"].get("primary_key")
+            ):
+                del p_list[3]["constraint"]["primary_key"]
                 p[0] = self.set_constraint(
                     target_dict=p[0],
                     _type="primary_keys",
-                    constraint=p_list[3]['constraint'],
+                    constraint=p_list[3]["constraint"],
                     constraint_name=p_list[3]["constraint"]["name"],
                 )
+                del p[0]["constraint"]
             elif p_list[-1].get("references"):
                 p[0] = self.add_ref_information_to_table(p, p_list)
-        if 'constraint' in p[0]:
-            del p[0]['constraint']
 
     def add_ref_information_to_table(self, p, p_list):
         if len(p_list) > 4 and "constraint" in p_list[3]:
@@ -637,13 +637,15 @@ class BaseSQL(
         return p[0]
 
     @staticmethod
-    def set_constraint(target_dict: Dict, _type: str, constraint: Dict, constraint_name: str) -> Dict:
+    def set_constraint(
+        target_dict: Dict, _type: str, constraint: Dict, constraint_name: str
+    ) -> Dict:
         if not target_dict.get("constraints"):
             target_dict["constraints"] = {}
         if not target_dict["constraints"].get(_type):
             target_dict["constraints"][_type] = []
-        if 'name' in constraint:
-            del constraint['name']
+        if "name" in constraint:
+            del constraint["name"]
         constraint.update({"constraint_name": constraint_name})
         target_dict["constraints"][_type].append(constraint)
         return target_dict
@@ -801,7 +803,6 @@ class BaseSQL(
         | ID LP pid RP
         """
         p_list = list(p)
-        print(p_list)
         if isinstance(p[1], list):
             p[0] = p[1]
             p[0].append(p_list[-1])
@@ -890,7 +891,6 @@ class BaseSQL(
         """
 
         p_list = list(p)
-        print(p_list, 'constraint')
         p[0] = {"constraint": {"name": p_list[-1]}}
 
     def p_generated(self, p: List) -> None:
@@ -1037,7 +1037,6 @@ class BaseSQL(
         | index_pid COMMA index_pid
         """
         p_list = list(p)
-        print(p_list, 'ind')
         if len(p_list) == 2:
             detailed_column = {"name": p_list[1], "order": "ASC", "nulls": "LAST"}
             column = p_list[1]

@@ -1,4 +1,4 @@
-from simple_ddl_parser.utils import check_spec, remove_par
+import simple_ddl_parser  # noqa: F401 weird issue with failed tests
 
 
 class MSSQL:
@@ -8,19 +8,14 @@ class MSSQL:
         | pkey_constraint with
         """
         p_list = list(p)
-        print(p_list, 'pkey_constraint')
         p[0] = p[1]
         if len(p_list) == 3:
             data = p_list[-1]
-            print(data)
-        elif len(p_list)  == 7:
-            data = {"primary_key": True,
-                    "columns": p_list[-2],
-                    p[3]: True}
+        elif len(p_list) == 7:
+            data = {"primary_key": True, "columns": p_list[-2], p[3]: True}
         else:
-            data = {"primary_key": True,
-                    "columns": p_list[-2]}
-        p[0]['constraint'].update(data)
+            data = {"primary_key": True, "columns": p_list[-2]}
+        p[0]["constraint"].update(data)
 
     def p_with(self, p):
         """with : WITH LP ID ID ID
@@ -31,16 +26,11 @@ class MSSQL:
         | with RP ON ID
         """
         p_list = list(p)
-        print(p_list, 'with')
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
-            p[0] = {'with': {
-                'properties': [],
-            'on': None}
-            }
-        if not ')' in p_list:
-            p[0]['with']['properties'].append({'name': p_list[-3], 'value': p_list[-1]})
-        elif 'ON' in p_list:
-            p[0]['with']['on'] = p_list[-1]
-
+            p[0] = {"with": {"properties": [], "on": None}}
+        if ")" not in p_list:
+            p[0]["with"]["properties"].append({"name": p_list[-3], "value": p_list[-1]})
+        elif "ON" in p_list:
+            p[0]["with"]["on"] = p_list[-1]

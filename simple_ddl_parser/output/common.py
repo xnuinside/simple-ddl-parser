@@ -143,7 +143,6 @@ def process_entities(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
     table_data = init_table_data()
     table_data = d.populate_dialects_table_data(output_mode, table_data)
     not_table = False
-    print(table)
     if table.get("table_name"):
         table_data.update(table)
         table_data = set_unique_columns(table_data)
@@ -259,7 +258,7 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "schema_name": "schemas",
         "tablespace_name": "tablespaces",
         "database_name": "databases",
-        "value": "ddl_properties"
+        "value": "ddl_properties",
     }
     for item in final_result:
         for key in keys_map:

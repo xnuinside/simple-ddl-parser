@@ -422,7 +422,8 @@ CREATE TABLE order_items
 """
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "domains": [], "ddl_properties": [],
+        "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -504,6 +505,5 @@ CREATE TABLE order_items
             }
         ],
         "types": [],
-        "ddl_properties": [],
     }
     assert expected == result

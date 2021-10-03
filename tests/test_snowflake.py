@@ -23,7 +23,7 @@ def test_clone_db():
 
 def test_clone_table():
     expected = {
-        "domains": [], "ddl_properties": [],
+        "domains": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -77,7 +77,8 @@ def test_cluster_by():
     """
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "domains": [], "ddl_properties": [],
+        "ddl_properties": [],
+        "domains": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -126,7 +127,6 @@ def test_cluster_by():
             }
         ],
         "types": [],
-        "ddl_properties": [],
     }
     assert expected == result
 
@@ -142,7 +142,8 @@ def test_enforced():
     """
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "domains": [], "ddl_properties": [],
+        "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -181,6 +182,5 @@ def test_enforced():
             }
         ],
         "types": [],
-        "ddl_properties": [],
     }
     assert expected == result

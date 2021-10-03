@@ -144,7 +144,8 @@ CREATE TABLE measurement (
     result = DDLParser(ddl).run(group_by_type=True)
 
     expected = {
-        "domains": [], "ddl_properties": [],
+        "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -203,7 +204,6 @@ CREATE TABLE measurement (
             }
         ],
         "types": [],
-        "ddl_properties": [],
     }
 
     assert expected == result
@@ -895,7 +895,8 @@ def test_tablespace_statement():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "sequences": [], "ddl_properties": [],
+        "sequences": [],
+        "ddl_properties": [],
         "domains": [],
         "schemas": [],
         "tables": [
@@ -958,7 +959,6 @@ def test_tablespace_statement():
             }
         ],
         "types": [],
-        "ddl_properties": [],
     }
     assert expected == result
 
@@ -1029,10 +1029,9 @@ def test_tablespace_with_properties():
                 "table_name": "emp_table",
             }
         ],
-
-            "types": [],
-            "ddl_properties": [],
-            "sequences": [], "ddl_properties": [],
+        "types": [],
+        "ddl_properties": [],
+        "sequences": [],
         "domains": [],
         "schemas": [],
     }
@@ -1052,7 +1051,8 @@ def test_tablespace_with_properties():
 
 def test_partition_by_without_parths():
     expected = {
-        "domains": [], "ddl_properties": [],
+        "domains": [],
+        "ddl_properties": [],
         "schemas": [],
         "sequences": [],
         "tables": [
@@ -1111,7 +1111,6 @@ def test_partition_by_without_parths():
             }
         ],
         "types": [],
-        "ddl_properties": [],
     }
 
     ddl = """

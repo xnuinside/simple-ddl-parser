@@ -317,6 +317,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 #### MSSQL 
 
 - CONSTRAINT [CLUSTERED]... PRIMARY KEY
+- CONSTRAINT ... WITH statement
 
 ### MSSQL / MySQL/ Oracle
 
@@ -371,6 +372,21 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 
 ## Changelog
+**v0.20.0**
+### New Features:
+
+    #### Common
+    1. SET statements from DDL scripts now collected as type 'ddl_properties' (if you use group_by_type=True) and parsed as
+    dicts with 2 keys inside {'name': 'property name', 'value': 'property value'}
+
+    #### MySQL
+    2. Added support for MySQL ON UPDATE statements in column (without REFERENCE)
+
+    #### MSSQL
+    3. Added support for CONSTRAINT [CLUSTERED]... PRIMARY KEY for Table definition
+    4. Added support for WITH statement in CONSTRAINT (Table definition)
+
+
 **v0.19.9**
 1. Fixed issue with the weird log - https://github.com/xnuinside/simple-ddl-parser/issues/78.
 

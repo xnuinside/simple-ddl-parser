@@ -72,7 +72,6 @@ class Parser:
             block_comments.pop(-1)
             code_line += code_line.split(CL_COM)[1]
 
-
         return code_line, block_comments
 
     def process_regex_input(self, data):
@@ -108,12 +107,24 @@ class Parser:
 
     @staticmethod
     def process_set(tables: List, set_line: str) -> None:
-        print(set_line, 'set_line')
         set_line = set_line.split()
         name = set_line[-2]
         value = set_line[-1]
-        print(set_line)
-        tables.append({'name': name, 'value': value})
+        tables.append({"name": name, "value": value})
+
+    def parse_set_statement(
+        self, tables: List, line: str, set_line: Optional[str]
+    ) -> Optional[str]:
+        if re.match(r"SET", line):
+            if not set_line:
+                set_line = line
+            else:
+                self.process_set(tables, set_line)
+                set_line = line
+        elif set_line and len(set_line.split()) == 3:
+            self.process_set(tables, set_line)
+            set_line = None
+        return set_line
 
     def parse_data(self):
         tables = []
@@ -121,7 +132,7 @@ class Parser:
         statement = None
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
-        skip_line_words = ['USE', "GO"]
+        skip_line_words = ["USE", "GO"]
         set_line = None
         for num, line in enumerate(lines):
             skip = False
@@ -134,17 +145,7 @@ class Parser:
 
             line, block_comments = self.pre_process_line(line, block_comments)
             line = line.strip().replace("\n", "").replace("\t", "")
-            print(re.match(r'SET', line), 'line', line)
-            if re.match(r'SET', line):
-                print(set_line, 'set_line')
-                if not set_line:
-                    set_line = line
-                else:
-                    self.process_set(tables, set_line)
-                    set_line = line
-            elif set_line and len(set_line.split()) == 3:
-                self.process_set(tables, set_line)
-                set_line = None
+            set_line = self.parse_set_statement(tables, line, set_line)
             if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
                 final_line = line.strip().endswith(";")
@@ -161,7 +162,6 @@ class Parser:
                     continue
 
                 self.set_default_flags_in_lexer()
-                print(statement, 'statementttt')
                 if not set_line:
                     self.parse_statement(tables, statement)
 
