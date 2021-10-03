@@ -499,7 +499,6 @@ class BaseSQL(
         """expr : index_table_name LP index_pid RP"""
         p_list = remove_par(list(p))
         p[0] = p[1]
-
         for item in ["detailed_columns", "columns"]:
             if item not in p[0]:
                 p[0][item] = p_list[-1][item]

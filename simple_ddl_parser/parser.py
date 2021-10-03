@@ -108,7 +108,6 @@ class Parser:
 
     @staticmethod
     def process_set(tables: List, set_line: str) -> None:
-        print(set_line, 'setline')
         set_line = set_line.split()
         name = set_line[-2]
         value = set_line[-3]
@@ -123,7 +122,6 @@ class Parser:
         skip_line_words = ['USE', "GO"]
         set_line = None
         for num, line in enumerate(lines):
-            line = line.strip().replace("\n", "").replace("\t", "")
             skip = False
             for word in skip_line_words:
                 if line.startswith(word):
@@ -133,6 +131,7 @@ class Parser:
                 continue
 
             line, block_comments = self.pre_process_line(line, block_comments)
+            line = line.strip().replace("\n", "").replace("\t", "")
             if re.match(r'SET', line):
                 if not set_line:
                     set_line = line
@@ -143,8 +142,6 @@ class Parser:
                 set_line += line
                 self.process_set(tables, set_line)
                 set_line = None
-
-            print(repr(line))
             if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
                 final_line = line.strip().endswith(";")
@@ -161,7 +158,7 @@ class Parser:
                     continue
 
                 self.set_default_flags_in_lexer()
-                print('statement', statement)
+                print(statement, 'statementttt')
                 self.parse_statement(tables, statement)
 
                 statement = None
