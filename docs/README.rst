@@ -307,7 +307,7 @@ Supported Statements
   CREATE SEQUENCE with words: INCREMENT, START, MINVALUE, MAXVALUE, CACHE
 
 * 
-  CREATE TYPE statement:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT
+  CREATE TYPE statement:  AS TABLE, AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT
 
 * 
   LIKE statement (in this and only in this case to output will be added 'like' keyword with information about table from that we did like - 'like': {'schema': None, 'table_name': 'Old_Users'}).
@@ -356,6 +356,11 @@ MSSQL
 
 * CONSTRAINT [CLUSTERED]... PRIMARY KEY
 * CONSTRAINT ... WITH statement
+* PERIOD FOR SYSTEM_TIME in CREATE TABLE statement
+* ON [PRIMARY] after CREATE TABLE statement (sample in test files test_mssql_specific.py)
+* WITH statement for TABLE properties
+* TEXTIMAGE_ON statement
+* DEFAULT NEXT VALUE FOR in COLUMN DEFAULT
 
 MSSQL / MySQL/ Oracle
 ^^^^^^^^^^^^^^^^^^^^^
@@ -425,6 +430,26 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 Changelog
 ---------
+
+**v0.21.0**
+
+New Features:
+^^^^^^^^^^^^^
+
+.. code-block::
+
+   ## MSSQL:
+
+   1. Added support for statements: 
+       1. PERIOD FOR SYSTEM_TIME in CREATE TABLE statement
+       2. ON [PRIMARY] after CREATE TABLE statement (sample in test files test_mssql_specific.py)
+       3. WITH statement for TABLE properties
+       4. TEXTIMAGE_ON statement
+       5. DEFAULT NEXT VALUE FOR in COLUMN DEFAULT
+
+   2. Added support for separating tables DDL by 'GO' statement as in output of MSSQL
+   3. Added support for CREATE TYPE as TABLE
+
 
 **v0.20.0**
 

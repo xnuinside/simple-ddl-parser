@@ -409,25 +409,43 @@ class Type:
             if p_list[-1] != ",":
                 p[0].append(p_list[-1])
 
-    def p_expression_type_as(self, p: List) -> None:
-        """expr : type_name ID LP pid RP
+    def p_type_definition(self, p: List) -> None:  # noqa: C901
+        """type_definition : type_name ID LP pid RP
         | type_name ID LP multiple_column_names RP
         | type_name LP id_equals RP
+        | type_name TABLE LP defcolumn
+        | type_definition COMMA defcolumn
+        | type_definition RP
         """
-        p_list = list(p)
+        p_list = remove_par(list(p))
         p[0] = p[1]
-        p[0]["base_type"] = p[2]
-        p[0]["properties"] = {}
-        base_type = p[0]["base_type"].upper()
-        if base_type == "ENUM":
-            p[0]["properties"]["values"] = p_list[4]
-        elif p[0]["base_type"] == "OBJECT":
-            if "type" in p_list[4][0]:
-                p[0]["properties"]["attributes"] = p_list[4]
+        if not p[0].get("properties"):
+            p[0]["properties"] = {}
+
+        if "TABLE" in p_list or isinstance(p_list[-1], dict) and p_list[-1].get("name"):
+            if not p[0]["properties"].get("columns"):
+                p[0]["properties"]["columns"] = []
+            p[0]["properties"]["columns"].append(p_list[-1])
+
+        if len(p_list) > 3:
+            p[0]["base_type"] = p_list[2]
         else:
-            if isinstance(p_list[-2], list):
-                for item in p_list[-2]:
+            p[0]["base_type"] = None
+        if isinstance(p[0]["base_type"], str):
+            base_type = p[0]["base_type"].upper()
+            if base_type == "ENUM":
+                p[0]["properties"]["values"] = p_list[3]
+            elif p[0]["base_type"] == "OBJECT":
+                if "type" in p_list[3][0]:
+                    p[0]["properties"]["attributes"] = p_list[3]
+        else:
+            if isinstance(p_list[-1], list):
+                for item in p_list[-1]:
                     p[0]["properties"].update(item)
+
+    def p_expression_type_as(self, p: List) -> None:
+        """expr : type_definition"""
+        p[0] = p[1]
 
     def p_type_name(self, p: List) -> None:
         """type_name : type_create ID AS
@@ -561,6 +579,7 @@ class BaseSQL(
         | expr COMMA uniq
         | expr COMMA statem_by_id
         | expr COMMA constraint uniq
+        | expr COMMA period_for
         | expr COMMA pkey_constraint
         | expr COMMA constraint pkey
         | expr COMMA constraint pkey enforced
@@ -841,33 +860,45 @@ class BaseSQL(
         else:
             p[0] = p[1]
 
+    def p_dot_id(self, p: List) -> None:
+        """dot_id : ID DOT ID"""
+        p[0] = f"{p[1]}.{p[3]}"
+
     def p_default(self, p: List) -> None:
         """default : DEFAULT ID
         | DEFAULT STRING
         | DEFAULT NULL
+        | default FOR dot_id
         | DEFAULT funct_expr
         | DEFAULT LP pid RP
         | default ID
         | default LP RP
         """
         p_list = list(p)
+
         if len(p_list) == 5 and isinstance(p[3], list):
             default = p[3][0]
+        elif "DEFAULT" in p_list and len(p_list) == 4:
+            default = f"{p[2]} {p[3]}"
         else:
             default = p[2]
 
-        if default.isnumeric():
+        if not isinstance(default, dict) and default.isnumeric():
             default = int(default)
+
         if isinstance(p[1], dict):
             p[0] = p[1]
-            for i in p[2:]:
-                if isinstance(p[2], str):
-                    p[2] = p[2].replace("\\'", "'")
-                    if i == ")" or i == "(":
-                        p[0]["default"] = str(p[0]["default"]) + f"{i}"
-                    else:
-                        p[0]["default"] = str(p[0]["default"]) + f" {i}"
-                    p[0]["default"] = p[0]["default"].replace("))", ")")
+            if "FOR" in default:
+                p[0]["default"] = {"next_value_for": p_list[-1]}
+            else:
+                for i in p[2:]:
+                    if isinstance(p[2], str):
+                        p[2] = p[2].replace("\\'", "'")
+                        if i == ")" or i == "(":
+                            p[0]["default"] = str(p[0]["default"]) + f"{i}"
+                        else:
+                            p[0]["default"] = str(p[0]["default"]) + f" {i}"
+                        p[0]["default"] = p[0]["default"].replace("))", ")")
         else:
             p[0] = {"default": default}
 
