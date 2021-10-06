@@ -8,7 +8,10 @@
         2. ON [PRIMARY] after CREATE TABLE statement (sample in test files test_mssql_specific.py)
         3. WITH statement for TABLE properties
         4. TEXTIMAGE_ON statement
+        5. DEFAULT NEXT VALUE FOR in COLUMN DEFAULT
+    
     2. Added support for separating tables DDL by 'GO' statement as in output of MSSQL
+    3. Added support for CREATE TYPE as TABLE
 
 **v0.20.0**
 ### New Features:

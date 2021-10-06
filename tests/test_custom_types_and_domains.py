@@ -145,7 +145,7 @@ def test_create_type_with_input_properties():
         "tables": [],
         "types": [
             {
-                "base_type": "(",
+                "base_type": None,
                 "properties": {
                     "INPUT": "my_box_in_function",
                     "INTERNALLENGTH": "16",
@@ -158,3 +158,54 @@ def test_create_type_with_input_properties():
     }
 
     assert expected == result
+
+
+def test_as_table():
+    ddl = """
+    CREATE TYPE dbo.T_LCT_SLIPS AS TABLE (
+    hashKY varbinary(48),
+    numContratoGF bigint
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [],
+        "types": [
+            {
+                "base_type": None,
+                "properties": {
+                    "columns": [
+                        {
+                            "check": None,
+                            "default": None,
+                            "name": "hashKY",
+                            "nullable": True,
+                            "primary_key": False,
+                            "references": None,
+                            "size": 48,
+                            "type": "varbinary",
+                            "unique": False,
+                        },
+                        {
+                            "check": None,
+                            "default": None,
+                            "name": "numContratoGF",
+                            "nullable": True,
+                            "primary_key": False,
+                            "references": None,
+                            "size": None,
+                            "type": "bigint",
+                            "unique": False,
+                        },
+                    ]
+                },
+                "schema": "dbo",
+                "type_name": "T_LCT_SLIPS",
+            }
+        ],
+    }
+    assert result == expected

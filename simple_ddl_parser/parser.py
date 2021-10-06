@@ -137,7 +137,6 @@ class Parser:
         skip_line_words = ["USE", "GO"]
         set_line = None
         for num, line in enumerate(lines):
-            print(repr(line))
             skip = False
             for word in skip_line_words:
                 if line.startswith(word):
@@ -164,7 +163,6 @@ class Parser:
 
                 self.set_default_flags_in_lexer()
                 if not set_line and statement:
-                    print("statement", statement)
                     self.parse_statement(tables, statement)
 
                 statement = None

@@ -2972,3 +2972,43 @@ GO"""
     }
 
     assert expected == result
+
+
+def test_next_value_for():
+
+    ddl = """CREATE TABLE [dbo].[SLIPEVENTO] (
+    [cdSLIP] [bigint] NOT NULL
+    DEFAULT NEXT VALUE FOR [dbo].[sqCdSLIPEvt] )"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": {"next_value_for": "[dbo].[sqCdSLIPEvt]"},
+                        "name": "[cdSLIP]",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "[bigint]",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": "[dbo]",
+                "table_name": "[SLIPEVENTO]",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

@@ -103,7 +103,6 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift)
             self.lexer.lp_open += 1
             self.lexer.columns_def = True
             self.lexer.last_token = "LP"
-            print(t.value, t.type)
             return t
 
         elif self.is_token_column_name(t):
@@ -129,7 +128,6 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift)
             self.lexer.is_table = False
         elif t.type in ["TABLE", "INDEX"]:
             self.lexer.is_table = True
-        print(t.value, t.type)
         return t
 
     def t_error(self, t):

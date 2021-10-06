@@ -46,7 +46,6 @@ class MSSQL:
         | with_args RP
         """
         p_list = list(p)
-        print(p_list, "p_list, with_args")
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
@@ -59,7 +58,6 @@ class MSSQL:
 
     def p_period_for(self, p):
         """period_for : PERIOD FOR ID LP pid RP"""
-        print(list(p))
         p[0] = {"period_for_system_time": p[5]}
 
     def p_expression_on_primary(self, p):
