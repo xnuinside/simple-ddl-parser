@@ -561,6 +561,7 @@ class BaseSQL(
         | expr COMMA uniq
         | expr COMMA statem_by_id
         | expr COMMA constraint uniq
+        | expr COMMA period_for
         | expr COMMA pkey_constraint
         | expr COMMA constraint pkey
         | expr COMMA constraint pkey enforced
@@ -572,6 +573,7 @@ class BaseSQL(
         """
         p[0] = p[1]
         p_list = list(p)
+        print(p_list[-1])
         if p_list[-1] != "," and p_list[-1] != ")":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])

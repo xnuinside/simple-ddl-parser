@@ -1,3 +1,15 @@
+**v0.21.0**
+### New Features:
+
+    ## MSSQL:
+
+    1. Added support for statements: 
+        1. PERIOD FOR SYSTEM_TIME in CREATE TABLE statement
+        2. ON [PRIMARY] after CREATE TABLE statement (sample in test files test_mssql_specific.py)
+        3. WITH statement for TABLE properties
+        4. TEXTIMAGE_ON statement
+    2. Added support for separating tables DDL by 'GO' statement as in output of MSSQL
+
 **v0.20.0**
 ### New Features:
 

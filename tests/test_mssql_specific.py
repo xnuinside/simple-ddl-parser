@@ -2097,7 +2097,878 @@ def test_with_on():
             IGNORE_DUP_KEY = OFF,
             ALLOW_ROW_LOCKS = ON,
             ALLOW_PAGE_LOCKS = ON
-        ))  ON [PRIMARY]
+        )  ON [PRIMARY]
     )"""
     result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result
+
+
+def test_period_for_system_time():
+    ddl = """CREATE TABLE [dbo].[users_WorkSchedule](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [RequestDropDate] [smalldatetime] NULL,
+        [ShiftClass] [varchar](5) NULL,
+        [StartHistory] [datetime2](7) GENERATED ALWAYS AS ROW START NOT NULL,
+        [EndHistory] [datetime2](7) GENERATED ALWAYS AS ROW END NOT NULL,
+        CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED
+        (
+            [id] ASC
+        )
+        WITH (
+            PAD_INDEX = OFF,
+            STATISTICS_NORECOMPUTE = OFF,
+            IGNORE_DUP_KEY = OFF,
+            ALLOW_ROW_LOCKS = ON,
+            ALLOW_PAGE_LOCKS = ON
+        )  ON [PRIMARY],
+        PERIOD FOR SYSTEM_TIME ([StartHistory], [EndHistory])
+    )
+  """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[id]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[RequestDropDate]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[ShiftClass]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 5,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "generated": {
+                            "always": True,
+                            "as": "ROW START",
+                            "stored": False,
+                        },
+                        "name": "[StartHistory]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 7,
+                        "type": "[datetime2]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "generated": {"always": True, "as": "ROW END", "stored": False},
+                        "name": "[EndHistory]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 7,
+                        "type": "[datetime2]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[id]"],
+                                "detailed_columns": [
+                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
+                                ],
+                            },
+                            "constraint_name": "[PK_users_WorkSchedule_id]",
+                            "with": {
+                                "on": "[PRIMARY]",
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                            },
+                        }
+                    ]
+                },
+                "index": [],
+                "partitioned_by": [],
+                "period_for_system_time": ["[StartHistory]", "[EndHistory]"],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[users_WorkSchedule]",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_on_primary_on_table_level():
+
+    ddl = """CREATE TABLE [dbo].[users_WorkSchedule](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [RequestDropDate] [smalldatetime] NULL,
+        [ShiftClass] [varchar](5) NULL,
+        [StartHistory] [datetime2](7) GENERATED ALWAYS AS ROW START NOT NULL,
+        [EndHistory] [datetime2](7) GENERATED ALWAYS AS ROW END NOT NULL,
+        CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED
+        (
+            [id] ASC
+        )
+        WITH (
+            PAD_INDEX = OFF,
+            STATISTICS_NORECOMPUTE = OFF,
+            IGNORE_DUP_KEY = OFF,
+            ALLOW_ROW_LOCKS = ON,
+            ALLOW_PAGE_LOCKS = ON
+        )  ON [PRIMARY],
+        PERIOD FOR SYSTEM_TIME ([StartHistory], [EndHistory])
+    )) ON [PRIMARY]
+  """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[id]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[RequestDropDate]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[ShiftClass]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 5,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "generated": {
+                            "always": True,
+                            "as": "ROW START",
+                            "stored": False,
+                        },
+                        "name": "[StartHistory]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 7,
+                        "type": "[datetime2]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "generated": {"always": True, "as": "ROW END", "stored": False},
+                        "name": "[EndHistory]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 7,
+                        "type": "[datetime2]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[id]"],
+                                "detailed_columns": [
+                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
+                                ],
+                            },
+                            "constraint_name": "[PK_users_WorkSchedule_id]",
+                            "with": {
+                                "on": "[PRIMARY]",
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                            },
+                        }
+                    ]
+                },
+                "index": [],
+                "on": "[PRIMARY]",
+                "partitioned_by": [],
+                "period_for_system_time": ["[StartHistory]", "[EndHistory]"],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[users_WorkSchedule]",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_with_on_table_level():
+
+    ddl = """USE [mystaffonline]
+    GO
+    /****** Object:  Table [dbo].[users_WorkSchedule]    Script Date: 9/29/2021 9:55:26 PM ******/
+    SET ANSI_NULLS ON
+    GO
+    SET QUOTED_IDENTIFIER ON
+    GO
+    CREATE TABLE [dbo].[users_WorkSchedule](
+        [id] [int] IDENTITY(1,1) NOT NULL,
+        [user_id] [int] NULL,
+    CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED
+    (
+        [id] ASC
+    ) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+    ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+        PERIOD FOR SYSTEM_TIME ([StartHistory], [EndHistory])
+    ) ON [PRIMARY]
+    WITH
+    (
+    SYSTEM_VERSIONING = ON
+    )"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [
+            {"name": "ANSI_NULLS", "value": "ON"},
+            {"name": "QUOTED_IDENTIFIER", "value": "ON"},
+        ],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[id]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[user_id]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[id]"],
+                                "detailed_columns": [
+                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
+                                ],
+                            },
+                            "constraint_name": "[PK_users_WorkSchedule_id]",
+                            "with": {
+                                "on": "[PRIMARY]",
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                            },
+                        }
+                    ]
+                },
+                "index": [],
+                "on": "[PRIMARY]",
+                "partitioned_by": [],
+                "period_for_system_time": ["[StartHistory]", "[EndHistory]"],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[users_WorkSchedule]",
+                "tablespace": None,
+                "with": {
+                    "on": None,
+                    "properties": [{"name": "SYSTEM_VERSIONING", "value": "ON"}],
+                },
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_with_on_with_properties():
+
+    ddl = """USE [mystaffonline]
+GO
+/****** Object:  Table [dbo].[users_WorkSchedule]    Script Date: 9/29/2021 9:55:26 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[users_WorkSchedule](
+    [id] [int] IDENTITY(1,1) NOT NULL,
+    [user_id] [int] NULL,
+    [station_Id] [int] NULL,
+ CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED
+(
+    [id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+    PERIOD FOR SYSTEM_TIME ([StartHistory], [EndHistory])
+) ON [PRIMARY]
+WITH
+(
+SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[users_WorkScheduleHistory] )
+)"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [
+            {"name": "ANSI_NULLS", "value": "ON"},
+            {"name": "QUOTED_IDENTIFIER", "value": "ON"},
+        ],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[id]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[user_id]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[station_Id]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[id]"],
+                                "detailed_columns": [
+                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
+                                ],
+                            },
+                            "constraint_name": "[PK_users_WorkSchedule_id]",
+                            "with": {
+                                "on": "[PRIMARY]",
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                            },
+                        }
+                    ]
+                },
+                "index": [],
+                "on": "[PRIMARY]",
+                "partitioned_by": [],
+                "period_for_system_time": ["[StartHistory]", "[EndHistory]"],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[users_WorkSchedule]",
+                "tablespace": None,
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "SYSTEM_VERSIONING", "value": "ON"},
+                        {
+                            "properties": [
+                                {
+                                    "name": "HISTORY_TABLE",
+                                    "value": "[dbo].[users_WorkScheduleHistory]",
+                                }
+                            ]
+                        },
+                    ],
+                },
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_output_separated_by_go_and_textimage():
+
+    ddl = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TO_Requests](
+    [Request_ID] [int] IDENTITY(1,1) NOT NULL,
+    [user_id] [int] NULL,
+    [date_from] [smalldatetime] NULL,
+    [date_to] [smalldatetime] NULL,
+    [comments] [varchar](2000) NULL,
+    [status] [varchar](10) NOT NULL,
+    [profile_id] [int] NULL,
+    [DateAdded] [smalldatetime] NOT NULL,
+    [UpdatedBy] [int] NULL,
+    [UpdatedOn] [smalldatetime] NULL,
+    [InitialResponseBy] [int] NULL,
+    [InitialResponseDate] [smalldatetime] NULL,
+    [InitialResponseStatus] [varchar](10) NULL,
+    [adpRequestId] [varchar](50) NULL,
+ CONSTRAINT [PK_TO_Requests_Request_ID] PRIMARY KEY CLUSTERED
+(
+    [Request_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ToDo]    Script Date: 9/29/2021 9:55:26 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ToDo](
+    [ID] [int] IDENTITY(1,1) NOT NULL,
+    [ProfileID] [int] NOT NULL,
+    [Title] [varchar](50) NULL,
+ CONSTRAINT [PK_ToDo_ID] PRIMARY KEY CLUSTERED
+(
+    [ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ToDoComments]    Script Date: 9/29/2021 9:55:26 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ToDoComments](
+    [ToDoCommentsId] [int] IDENTITY(1,1) NOT NULL,
+    [CreatedBy] [int] NOT NULL,
+ CONSTRAINT [PK_ToDoComments_ToDoCommentsId] PRIMARY KEY CLUSTERED
+(
+    [ToDoCommentsId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [
+            {"name": "ANSI_NULLS", "value": "ON"},
+            {"name": "QUOTED_IDENTIFIER", "value": "ON"},
+            {"name": "ANSI_NULLS", "value": "ON"},
+            {"name": "QUOTED_IDENTIFIER", "value": "ON"},
+            {"name": "ANSI_NULLS", "value": "ON"},
+            {"name": "QUOTED_IDENTIFIER", "value": "ON"},
+        ],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[Request_ID]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[user_id]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[date_from]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[date_to]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[comments]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 2000,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[status]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 10,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[profile_id]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[DateAdded]",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[UpdatedBy]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[UpdatedOn]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[InitialResponseBy]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[InitialResponseDate]",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "[smalldatetime]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[InitialResponseStatus]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 10,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[adpRequestId]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 50,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[Request_ID]"],
+                                "detailed_columns": [
+                                    {
+                                        "name": "[Request_ID]",
+                                        "nulls": "LAST",
+                                        "order": "ASC",
+                                    }
+                                ],
+                            },
+                            "constraint_name": "[PK_TO_Requests_Request_ID]",
+                            "with": {
+                                "on": "[PRIMARY]",
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                            },
+                        }
+                    ]
+                },
+                "index": [],
+                "on": "[PRIMARY]",
+                "partitioned_by": [],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[TO_Requests]",
+                "tablespace": None,
+            },
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[ID]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[ProfileID]",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[Title]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 50,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[ID]"],
+                                "detailed_columns": [
+                                    {"name": "[ID]", "nulls": "LAST", "order": "ASC"}
+                                ],
+                            },
+                            "constraint_name": "[PK_ToDo_ID]",
+                            "with": {
+                                "on": "[PRIMARY]",
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                            },
+                        }
+                    ]
+                },
+                "index": [],
+                "on": "[PRIMARY]",
+                "partitioned_by": [],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[ToDo]",
+                "tablespace": None,
+                "textimage_on": "[PRIMARY]",
+            },
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[ToDoCommentsId]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (1, 1),
+                        "type": "[int] IDENTITY",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[CreatedBy]",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "[int]",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {
+                            "CLUSTERED": True,
+                            "columns": {
+                                "columns": ["[ToDoCommentsId]"],
+                                "detailed_columns": [
+                                    {
+                                        "name": "[ToDoCommentsId]",
+                                        "nulls": "LAST",
+                                        "order": "ASC",
+                                    }
+                                ],
+                            },
+                            "constraint_name": "[PK_ToDoComments_ToDoCommentsId]",
+                            "with": {
+                                "on": "[PRIMARY]",
+                                "properties": [
+                                    {"name": "PAD_INDEX", "value": "OFF"},
+                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                                ],
+                            },
+                        }
+                    ]
+                },
+                "index": [],
+                "on": "[PRIMARY]",
+                "partitioned_by": [],
+                "primary_key": ["detailed_columns", "columns"],
+                "schema": "[dbo]",
+                "table_name": "[ToDoComments]",
+                "tablespace": None,
+                "textimage_on": "[PRIMARY]",
+            },
+        ],
+        "types": [],
+    }
+
     assert expected == result

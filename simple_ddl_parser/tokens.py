@@ -55,6 +55,7 @@ first_liners = {
     "UNIQUE": "UNIQUE",
     "CHECK": "CHECK",
     "WITH": "WITH",
+    "PERIOD": "PERIOD",
 }
 
 common_statements.update(first_liners)
@@ -81,6 +82,8 @@ after_columns_tokens = {
     # oracle
     "STORAGE": "STORAGE",
     "TABLESPACE": "TABLESPACE",
+    # mssql
+    "TEXTIMAGE_ON": "TEXTIMAGE_ON",
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",

@@ -115,7 +115,9 @@ class Parser:
     def parse_set_statement(
         self, tables: List, line: str, set_line: Optional[str]
     ) -> Optional[str]:
+        set_was_in_line = False
         if re.match(r"SET", line):
+            set_was_in_line = True
             if not set_line:
                 set_line = line
             else:
@@ -124,7 +126,7 @@ class Parser:
         elif set_line and len(set_line.split()) == 3:
             self.process_set(tables, set_line)
             set_line = None
-        return set_line
+        return set_line, set_was_in_line
 
     def parse_data(self):
         tables = []
@@ -135,34 +137,34 @@ class Parser:
         skip_line_words = ["USE", "GO"]
         set_line = None
         for num, line in enumerate(lines):
+            print(repr(line))
             skip = False
             for word in skip_line_words:
                 if line.startswith(word):
                     skip = True
                     break
-            if skip:
-                continue
-
             line, block_comments = self.pre_process_line(line, block_comments)
             line = line.strip().replace("\n", "").replace("\t", "")
-            set_line = self.parse_set_statement(tables, line, set_line)
+            set_line, set_was_in_line = self.parse_set_statement(tables, line, set_line)
             if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
                 final_line = line.strip().endswith(";")
-                if statement is None:
-                    statement = line
-                else:
-                    statement += f" {line}"
+                if not skip and not set_was_in_line:
+                    if statement is None:
+                        statement = line
+                    else:
+                        statement += f" {line}"
 
                 if final_line:
                     # end of sql operation, remove ; from end of line
                     statement = statement[:-1]
-                elif num != len(lines) - 1:
+                elif num != len(lines) - 1 and not skip:
                     # continue combine lines in one massive
                     continue
 
                 self.set_default_flags_in_lexer()
-                if not set_line:
+                if not set_line and statement:
+                    print("statement", statement)
                     self.parse_statement(tables, statement)
 
                 statement = None
