@@ -717,16 +717,23 @@ class BaseSQL(
     def p_expression_seq(self, p: List) -> None:
         """expr : seq_name
         | expr INCREMENT ID
+        | expr INCREMENT ID ID
         | expr START ID
+        | expr START ID ID
         | expr MINVALUE ID
         | expr MAXVALUE ID
         | expr CACHE ID
+        | expr CACHE
         """
         # get schema & table name
         p_list = list(p)
         p[0] = p[1]
-        if len(p) > 2:
+        if len(p) == 4:
             p[0].update({p[2].lower(): int(p_list[-1])})
+        if len(p) == 3:
+            p[0].update({p[2].lower(): True})
+        elif len(p) == 5:
+            p[0].update({f"{p[2].lower()}_{p[3].lower()}": int(p_list[-1])})
 
     def p_seq_name(self, p: List) -> None:
         """seq_name : create_seq ID DOT ID

@@ -280,7 +280,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - PARTITION BY statement
 
-- CREATE SEQUENCE with words: INCREMENT, START, MINVALUE, MAXVALUE, CACHE
+- CREATE SEQUENCE with words: INCREMENT [BY], START [WITH], MINVALUE, MAXVALUE, CACHE
 
 - CREATE TYPE statement:  AS TABLE, AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT
 
@@ -377,6 +377,11 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 
 ## Changelog
+**v0.21.1**
+Fixies:
+1. START WITH, INCREMENT BY and CACHE (without value) in sequences now is parsed correctly.
+
+
 **v0.21.0**
 ### New Features:
 

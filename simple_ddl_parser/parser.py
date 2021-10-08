@@ -137,13 +137,13 @@ class Parser:
         skip_line_words = ["USE", "GO"]
         set_line = None
         for num, line in enumerate(lines):
+            line, block_comments = self.pre_process_line(line, block_comments)
+            line = line.strip().replace("\n", "").replace("\t", "")
             skip = False
             for word in skip_line_words:
                 if line.startswith(word):
                     skip = True
                     break
-            line, block_comments = self.pre_process_line(line, block_comments)
-            line = line.strip().replace("\n", "").replace("\t", "")
             set_line, set_was_in_line = self.parse_set_statement(tables, line, set_line)
             if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name

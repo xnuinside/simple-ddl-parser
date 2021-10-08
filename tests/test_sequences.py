@@ -99,3 +99,36 @@ def test_sequence_and_table():
         },
     ]
     assert expected == parse_results
+
+
+def test_sequence_with_by():
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [
+            {
+                "AS": "[bigint]",
+                "cache": True,
+                "increment_by": 1,
+                "minvalue": 1,
+                "schema": "[dbo]",
+                "sequence_name": "[sqCdSLIPEvt]",
+                "start_with": 1,
+            }
+        ],
+        "tables": [],
+        "types": [],
+    }
+
+    ddl = """
+    CREATE SEQUENCE [dbo].[sqCdSLIPEvt]
+    AS [bigint]
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    CACHE
+    GO
+        """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result
