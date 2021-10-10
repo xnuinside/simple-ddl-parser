@@ -431,6 +431,12 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 Changelog
 ---------
 
+**v0.21.2**
+Fixies:
+
+
+#. remove 'PERIOD' from tokens
+
 **v0.21.1**
 Fixies:
 

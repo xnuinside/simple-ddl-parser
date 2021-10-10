@@ -57,7 +57,7 @@ class MSSQL:
                 p[0]["properties"].append(p_list[-1])
 
     def p_period_for(self, p):
-        """period_for : PERIOD FOR ID LP pid RP"""
+        """period_for : ID FOR ID LP pid RP"""
         p[0] = {"period_for_system_time": p[5]}
 
     def p_expression_on_primary(self, p):
