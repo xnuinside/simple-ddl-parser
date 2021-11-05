@@ -8,9 +8,9 @@ from simple_ddl_parser.utils import check_spec, remove_par
 class AfterColumns:
     def p_expression_partition_by(self, p: List) -> None:
         """expr : expr PARTITION BY LP pid RP
-        | expr PARTITION BY ID LP pid RP
+        | expr PARTITION BY id LP pid RP
         | expr PARTITION BY pid
-        | expr PARTITION BY ID pid"""
+        | expr PARTITION BY id pid"""
         p[0] = p[1]
         p_list = list(p)
         _type = None
@@ -25,7 +25,7 @@ class AfterColumns:
 
 class Database:
     def p_database_base(self, p: List) -> None:
-        """database_base : CREATE DATABASE ID
+        """database_base : CREATE DATABASE id
         | database_base clone
         """
         p[0] = p[1]
@@ -73,12 +73,12 @@ class TableSpaces:
         return result
 
     def p_expression_create_tablespace(self, p: List) -> None:
-        """expr : CREATE TABLESPACE ID properties
-        | CREATE ID TABLESPACE ID properties
-        | CREATE ID TABLESPACE ID
-        | CREATE TABLESPACE ID
-        | CREATE ID ID TABLESPACE ID
-        | CREATE ID ID TABLESPACE ID properties
+        """expr : CREATE TABLESPACE id properties
+        | CREATE id TABLESPACE id properties
+        | CREATE id TABLESPACE id
+        | CREATE TABLESPACE id
+        | CREATE id id TABLESPACE id
+        | CREATE id id TABLESPACE id properties
         """
         p_list = list(p)
         p[0] = self.get_tablespace_data(p_list[1:])
@@ -94,11 +94,11 @@ class TableSpaces:
             p[0] = p[1]
 
     def p_property(self, p: List) -> None:
-        """property : ID ID
-        | ID STRING
-        | ID ON
-        | ID STORAGE
-        | ID ROW
+        """property : id id
+        | id STRING
+        | id ON
+        | id STORAGE
+        | id ROW
         """
         p[0] = {p[1]: p[2]}
 
@@ -107,11 +107,11 @@ class Table:
     def p_create_table(self, p: List):
         """create_table : CREATE TABLE IF NOT EXISTS
         | CREATE TABLE
-        | CREATE ID TABLE IF NOT EXISTS
-        | CREATE ID TABLE
+        | CREATE id TABLE IF NOT EXISTS
+        | CREATE id TABLE
 
         """
-        # ID - for EXTERNAL
+        # id - for EXTERNAL
         # get schema & table name
         p[0] = {}
         if p[2].upper() == "EXTERNAL":
@@ -122,7 +122,7 @@ class Table:
 
 class Column:
     def p_column_property(self, p: List):
-        """c_property : ID ID"""
+        """c_property : id id"""
         p_list = list(p)
         p[0] = {"property": {p_list[1]: p_list[-1]}}
 
@@ -158,9 +158,9 @@ class Column:
         return _type
 
     def p_c_type(self, p: List) -> None:
-        """c_type : ID
-        | ID ID
-        | ID DOT ID
+        """c_type : id
+        | id id
+        | id DOT id
         | tid
         | ARRAY
         | c_type ARRAY
@@ -217,12 +217,12 @@ class Column:
         p_list.pop(-1)
 
     def p_column(self, p: List) -> None:
-        """column : ID c_type
+        """column : id c_type
         | column comment
-        | column LP ID RP
-        | column LP ID RP c_type
-        | column LP ID COMMA ID RP
-        | column LP ID COMMA ID RP c_type
+        | column LP id RP
+        | column LP id RP c_type
+        | column LP id COMMA id RP
+        | column LP id COMMA id RP c_type
         """
         p[0] = self.set_base_column_propery(p)
         p_list = remove_par(list(p))
@@ -341,7 +341,7 @@ class Column:
 class Schema:
     def p_expression_schema(self, p: List) -> None:
         """expr : create
-        | expr ID
+        | expr id
         | expr clone
         """
         p[0] = p[1]
@@ -353,17 +353,17 @@ class Schema:
             p[0]["authorization"] = p[2]
 
     def p_create(self, p: List) -> None:
-        """create : CREATE SCHEMA ID ID
-        | CREATE SCHEMA ID ID ID
-        | CREATE SCHEMA ID
-        | CREATE SCHEMA IF NOT EXISTS ID
-        | CREATE DATABASE ID
-        | create ID ID ID
-        | create ID ID STRING
+        """create : CREATE SCHEMA id id
+        | CREATE SCHEMA id id id
+        | CREATE SCHEMA id
+        | CREATE SCHEMA IF NOT EXISTS id
+        | CREATE DATABASE id
+        | create id id id
+        | create id id STRING
         | create options
         """
         p_list = list(p)
-        print(p_list, 'schems')
+        print(p_list, "schems")
         auth = "AUTHORIZATION"
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
@@ -386,8 +386,8 @@ class Schema:
 
 class Drop:
     def p_expression_drop_table(self, p: List) -> None:
-        """expr : DROP TABLE ID
-        | DROP TABLE ID DOT ID
+        """expr : DROP TABLE id
+        | DROP TABLE id DOT id
         """
         # get schema & table name
         p_list = list(p)
@@ -416,8 +416,8 @@ class Type:
                 p[0].append(p_list[-1])
 
     def p_type_definition(self, p: List) -> None:  # noqa: C901
-        """type_definition : type_name ID LP pid RP
-        | type_name ID LP multiple_column_names RP
+        """type_definition : type_name id LP pid RP
+        | type_name id LP multiple_column_names RP
         | type_name LP id_equals RP
         | type_name TABLE LP defcolumn
         | type_definition COMMA defcolumn
@@ -454,10 +454,10 @@ class Type:
         p[0] = p[1]
 
     def p_type_name(self, p: List) -> None:
-        """type_name : type_create ID AS
-        | type_create ID DOT ID AS
-        | type_create ID DOT ID
-        | type_create ID
+        """type_name : type_create id AS
+        | type_create id DOT id AS
+        | type_create id DOT id
+        | type_create id
         """
         p_list = list(p)
         p[0] = {}
@@ -477,7 +477,7 @@ class Type:
 
 class Domain:
     def p_expression_domain_as(self, p: List) -> None:
-        """expr : domain_name ID LP pid RP"""
+        """expr : domain_name id LP pid RP"""
         p_list = list(p)
         p[0] = p[1]
         p[0]["base_type"] = p[2]
@@ -486,10 +486,10 @@ class Domain:
             p[0]["properties"]["values"] = p_list[4]
 
     def p_domain_name(self, p: List) -> None:
-        """domain_name : CREATE DOMAIN ID AS
-        | CREATE DOMAIN ID DOT ID AS
-        | CREATE DOMAIN ID DOT ID
-        | CREATE DOMAIN ID
+        """domain_name : CREATE DOMAIN id AS
+        | CREATE DOMAIN id DOT id AS
+        | CREATE DOMAIN id DOT id
+        | CREATE DOMAIN id
         """
         p_list = list(p)
         p[0] = {}
@@ -504,17 +504,17 @@ class BaseSQL(
     Database, Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces
 ):
     def p_id_equals(self, p: List) -> None:
-        """id_equals : ID ID ID
+        """id_equals : id id id
         | id_equals COMMA
-        | id_equals COMMA ID ID ID
-        | ID
-        | id_equals COMMA ID
+        | id_equals COMMA id id id
+        | id
+        | id_equals COMMA id
         """
         p_list = list(p)
         _property = None
         if len(p_list) == 2:
             p_list = p_list[1].split("=")
-        elif ',' in p_list and len(p_list) == 4:
+        elif "," in p_list and len(p_list) == 4:
             p_list = p_list[-1].split("=")
         elif "=" == p_list[-2]:
             p_list.pop(-2)
@@ -537,8 +537,8 @@ class BaseSQL(
                 p[0][item].extend(p_list[-1][item])
 
     def p_index_table_name(self, p: List) -> None:
-        """index_table_name : create_index ON ID
-        | create_index ON ID DOT ID
+        """index_table_name : create_index ON id
+        | create_index ON id DOT id
         """
         p[0] = p[1]
         p_list = list(p)
@@ -551,10 +551,10 @@ class BaseSQL(
         p[0].update({"schema": schema, "table_name": table_name})
 
     def p_create_index(self, p: List) -> None:
-        """create_index : CREATE INDEX ID
-        | CREATE UNIQUE INDEX ID
-        | create_index ON ID
-        | CREATE CLUSTERED INDEX ID
+        """create_index : CREATE INDEX id
+        | CREATE UNIQUE INDEX id
+        | create_index ON id
+        | CREATE CLUSTERED INDEX id
         """
         p_list = list(p)
         if "CLUSTERED" in p_list:
@@ -691,10 +691,10 @@ class BaseSQL(
         p[0] = None
 
     def p_expression_like_table(self, p: List) -> None:
-        """expr : table_name likke ID
-        | table_name likke ID DOT ID
-        | table_name LP likke ID DOT ID RP
-        | table_name LP likke ID RP
+        """expr : table_name likke id
+        | table_name likke id DOT id
+        | table_name LP likke id DOT id RP
+        | table_name LP likke id RP
         """
         # get schema & table name
         p_list = remove_par(list(p))
@@ -709,10 +709,10 @@ class BaseSQL(
         p[0].update({"like": {"schema": schema, "table_name": table_name}})
 
     def p_table_name(self, p: List) -> None:
-        """table_name : create_table ID DOT ID
-        | create_table ID
-        | table_name likke ID
-        | table_name DOT ID
+        """table_name : create_table id DOT id
+        | create_table id
+        | table_name likke id
+        | table_name DOT id
         """
         # get schema & table name
         p_list = list(p)
@@ -731,13 +731,13 @@ class BaseSQL(
 
     def p_expression_seq(self, p: List) -> None:
         """expr : seq_name
-        | expr INCREMENT ID
-        | expr INCREMENT ID ID
-        | expr START ID
-        | expr START ID ID
-        | expr MINVALUE ID
-        | expr MAXVALUE ID
-        | expr CACHE ID
+        | expr INCREMENT id
+        | expr INCREMENT id id
+        | expr START id
+        | expr START id id
+        | expr MINVALUE id
+        | expr MAXVALUE id
+        | expr CACHE id
         | expr CACHE
         """
         # get schema & table name
@@ -751,8 +751,8 @@ class BaseSQL(
             p[0].update({f"{p[2].lower()}_{p[3].lower()}": int(p_list[-1])})
 
     def p_seq_name(self, p: List) -> None:
-        """seq_name : create_seq ID DOT ID
-        | create_seq ID
+        """seq_name : create_seq id DOT id
+        | create_seq id
         """
         # get schema & table name
         p_list = list(p)
@@ -774,8 +774,8 @@ class BaseSQL(
         pass
 
     def p_tid(self, p: List) -> None:
-        """tid : LT ID
-        | tid ID
+        """tid : LT id
+        | tid id
         | tid COMMAT
         | tid RT
         """
@@ -838,10 +838,10 @@ class BaseSQL(
         p[0] = {"nullable": nullable}
 
     def p_f_call(self, p: List) -> None:
-        """f_call : ID LP RP
-        | ID LP f_call RP
-        | ID LP multi_id RP
-        | ID LP pid RP
+        """f_call : id LP RP
+        | id LP f_call RP
+        | id LP multi_id RP
+        | id LP pid RP
         """
         p_list = list(p)
         if isinstance(p[1], list):
@@ -856,8 +856,8 @@ class BaseSQL(
             p[0] = value
 
     def p_multi_id(self, p: List) -> None:
-        """multi_id : ID
-        | multi_id ID
+        """multi_id : id
+        | multi_id id
         | f_call
         | multi_id f_call
         """
@@ -883,17 +883,17 @@ class BaseSQL(
             p[0] = p[1]
 
     def p_dot_id(self, p: List) -> None:
-        """dot_id : ID DOT ID"""
+        """dot_id : id DOT id"""
         p[0] = f"{p[1]}.{p[3]}"
 
     def p_default(self, p: List) -> None:
-        """default : DEFAULT ID
+        """default : DEFAULT id
         | DEFAULT STRING
         | DEFAULT NULL
         | default FOR dot_id
         | DEFAULT funct_expr
         | DEFAULT LP pid RP
-        | default ID
+        | default id
         | default LP RP
         """
         p_list = list(p)
@@ -932,7 +932,7 @@ class BaseSQL(
         p[0] = {"enforced": len(p_list) == 1}
 
     def p_collate(self, p: List) -> None:
-        """collate : COLLATE ID
+        """collate : COLLATE id
         | COLLATE STRING
         """
         p_list = list(p)
@@ -940,7 +940,7 @@ class BaseSQL(
 
     def p_constraint(self, p: List) -> None:
         """
-        constraint : CONSTRAINT ID
+        constraint : CONSTRAINT id
         """
 
         p_list = list(p)
@@ -949,7 +949,7 @@ class BaseSQL(
     def p_generated(self, p: List) -> None:
         """
         generated : gen_always funct_expr
-        | gen_always funct_expr ID
+        | gen_always funct_expr id
         | gen_always LP multi_id RP
         | gen_always f_call
         """
@@ -962,15 +962,15 @@ class BaseSQL(
 
     def p_gen_always(self, p: List) -> None:
         """
-        gen_always : GENERATED ID AS
+        gen_always : GENERATED id AS
         """
         p[0] = {"generated": {"always": True}}
 
     def p_check_st(self, p: List) -> None:
-        """check_st : CHECK LP ID
-        | check_st ID
+        """check_st : CHECK LP id
+        | check_st id
         | check_st STRING
-        | check_st ID RP
+        | check_st id RP
         | check_st STRING RP
         | check_st funct_args
         """
@@ -1023,11 +1023,11 @@ class BaseSQL(
         return column, value
 
     def p_alter_default(self, p: List) -> None:
-        """alter_default : alt_table ID ID
-        | alt_table constraint ID ID
-        | alt_table ID STRING
-        | alt_table constraint ID STRING
-        | alter_default ID
+        """alter_default : alt_table id id
+        | alt_table constraint id id
+        | alt_table id STRING
+        | alt_table constraint id STRING
+        | alter_default id
         | alter_default FOR pid
         """
 
@@ -1066,13 +1066,13 @@ class BaseSQL(
         p[0]["check"]["statement"] = p_list[-1]["check"]
 
     def p_pid(self, p: List) -> None:
-        """pid :  ID
+        """pid :  id
         | STRING
-        | pid ID
+        | pid id
         | pid STRING
         | STRING LP RP
-        | ID LP RP
-        | pid COMMA ID
+        | id LP RP
+        | pid COMMA id
         | pid COMMA STRING
         """
         p_list = list(p)
@@ -1085,8 +1085,8 @@ class BaseSQL(
             p[0].append(p_list[-1])
 
     def p_index_pid(self, p: List) -> None:
-        """index_pid :  ID
-        | index_pid ID
+        """index_pid :  id
+        | index_pid id
         | index_pid COMMA index_pid
         """
         p_list = list(p)
@@ -1131,8 +1131,8 @@ class BaseSQL(
                 column.update({"constraint_name": p_list[2]["constraint"]["name"]})
 
     def p_alt_table_name(self, p: List) -> None:
-        """alt_table : ALTER TABLE ID ADD
-        | ALTER TABLE ID DOT ID ADD
+        """alt_table : ALTER TABLE id ADD
+        | ALTER TABLE id DOT id ADD
         """
         p_list = list(p)
         if "." in p:
@@ -1154,12 +1154,12 @@ class BaseSQL(
             p[0] = columns
 
     def p_ref(self, p: List) -> None:
-        """ref : REFERENCES ID DOT ID
-        | REFERENCES ID
+        """ref : REFERENCES id DOT id
+        | REFERENCES id
         | ref LP pid RP
-        | ref ON DELETE ID
-        | ref ON UPDATE ID
-        | ref DEFERRABLE INITIALLY ID
+        | ref ON DELETE id
+        | ref ON UPDATE id
+        | ref DEFERRABLE INITIALLY id
         | ref NOT DEFERRABLE
         """
         p_list = remove_par(list(p))
@@ -1195,8 +1195,8 @@ class BaseSQL(
         p[0] = {"unique_statement": p_list[-1]}
 
     def p_statem_by_id(self, p: List) -> None:
-        """statem_by_id : ID LP pid RP
-        | ID KEY LP pid RP
+        """statem_by_id : id LP pid RP
+        | id KEY LP pid RP
         """
         p_list = remove_par(list(p))
         if p[1].upper() == "UNIQUE":
@@ -1221,8 +1221,8 @@ class BaseSQL(
         p[0] = {"comment": check_spec(p_list[-1])}
 
     def p_tablespace(self, p: List) -> None:
-        """tablespace : TABLESPACE ID
-        | TABLESPACE ID properties
+        """tablespace : TABLESPACE id
+        | TABLESPACE id properties
         """
         # Initial 5m Next 5m Maxextents Unlimited
         p[0] = self.get_tablespace_data(list(p))

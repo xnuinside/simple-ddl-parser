@@ -30,8 +30,8 @@ class Oracle:
 
     def p_storage(self, p):
         """storage : STORAGE LP
-        | storage ID ID
-        | storage ID ID RP
+        | storage id id
+        | storage id id RP
         """
         # Initial 5m Next 5m Maxextents Unlimited
         p_list = remove_par(list(p))

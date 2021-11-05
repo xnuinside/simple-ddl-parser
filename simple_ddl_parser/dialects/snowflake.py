@@ -1,11 +1,11 @@
 class Snowflake:
     def p_clone(self, p):
-        """clone : CLONE ID"""
+        """clone : CLONE id"""
         p_list = list(p)
         p[0] = {"clone": {"from": p_list[-1]}}
 
     def p_table_properties(self, p):
-        """table_properties : ID ID ID"""
+        """table_properties : id id id"""
         p_list = list(p)
         p[0] = {p_list[-3]: p_list[-1]}
 

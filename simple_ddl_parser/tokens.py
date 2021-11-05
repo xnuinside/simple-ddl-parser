@@ -33,7 +33,7 @@ common_statements = {
     "NO": "NO",
     "USING": "USING",
     # bigquery
-    "OPTIONS": "OPTIONS"
+    "OPTIONS": "OPTIONS",
 }
 
 columns_defenition = {
@@ -84,7 +84,7 @@ after_columns_tokens = {
     "STORAGE": "STORAGE",
     "TABLESPACE": "TABLESPACE",
     # mssql
-    "TEXTIMAGE_ON": "TEXTIMAGE_ON"
+    "TEXTIMAGE_ON": "TEXTIMAGE_ON",
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",
@@ -97,7 +97,7 @@ sequence_reserved = {
 
 tokens = tuple(
     set(
-        ["ID", "DOT", "STRING", "LP", "RP", "LT", "RT", "COMMAT"]
+        ["ID", "DOT", "STRING", "DQ_STRING", "LP", "RP", "LT", "RT", "COMMAT"]
         + list(defenition_statements.values())
         + list(common_statements.values())
         + list(columns_defenition.values())
