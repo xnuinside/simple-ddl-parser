@@ -360,13 +360,19 @@ class Schema:
         | CREATE DATABASE ID
         | create ID ID ID
         | create ID ID STRING
+        | create options
         """
         p_list = list(p)
+        print(p_list, 'schems')
         auth = "AUTHORIZATION"
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
             if not p[0].get("properties"):
-                p[0]["properties"] = {p_list[-3]: p_list[-1]}
+                if len(p_list) == 3:
+                    properties = p_list[-1]
+                else:
+                    properties = {p_list[-3]: p_list[-1]}
+                p[0]["properties"] = properties
             else:
                 p[0]["properties"].update({p_list[-3]: p_list[-1]})
         elif auth in p_list:
@@ -501,15 +507,24 @@ class BaseSQL(
         """id_equals : ID ID ID
         | id_equals COMMA
         | id_equals COMMA ID ID ID
+        | ID
+        | id_equals COMMA ID
         """
         p_list = list(p)
-        if "=" == p_list[-2]:
-            property = {p_list[-3]: p_list[-1]}
+        _property = None
+        if len(p_list) == 2:
+            p_list = p_list[1].split("=")
+        elif ',' in p_list and len(p_list) == 4:
+            p_list = p_list[-1].split("=")
+        elif "=" == p_list[-2]:
+            p_list.pop(-2)
+        _property = {p_list[-2]: p_list[-1]}
+        if _property:
             if not isinstance(p[1], list):
-                p[0] = [property]
+                p[0] = [_property]
             else:
                 p[0] = p[1]
-                p[0].append(property)
+                p[0].append(_property)
 
     def p_expression_index(self, p: List) -> None:
         """expr : index_table_name LP index_pid RP"""

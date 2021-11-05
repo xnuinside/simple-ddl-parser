@@ -93,3 +93,44 @@ def test_simple_struct():
     }
 
     assert expected == parse_results
+
+
+def test_schema_options():
+        
+    ddl = """
+    CREATE SCHEMA IF NOT EXISTS name-name
+    OPTIONS (
+    location="path"
+    );
+    """
+    parse_result = DDLParser(ddl).run(group_by_type=True)
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [{'properties': {'options': [{'location': '"path"'}]},
+              'schema_name': 'name-name'}],
+ 'sequences': [],
+ 'tables': [],
+ 'types': []}
+    assert expected == parse_result
+
+
+def test_two_options_values():
+        
+    ddl = """
+    CREATE SCHEMA IF NOT EXISTS name-name
+    OPTIONS (
+    location="path",
+    second_option=second_value
+    );
+    """
+    parse_result = DDLParser(ddl).run(group_by_type=True)
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [{'properties': {'options': [{'location': '"path"'},
+                                         {'second_option': 'second_value'}]},
+              'schema_name': 'name-name'}],
+ 'sequences': [],
+ 'tables': [],
+ 'types': []}
+    assert expected == parse_result
+

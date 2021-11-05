@@ -1,3 +1,10 @@
+**v0.22.0**
+### New Features:
+
+## BigQuery:
+
+1. Added support for OPTIONS in CREATE SCHEMA
+
 **v0.21.2**
 Fixies:
 1. remove 'PERIOD' from tokens

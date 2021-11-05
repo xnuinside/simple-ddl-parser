@@ -32,6 +32,8 @@ common_statements = {
     "SALT": "SALT",
     "NO": "NO",
     "USING": "USING",
+    # bigquery
+    "OPTIONS": "OPTIONS"
 }
 
 columns_defenition = {
@@ -82,7 +84,7 @@ after_columns_tokens = {
     "STORAGE": "STORAGE",
     "TABLESPACE": "TABLESPACE",
     # mssql
-    "TEXTIMAGE_ON": "TEXTIMAGE_ON",
+    "TEXTIMAGE_ON": "TEXTIMAGE_ON"
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",

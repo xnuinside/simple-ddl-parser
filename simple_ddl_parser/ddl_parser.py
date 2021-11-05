@@ -7,14 +7,12 @@ from simple_ddl_parser.dialects.mysql import MySQL
 from simple_ddl_parser.dialects.oracle import Oracle
 from simple_ddl_parser.dialects.redshift import Redshift
 from simple_ddl_parser.dialects.snowflake import Snowflake
+from simple_ddl_parser.dialects.bigquery import BigQuery
 from simple_ddl_parser.dialects.sql import BaseSQL
 from simple_ddl_parser.parser import Parser
 
 
-class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift):
-    """
-    lex and yacc parser for parse ddl into BQ schemas
-    """
+class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift, BigQuery):
 
     tokens = tok.tokens
     t_ignore = "\t  \r"
@@ -78,6 +76,7 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift)
             self.lexer.sequence = True
         elif t.type == "CHECK":
             self.lexer.check = True
+        print(t.type, t.value)
 
     def t_STRING(self, t):
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
