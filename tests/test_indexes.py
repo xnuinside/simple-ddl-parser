@@ -50,7 +50,7 @@ def test_several_indexes_types():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -253,7 +253,7 @@ def test_several_indexes_types():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "references": [
@@ -383,7 +383,7 @@ def test_clustered_index():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -586,7 +586,7 @@ def test_clustered_index():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "references": [

@@ -3,7 +3,14 @@
 
 ## BigQuery:
 
+Added partial support for BigQuery dialect and information about it in README.md
+
 1. Added support for OPTIONS in CREATE SCHEMA
+
+### Improvements:
+
+1. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
+
 
 **v0.21.2**
 Fixies:

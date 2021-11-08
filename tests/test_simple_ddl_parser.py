@@ -674,7 +674,7 @@ def test_check_with_constraint():
             "checks": [
                 {
                     "constraint_name": "CHK_Person",
-                    "statement": "Age>=18 AND City='Sandnes'",
+                    "statement": "Age>=18 AND City= 'Sandnes'",
                 },
                 {"constraint_name": None, "statement": "LastName != FirstName"},
             ],
@@ -682,7 +682,7 @@ def test_check_with_constraint():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person",
-                        "statement": "Age>=18 AND City='Sandnes'",
+                        "statement": "Age>=18 AND City= 'Sandnes'",
                     }
                 ]
             },

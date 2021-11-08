@@ -375,7 +375,7 @@ def test_two_unique_constructs():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -671,7 +671,7 @@ def test_two_unique_constructs():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "references": [
@@ -757,7 +757,7 @@ def test_foreign_keys():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -1027,7 +1027,7 @@ def test_foreign_keys():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "uniques": [
@@ -1114,7 +1114,7 @@ def test_alter_unique():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -1417,7 +1417,7 @@ def test_alter_unique():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "references": [
@@ -1499,7 +1499,7 @@ def test_defaults_in_alter():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -1652,7 +1652,7 @@ def test_defaults_in_alter():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "references": [
