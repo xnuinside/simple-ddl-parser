@@ -2140,3 +2140,64 @@ def test_ddl_properties():
     }
 
     assert result == expected
+
+
+def test_output_without_separator_in_statements():
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "sid",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "BIGINT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "foo",
+                        "nullable": True,
+                        "references": None,
+                        "size": 5,
+                        "type": "CHAR",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "primary_keys": [
+                        {"columns": ["sid"], "constraint_name": "sample_key"}
+                    ]
+                },
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["sid"],
+                "schema": None,
+                "table_name": "sample",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    ddl = """
+    DROP TABLE IF EXISTS sample
+    CREATE TABLE sample
+    (
+        sid BIGINT NOT NULL,
+        foo CHAR(5),
+        CONSTRAINT sample_key PRIMARY KEY NONCLUSTERED (sid)
+    )
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result
