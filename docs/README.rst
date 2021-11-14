@@ -470,7 +470,6 @@ Improvements:
 
 
 #. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
-#. Python 3.10 added to supported versions
 #. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90 
 
 Fixes:
