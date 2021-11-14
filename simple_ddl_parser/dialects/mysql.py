@@ -3,7 +3,7 @@ import simple_ddl_parser  # noqa: F401 weird issue with failed tests
 
 class MySQL:
     def p_on_update(self, p):
-        """on_update : ON UPDATE ID
+        """on_update : ON UPDATE id
         | ON UPDATE STRING
         | ON UPDATE f_call
         """

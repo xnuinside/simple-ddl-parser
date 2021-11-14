@@ -3,10 +3,10 @@ import simple_ddl_parser  # noqa: F401 weird issue with failed tests
 
 class MSSQL:
     def p_pkey_constraint(self, p):
-        """pkey_constraint : constraint pkey_statement ID LP index_pid RP
+        """pkey_constraint : constraint pkey_statement id LP index_pid RP
         | constraint pkey_statement LP index_pid RP
         | pkey_constraint with
-        | pkey_constraint with ON ID
+        | pkey_constraint with ON id
         """
         p_list = list(p)
         p[0] = p[1]
@@ -29,9 +29,9 @@ class MSSQL:
             p[0]["with"]["properties"] = p_list[-1]["properties"]
 
     def p_equals(self, p):
-        """equals : ID ID ID
-        | ID ID ON
-        | ID ID ID DOT ID
+        """equals : id id id
+        | id id ON
+        | id id id DOT id
         """
         p_list = list(p)
         if "." in p_list:
@@ -57,11 +57,11 @@ class MSSQL:
                 p[0]["properties"].append(p_list[-1])
 
     def p_period_for(self, p):
-        """period_for : ID FOR ID LP pid RP"""
+        """period_for : id FOR id LP pid RP"""
         p[0] = {"period_for_system_time": p[5]}
 
     def p_expression_on_primary(self, p):
-        """expr : expr ON ID"""
+        """expr : expr ON id"""
         p[0] = p[1]
         p[0]["on"] = p[3]
 
@@ -71,6 +71,6 @@ class MSSQL:
         p[0].update(p[2])
 
     def p_expression_text_image_on(self, p):
-        """expr : expr TEXTIMAGE_ON ID"""
+        """expr : expr TEXTIMAGE_ON id"""
         p[0] = p[1]
         p[0].update({"textimage_on": p[3]})

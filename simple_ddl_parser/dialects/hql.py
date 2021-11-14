@@ -16,7 +16,7 @@ class HQL:
         p[0] = {"serde": p_list[-1] == "SERDE"}
 
     def p_expression_row_format(self, p):
-        """expr : expr row_format ID
+        """expr : expr row_format id
         | expr row_format STRING
         """
         p[0] = p[1]
@@ -50,11 +50,11 @@ class HQL:
         p[0].update(p_list[-1])
 
     def p_assigment(self, p):
-        """assigment : ID ID ID
-        |  STRING ID STRING
-        |  ID ID STRING
-        |  STRING ID ID
-        |  STRING ID"""
+        """assigment : id id id
+        |  STRING id STRING
+        |  id id STRING
+        |  STRING id id
+        |  STRING id"""
         p_list = remove_par(list(p))
         if "state" in self.lexer.__dict__:
             p[0] = {p[1]: self.lexer.state.get(p_list[-1])}
@@ -70,15 +70,15 @@ class HQL:
         p[0]["comment"] = check_spec(p_list[-1])
 
     def p_expression_terminated_by(self, p):
-        """expr : expr ID TERMINATED BY ID
-        | expr ID TERMINATED BY STRING
+        """expr : expr id TERMINATED BY id
+        | expr id TERMINATED BY STRING
         """
         p[0] = p[1]
         p_list = list(p)
         p[0][f"{p[2].lower()}_terminated_by"] = check_spec(p_list[-1])
 
     def p_expression_map_keys_terminated_by(self, p):
-        """expr : expr MAP KEYS TERMINATED BY ID
+        """expr : expr MAP KEYS TERMINATED BY id
         | expr MAP KEYS TERMINATED BY STRING
         """
         p[0] = p[1]
@@ -86,13 +86,13 @@ class HQL:
         p[0]["map_keys_terminated_by"] = check_spec(p_list[-1])
 
     def p_expression_skewed_by(self, p):
-        """expr : expr SKEWED BY LP ID RP ON LP pid RP"""
+        """expr : expr SKEWED BY LP id RP ON LP pid RP"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["skewed_by"] = {"key": p_list[4], "on": p_list[-1]}
 
     def p_expression_collection_terminated_by(self, p):
-        """expr : expr COLLECTION ITEMS TERMINATED BY ID
+        """expr : expr COLLECTION ITEMS TERMINATED BY id
         | expr COLLECTION ITEMS TERMINATED BY STRING
         """
         p[0] = p[1]
@@ -100,9 +100,9 @@ class HQL:
         p[0]["collection_items_terminated_by"] = check_spec(p_list[-1])
 
     def p_expression_stored_as(self, p):
-        """expr : expr STORED AS ID
-        |  expr STORED AS ID STRING
-        |  expr STORED AS ID STRING ID STRING
+        """expr : expr STORED AS id
+        |  expr STORED AS id STRING
+        |  expr STORED AS id STRING id STRING
         """
         p[0] = p[1]
         p_list = list(p)

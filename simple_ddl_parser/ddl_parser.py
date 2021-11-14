@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from simple_ddl_parser import tokens as tok
+from simple_ddl_parser.dialects.bigquery import BigQuery
 from simple_ddl_parser.dialects.hql import HQL
 from simple_ddl_parser.dialects.mssql import MSSQL
 from simple_ddl_parser.dialects.mysql import MySQL
@@ -11,10 +12,9 @@ from simple_ddl_parser.dialects.sql import BaseSQL
 from simple_ddl_parser.parser import Parser
 
 
-class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift):
-    """
-    lex and yacc parser for parse ddl into BQ schemas
-    """
+class DDLParser(
+    Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift, BigQuery
+):
 
     tokens = tok.tokens
     t_ignore = "\t  \r"
@@ -84,6 +84,11 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift)
         t.type = "STRING"
         return t
 
+    def t_DQ_STRING(self, t):
+        r"((\")([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}'\[\]\/\\\\#\*&^|?;±§@~]*)(\")){1}"
+        t.type = "DQ_STRING"
+        return t
+
     def is_token_column_name(self, t):
         """many of reserved words can be used as column name,
         to decide is it a column name or not we need do some checks"""
@@ -97,7 +102,7 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift)
         )
 
     def t_ID(self, t):
-        r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*'\()!{}\[\]\"\`]+)"
+        r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*\()!{}\[\]\`]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         if t.type == "LP":
             self.lexer.lp_open += 1
@@ -130,6 +135,12 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift)
             self.lexer.is_table = True
         return t
 
+    def p_id(self, p):
+        """id : ID
+        | DQ_STRING"""
+
+        p[0] = p[1]
+
     def t_error(self, t):
         raise SyntaxError("Unknown symbol %r" % (t.value[0],))
 
@@ -138,6 +149,6 @@ class DDLParser(Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift)
 
 
 def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
-    """ get useful data from ddl """
+    """get useful data from ddl"""
     with open(file_path, "r") as df:
         return DDLParser(df.read()).run(file_path=file_path, **kwargs)

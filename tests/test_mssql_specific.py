@@ -375,7 +375,7 @@ def test_two_unique_constructs():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -671,7 +671,7 @@ def test_two_unique_constructs():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "references": [
@@ -757,7 +757,7 @@ def test_foreign_keys():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -1027,7 +1027,7 @@ def test_foreign_keys():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "uniques": [
@@ -1114,7 +1114,7 @@ def test_alter_unique():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -1417,7 +1417,7 @@ def test_alter_unique():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "references": [
@@ -1499,7 +1499,7 @@ def test_defaults_in_alter():
                 "checks": [
                     {
                         "constraint_name": "CHK_Person_Age_under",
-                        "statement": "days_active<=18 AND user_city='New " "York'",
+                        "statement": "days_active<=18 AND user_city= 'New York'",
                     }
                 ],
                 "columns": [
@@ -1652,7 +1652,7 @@ def test_defaults_in_alter():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city='New York'",
+                            "statement": "days_active<=18 AND " "user_city= 'New York'",
                         }
                     ],
                     "references": [
@@ -1778,6 +1778,7 @@ def test_constraint_primary_key():
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[id]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -1803,24 +1804,18 @@ def test_constraint_primary_key():
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[id]"],
-                                "detailed_columns": [
-                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
-                                ],
-                            },
+                            "columns": ["[id]"],
                             "constraint_name": "[PK_users_WorkSchedule_id]",
                         },
                         {
-                            "columns": ["[id]", "ASC"],
+                            "columns": ["[id]"],
                             "constraint_name": "[PK_users_WorkSchedule_id]",
                         },
                     ]
                 },
                 "index": [],
                 "partitioned_by": [],
-                "primary_key": ["[id]", "ASC"],
+                "primary_key": ["[id]"],
                 "schema": "[dbo]",
                 "table_name": "[users_WorkSchedule]",
                 "tablespace": None,
@@ -1883,6 +1878,7 @@ def test_constraint_with_with():
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[id]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -1944,33 +1940,27 @@ def test_constraint_with_with():
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[id]"],
-                                "detailed_columns": [
-                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
-                                ],
-                            },
+                            "columns": ["[id]"],
                             "constraint_name": "[PK_users_WorkSchedule_id]",
-                            "with": {
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                                "on": None,
-                            },
-                        },
+                        }
                     ]
                 },
                 "index": [],
                 "partitioned_by": [],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[id]"],
                 "schema": "[dbo]",
                 "table_name": "[users_WorkSchedule]",
                 "tablespace": None,
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "PAD_INDEX", "value": "OFF"},
+                        {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                        {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                        {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                        {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                    ],
+                },
             }
         ],
         "types": [],
@@ -1988,6 +1978,7 @@ def test_with_on():
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[id]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -2049,38 +2040,32 @@ def test_with_on():
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[id]"],
-                                "detailed_columns": [
-                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
-                                ],
-                            },
+                            "columns": ["[id]"],
                             "constraint_name": "[PK_users_WorkSchedule_id]",
-                            "with": {
-                                "on": "[PRIMARY]",
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                            },
                         }
                     ]
                 },
                 "index": [],
+                "on": "[PRIMARY]",
                 "partitioned_by": [],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[id]"],
                 "schema": "[dbo]",
                 "table_name": "[users_WorkSchedule]",
                 "tablespace": None,
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "PAD_INDEX", "value": "OFF"},
+                        {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                        {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                        {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                        {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                    ],
+                },
             }
         ],
         "types": [],
     }
-
     ddl = """CREATE TABLE [dbo].[users_WorkSchedule](
         [id] [int] IDENTITY(1,1) NOT NULL,
         [RequestDropDate] [smalldatetime] NULL,
@@ -2134,6 +2119,7 @@ def test_period_for_system_time():
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[id]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -2195,34 +2181,29 @@ def test_period_for_system_time():
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[id]"],
-                                "detailed_columns": [
-                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
-                                ],
-                            },
+                            "columns": ["[id]"],
                             "constraint_name": "[PK_users_WorkSchedule_id]",
-                            "with": {
-                                "on": "[PRIMARY]",
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                            },
                         }
                     ]
                 },
                 "index": [],
+                "on": "[PRIMARY]",
                 "partitioned_by": [],
                 "period_for_system_time": ["[StartHistory]", "[EndHistory]"],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[id]"],
                 "schema": "[dbo]",
                 "table_name": "[users_WorkSchedule]",
                 "tablespace": None,
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "PAD_INDEX", "value": "OFF"},
+                        {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                        {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                        {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                        {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                    ],
+                },
             }
         ],
         "types": [],
@@ -2262,6 +2243,7 @@ def test_on_primary_on_table_level():
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[id]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -2323,24 +2305,8 @@ def test_on_primary_on_table_level():
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[id]"],
-                                "detailed_columns": [
-                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
-                                ],
-                            },
+                            "columns": ["[id]"],
                             "constraint_name": "[PK_users_WorkSchedule_id]",
-                            "with": {
-                                "on": "[PRIMARY]",
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                            },
                         }
                     ]
                 },
@@ -2348,10 +2314,20 @@ def test_on_primary_on_table_level():
                 "on": "[PRIMARY]",
                 "partitioned_by": [],
                 "period_for_system_time": ["[StartHistory]", "[EndHistory]"],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[id]"],
                 "schema": "[dbo]",
                 "table_name": "[users_WorkSchedule]",
                 "tablespace": None,
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "PAD_INDEX", "value": "OFF"},
+                        {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                        {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                        {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                        {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                    ],
+                },
             }
         ],
         "types": [],
@@ -2395,6 +2371,7 @@ def test_with_on_table_level():
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[id]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -2420,24 +2397,8 @@ def test_with_on_table_level():
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[id]"],
-                                "detailed_columns": [
-                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
-                                ],
-                            },
+                            "columns": ["[id]"],
                             "constraint_name": "[PK_users_WorkSchedule_id]",
-                            "with": {
-                                "on": "[PRIMARY]",
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                            },
                         }
                     ]
                 },
@@ -2445,7 +2406,7 @@ def test_with_on_table_level():
                 "on": "[PRIMARY]",
                 "partitioned_by": [],
                 "period_for_system_time": ["[StartHistory]", "[EndHistory]"],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[id]"],
                 "schema": "[dbo]",
                 "table_name": "[users_WorkSchedule]",
                 "tablespace": None,
@@ -2497,6 +2458,7 @@ SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[users_WorkScheduleHistory] )
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[id]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -2532,24 +2494,8 @@ SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[users_WorkScheduleHistory] )
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[id]"],
-                                "detailed_columns": [
-                                    {"name": "[id]", "nulls": "LAST", "order": "ASC"}
-                                ],
-                            },
+                            "columns": ["[id]"],
                             "constraint_name": "[PK_users_WorkSchedule_id]",
-                            "with": {
-                                "on": "[PRIMARY]",
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                            },
                         }
                     ]
                 },
@@ -2557,7 +2503,7 @@ SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[users_WorkScheduleHistory] )
                 "on": "[PRIMARY]",
                 "partitioned_by": [],
                 "period_for_system_time": ["[StartHistory]", "[EndHistory]"],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[id]"],
                 "schema": "[dbo]",
                 "table_name": "[users_WorkSchedule]",
                 "tablespace": None,
@@ -2659,6 +2605,7 @@ GO"""
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[Request_ID]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -2804,42 +2751,33 @@ GO"""
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[Request_ID]"],
-                                "detailed_columns": [
-                                    {
-                                        "name": "[Request_ID]",
-                                        "nulls": "LAST",
-                                        "order": "ASC",
-                                    }
-                                ],
-                            },
+                            "columns": ["[Request_ID]"],
                             "constraint_name": "[PK_TO_Requests_Request_ID]",
-                            "with": {
-                                "on": "[PRIMARY]",
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                            },
                         }
                     ]
                 },
                 "index": [],
                 "on": "[PRIMARY]",
                 "partitioned_by": [],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[Request_ID]"],
                 "schema": "[dbo]",
                 "table_name": "[TO_Requests]",
                 "tablespace": None,
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "PAD_INDEX", "value": "OFF"},
+                        {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                        {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                        {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                        {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                    ],
+                },
             },
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [{"column": "[ID]", "order": "ASC"}],
                 "columns": [
                     {
                         "check": None,
@@ -2874,40 +2812,34 @@ GO"""
                 ],
                 "constraints": {
                     "primary_keys": [
-                        {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[ID]"],
-                                "detailed_columns": [
-                                    {"name": "[ID]", "nulls": "LAST", "order": "ASC"}
-                                ],
-                            },
-                            "constraint_name": "[PK_ToDo_ID]",
-                            "with": {
-                                "on": "[PRIMARY]",
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                            },
-                        }
+                        {"columns": ["[ID]"], "constraint_name": "[PK_ToDo_ID]"}
                     ]
                 },
                 "index": [],
                 "on": "[PRIMARY]",
                 "partitioned_by": [],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[ID]"],
                 "schema": "[dbo]",
                 "table_name": "[ToDo]",
                 "tablespace": None,
                 "textimage_on": "[PRIMARY]",
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "PAD_INDEX", "value": "OFF"},
+                        {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                        {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                        {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                        {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                    ],
+                },
             },
             {
                 "alter": {},
                 "checks": [],
+                "clustered_primary_key": [
+                    {"column": "[ToDoCommentsId]", "order": "ASC"}
+                ],
                 "columns": [
                     {
                         "check": None,
@@ -2933,39 +2865,29 @@ GO"""
                 "constraints": {
                     "primary_keys": [
                         {
-                            "CLUSTERED": True,
-                            "columns": {
-                                "columns": ["[ToDoCommentsId]"],
-                                "detailed_columns": [
-                                    {
-                                        "name": "[ToDoCommentsId]",
-                                        "nulls": "LAST",
-                                        "order": "ASC",
-                                    }
-                                ],
-                            },
+                            "columns": ["[ToDoCommentsId]"],
                             "constraint_name": "[PK_ToDoComments_ToDoCommentsId]",
-                            "with": {
-                                "on": "[PRIMARY]",
-                                "properties": [
-                                    {"name": "PAD_INDEX", "value": "OFF"},
-                                    {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
-                                    {"name": "IGNORE_DUP_KEY", "value": "OFF"},
-                                    {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
-                                    {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
-                                ],
-                            },
                         }
                     ]
                 },
                 "index": [],
                 "on": "[PRIMARY]",
                 "partitioned_by": [],
-                "primary_key": ["detailed_columns", "columns"],
+                "primary_key": ["[ToDoCommentsId]"],
                 "schema": "[dbo]",
                 "table_name": "[ToDoComments]",
                 "tablespace": None,
                 "textimage_on": "[PRIMARY]",
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "PAD_INDEX", "value": "OFF"},
+                        {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                        {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                        {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                        {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                    ],
+                },
             },
         ],
         "types": [],
@@ -3007,6 +2929,111 @@ def test_next_value_for():
                 "schema": "[dbo]",
                 "table_name": "[SLIPEVENTO]",
                 "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_primary_key_clustered():
+    ddl = """
+    USE [sasgolddevdb]
+    GO
+    /****** Object:  Table [aud].[tcal_tgt]    Script Date: 11/11/2021 11:18:41 AM ******/
+    SET ANSI_NULLS ON
+    GO
+    SET QUOTED_IDENTIFIER ON
+    GO
+    CREATE TABLE [aud].[tcal_tgt](
+        [TCAL_SID] [decimal](30, 0) NOT NULL,
+        [TERM_YR] [varchar](4) NULL,
+        [REC_DELETED_BY] [varchar](25) NULL,
+        [SYSTEM_OPERATION] [varchar](1) NULL,
+    PRIMARY KEY CLUSTERED
+    (
+        [TCAL_SID] ASC, [TERM_YR] DESC
+    ) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF,
+    IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
+    ) ON [PRIMARY]
+    GO"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [
+            {"name": "ANSI_NULLS", "value": "ON"},
+            {"name": "QUOTED_IDENTIFIER", "value": "ON"},
+        ],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[TCAL_SID]",
+                        "nullable": False,
+                        "references": None,
+                        "size": (30, 0),
+                        "type": "[decimal]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[TERM_YR]",
+                        "nullable": False,
+                        "references": None,
+                        "size": 4,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[REC_DELETED_BY]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 25,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "[SYSTEM_OPERATION]",
+                        "nullable": True,
+                        "references": None,
+                        "size": 1,
+                        "type": "[varchar]",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "on": "[PRIMARY]",
+                "partitioned_by": [],
+                "primary_key": ["[TCAL_SID]", "[TERM_YR]"],
+                "schema": "[aud]",
+                "table_name": "[tcal_tgt]",
+                "tablespace": None,
+                "clustered_primary_key": [
+                    {"column": "[TCAL_SID]", "order": "ASC"},
+                    {"column": "[TERM_YR]", "order": "DESC"},
+                ],
+                "with": {
+                    "on": None,
+                    "properties": [
+                        {"name": "PAD_INDEX", "value": "OFF"},
+                        {"name": "STATISTICS_NORECOMPUTE", "value": "OFF"},
+                        {"name": "IGNORE_DUP_KEY", "value": "OFF"},
+                        {"name": "ALLOW_ROW_LOCKS", "value": "ON"},
+                        {"name": "ALLOW_PAGE_LOCKS", "value": "ON"},
+                        {"name": "FILLFACTOR", "value": "80"},
+                    ],
+                },
             }
         ],
         "types": [],

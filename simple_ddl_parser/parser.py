@@ -128,10 +128,11 @@ class Parser:
             set_line = None
         return set_line, set_was_in_line
 
-    def parse_data(self):
+    def parse_data(self):  # noqa: C901 need to refactor this
         tables = []
         block_comments = []
         statement = None
+        new_statements_tokens = ["ALTER", "CREATE", "DROP", "SET"]
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
         skip_line_words = ["USE", "GO"]
@@ -147,14 +148,20 @@ class Parser:
             set_line, set_was_in_line = self.parse_set_statement(tables, line, set_line)
             if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
-                final_line = line.strip().endswith(";")
-                if not skip and not set_was_in_line:
+                new_statement = False
+                if statement:
+                    for key in new_statements_tokens:
+                        if line.startswith(key):
+                            new_statement = True
+                final_line = line.endswith(";")
+
+                if not skip and not set_was_in_line and not new_statement:
                     if statement is None:
                         statement = line
                     else:
                         statement += f" {line}"
 
-                if final_line:
+                if final_line or new_statement:
                     # end of sql operation, remove ; from end of line
                     statement = statement[:-1]
                 elif num != len(lines) - 1 and not skip:
@@ -164,8 +171,10 @@ class Parser:
                 self.set_default_flags_in_lexer()
                 if not set_line and statement:
                     self.parse_statement(tables, statement)
-
-                statement = None
+                if new_statement:
+                    statement = line
+                else:
+                    statement = None
         return tables
 
     @staticmethod
