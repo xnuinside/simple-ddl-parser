@@ -18,8 +18,7 @@ Pay attention: previously they parsed somehow, but in incorrect structure.
 ### Improvements:
 
 1. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
-2. Python 3.10 added to supported versions
-3. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90 
+2. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90 
 
 ### Fixes:
 
