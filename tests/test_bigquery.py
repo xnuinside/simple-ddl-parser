@@ -96,7 +96,6 @@ def test_simple_struct():
 
 
 def test_schema_options():
-        
     ddl = """
     CREATE SCHEMA IF NOT EXISTS name-name
     OPTIONS (
@@ -104,18 +103,23 @@ def test_schema_options():
     );
     """
     parse_result = DDLParser(ddl).run(group_by_type=True)
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [{'properties': {'options': [{'location': '"path"'}]},
-              'schema_name': 'name-name'}],
- 'sequences': [],
- 'tables': [],
- 'types': []}
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [
+            {
+                "properties": {"options": [{"location": '"path"'}]},
+                "schema_name": "name-name",
+            }
+        ],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
     assert expected == parse_result
 
 
 def test_two_options_values():
-        
     ddl = """
     CREATE SCHEMA IF NOT EXISTS name-name
     OPTIONS (
@@ -124,13 +128,22 @@ def test_two_options_values():
     );
     """
     parse_result = DDLParser(ddl).run(group_by_type=True)
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [{'properties': {'options': [{'location': '"path"'},
-                                         {'second_option': 'second_value'}]},
-              'schema_name': 'name-name'}],
- 'sequences': [],
- 'tables': [],
- 'types': []}
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [
+            {
+                "properties": {
+                    "options": [
+                        {"location": '"path"'},
+                        {"second_option": "second_value"},
+                    ]
+                },
+                "schema_name": "name-name",
+            }
+        ],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
     assert expected == parse_result
-
