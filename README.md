@@ -383,6 +383,34 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 
 ## Changelog
+**v0.22.0**
+### New Features:
+
+## BigQuery:
+
+I started to add partial support for BigQuery
+
+1. Added support for OPTIONS in CREATE SCHEMA statement
+
+## MSSQL:
+
+1. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'. 
+I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beutiful and logically output structure.
+https://github.com/xnuinside/simple-ddl-parser/issues/91
+
+Pay attention: previously they parsed somehow, but in incorrect structure.
+
+### Improvements:
+
+1. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
+2. Python 3.10 added to supported versions
+3. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90 
+
+### Fixes:
+
+1. Now open strings is not valid in checks (previously the was parsed.) Open string sample 'some string (exist open quote, but there is no close quote) 
+2. Order like ASC, DESK in primary keys now parsed valid (not as previously as column name)
+
 **v0.21.2**
 Fixies:
 1. remove 'PERIOD' from tokens

@@ -401,6 +401,12 @@ Snowflake Dialect statements
 * CREATE TABLE .. CLUSTER BY ..
 * CONSTRAINT .. [NOT] ENFORCED 
 
+BigQuery
+^^^^^^^^
+
+
+* OPTION in CREATE SCHEMA statement
+
 TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -410,6 +416,11 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 #. Add support for ALTER TABLE ... ADD COLUMN
 #. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 #. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
+#. Change output for CHECKS -> 'checks': [{"column_name": str, "operator": =
+   ..
+
+      =|<|>|<=..., "value": value}]
+
 
 non-feature todo
 ----------------
@@ -430,6 +441,44 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 Changelog
 ---------
+
+**v0.22.0**
+
+New Features:
+^^^^^^^^^^^^^
+
+BigQuery:
+---------
+
+I started to add partial support for BigQuery
+
+
+#. Added support for OPTIONS in CREATE SCHEMA statement
+
+MSSQL:
+------
+
+
+#. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'. 
+   I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beutiful and logically output structure.
+   https://github.com/xnuinside/simple-ddl-parser/issues/91
+
+Pay attention: previously they parsed somehow, but in incorrect structure.
+
+Improvements:
+^^^^^^^^^^^^^
+
+
+#. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
+#. Python 3.10 added to supported versions
+#. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90 
+
+Fixes:
+^^^^^^
+
+
+#. Now open strings is not valid in checks (previously the was parsed.) Open string sample 'some string (exist open quote, but there is no close quote) 
+#. Order like ASC, DESK in primary keys now parsed valid (not as previously as column name)
 
 **v0.21.2**
 Fixies:
