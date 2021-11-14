@@ -363,7 +363,7 @@ class Schema:
         | create options
         """
         p_list = list(p)
-        print(p_list, "schems")
+
         auth = "AUTHORIZATION"
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
@@ -505,6 +505,7 @@ class BaseSQL(
 ):
     def p_id_equals(self, p: List) -> None:
         """id_equals : id id id
+        | id id
         | id_equals COMMA
         | id_equals COMMA id id id
         | id
@@ -512,8 +513,8 @@ class BaseSQL(
         """
         p_list = list(p)
         _property = None
-        if len(p_list) == 2:
-            p_list = p_list[1].split("=")
+        if isinstance(p_list[1], str) and p_list[1].endswith("="):
+            p_list[1] = p_list[1][:-1]
         elif "," in p_list and len(p_list) == 4:
             p_list = p_list[-1].split("=")
         elif "=" == p_list[-2]:
@@ -944,6 +945,7 @@ class BaseSQL(
         """
 
         p_list = list(p)
+
         p[0] = {"constraint": {"name": p_list[-1]}}
 
     def p_generated(self, p: List) -> None:
@@ -1207,9 +1209,34 @@ class BaseSQL(
             p[0] = {"primary_key": p_list[-1]}
 
     def p_pkey(self, p: List) -> None:
-        """pkey : pkey_statement LP pid RP"""
+        """pkey : pkey_statement LP pid RP
+        | pkey_statement ID LP pid RP
+        """
         p_list = remove_par(list(p))
-        p[0] = {"primary_key": p_list[-1]}
+
+        columns = []
+        p[0] = {}
+        if isinstance(p_list[2], str) and "CLUSTERED" == p_list[2]:
+            order = None
+            column = None
+            for item in p_list[-1]:
+                if item not in ["ASC", "DESC"]:
+                    column = item
+                else:
+                    order = item
+                if column and order:
+                    columns.append({"column": column, "order": order})
+                    column = None
+                    order = None
+            p[0]["clustered_primary_key"] = columns
+
+        columns = []
+        for item in p_list[-1]:
+            if item not in ["ASC", "DESC"]:
+                columns.append(item)
+            else:
+                order = item
+        p[0]["primary_key"] = columns
 
     def p_pkey_statement(self, p: List) -> None:
         """pkey_statement : PRIMARY KEY"""

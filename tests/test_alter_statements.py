@@ -803,8 +803,8 @@ def test_combo_with_alter_and_table_constraints():
         City varchar(255),
         CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
     );
-    ALTER TABLE Persons ADD CHECK (Age>=18 AND City='Sandnes);
-    ALTER TABLE Persons Add CONSTRAINT ck_person  CHECK (Age>=18 AND City='Sandnes);
+    ALTER TABLE Persons ADD CHECK (Age>=18 AND City='Sandnes');
+    ALTER TABLE Persons Add CONSTRAINT ck_person  CHECK (Age>=18 AND City='Sandnes');
     Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id) REFERENCES employees (id);"""
     ).run()
 
@@ -940,11 +940,11 @@ def test_combo_with_alter_and_table_constraints():
                 "checks": [
                     {
                         "constraint_name": None,
-                        "statement": "Age>=18 AND City= 'Sandnes",
+                        "statement": "Age>=18 AND City= 'Sandnes'",
                     },
                     {
                         "constraint_name": "ck_person",
-                        "statement": "Age>=18 AND City= 'Sandnes",
+                        "statement": "Age>=18 AND City= 'Sandnes'",
                     },
                 ],
                 "columns": [

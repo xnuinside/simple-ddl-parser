@@ -354,6 +354,10 @@ You also can provide a path where you want to have a dumps with schema with argu
 - CREATE TABLE .. CLUSTER BY ..
 - CONSTRAINT .. [NOT] ENFORCED 
 
+### BigQuery
+
+- OPTION in CREATE SCHEMA statement
+
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
 -1. Add base support for BigQuery DDL dialect.

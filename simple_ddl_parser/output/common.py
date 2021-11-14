@@ -151,6 +151,7 @@ def process_entities(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
         not_table = True
     if not not_table:
         table_data = process_not_table_item(table_data, tables_dict)
+    print("table_data", table_data)
     table_data = normalize_ref_columns_in_final_output(table_data)
     d.dialects_clean_up(output_mode, table_data)
     return table_data

@@ -78,18 +78,15 @@ class DDLParser(
             self.lexer.sequence = True
         elif t.type == "CHECK":
             self.lexer.check = True
-        print(t.type, t.value)
 
     def t_STRING(self, t):
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
-        print(t.type)
         return t
 
     def t_DQ_STRING(self, t):
         r"((\")([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}'\[\]\/\\\\#\*&^|?;±§@~]*)(\")){1}"
         t.type = "DQ_STRING"
-        print(t.type)
         return t
 
     def is_token_column_name(self, t):
@@ -141,7 +138,7 @@ class DDLParser(
     def p_id(self, p):
         """id : ID
         | DQ_STRING"""
-        print(p[1], "íd")
+
         p[0] = p[1]
 
     def t_error(self, t):
