@@ -147,3 +147,197 @@ def test_two_options_values():
         "types": [],
     }
     assert expected == parse_result
+
+
+def test_long_string_in_option():
+    ddl = """
+    CREATE SCHEMA IF NOT EXISTS name-name
+    OPTIONS (
+    description="Calendar table records reference list of calendar dates and related attributes used for reporting."
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [
+            {
+                "properties": {
+                    "options": [
+                        {
+                            "description": '"Calendar table '
+                            "records reference "
+                            "list of calendar "
+                            "dates and related "
+                            "attributes used for "
+                            'reporting."'
+                        }
+                    ]
+                },
+                "schema_name": "name-name",
+            }
+        ],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_option_in_create_table():
+
+    ddl = """
+    CREATE TABLE name.hub.REF_CALENDAR (
+    calendar_dt DATE,
+    )
+    OPTIONS (
+    description="Calendar table records reference list of calendar dates and related attributes used for reporting."
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "options": [
+                    {
+                        "description": '"Calendar table records reference '
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
+                    }
+                ],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "REF_CALENDAR",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_options_in_column():
+    ddl = """
+    CREATE TABLE name.hub.REF_CALENDAR (
+    calendar_dt DATE OPTIONS(description="Field Description")
+    )
+    OPTIONS (
+    description="Calendar table records reference list of calendar dates and related attributes used for reporting."
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt",
+                        "nullable": True,
+                        "options": [{"description": '"Field Description"'}],
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "options": [
+                    {
+                        "description": '"Calendar table records reference '
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
+                    }
+                ],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "REF_CALENDAR",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_cluster_by_without_brackets():
+    ddl = """
+    CREATE TABLE name.hub.REF_CALENDAR (
+    calendar_dt DATE OPTIONS(description="Field Description")
+    )
+    CLUSTER BY year_reporting_week_no
+    OPTIONS (
+    description="Calendar table records reference list of calendar dates and related attributes used for reporting."
+    );
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "cluster_by": ["year_reporting_week_no"],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt",
+                        "nullable": True,
+                        "options": [{"description": '"Field Description"'}],
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "options": [
+                    {
+                        "description": '"Calendar table records reference '
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
+                    }
+                ],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "REF_CALENDAR",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

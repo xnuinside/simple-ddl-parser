@@ -357,6 +357,9 @@ You also can provide a path where you want to have a dumps with schema with argu
 ### BigQuery
 
 - OPTION in CREATE SCHEMA statement
+- OPTION in CREATE TABLE statement
+- OPTION in column defenition statement
+
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 

@@ -291,6 +291,7 @@ class Column:
         | defcolumn generated
         | defcolumn c_property
         | defcolumn on_update
+        | defcolumn options
         """
         p[0] = p[1]
         p_list = list(p)
