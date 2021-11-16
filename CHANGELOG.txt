@@ -1,3 +1,14 @@
+**v0.22.1**
+### New Features:
+
+## BigQuery:
+
+1. Added support for OPTION for full CREATE TABLE statement & column definition
+
+## Improvements:
+1. CLUSTED BY can be used without ()
+
+
 **v0.22.0**
 ### New Features:
 

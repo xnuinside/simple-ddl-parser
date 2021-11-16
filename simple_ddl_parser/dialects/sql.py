@@ -291,6 +291,7 @@ class Column:
         | defcolumn generated
         | defcolumn c_property
         | defcolumn on_update
+        | defcolumn options
         """
         p[0] = p[1]
         p_list = list(p)
@@ -503,29 +504,54 @@ class Domain:
 class BaseSQL(
     Database, Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces
 ):
+    def clean_up_id_list_in_equal(self, p_list: List) -> List:
+        if isinstance(p_list[1], str) and p_list[1].endswith("="):
+            p_list[1] = p_list[1][:-1]
+        elif "," in p_list:
+            if len(p_list) == 4:
+                p_list = p_list[-1].split("=")
+            elif len(p_list) == 5 and p_list[-2].endswith("="):
+                p_list[-2] = p_list[-2][:-1]
+        elif "=" == p_list[-2]:
+            p_list.pop(-2)
+        return p_list
+
+    def get_property(self, p_list: List) -> Dict:
+        _property = None
+        if not isinstance(p_list[-2], list):
+            if not p_list[-2] == "=":
+                if "=" in p_list[-2]:
+                    p_list[-2] = p_list[-2].split("=")
+                    p_list[-1] = f"{p_list[-2][1]} {p_list[-1]}"
+                    p_list[-2] = p_list[-2][0]
+                key = p_list[-2]
+            else:
+                key = p_list[-3]
+            _property = {key: p_list[-1]}
+        else:
+            _property = p_list[-2][0]
+        return _property
+
     def p_id_equals(self, p: List) -> None:
         """id_equals : id id id
         | id id
         | id_equals COMMA
         | id_equals COMMA id id id
         | id
+        | id_equals COMMA id id
         | id_equals COMMA id
         """
         p_list = list(p)
-        _property = None
-        if isinstance(p_list[1], str) and p_list[1].endswith("="):
-            p_list[1] = p_list[1][:-1]
-        elif "," in p_list and len(p_list) == 4:
-            p_list = p_list[-1].split("=")
-        elif "=" == p_list[-2]:
-            p_list.pop(-2)
-        _property = {p_list[-2]: p_list[-1]}
+        p_list = self.clean_up_id_list_in_equal(p_list)
+        _property = self.get_property(p_list)
+
         if _property:
             if not isinstance(p[1], list):
                 p[0] = [_property]
             else:
                 p[0] = p[1]
-                p[0].append(_property)
+                if not p_list[-1] == ",":
+                    p[0].append(_property)
 
     def p_expression_index(self, p: List) -> None:
         """expr : index_table_name LP index_pid RP"""
