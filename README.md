@@ -14,8 +14,7 @@ However, in process of adding support for new statements & features I see that o
 
 
 ### How does it work?
-Parser tested on different DDLs mostly for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS 
-Redshift, Oracle, Hive, MsSQL, etc.). You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser.
+Parser tested on different DDLs mostly for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS Redshift, Oracle, Hive, MsSQL, BigQuery etc.). You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser.
 
 ### Feel free to open Issue with DDL sample
 **If you need some statement, that not supported by parser yet**: please provide DDL example & information about that is it SQL dialect or DB.
@@ -386,6 +385,17 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 
 ## Changelog
+**v0.22.1**
+### New Features:
+
+## BigQuery:
+
+1. Added support for OPTION for full CREATE TABLE statement & column definition
+
+## Improvements:
+1. CLUSTED BY can be used without ()
+
+
 **v0.22.0**
 ### New Features:
 

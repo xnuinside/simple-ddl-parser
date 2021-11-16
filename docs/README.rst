@@ -34,8 +34,7 @@ However, in process of adding support for new statements & features I see that o
 How does it work?
 ^^^^^^^^^^^^^^^^^
 
-Parser tested on different DDLs mostly for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS 
-Redshift, Oracle, Hive, MsSQL, etc.). You can check dialects sections after ``Supported Statements`` section to get more information that statements from dialects already supported by parser.
+Parser tested on different DDLs mostly for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS Redshift, Oracle, Hive, MsSQL, BigQuery etc.). You can check dialects sections after ``Supported Statements`` section to get more information that statements from dialects already supported by parser.
 
 Feel free to open Issue with DDL sample
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -406,6 +405,8 @@ BigQuery
 
 
 * OPTION in CREATE SCHEMA statement
+* OPTION in CREATE TABLE statement
+* OPTION in column defenition statement
 
 TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -441,6 +442,23 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 Changelog
 ---------
+
+**v0.22.1**
+
+New Features:
+^^^^^^^^^^^^^
+
+BigQuery:
+---------
+
+
+#. Added support for OPTION for full CREATE TABLE statement & column definition
+
+Improvements:
+-------------
+
+
+#. CLUSTED BY can be used without ()
 
 **v0.22.0**
 

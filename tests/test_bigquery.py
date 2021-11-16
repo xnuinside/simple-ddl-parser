@@ -341,3 +341,56 @@ def test_cluster_by_without_brackets():
         "types": [],
     }
     assert expected == result
+
+
+def test_two_options_in_create_table():
+
+    ddl = """
+    CREATE TABLE mydataset.newtable
+    (
+    x INT64 OPTIONS(description="An optional INTEGER field")
+    )
+    OPTIONS(
+    expiration_timestamp="2023-01-01 00:00:00 UTC",
+    description="a table that expires in 2023",
+    )
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "x",
+                        "nullable": True,
+                        "options": [{"description": '"An optional INTEGER ' 'field"'}],
+                        "references": None,
+                        "size": None,
+                        "type": "INT64",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "options": [
+                    {"expiration_timestamp": '"2023-01-01 00:00:00 UTC"'},
+                    {"description": '"a table that expires in 2023"'},
+                ],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": "mydataset",
+                "table_name": "newtable",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

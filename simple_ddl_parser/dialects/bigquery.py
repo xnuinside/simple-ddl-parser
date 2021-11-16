@@ -5,5 +5,11 @@ class BigQuery:
         p[1].update(p[2])
 
     def p_options(self, p):
-        """options : OPTIONS LP id_equals RP """
-        p[0] = {"options": p[3]}
+        """options : OPTIONS LP id_equals RP"""
+        p_list = list(p)
+        if not isinstance(p[1], dict):
+            p[0] = {"options": p[3]}
+        else:
+            p[0] = p[1]
+            if len(p) == 4:
+                p[0]["options"].append(p_list[-1][0])
