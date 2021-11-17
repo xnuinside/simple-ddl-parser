@@ -226,7 +226,8 @@ def test_option_in_create_table():
                 ],
                 "partitioned_by": [],
                 "primary_key": [],
-                "schema": None,
+                "schema": "hub",
+                "project": "name",
                 "table_name": "REF_CALENDAR",
                 "tablespace": None,
             }
@@ -278,7 +279,8 @@ def test_options_in_column():
                 ],
                 "partitioned_by": [],
                 "primary_key": [],
-                "schema": None,
+                "project": "name",
+                "schema": "hub",
                 "table_name": "REF_CALENDAR",
                 "tablespace": None,
             }
@@ -333,7 +335,8 @@ def test_cluster_by_without_brackets():
                 ],
                 "partitioned_by": [],
                 "primary_key": [],
-                "schema": None,
+                "project": "name",
+                "schema": "hub",
                 "table_name": "REF_CALENDAR",
                 "tablespace": None,
             }
@@ -388,6 +391,333 @@ def test_two_options_in_create_table():
                 "primary_key": [],
                 "schema": "mydataset",
                 "table_name": "newtable",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_table_name_with_project_id():
+
+    ddl = """
+    CREATE SCHEMA IF NOT EXISTS project.calender
+    OPTIONS (
+    location="project-location"
+    );
+    CREATE TABLE project_id.calender.REF_CALENDAR (
+    calendar_dt DATE,
+    calendar_dt_id INT,
+    fiscal_half_year_reporting_week_no INT
+    )
+    OPTIONS (
+    description="Calendar table records reference list of calendar dates and related attributes used for reporting."
+    )
+    PARTITION BY DATETIME_TRUNC(fiscal_half_year_reporting_week_no, DAY)
+    CLUSTER BY calendar_dt
+
+
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [
+            {
+                "properties": {"options": [{"location": '"project-location"'}]},
+                "schema_name": "calender",
+            }
+        ],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "cluster_by": ["calendar_dt"],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "fiscal_half_year_reporting_week_no",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                ],
+                "dataset": "calender",
+                "index": [],
+                "options": [
+                    {
+                        "description": '"Calendar table records reference '
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
+                    }
+                ],
+                "partition_by": {
+                    "columns": ["fiscal_half_year_reporting_week_no", "DAY"],
+                    "type": "DATETIME_TRUNC",
+                },
+                "partitioned_by": [],
+                "primary_key": [],
+                "project": "project_id",
+                "table_name": "REF_CALENDAR",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_project_id_in_alter_and_references():
+
+    ddl = """
+        create TABLE project_id.schema.ChildTableName(
+                parentTable varchar
+                );
+        ALTER TABLE project_id.schema.ChildTableName
+        ADD CONSTRAINT "fk_t1_t2_tt"
+        FOREIGN KEY ("parentTable")
+        REFERENCES project_id.schema.ChildTableName2 ("columnName")
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "columns": [
+                        {
+                            "constraint_name": '"fk_t1_t2_tt"',
+                            "name": '"parentTable"',
+                            "references": {
+                                "column": '"columnName"',
+                                "deferrable_initially": None,
+                                "on_delete": "CASCADE",
+                                "on_update": "CASCADE",
+                                "project": "project_id",
+                                "schema": "schema",
+                                "table": "ChildTableName2",
+                            },
+                        }
+                    ]
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "parentTable",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar",
+                        "unique": False,
+                    }
+                ],
+                "dataset": "schema",
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "project": "project_id",
+                "table_name": "ChildTableName",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_multiple_options():
+
+    ddl = """
+    CREATE SCHEMA IF NOT EXISTS project.calender
+    OPTIONS (
+    location="project-location"
+    );
+    CREATE TABLE project_id.calender.REF_CALENDAR (
+    calendar_dt DATE,
+    calendar_dt_id INT,
+    fiscal_half_year_reporting_week_no INT
+    )
+    OPTIONS (
+    description="Calendar table records reference list of calendar dates and related attributes used for reporting.",
+    one_more_option = "Option",
+    three_options = "Three",
+    option_four = "Four")
+    PARTITION BY DATETIME_TRUNC(fiscal_half_year_reporting_week_no, DAY)
+    CLUSTER BY calendar_dt
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [
+            {
+                "properties": {"options": [{"location": '"project-location"'}]},
+                "schema_name": "calender",
+            }
+        ],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "cluster_by": ["calendar_dt"],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "fiscal_half_year_reporting_week_no",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                ],
+                "dataset": "calender",
+                "index": [],
+                "options": [
+                    {
+                        "description": '"Calendar table records reference '
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
+                    },
+                    {"one_more_option": '"Option"'},
+                    {"three_options": '"Three"'},
+                    {"option_four": '"Four"'},
+                ],
+                "partition_by": {
+                    "columns": ["fiscal_half_year_reporting_week_no", "DAY"],
+                    "type": "DATETIME_TRUNC",
+                },
+                "partitioned_by": [],
+                "primary_key": [],
+                "project": "project_id",
+                "table_name": "REF_CALENDAR",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_ars_in_arrays_in_option():
+    ddl = """
+CREATE TABLE project_id.calender.REF_CALENDAR (
+    calendar_dt DATE,
+    calendar_dt_id INT,
+    fiscal_half_year_reporting_week_no INT
+    )
+    OPTIONS (
+    value_1="some value",
+   labels=[("org_unit", "development", "ci")])
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "fiscal_half_year_reporting_week_no",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                ],
+                "dataset": "calender",
+                "index": [],
+                "options": [
+                    {"value_1": '"some value"'},
+                    {"labels": ['"org_unit"', '"development"', '"ci"']},
+                ],
+                "partitioned_by": [],
+                "primary_key": [],
+                "project": "project_id",
+                "table_name": "REF_CALENDAR",
                 "tablespace": None,
             }
         ],

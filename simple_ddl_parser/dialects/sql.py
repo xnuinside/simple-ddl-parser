@@ -4,6 +4,8 @@ from typing import Dict, List, Tuple
 
 from simple_ddl_parser.utils import check_spec, remove_par
 
+auth = "AUTHORIZATION"
+
 
 class AfterColumns:
     def p_expression_partition_by(self, p: List) -> None:
@@ -341,7 +343,8 @@ class Column:
 
 class Schema:
     def p_expression_schema(self, p: List) -> None:
-        """expr : create
+        """expr : create_schema
+        | create_database
         | expr id
         | expr clone
         """
@@ -353,34 +356,62 @@ class Schema:
         elif len(p) > 2:
             p[0]["authorization"] = p[2]
 
-    def p_create(self, p: List) -> None:
-        """create : CREATE SCHEMA id id
-        | CREATE SCHEMA id id id
-        | CREATE SCHEMA id
-        | CREATE SCHEMA IF NOT EXISTS id
-        | CREATE DATABASE id
-        | create id id id
-        | create id id STRING
-        | create options
+    def set_properties_for_schema_and_database(self, p: List, p_list: List) -> None:
+        if not p[0].get("properties"):
+            if len(p_list) == 3:
+                properties = p_list[-1]
+            else:
+                properties = {p_list[-3]: p_list[-1]}
+            p[0]["properties"] = properties
+        else:
+            p[0]["properties"].update({p_list[-3]: p_list[-1]})
+
+    def set_auth_property_in_schema(self, p: List, p_list: List) -> None:
+        if p_list[2] == auth:
+            p[0] = {"schema_name": p_list[3], auth.lower(): p_list[3]}
+        else:
+            p[0] = {"schema_name": p_list[2], auth.lower(): p_list[-1]}
+
+    def p_c_schema(self, p: List) -> None:
+        """c_schema : CREATE SCHEMA"""
+        pass
+
+    def p_create_schema(self, p: List) -> None:
+        """create_schema : c_schema id id
+        | c_schema id id id
+        | c_schema id
+        | c_schema id DOT id
+        | c_schema IF NOT EXISTS id
+        | c_schema IF NOT EXISTS id DOT id
+        | create_schema id id id
+        | create_schema id id STRING
+        | create_schema options
         """
         p_list = list(p)
 
-        auth = "AUTHORIZATION"
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
-            if not p[0].get("properties"):
-                if len(p_list) == 3:
-                    properties = p_list[-1]
-                else:
-                    properties = {p_list[-3]: p_list[-1]}
-                p[0]["properties"] = properties
-            else:
-                p[0]["properties"].update({p_list[-3]: p_list[-1]})
+            self.set_properties_for_schema_and_database(p, p_list)
         elif auth in p_list:
-            if p_list[3] != auth:
-                p[0] = {f"{p[2].lower()}_name": p_list[3], auth.lower(): p_list[-1]}
-            elif p_list[3] == auth:
-                p[0] = {f"{p[2].lower()}_name": p_list[4], auth.lower(): p_list[4]}
+            self.set_auth_property_in_schema(p, p_list)
+        elif isinstance(p_list[-1], dict):
+            p[0] = {"schema": p_list[-1]["table_name"]}
+            if p_list[-1].get("schema"):
+                p[0]["project"] = p_list[-1]["schema"]
+        else:
+            p[0] = {"schema_name": p_list[-1]}
+
+    def p_create_database(self, p: List) -> None:
+        """create_database : CREATE DATABASE id
+        | create_database id id id
+        | create_database id id STRING
+        | create_database options
+        """
+        p_list = list(p)
+
+        if isinstance(p_list[1], dict):
+            p[0] = p_list[1]
+            self.set_properties_for_schema_and_database(p, p_list)
         else:
             p[0] = {f"{p[2].lower()}_name": p_list[-1]}
 
@@ -519,15 +550,25 @@ class BaseSQL(
     def get_property(self, p_list: List) -> Dict:
         _property = None
         if not isinstance(p_list[-2], list):
-            if not p_list[-2] == "=":
-                if "=" in p_list[-2]:
-                    p_list[-2] = p_list[-2].split("=")
-                    p_list[-1] = f"{p_list[-2][1]} {p_list[-1]}"
-                    p_list[-2] = p_list[-2][0]
-                key = p_list[-2]
+            _value = True
+            value = None
+            if p_list[-2]:
+                if not p_list[-2] == "=":
+                    key = p_list[-2]
+                else:
+                    key = p_list[-3]
+
             else:
-                key = p_list[-3]
-            _property = {key: p_list[-1]}
+                _value = False
+                key = p_list[-1]
+            if "=" in key:
+                key = key.split("=")
+                if _value:
+                    value = f"{key[1]} {p_list[-1]}"
+                key = key[0]
+            else:
+                value = p_list[-1]
+            _property = {key: value}
         else:
             _property = p_list[-2][0]
         return _property
@@ -538,20 +579,28 @@ class BaseSQL(
         | id_equals COMMA
         | id_equals COMMA id id id
         | id
+        | id_equals LP pid RP
+        | id_equals LP pid RP id
         | id_equals COMMA id id
         | id_equals COMMA id
         """
-        p_list = list(p)
-        p_list = self.clean_up_id_list_in_equal(p_list)
-        _property = self.get_property(p_list)
+        p_list = remove_par(list(p))
+        if p_list[-1] == "]":
+            p_list = p_list[:-1]
+        if isinstance(p_list[-1], list):
+            p[0] = p[1]
+            p[0][-1][list(p[0][-1].keys())[0]] = p_list[-1]
+        else:
+            p_list = self.clean_up_id_list_in_equal(p_list)
+            _property = self.get_property(p_list)
 
-        if _property:
-            if not isinstance(p[1], list):
-                p[0] = [_property]
-            else:
-                p[0] = p[1]
-                if not p_list[-1] == ",":
-                    p[0].append(_property)
+            if _property:
+                if not isinstance(p[1], list):
+                    p[0] = [_property]
+                else:
+                    p[0] = p[1]
+                    if not p_list[-1] == ",":
+                        p[0].append(_property)
 
     def p_expression_index(self, p: List) -> None:
         """expr : index_table_name LP index_pid RP"""
@@ -735,26 +784,38 @@ class BaseSQL(
         p[0] = p[1]
         p[0].update({"like": {"schema": schema, "table_name": table_name}})
 
-    def p_table_name(self, p: List) -> None:
-        """table_name : create_table id DOT id
-        | create_table id
-        | table_name likke id
-        | table_name DOT id
+    def p_t_name(self, p: List) -> None:
+        """t_name : id DOT id
+        | id
+        | id DOT id DOT id
         """
-        # get schema & table name
         p_list = list(p)
-        p[0] = p[1]
-        if len(p) > 4:
+
+        project = None
+
+        if len(p) > 3:
             if "." in p:
                 schema = p_list[-3]
                 table_name = p_list[-1]
+                if len(p) == 6:
+                    project = p_list[1]
         else:
             table_name = p_list[-1]
             schema = None
 
-        p[0].update(
-            {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
-        )
+        p[0] = {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
+
+        if project:
+            p[0]["project"] = project
+
+    def p_table_name(self, p: List) -> None:
+        """table_name : create_table t_name
+        | table_name likke id
+        """
+        # can contain additional properties like 'external for HQL
+        p[0] = p[1]
+
+        p[0].update(list(p)[-1])
 
     def p_expression_seq(self, p: List) -> None:
         """expr : seq_name
@@ -829,28 +890,18 @@ class BaseSQL(
             p[0]["type"] = p_list[-1][0]
         return p[0]
 
-    def extract_references(self, p_list):
-        ref_index = p_list.index("REFERENCES")
+    def extract_references(self, table_data: Dict):
         ref = {
-            "table": None,
+            "table": table_data["table_name"],
             "columns": [None],
-            "schema": None,
+            "schema": table_data["schema"],
             "on_delete": None,
             "on_update": None,
             "deferrable_initially": None,
         }
-        if "." not in p_list[ref_index:]:
-            ref.update({"table": p_list[ref_index + 1]})
-            if not len(p_list) == 3:
-                ref.update({"columns": p_list[-1]})
-        else:
-            ref.update(
-                {
-                    "schema": p_list[ref_index + 1],
-                    "columns": p_list[-1],
-                    "table": p_list[ref_index + 3],
-                }
-            )
+
+        if table_data.get("project"):
+            ref["project"] = table_data["project"]
 
         return ref
 
@@ -1079,6 +1130,26 @@ class BaseSQL(
         if "constraint" in p[2]:
             p[0]["default"]["constraint_name"] = p[2]["constraint"]["name"]
 
+    def p_pid(self, p: List) -> None:
+        """pid :  id
+        | STRING
+        | pid id
+        | pid STRING
+        | STRING LP RP
+        | id LP RP
+        | pid COMMA id
+        | pid COMMA STRING
+        """
+        p_list = list(p)
+
+        if len(p_list) == 4 and isinstance(p[1], str):
+            p[0] = ["".join(p[1:])]
+        elif not isinstance(p_list[1], list):
+            p[0] = [p_list[1]]
+        else:
+            p[0] = p_list[1]
+            p[0].append(p_list[-1])
+
     def p_alter_check(self, p: List) -> None:
         """alter_check : alt_table check_st
         | alt_table constraint check_st
@@ -1092,25 +1163,6 @@ class BaseSQL(
         if isinstance(p[2], dict) and "constraint" in p[2]:
             p[0]["check"]["constraint_name"] = p[2]["constraint"]["name"]
         p[0]["check"]["statement"] = p_list[-1]["check"]
-
-    def p_pid(self, p: List) -> None:
-        """pid :  id
-        | STRING
-        | pid id
-        | pid STRING
-        | STRING LP RP
-        | id LP RP
-        | pid COMMA id
-        | pid COMMA STRING
-        """
-        p_list = list(p)
-        if len(p_list) == 4 and isinstance(p[1], str):
-            p[0] = ["".join(p[1:])]
-        elif not isinstance(p_list[1], list):
-            p[0] = [p_list[1]]
-        else:
-            p[0] = p_list[1]
-            p[0].append(p_list[-1])
 
     def p_index_pid(self, p: List) -> None:
         """index_pid :  id
@@ -1159,18 +1211,14 @@ class BaseSQL(
                 column.update({"constraint_name": p_list[2]["constraint"]["name"]})
 
     def p_alt_table_name(self, p: List) -> None:
-        """alt_table : ALTER TABLE id ADD
-        | ALTER TABLE id DOT id ADD
-        """
-        p_list = list(p)
-        if "." in p:
-            idx_dot = p_list.index(".")
-            schema = p_list[idx_dot - 1]
-            table_name = p_list[idx_dot + 1]
-        else:
-            schema = None
-            table_name = p_list[3]
-        p[0] = {"alter_table_name": table_name, "schema": schema}
+        """alt_table : ALTER TABLE t_name ADD"""
+        table_data = list(p)[-2]
+        p[0] = {
+            "alter_table_name": table_data["table_name"],
+            "schema": table_data["schema"],
+        }
+        if table_data.get("project"):
+            p[0]["project"] = table_data["project"]
 
     def p_foreign(self, p):
         # todo: need to redone id lists
@@ -1182,8 +1230,7 @@ class BaseSQL(
             p[0] = columns
 
     def p_ref(self, p: List) -> None:
-        """ref : REFERENCES id DOT id
-        | REFERENCES id
+        """ref : REFERENCES t_name
         | ref LP pid RP
         | ref ON DELETE id
         | ref ON UPDATE id
@@ -1200,7 +1247,7 @@ class BaseSQL(
                     "columns", [None]
                 )
         else:
-            data = {"references": self.extract_references(p_list)}
+            data = {"references": self.extract_references(p_list[-1])}
             p[0] = data
         if "ON" in p_list:
             if "DELETE" in p_list:

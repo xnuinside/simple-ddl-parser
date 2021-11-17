@@ -130,11 +130,7 @@ class Parser:
 
     def check_new_statement_start(self, line: str, statement: str) -> bool:
         new_statement = False
-        if statement and (
-            ("(" in statement and ")" not in statement)
-            or (")" and "(" not in statement)
-        ):
-
+        if statement and statement.count("(") == statement.count(")"):
             new_statements_tokens = ["ALTER ", "CREATE ", "DROP ", "SET "]
             for key in new_statements_tokens:
                 if line.upper().startswith(key):
@@ -179,6 +175,7 @@ class Parser:
 
                 self.set_default_flags_in_lexer()
                 if not set_line and statement:
+
                     self.parse_statement(tables, statement)
                 if new_statement:
                     statement = line

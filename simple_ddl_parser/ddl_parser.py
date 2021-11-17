@@ -102,7 +102,7 @@ class DDLParser(
         )
 
     def t_ID(self, t):
-        r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*\()!{}\[\]\`]+)"
+        r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*\()!{}\[\]\`\[\]]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         if t.type == "LP":
             self.lexer.lp_open += 1

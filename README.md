@@ -385,6 +385,15 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 
 ## Changelog
+**v0.22.3**
+### Fixes:
+
+### BigQuery:
+1. CREATE TABLE statement with 'project_id' in format like project.dataset.table_name now is parsed validly. 
+'project' added to output. 
+Also added support project.dataset.name format in CREATE SCHEMA and ALTER statement
+
+
 **v0.22.2**
 ### Fixes:
 1. Fix for the issue: https://github.com/xnuinside/simple-ddl-parser/issues/94 (column name starts with CREATE)
