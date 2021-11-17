@@ -653,3 +653,74 @@ def test_multiple_options():
         "types": [],
     }
     assert expected == result
+
+
+def test_ars_in_arrays_in_option():
+    ddl = """
+CREATE TABLE project_id.calender.REF_CALENDAR (
+    calendar_dt DATE,
+    calendar_dt_id INT,
+    fiscal_half_year_reporting_week_no INT
+    )
+    OPTIONS (
+    value_1="some value",
+   labels=[("org_unit", "development", "ci")])
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "fiscal_half_year_reporting_week_no",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                ],
+                "dataset": "calender",
+                "index": [],
+                "options": [
+                    {"value_1": '"some value"'},
+                    {"labels": ['"org_unit"', '"development"', '"ci"']},
+                ],
+                "partitioned_by": [],
+                "primary_key": [],
+                "project": "project_id",
+                "table_name": "REF_CALENDAR",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

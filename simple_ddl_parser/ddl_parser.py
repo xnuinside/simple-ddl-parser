@@ -78,15 +78,19 @@ class DDLParser(
             self.lexer.sequence = True
         elif t.type == "CHECK":
             self.lexer.check = True
+        print(t.type, t.value)
 
     def t_STRING(self, t):
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
+        print(t.type, t.value)
+
         return t
 
     def t_DQ_STRING(self, t):
         r"((\")([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}'\[\]\/\\\\#\*&^|?;±§@~]*)(\")){1}"
         t.type = "DQ_STRING"
+        print(t.type, t.value)
         return t
 
     def is_token_column_name(self, t):
@@ -102,7 +106,7 @@ class DDLParser(
         )
 
     def t_ID(self, t):
-        r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*\()!{}\[\]\`]+)"
+        r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*\()!{}\[\]\`\[\]]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
         if t.type == "LP":
             self.lexer.lp_open += 1
@@ -111,6 +115,7 @@ class DDLParser(
             return t
 
         elif self.is_token_column_name(t):
+            print("HHH")
             t.type = "ID"
         else:
             t = self.tokens_not_columns_names(t)
@@ -133,6 +138,7 @@ class DDLParser(
             self.lexer.is_table = False
         elif t.type in ["TABLE", "INDEX"]:
             self.lexer.is_table = True
+        print(t.type, t.value)
         return t
 
     def p_id(self, p):

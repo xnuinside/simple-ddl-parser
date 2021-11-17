@@ -554,18 +554,49 @@ class BaseSQL(
     def get_property(self, p_list: List) -> Dict:
         _property = None
         if not isinstance(p_list[-2], list):
-            if not p_list[-2] == "=":
-                if "=" in p_list[-2]:
-                    p_list[-2] = p_list[-2].split("=")
-                    p_list[-1] = f"{p_list[-2][1]} {p_list[-1]}"
-                    p_list[-2] = p_list[-2][0]
-                key = p_list[-2]
+            _value = True
+            value = None
+            if p_list[-2]:
+                if not p_list[-2] == "=":
+                    key = p_list[-2]
+                else:
+                    key = p_list[-3]
+
             else:
-                key = p_list[-3]
-            _property = {key: p_list[-1]}
+                _value = False
+                key = p_list[-1]
+            if "=" in key:
+                key = key.split("=")
+                if _value:
+                    value = f"{key[1]} {p_list[-1]}"
+                key = key[0]
+            else:
+                value = p_list[-1]
+            _property = {key: value}
         else:
             _property = p_list[-2][0]
         return _property
+
+    def p_pid(self, p: List) -> None:
+        """pid :  id
+        | STRING
+        | pid id
+        | pid STRING
+        | STRING LP RP
+        | id LP RP
+        | pid COMMA id
+        | pid COMMA STRING
+        """
+        p_list = list(p)
+        print(p_list, "pid")
+        if len(p_list) == 4 and isinstance(p[1], str):
+            p[0] = ["".join(p[1:])]
+        elif not isinstance(p_list[1], list):
+            p[0] = [p_list[1]]
+        else:
+            p[0] = p_list[1]
+            p[0].append(p_list[-1])
+        print(p[0])
 
     def p_id_equals(self, p: List) -> None:
         """id_equals : id id id
@@ -573,20 +604,29 @@ class BaseSQL(
         | id_equals COMMA
         | id_equals COMMA id id id
         | id
+        | id_equals LP pid RP
+        | id_equals LP pid RP id
         | id_equals COMMA id id
         | id_equals COMMA id
         """
-        p_list = list(p)
-        p_list = self.clean_up_id_list_in_equal(p_list)
-        _property = self.get_property(p_list)
+        p_list = remove_par(list(p))
+        print(p_list, "p_list")
+        if p_list[-1] == "]":
+            p_list = p_list[:-1]
+        if isinstance(p_list[-1], list):
+            p[0] = p[1]
+            p[0][-1][list(p[0][-1].keys())[0]] = p_list[-1]
+        else:
+            p_list = self.clean_up_id_list_in_equal(p_list)
+            _property = self.get_property(p_list)
 
-        if _property:
-            if not isinstance(p[1], list):
-                p[0] = [_property]
-            else:
-                p[0] = p[1]
-                if not p_list[-1] == ",":
-                    p[0].append(_property)
+            if _property:
+                if not isinstance(p[1], list):
+                    p[0] = [_property]
+                else:
+                    p[0] = p[1]
+                    if not p_list[-1] == ",":
+                        p[0].append(_property)
 
     def p_expression_index(self, p: List) -> None:
         """expr : index_table_name LP index_pid RP"""
@@ -1129,25 +1169,6 @@ class BaseSQL(
         if isinstance(p[2], dict) and "constraint" in p[2]:
             p[0]["check"]["constraint_name"] = p[2]["constraint"]["name"]
         p[0]["check"]["statement"] = p_list[-1]["check"]
-
-    def p_pid(self, p: List) -> None:
-        """pid :  id
-        | STRING
-        | pid id
-        | pid STRING
-        | STRING LP RP
-        | id LP RP
-        | pid COMMA id
-        | pid COMMA STRING
-        """
-        p_list = list(p)
-        if len(p_list) == 4 and isinstance(p[1], str):
-            p[0] = ["".join(p[1:])]
-        elif not isinstance(p_list[1], list):
-            p[0] = [p_list[1]]
-        else:
-            p[0] = p_list[1]
-            p[0].append(p_list[-1])
 
     def p_index_pid(self, p: List) -> None:
         """index_pid :  id

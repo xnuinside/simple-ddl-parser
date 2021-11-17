@@ -257,7 +257,6 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "type_name": "types",
         "domain_name": "domains",
         "schema_name": "schemas",
-        "dataset_name": "schemas",
         "tablespace_name": "tablespaces",
         "database_name": "databases",
         "value": "ddl_properties",
