@@ -4,6 +4,8 @@ from typing import Dict, List, Tuple
 
 from simple_ddl_parser.utils import check_spec, remove_par
 
+auth = "AUTHORIZATION"
+
 
 class AfterColumns:
     def p_expression_partition_by(self, p: List) -> None:
@@ -341,7 +343,8 @@ class Column:
 
 class Schema:
     def p_expression_schema(self, p: List) -> None:
-        """expr : create
+        """expr : create_schema
+        | create_database
         | expr id
         | expr clone
         """
@@ -353,34 +356,54 @@ class Schema:
         elif len(p) > 2:
             p[0]["authorization"] = p[2]
 
-    def p_create(self, p: List) -> None:
-        """create : CREATE SCHEMA id id
+    def set_properties_for_schema_and_database(self, p: List, p_list: List) -> None:
+        if not p[0].get("properties"):
+            if len(p_list) == 3:
+                properties = p_list[-1]
+            else:
+                properties = {p_list[-3]: p_list[-1]}
+            p[0]["properties"] = properties
+        else:
+            p[0]["properties"].update({p_list[-3]: p_list[-1]})
+
+    def set_auth_property_in_schema(self, p: List, p_list: List):
+        if p_list[3] == auth:
+            p[0] = {f"{p[2].lower()}_name": p_list[4], auth.lower(): p_list[4]}
+        else:
+            p[0] = {f"{p[2].lower()}_name": p_list[3], auth.lower(): p_list[-1]}
+
+    def p_create_schema(self, p: List) -> None:
+        """create_schema : CREATE SCHEMA id id
         | CREATE SCHEMA id id id
         | CREATE SCHEMA id
+        | CREATE SCHEMA id DOT id
         | CREATE SCHEMA IF NOT EXISTS id
-        | CREATE DATABASE id
-        | create id id id
-        | create id id STRING
-        | create options
+        | create_schema id id id
+        | create_schema id id STRING
+        | create_schema options
         """
         p_list = list(p)
 
-        auth = "AUTHORIZATION"
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
-            if not p[0].get("properties"):
-                if len(p_list) == 3:
-                    properties = p_list[-1]
-                else:
-                    properties = {p_list[-3]: p_list[-1]}
-                p[0]["properties"] = properties
-            else:
-                p[0]["properties"].update({p_list[-3]: p_list[-1]})
+            self.set_properties_for_schema_and_database(p, p_list)
         elif auth in p_list:
-            if p_list[3] != auth:
-                p[0] = {f"{p[2].lower()}_name": p_list[3], auth.lower(): p_list[-1]}
-            elif p_list[3] == auth:
-                p[0] = {f"{p[2].lower()}_name": p_list[4], auth.lower(): p_list[4]}
+            self.set_auth_property_in_schema(p, p_list)
+
+        else:
+            p[0] = {f"{p[2].lower()}_name": p_list[-1]}
+
+    def p_create_database(self, p: List) -> None:
+        """create_database : CREATE DATABASE id
+        | create_database id id id
+        | create_database id id STRING
+        | create_database options
+        """
+        p_list = list(p)
+
+        if isinstance(p_list[1], dict):
+            p[0] = p_list[1]
+            self.set_properties_for_schema_and_database(p, p_list)
         else:
             p[0] = {f"{p[2].lower()}_name": p_list[-1]}
 
