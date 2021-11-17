@@ -50,7 +50,8 @@ def update_bigquery_output(table_data: Dict) -> Dict:
         table_data["dataset"] = table_data["schema"]
         del table_data["schema"]
     else:
-        table_data["dataset"] = None
+        if not table_data.get("schema_name"):
+            table_data["dataset"] = None
     return table_data
 
 

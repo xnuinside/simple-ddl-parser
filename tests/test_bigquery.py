@@ -424,7 +424,12 @@ def test_table_name_with_project_id():
     expected = {
         "ddl_properties": [],
         "domains": [],
-        "schemas": [],
+        "schemas": [
+            {
+                "properties": {"options": [{"location": '"project-location"'}]},
+                "schema_name": "calender",
+            }
+        ],
         "sequences": [],
         "tables": [
             {
@@ -578,7 +583,12 @@ def test_multiple_options():
     expected = {
         "ddl_properties": [],
         "domains": [],
-        "schemas": [],
+        "schemas": [
+            {
+                "properties": {"options": [{"location": '"project-location"'}]},
+                "schema_name": "calender",
+            }
+        ],
         "sequences": [],
         "tables": [
             {

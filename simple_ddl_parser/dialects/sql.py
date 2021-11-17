@@ -350,11 +350,13 @@ class Schema:
         """
         p[0] = p[1]
         p_list = list(p)
+        print(p_list, "p_list")
 
         if isinstance(p_list[-1], dict):
             p[0].update(p_list[-1])
         elif len(p) > 2:
             p[0]["authorization"] = p[2]
+        print(p[0])
 
     def set_properties_for_schema_and_database(self, p: List, p_list: List) -> None:
         if not p[0].get("properties"):
@@ -366,32 +368,42 @@ class Schema:
         else:
             p[0]["properties"].update({p_list[-3]: p_list[-1]})
 
-    def set_auth_property_in_schema(self, p: List, p_list: List):
-        if p_list[3] == auth:
-            p[0] = {f"{p[2].lower()}_name": p_list[4], auth.lower(): p_list[4]}
+    def set_auth_property_in_schema(self, p: List, p_list: List) -> None:
+        if p_list[2] == auth:
+            p[0] = {"schema_name": p_list[3], auth.lower(): p_list[3]}
         else:
-            p[0] = {f"{p[2].lower()}_name": p_list[3], auth.lower(): p_list[-1]}
+            p[0] = {"schema_name": p_list[2], auth.lower(): p_list[-1]}
+
+    def p_c_schema(self, p: List) -> None:
+        """c_schema : CREATE SCHEMA"""
+        pass
 
     def p_create_schema(self, p: List) -> None:
-        """create_schema : CREATE SCHEMA id id
-        | CREATE SCHEMA id id id
-        | CREATE SCHEMA id
-        | CREATE SCHEMA id DOT id
-        | CREATE SCHEMA IF NOT EXISTS id
+        """create_schema : c_schema id id
+        | c_schema id id id
+        | c_schema id
+        | c_schema id DOT id
+        | c_schema IF NOT EXISTS id
+        | c_schema IF NOT EXISTS id DOT id
         | create_schema id id id
         | create_schema id id STRING
         | create_schema options
         """
         p_list = list(p)
-
+        print(p_list, "p_list_schema")
         if isinstance(p_list[1], dict):
+            print("baaa")
             p[0] = p_list[1]
             self.set_properties_for_schema_and_database(p, p_list)
         elif auth in p_list:
             self.set_auth_property_in_schema(p, p_list)
-
+        elif isinstance(p_list[-1], dict):
+            print("aaa")
+            p[0] = {"schema": p_list[-1]["table_name"]}
+            if p_list[-1].get("schema"):
+                p[0]["project"] = p_list[-1]["schema"]
         else:
-            p[0] = {f"{p[2].lower()}_name": p_list[-1]}
+            p[0] = {"schema_name": p_list[-1]}
 
     def p_create_database(self, p: List) -> None:
         """create_database : CREATE DATABASE id
