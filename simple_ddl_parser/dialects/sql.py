@@ -735,35 +735,38 @@ class BaseSQL(
         p[0] = p[1]
         p[0].update({"like": {"schema": schema, "table_name": table_name}})
 
-    def p_table_name(self, p: List) -> None:
-        """table_name : create_table id DOT id
-        | create_table id
-        | create_table id DOT id DOT id
-        | table_name likke id
-        | table_name DOT id
+    def p_t_name(self, p: List) -> None:
+        """t_name : id DOT id
+        | id
+        | id DOT id DOT id
         """
-        # get schema & table name
         p_list = list(p)
-
-        p[0] = p[1]
 
         project = None
 
-        if len(p) > 4:
+        if len(p) > 3:
             if "." in p:
                 schema = p_list[-3]
                 table_name = p_list[-1]
-                if len(p) == 7:
-                    project = p_list[2]
+                if len(p) == 6:
+                    project = p_list[1]
         else:
             table_name = p_list[-1]
             schema = None
 
-        p[0].update(
-            {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
-        )
+        p[0] = {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
+
         if project:
             p[0]["project"] = project
+
+    def p_table_name(self, p: List) -> None:
+        """table_name : create_table t_name
+        | table_name likke id
+        """
+        # can contain additional properties like 'external for HQL
+        p[0] = p[1]
+
+        p[0].update(list(p)[-1])
 
     def p_expression_seq(self, p: List) -> None:
         """expr : seq_name
@@ -838,28 +841,18 @@ class BaseSQL(
             p[0]["type"] = p_list[-1][0]
         return p[0]
 
-    def extract_references(self, p_list):
-        ref_index = p_list.index("REFERENCES")
+    def extract_references(self, table_data: Dict):
         ref = {
-            "table": None,
+            "table": table_data["table_name"],
             "columns": [None],
-            "schema": None,
+            "schema": table_data["schema"],
             "on_delete": None,
             "on_update": None,
             "deferrable_initially": None,
         }
-        if "." not in p_list[ref_index:]:
-            ref.update({"table": p_list[ref_index + 1]})
-            if not len(p_list) == 3:
-                ref.update({"columns": p_list[-1]})
-        else:
-            ref.update(
-                {
-                    "schema": p_list[ref_index + 1],
-                    "columns": p_list[-1],
-                    "table": p_list[ref_index + 3],
-                }
-            )
+
+        if table_data.get("project"):
+            ref["project"] = table_data["project"]
 
         return ref
 
@@ -1168,18 +1161,14 @@ class BaseSQL(
                 column.update({"constraint_name": p_list[2]["constraint"]["name"]})
 
     def p_alt_table_name(self, p: List) -> None:
-        """alt_table : ALTER TABLE id ADD
-        | ALTER TABLE id DOT id ADD
-        """
-        p_list = list(p)
-        if "." in p:
-            idx_dot = p_list.index(".")
-            schema = p_list[idx_dot - 1]
-            table_name = p_list[idx_dot + 1]
-        else:
-            schema = None
-            table_name = p_list[3]
-        p[0] = {"alter_table_name": table_name, "schema": schema}
+        """alt_table : ALTER TABLE t_name ADD"""
+        table_data = list(p)[-2]
+        p[0] = {
+            "alter_table_name": table_data["table_name"],
+            "schema": table_data["schema"],
+        }
+        if table_data.get("project"):
+            p[0]["project"] = table_data["project"]
 
     def p_foreign(self, p):
         # todo: need to redone id lists
@@ -1191,8 +1180,7 @@ class BaseSQL(
             p[0] = columns
 
     def p_ref(self, p: List) -> None:
-        """ref : REFERENCES id DOT id
-        | REFERENCES id
+        """ref : REFERENCES t_name
         | ref LP pid RP
         | ref ON DELETE id
         | ref ON UPDATE id
@@ -1209,7 +1197,7 @@ class BaseSQL(
                     "columns", [None]
                 )
         else:
-            data = {"references": self.extract_references(p_list)}
+            data = {"references": self.extract_references(p_list[-1])}
             p[0] = data
         if "ON" in p_list:
             if "DELETE" in p_list:

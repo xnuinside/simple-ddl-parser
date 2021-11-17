@@ -4,6 +4,7 @@
 ### BigQuery:
 1. CREATE TABLE statement with 'project_id' in format like project.dataset.table_name now is parsed validly. 
 'project' added to output. 
+Also added support project.dataset.name format in CREATE SCHEMA and ALTER statement
 
 
 **v0.22.2**
