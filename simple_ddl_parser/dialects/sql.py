@@ -738,16 +738,23 @@ class BaseSQL(
     def p_table_name(self, p: List) -> None:
         """table_name : create_table id DOT id
         | create_table id
+        | create_table id DOT id DOT id
         | table_name likke id
         | table_name DOT id
         """
         # get schema & table name
         p_list = list(p)
+
         p[0] = p[1]
+
+        project = None
+
         if len(p) > 4:
             if "." in p:
                 schema = p_list[-3]
                 table_name = p_list[-1]
+                if len(p) == 7:
+                    project = p_list[2]
         else:
             table_name = p_list[-1]
             schema = None
@@ -755,6 +762,8 @@ class BaseSQL(
         p[0].update(
             {"schema": schema, "table_name": table_name, "columns": [], "checks": []}
         )
+        if project:
+            p[0]["project"] = project
 
     def p_expression_seq(self, p: List) -> None:
         """expr : seq_name
