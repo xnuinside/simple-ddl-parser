@@ -350,13 +350,11 @@ class Schema:
         """
         p[0] = p[1]
         p_list = list(p)
-        print(p_list, "p_list")
 
         if isinstance(p_list[-1], dict):
             p[0].update(p_list[-1])
         elif len(p) > 2:
             p[0]["authorization"] = p[2]
-        print(p[0])
 
     def set_properties_for_schema_and_database(self, p: List, p_list: List) -> None:
         if not p[0].get("properties"):
@@ -390,15 +388,13 @@ class Schema:
         | create_schema options
         """
         p_list = list(p)
-        print(p_list, "p_list_schema")
+
         if isinstance(p_list[1], dict):
-            print("baaa")
             p[0] = p_list[1]
             self.set_properties_for_schema_and_database(p, p_list)
         elif auth in p_list:
             self.set_auth_property_in_schema(p, p_list)
         elif isinstance(p_list[-1], dict):
-            print("aaa")
             p[0] = {"schema": p_list[-1]["table_name"]}
             if p_list[-1].get("schema"):
                 p[0]["project"] = p_list[-1]["schema"]
@@ -577,27 +573,6 @@ class BaseSQL(
             _property = p_list[-2][0]
         return _property
 
-    def p_pid(self, p: List) -> None:
-        """pid :  id
-        | STRING
-        | pid id
-        | pid STRING
-        | STRING LP RP
-        | id LP RP
-        | pid COMMA id
-        | pid COMMA STRING
-        """
-        p_list = list(p)
-        print(p_list, "pid")
-        if len(p_list) == 4 and isinstance(p[1], str):
-            p[0] = ["".join(p[1:])]
-        elif not isinstance(p_list[1], list):
-            p[0] = [p_list[1]]
-        else:
-            p[0] = p_list[1]
-            p[0].append(p_list[-1])
-        print(p[0])
-
     def p_id_equals(self, p: List) -> None:
         """id_equals : id id id
         | id id
@@ -610,7 +585,6 @@ class BaseSQL(
         | id_equals COMMA id
         """
         p_list = remove_par(list(p))
-        print(p_list, "p_list")
         if p_list[-1] == "]":
             p_list = p_list[:-1]
         if isinstance(p_list[-1], list):
@@ -1155,6 +1129,26 @@ class BaseSQL(
             )
         if "constraint" in p[2]:
             p[0]["default"]["constraint_name"] = p[2]["constraint"]["name"]
+
+    def p_pid(self, p: List) -> None:
+        """pid :  id
+        | STRING
+        | pid id
+        | pid STRING
+        | STRING LP RP
+        | id LP RP
+        | pid COMMA id
+        | pid COMMA STRING
+        """
+        p_list = list(p)
+
+        if len(p_list) == 4 and isinstance(p[1], str):
+            p[0] = ["".join(p[1:])]
+        elif not isinstance(p_list[1], list):
+            p[0] = [p_list[1]]
+        else:
+            p[0] = p_list[1]
+            p[0].append(p_list[-1])
 
     def p_alter_check(self, p: List) -> None:
         """alter_check : alt_table check_st
