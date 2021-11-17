@@ -128,11 +128,23 @@ class Parser:
             set_line = None
         return set_line, set_was_in_line
 
+    def check_new_statement_start(self, line: str, statement: str) -> bool:
+        new_statement = False
+        if statement and (
+            ("(" in statement and ")" not in statement)
+            or (")" and "(" not in statement)
+        ):
+
+            new_statements_tokens = ["ALTER ", "CREATE ", "DROP ", "SET "]
+            for key in new_statements_tokens:
+                if line.upper().startswith(key):
+                    new_statement = True
+        return new_statement
+
     def parse_data(self):  # noqa: C901 need to refactor this
         tables = []
         block_comments = []
         statement = None
-        new_statements_tokens = ["ALTER", "CREATE", "DROP", "SET"]
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
         skip_line_words = ["USE", "GO"]
@@ -148,11 +160,8 @@ class Parser:
             set_line, set_was_in_line = self.parse_set_statement(tables, line, set_line)
             if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
-                new_statement = False
-                if statement:
-                    for key in new_statements_tokens:
-                        if line.startswith(key):
-                            new_statement = True
+                new_statement = self.check_new_statement_start(line, statement)
+
                 final_line = line.endswith(";")
 
                 if not skip and not set_was_in_line and not new_statement:

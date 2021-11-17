@@ -2201,3 +2201,114 @@ def test_output_without_separator_in_statements():
     """
     result = DDLParser(ddl).run(group_by_type=True)
     assert expected == result
+
+
+def test_lines_starts_with_statement_keys():
+    ddl = """
+    DROP TABLE IF EXISTS demo
+
+    create TABLE demo
+    (
+        foo                             char(1),
+        CREATE_date                     DATETIME2,
+        create                    VARCHAR (20),
+        ALTER_date                     DATETIME2,
+        alter                    VARCHAR (20),
+        DROP_date                    VARCHAR (20),
+        drop VARCHAR (20),
+    )
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "foo",
+                        "nullable": True,
+                        "references": None,
+                        "size": 1,
+                        "type": "char",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "CREATE_date",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATETIME2",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "create",
+                        "nullable": True,
+                        "references": None,
+                        "size": 20,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "ALTER_date",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATETIME2",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "alter",
+                        "nullable": True,
+                        "references": None,
+                        "size": 20,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "DROP_date",
+                        "nullable": True,
+                        "references": None,
+                        "size": 20,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "drop",
+                        "nullable": True,
+                        "references": None,
+                        "size": 20,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "demo",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

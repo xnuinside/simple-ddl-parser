@@ -443,6 +443,14 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 Changelog
 ---------
 
+**v0.22.2**
+
+Fixes:
+^^^^^^
+
+
+#. Fix for the issue: https://github.com/xnuinside/simple-ddl-parser/issues/94 (column name starts with CREATE)
+
 **v0.22.1**
 
 New Features:
