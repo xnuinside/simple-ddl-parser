@@ -389,6 +389,12 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
+**v0.22.5**
+### Fixes:
+
+1. Fix for issue with '<' - https://github.com/xnuinside/simple-ddl-parser/issues/89
+
+
 **v0.22.4**
 ### Fixes:
 

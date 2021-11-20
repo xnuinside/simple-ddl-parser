@@ -440,8 +440,22 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 * https://github.com/Awalkman90 ,
 * https://github.com/geob3d
 
+for help with debugging & testing support for BigQuery dialect DDLs:
+
+
+* https://github.com/ankitdata ,
+* https://github.com/kalyan939
+
 Changelog
 ---------
+
+**v0.22.5**
+
+Fixes:
+^^^^^^
+
+
+#. Fix for issue with '<' - https://github.com/xnuinside/simple-ddl-parser/issues/89
 
 **v0.22.4**
 
