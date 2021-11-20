@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simple-ddl-parser"
-version = "0.22.4"
+version = "0.22.5"
 description = "Simple DDL Parser to parse SQL & dialects like HQL, TSQL (MSSQL), Oracle, AWS Redshift, Snowflake, MySQL, PostgreSQL, etc ddl files to json/python dict with full information about columns: types, defaults, primary keys, etc.; sequences, alters, custom types & other entities from ddl."
 authors = ["Iuliia Volkova <xnuinside@gmail.com>"]
 license = "MIT"

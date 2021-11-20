@@ -27,7 +27,7 @@ class Parser:
     """
 
     def __init__(self, content: str) -> None:
-        """ init parser for file """
+        """init parser for file"""
         self.tables = []
         self.data = content.encode("unicode_escape")
         self.paren_count = 0
@@ -41,8 +41,6 @@ class Parser:
         code_line = ""
         comma_only_str = r"((\')|(' ))+(,)((\')|( '))+\B"
         line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", line)
-        if "(" not in line:
-            line = line.replace("<", " < ").replace(">", " > ")
 
         if not (line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM)):
             code_line, block_comments = self.process_inline_comments(

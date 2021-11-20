@@ -1062,7 +1062,7 @@ def test_complex_structure_test_hql():
                 "columns": [
                     {
                         "name": "column_abc",
-                        "type": "ARRAY < structcolx:string, coly:string >",
+                        "type": "ARRAY <structcolx:string, coly:string>",
                         "size": None,
                         "references": None,
                         "unique": False,
@@ -1092,7 +1092,7 @@ def test_complex_structure_test_hql():
                     },
                     {
                         "name": "column_abc2",
-                        "type": "ARRAY < structcolx:string, coly:string >",
+                        "type": "ARRAY<structcolx:string, coly:string>",
                         "size": None,
                         "references": None,
                         "unique": False,
@@ -1102,7 +1102,7 @@ def test_complex_structure_test_hql():
                     },
                     {
                         "name": "column_map",
-                        "type": "MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING > >",
+                        "type": "MAP < STRING, STRUCT < year: INT, place: STRING, details: STRING >>",
                         "size": None,
                         "references": None,
                         "unique": False,
@@ -1112,7 +1112,7 @@ def test_complex_structure_test_hql():
                     },
                     {
                         "name": "column_map_no_spaces",
-                        "type": "MAP < STRING, STRUCT < year:INT, place:STRING, details:STRING > >",
+                        "type": "MAP<STRING, STRUCT<year:INT, place:STRING, details:STRING>>",
                         "size": None,
                         "references": None,
                         "unique": False,
@@ -1122,8 +1122,8 @@ def test_complex_structure_test_hql():
                     },
                     {
                         "name": "column_struct",
-                        "type": "STRUCT < street_address: STRUCT < street_number: INT, street_name: "
-                        "STRING, street_type: STRING >, country: STRING, postal_code: STRING >",
+                        "type": "STRUCT < street_address: STRUCT <street_number: INT, "
+                        "street_name: STRING, street_type: STRING>, country: STRING, postal_code: STRING >",
                         "size": None,
                         "references": None,
                         "unique": False,
@@ -1879,3 +1879,44 @@ def test_skewed_by():
         }
     ]
     assert expected == parse_results
+
+
+def test_allow_use_tags_in_column_names():
+
+    ddl = """
+        CREATE TABLE IF NOT EXISTS default.salesorderdetail(
+                something<2% ARRAY<structcolx:string,coly:string>
+                )"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "something<2%",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "ARRAY<structcolx:string, coly:string>",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": "default",
+                "table_name": "salesorderdetail",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

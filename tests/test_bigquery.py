@@ -66,7 +66,7 @@ def test_simple_struct():
                     },
                     {
                         "name": "y",
-                        "type": "STRUCT < a ARRAY < STRING >, b BOOL >",
+                        "type": "STRUCT<a ARRAY<STRING>, b BOOL>",
                         "size": None,
                         "references": None,
                         "unique": False,
