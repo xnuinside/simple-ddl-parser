@@ -187,6 +187,8 @@ class Column:
         if isinstance(p_list[-1], str) and p_list[-1].lower() == "distkey":
             p[0] = {"property": {"distkey": True}}
             _type = _type.split("distkey")[0]
+        if isinstance(_type, list):
+            _type = _type[0]
         _type = _type.strip().replace('" . "', '"."')
         if "<" not in _type and "ARRAY" in _type:
             if "[" not in p_list[-1]:
@@ -389,10 +391,6 @@ class Schema:
         """
         p_list = list(p)
         p[0] = {}
-        print(p_list)
-        # if isinstance(p_list[1], dict):
-        # p[0] = p_list[1]
-        # self.set_properties_for_schema_and_database(p, p_list)
         auth_ind = None
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
@@ -401,7 +399,6 @@ class Schema:
             auth_ind = p_list.index(auth)
             self.set_auth_property_in_schema(p, p_list)
 
-        print(p_list)
         if isinstance(p_list[-1], str):
             if auth_ind:
                 schema_name = p_list[auth_ind - 1]
@@ -415,7 +412,6 @@ class Schema:
 
         if len(p_list) > 4 and not auth_ind and "." in p_list:
             p[0]["project"] = p_list[-3].replace("`", "")
-        print(p[0])
 
     def p_create_database(self, p: List) -> None:
         """create_database : CREATE DATABASE id
@@ -879,6 +875,8 @@ class BaseSQL(
 
     def p_tid(self, p: List) -> None:
         """tid : LT id
+        | LT
+        | tid LT
         | tid id
         | tid COMMAT
         | tid RT

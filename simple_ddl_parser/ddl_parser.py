@@ -22,12 +22,12 @@ class DDLParser(
 
     def get_tag_symbol_value_and_increment(self, t):
         # todo: need to find less hacky way to parse HQL structure types
-        if "<" == t.value:
+        if "<" in t.value:
             t.type = "LT"
-            self.lexer.lt_open += 1
-        elif ">" == t.value and not self.lexer.check:
+            self.lexer.lt_open += t.value.count("<")
+        if ">" in t.value and not self.lexer.check:
             t.type = "RT"
-            self.lexer.lt_open -= 1
+            self.lexer.lt_open -= t.value.count(">")
         return t
 
     def after_columns_tokens(self, t):
@@ -50,9 +50,11 @@ class DDLParser(
         return t
 
     def tokens_not_columns_names(self, t):
-        if not self.lexer.check and t.value in tok.symbol_tokens_no_check:
-            return self.get_tag_symbol_value_and_increment(t)
-        elif "ARRAY" in t.value:
+        if not self.lexer.check:
+            for key in tok.symbol_tokens_no_check:
+                if key in t.value:
+                    return self.get_tag_symbol_value_and_increment(t)
+        if "ARRAY" in t.value:
             t.type = "ARRAY"
             return t
         elif not self.lexer.is_table:
@@ -116,7 +118,7 @@ class DDLParser(
             t = self.tokens_not_columns_names(t)
 
         # capitalize tokens
-        if t.type != "ID":
+        if t.type != "ID" and t.type not in ["LT", "RT"]:
             t.value = t.value.upper()
 
         if t.type == "COMMA" and self.lexer.lt_open:
