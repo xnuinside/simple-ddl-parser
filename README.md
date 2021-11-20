@@ -385,6 +385,13 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 
 ## Changelog
+**v0.22.4**
+### Fixes:
+
+### BigQuery:
+1. Fixed issue with parsing schemas with project in name.
+2. Added support for multiple OPTION() statements
+
 **v0.22.3**
 ### Fixes:
 

@@ -388,18 +388,34 @@ class Schema:
         | create_schema options
         """
         p_list = list(p)
-
+        p[0] = {}
+        print(p_list)
+        # if isinstance(p_list[1], dict):
+        # p[0] = p_list[1]
+        # self.set_properties_for_schema_and_database(p, p_list)
+        auth_ind = None
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
             self.set_properties_for_schema_and_database(p, p_list)
         elif auth in p_list:
+            auth_ind = p_list.index(auth)
             self.set_auth_property_in_schema(p, p_list)
-        elif isinstance(p_list[-1], dict):
-            p[0] = {"schema": p_list[-1]["table_name"]}
-            if p_list[-1].get("schema"):
-                p[0]["project"] = p_list[-1]["schema"]
-        else:
-            p[0] = {"schema_name": p_list[-1]}
+
+        print(p_list)
+        if isinstance(p_list[-1], str):
+            if auth_ind:
+                schema_name = p_list[auth_ind - 1]
+                if schema_name is None:
+                    schema_name = p_list[auth_ind + 1]
+
+            else:
+                schema_name = p_list[-1]
+
+            p[0]["schema_name"] = schema_name.replace("`", "")
+
+        if len(p_list) > 4 and not auth_ind and "." in p_list:
+            p[0]["project"] = p_list[-3].replace("`", "")
+        print(p[0])
 
     def p_create_database(self, p: List) -> None:
         """create_database : CREATE DATABASE id
