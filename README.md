@@ -383,8 +383,19 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 * https://github.com/Awalkman90 ,
 * https://github.com/geob3d
 
+for help with debugging & testing support for BigQuery dialect DDLs:
+* https://github.com/ankitdata ,
+* https://github.com/kalyan939
+
 
 ## Changelog
+**v0.22.4**
+### Fixes:
+
+### BigQuery:
+1. Fixed issue with parsing schemas with project in name.
+2. Added support for multiple OPTION() statements
+
 **v0.22.3**
 ### Fixes:
 

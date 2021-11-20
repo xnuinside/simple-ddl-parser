@@ -35,7 +35,7 @@ def test_dataset_in_output():
     }
 
     ddl = """
-    CREATE TABLE mydataset.newtable ( x INT64 )
+    CREATE TABLE mydataset.newtable ( x INT64 );
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
     assert expected == result
@@ -428,6 +428,7 @@ def test_table_name_with_project_id():
             {
                 "properties": {"options": [{"location": '"project-location"'}]},
                 "schema_name": "calender",
+                "project": "project",
             }
         ],
         "sequences": [],
@@ -587,6 +588,7 @@ def test_multiple_options():
             {
                 "properties": {"options": [{"location": '"project-location"'}]},
                 "schema_name": "calender",
+                "project": "project",
             }
         ],
         "sequences": [],
@@ -718,6 +720,100 @@ CREATE TABLE project_id.calender.REF_CALENDAR (
                 "primary_key": [],
                 "project": "project_id",
                 "table_name": "REF_CALENDAR",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_multiple_options_statements():
+    ddl = """
+            CREATE TABLE `my.data-cdh-hub-REF-CALENDAR` (
+    calendar_dt DATE,
+    calendar_dt_id INT
+    )
+    OPTIONS (
+        location="location"
+        )
+    OPTIONS (
+    description="Calendar table records reference list of calendar dates and related attributes used for reporting."
+    )
+    OPTIONS (
+        name ="path"
+    )
+    OPTIONS (
+        kms_two="path",
+        two="two two"
+    )
+    OPTIONS (
+        kms_three="path",
+        three="three",
+        threethree="three three"
+    )
+    OPTIONS (
+        kms_four="path",
+        four="four four",
+        fourin="four four four",
+        fourlast="four four four four"
+    );
+            """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "DATE",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "calendar_dt_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                ],
+                "dataset": "`my",
+                "index": [],
+                "options": [
+                    {"location": '"location"'},
+                    {
+                        "description": '"Calendar table records reference '
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
+                    },
+                    {"name": '"path"'},
+                    {"kms_two": '"path"'},
+                    {"two": '"two two"'},
+                    {"kms_three": '"path"'},
+                    {"three": '"three"'},
+                    {"threethree": '"three three"'},
+                    {"kms_four": '"path"'},
+                    {"four": '"four four"'},
+                    {"fourin": '"four four four"'},
+                    {"fourlast": '"four four four four"'},
+                ],
+                "partitioned_by": [],
+                "primary_key": [],
+                "table_name": "data-cdh-hub-REF-CALENDAR`",
                 "tablespace": None,
             }
         ],

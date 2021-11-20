@@ -2312,3 +2312,20 @@ def test_lines_starts_with_statement_keys():
         "types": [],
     }
     assert expected == result
+
+
+def test_schema_with_project_name():
+
+    ddl = """
+    CREATE SCHEMA IF NOT EXISTS `my.data-cdh-hub`
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [{"project": "my", "schema_name": "data-cdh-hub"}],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
+    assert expected == result
