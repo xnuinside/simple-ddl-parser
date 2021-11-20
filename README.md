@@ -383,6 +383,10 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 * https://github.com/Awalkman90 ,
 * https://github.com/geob3d
 
+for help with debugging & testing support for BigQuery dialect DDLs:
+* https://github.com/ankitdata ,
+* https://github.com/kalyan939
+
 
 ## Changelog
 **v0.22.4**
