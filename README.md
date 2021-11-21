@@ -362,7 +362,6 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
--1. Add base support for BigQuery DDL dialect.
 0. Add support for ALTER TABLE ... ADD COLUMN
 1. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 2. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
