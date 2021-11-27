@@ -92,6 +92,7 @@ sequence_reserved = {
     "MINVALUE": "MINVALUE",
     "MAXVALUE": "MAXVALUE",
     "CACHE": "CACHE",
+    "NO": "NO",
 }
 
 

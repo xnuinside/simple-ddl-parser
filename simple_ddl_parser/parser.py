@@ -106,14 +106,16 @@ class Parser:
     @staticmethod
     def process_set(tables: List, set_line: str) -> None:
         set_line = set_line.split()
-        name = set_line[-2]
-        value = set_line[-1]
+        if set_line[-2] == "=":
+            name = set_line[1]
+        else:
+            name = set_line[-2]
+        value = set_line[-1].replace(";", "")
         tables.append({"name": name, "value": value})
 
     def parse_set_statement(
-        self, tables: List, line: str, set_line: Optional[str]
+        self, tables: List, line: str, set_line: Optional[str], set_was_in_line: bool
     ) -> Optional[str]:
-        set_was_in_line = False
         if re.match(r"SET", line):
             set_was_in_line = True
             if not set_line:
@@ -121,9 +123,12 @@ class Parser:
             else:
                 self.process_set(tables, set_line)
                 set_line = line
-        elif set_line and len(set_line.split()) == 3:
+        elif (set_line and len(set_line.split()) == 3) or (
+            set_line and set_was_in_line
+        ):
             self.process_set(tables, set_line)
             set_line = None
+            set_was_in_line = False
         return set_line, set_was_in_line
 
     def check_new_statement_start(self, line: str, statement: str) -> bool:
@@ -142,7 +147,11 @@ class Parser:
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
         skip_line_words = ["USE", "GO"]
+
         set_line = None
+
+        set_was_in_line = False
+
         for num, line in enumerate(lines):
             line, block_comments = self.pre_process_line(line, block_comments)
             line = line.strip().replace("\n", "").replace("\t", "")
@@ -151,12 +160,14 @@ class Parser:
                 if line.startswith(word):
                     skip = True
                     break
-            set_line, set_was_in_line = self.parse_set_statement(tables, line, set_line)
+            set_line, set_was_in_line = self.parse_set_statement(
+                tables, line, set_line, set_was_in_line
+            )
             if line or num == len(lines) - 1:
                 # to avoid issues when comma or parath are glued to column name
                 new_statement = self.check_new_statement_start(line, statement)
 
-                final_line = line.endswith(";")
+                final_line = line.endswith(";") and not set_was_in_line
 
                 if not skip and not set_was_in_line and not new_statement:
                     if statement is None:
