@@ -162,6 +162,8 @@ class Column:
     def p_c_type(self, p: List) -> None:
         """c_type : id
         | id id
+        | id id id id
+        | id id id
         | id DOT id
         | tid
         | ARRAY
