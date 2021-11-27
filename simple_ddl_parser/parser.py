@@ -174,7 +174,7 @@ class Parser:
                         statement = line
                     else:
                         statement += f" {line}"
-                print(statement)
+
                 if final_line or new_statement:
                     # end of sql operation, remove ; from end of line
                     statement = statement[:-1]

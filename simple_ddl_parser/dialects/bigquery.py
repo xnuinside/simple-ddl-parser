@@ -8,7 +8,6 @@ class BigQuery:
         """multiple_options : options
         | multiple_options options
         """
-        print(list(p), "\n")
         if len(p) > 2:
             p[1]["options"].extend(p[2]["options"])
             p[0] = p[1]

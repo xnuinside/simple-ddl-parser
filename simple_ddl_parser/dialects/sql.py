@@ -838,6 +838,8 @@ class BaseSQL(
         | expr START id
         | expr START id id
         | expr MINVALUE id
+        | expr NO MINVALUE
+        | expr NO MAXVALUE
         | expr MAXVALUE id
         | expr CACHE id
         | expr CACHE
@@ -845,12 +847,18 @@ class BaseSQL(
         # get schema & table name
         p_list = list(p)
         p[0] = p[1]
+        value = None
         if len(p) == 4:
-            p[0].update({p[2].lower(): int(p_list[-1])})
-        if len(p) == 3:
-            p[0].update({p[2].lower(): True})
+            if p[2] == "NO":
+                value = {p_list[-1].lower(): False}
+            else:
+                value = {p[2].lower(): int(p_list[-1])}
+        elif len(p) == 3:
+            value = {p[2].lower(): True}
         elif len(p) == 5:
-            p[0].update({f"{p[2].lower()}_{p[3].lower()}": int(p_list[-1])})
+            value = {f"{p[2].lower()}_{p[3].lower()}": int(p_list[-1])}
+        if value:
+            p[0].update(value)
 
     def p_seq_name(self, p: List) -> None:
         """seq_name : create_seq id DOT id

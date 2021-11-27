@@ -132,3 +132,38 @@ def test_sequence_with_by():
         """
     result = DDLParser(ddl).run(group_by_type=True)
     assert expected == result
+
+
+def test_add_support_no_value():
+
+    ddl = """
+    CREATE SEQUENCE public.accounts_user_id_seq
+        AS integer
+        START WITH 1
+        INCREMENT BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        CACHE 1;
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [
+            {
+                "AS": "integer",
+                "cache": 1,
+                "dataset": "public",
+                "increment_by": 1,
+                "maxvalue": False,
+                "minvalue": False,
+                "sequence_name": "accounts_user_id_seq",
+                "start_with": 1,
+            }
+        ],
+        "tables": [],
+        "types": [],
+    }
+    assert expected == result
