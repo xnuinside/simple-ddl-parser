@@ -1,3 +1,12 @@
+**v0.23.0**
+
+Big refactoring: less code complexity & increase code coverage. Radon added to pre-commit hooks.
+
+### Fixes:
+
+1. Fix for issue with ALTER UNIQUE - https://github.com/xnuinside/simple-ddl-parser/issues/101 
+
+
 **v0.22.5**
 ### Fixes:
 

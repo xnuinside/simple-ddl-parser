@@ -131,22 +131,38 @@ class Parser:
             set_was_in_line = False
         return set_line, set_was_in_line
 
-    def check_new_statement_start(self, line: str, statement: str) -> bool:
+    def check_new_statement_start(self, line: str) -> bool:
         new_statement = False
-        if statement and statement.count("(") == statement.count(")"):
+        if self.statement and self.statement.count("(") == self.statement.count(")"):
             new_statements_tokens = ["ALTER ", "CREATE ", "DROP ", "SET "]
             for key in new_statements_tokens:
                 if line.upper().startswith(key):
                     new_statement = True
         return new_statement
 
-    def parse_data(self):  # noqa: C901 need to refactor this
+    @staticmethod
+    def check_line_on_skip_words(line: str) -> bool:
+        skip_line_words = ["USE", "GO"]
+
+        skip = False
+        for word in skip_line_words:
+            if line.startswith(word):
+                skip = True
+                break
+        return skip
+
+    def add_line_to_statement(self, line: str) -> str:
+        if self.statement is None:
+            self.statement = line
+        else:
+            self.statement += f" {line}"
+
+    def parse_data(self):
         tables = []
         block_comments = []
-        statement = None
+        self.statement = None
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
-        skip_line_words = ["USE", "GO"]
 
         set_line = None
 
@@ -155,46 +171,39 @@ class Parser:
         for num, line in enumerate(lines):
             line, block_comments = self.pre_process_line(line, block_comments)
             line = line.strip().replace("\n", "").replace("\t", "")
-            skip = False
-            for word in skip_line_words:
-                if line.startswith(word):
-                    skip = True
-                    break
+            skip = self.check_line_on_skip_words(line)
+
             set_line, set_was_in_line = self.parse_set_statement(
                 tables, line, set_line, set_was_in_line
             )
-            if line or num == len(lines) - 1:
-                # to avoid issues when comma or parath are glued to column name
-                new_statement = self.check_new_statement_start(line, statement)
+            # to avoid issues when comma or parath are glued to column name
+            new_statement = self.check_new_statement_start(line)
 
-                final_line = line.endswith(";") and not set_was_in_line
+            final_line = line.endswith(";") and not set_was_in_line
 
-                if not skip and not set_was_in_line and not new_statement:
-                    if statement is None:
-                        statement = line
-                    else:
-                        statement += f" {line}"
+            if line and not skip and not set_was_in_line and not new_statement:
+                self.add_line_to_statement(line)
 
-                if final_line or new_statement:
-                    # end of sql operation, remove ; from end of line
-                    statement = statement[:-1]
-                elif num != len(lines) - 1 and not skip:
-                    # continue combine lines in one massive
-                    continue
+            if final_line or new_statement:
+                # end of sql operation, remove ; from end of line
+                self.statement = self.statement[:-1]
+            elif num != len(lines) - 1 and not skip:
+                # continue combine lines in one massive
+                continue
 
-                self.set_default_flags_in_lexer()
-                if not set_line and statement:
+            self.set_default_flags_in_lexer()
 
-                    self.parse_statement(tables, statement)
-                if new_statement:
-                    statement = line
-                else:
-                    statement = None
+            if not set_line and self.statement:
+                self.parse_statement(tables)
+
+            if new_statement:
+                self.statement = line
+            else:
+                self.statement = None
         return tables
 
-    @staticmethod
-    def parse_statement(tables: List, statement: str):
-        _parse_result = yacc.parse(statement)
+    def parse_statement(self, tables: List) -> None:
+        _parse_result = yacc.parse(self.statement)
 
         if _parse_result:
             tables.append(_parse_result)

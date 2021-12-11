@@ -1,18 +1,19 @@
 repos:
--   repo: https://github.com/asottile/seed-isort-config
-    rev: v2.2.0
-    hooks:
-    - id: seed-isort-config
--   repo: https://github.com/pycqa/isort
-    rev: 5.4.2
-    hooks:
-      - id: isort
--   repo: https://github.com/ambv/black
-    rev: stable
-    hooks:
-    - id: black
-      language_version: python3.8
--   repo: https://github.com/PyCQA/flake8
-    rev: 3.8.3
-    hooks:
-    - id: flake8
+    -   repo: https://github.com/ambv/black
+        rev: 21.7b0
+        hooks:
+        - id: black
+          language_version: python3.8
+          entry: bash -c 'black "$@"; git add -u' --
+    -   repo: https://github.com/timothycrosley/isort
+        rev: 5.9.2
+        hooks:
+        -   id: isort
+            language_version: python3.8
+            entry: bash -c 'isort "$@"; git add -u' --
+    -   repo: https://gitlab.com/pycqa/flake8
+        rev: 3.9.2
+        hooks:
+        - id: flake8
+          additional_dependencies: [ radon ]
+          entry: bash -c 'flake8 --radon-no-assert --radon-max-cc 7' --
