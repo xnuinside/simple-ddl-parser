@@ -34,43 +34,52 @@ class Parser:
         self.lexer = lex.lex(object=self, debug=False)
         self.yacc = yacc.yacc(module=self, debug=False)
         self.columns_closed = False
+        self.statement = None
+        self.block_comments = []
+        self.comments = []
 
-    def pre_process_line(
-        self, line: str, block_comments: List[str]
-    ) -> Tuple[str, List]:
+    def pre_process_line(self) -> Tuple[str, List]:
         code_line = ""
         comma_only_str = r"((\')|(' ))+(,)((\')|( '))+\B"
-        line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", line)
+        self.line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", self.line)
 
-        if not (line.strip().startswith(MYSQL_COM) or line.strip().startswith(IN_COM)):
-            code_line, block_comments = self.process_inline_comments(
-                line, code_line, block_comments
-            )
-        return code_line, block_comments
+        if not (
+            self.line.strip().startswith(MYSQL_COM)
+            or self.line.strip().startswith(IN_COM)
+        ):
+            code_line = self.process_inline_comments(code_line)
+        self.line = code_line
 
-    @staticmethod
-    def process_in_comment(line: str):
+    def process_in_comment(self, line: str) -> str:
         if re.search(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+", line):
             code_line = line
         else:
-            code_line = line.split(IN_COM)[0]
+            splitted_line = line.split(IN_COM)
+            code_line = splitted_line[0]
+            self.comments.append(splitted_line[1])
         return code_line
 
-    def process_inline_comments(
-        self, line: str, code_line: str, block_comments: List
-    ) -> Tuple[str, List]:
-        if IN_COM in line:
-            code_line = self.process_in_comment(line)
-        elif CL_COM not in line and OP_COM not in line:
-            code_line = line
-        if OP_COM in line:
-            code_line += line.split(OP_COM)[0]
-            block_comments.append(OP_COM)
-        if CL_COM in code_line and block_comments:
-            block_comments.pop(-1)
-            code_line += code_line.split(CL_COM)[1]
+    def process_inline_comments(self, code_line: str) -> Tuple[str, List]:
+        comment = None
+        
+        if IN_COM in self.line:
+            code_line = self.process_in_comment(self.line)
+        elif CL_COM not in self.line and OP_COM not in self.line:
+            code_line = self.line
+        if OP_COM in self.line:
+            splitted_line = self.line.split(OP_COM)
+            code_line += splitted_line[0]
+            comment = splitted_line[1]
+            self.block_comments.append(OP_COM)
+        if CL_COM in code_line and self.block_comments:
+            splitted_line = self.line.split(CL_COM)
+            self.block_comments.pop(-1)
+            code_line += splitted_line[1]
+            comment = splitted_line[0]
 
-        return code_line, block_comments
+        if comment:
+            self.comments.append(comment)
+        return code_line
 
     def process_regex_input(self, data):
         regex = data.split('"input.regex"')[1].split("=")[1]
@@ -159,8 +168,6 @@ class Parser:
 
     def parse_data(self):
         tables = []
-        block_comments = []
-        self.statement = None
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
 
@@ -168,21 +175,23 @@ class Parser:
 
         set_was_in_line = False
 
-        for num, line in enumerate(lines):
-            line, block_comments = self.pre_process_line(line, block_comments)
-            line = line.strip().replace("\n", "").replace("\t", "")
-            skip = self.check_line_on_skip_words(line)
+        for num, self.line in enumerate(lines):
+            self.pre_process_line()
+
+            self.line = self.line.strip().replace("\n", "").replace("\t", "")
+
+            skip = self.check_line_on_skip_words(self.line)
 
             set_line, set_was_in_line = self.parse_set_statement(
-                tables, line, set_line, set_was_in_line
+                tables, self.line, set_line, set_was_in_line
             )
             # to avoid issues when comma or parath are glued to column name
-            new_statement = self.check_new_statement_start(line)
+            new_statement = self.check_new_statement_start(self.line)
 
-            final_line = line.endswith(";") and not set_was_in_line
+            final_line = self.line.endswith(";") and not set_was_in_line
 
-            if line and not skip and not set_was_in_line and not new_statement:
-                self.add_line_to_statement(line)
+            if self.line and not skip and not set_was_in_line and not new_statement:
+                self.add_line_to_statement(self.line)
 
             if final_line or new_statement:
                 # end of sql operation, remove ; from end of line
@@ -193,14 +202,18 @@ class Parser:
 
             self.set_default_flags_in_lexer()
 
-            if not set_line and self.statement:
-                self.parse_statement(tables)
-
-            if new_statement:
-                self.statement = line
-            else:
-                self.statement = None
+            self.process_statement(set_line, new_statement, tables)
+        if self.comments:
+            tables.append({"comments": self.comments})
         return tables
+
+    def process_statement(self, set_line, new_statement, tables):
+        if not set_line and self.statement:
+            self.parse_statement(tables)
+        if new_statement:
+            self.statement = self.line
+        else:
+            self.statement = None
 
     def parse_statement(self, tables: List) -> None:
         _parse_result = yacc.parse(self.statement)

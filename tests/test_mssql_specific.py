@@ -12,6 +12,7 @@ def test_int_identity_type():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [" NOTE"],
         "ddl_properties": [],
         "sequences": [],
         "domains": [],
@@ -68,6 +69,7 @@ def test_mssql_foreign_ref_in_column():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [" NOTE"],
         "ddl_properties": [],
         "sequences": [],
         "domains": [],
@@ -194,6 +196,7 @@ def test_constraint_unique():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [" NOTE"],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -268,6 +271,7 @@ def test_constraint_unique_none():
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
+        "comments": [" NOTE"],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -365,6 +369,7 @@ def test_two_unique_constructs():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [" NOTE"],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -748,6 +753,7 @@ def test_foreign_keys():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [" NOTE"],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1096,6 +1102,7 @@ def test_alter_unique():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [" NOTE"],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -1481,6 +1488,7 @@ def test_defaults_in_alter():
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
+        "comments": [" NOTE"],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -1867,6 +1875,10 @@ def test_constraint_with_with():
         ALLOW_PAGE_LOCKS = ON))"""
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [
+            "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/"
+        ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
             {"name": "QUOTED_IDENTIFIER", "value": "ON"},
@@ -2360,6 +2372,10 @@ def test_with_on_table_level():
     )"""
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [
+            "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/"
+        ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
             {"name": "QUOTED_IDENTIFIER", "value": "ON"},
@@ -2447,6 +2463,10 @@ SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[users_WorkScheduleHistory] )
 )"""
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [
+            "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/"
+        ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
             {"name": "QUOTED_IDENTIFIER", "value": "ON"},
@@ -2590,6 +2610,10 @@ ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO"""
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [
+            "***** Object:  Table [dbo].[TO_Requests]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/"
+        ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
             {"name": "QUOTED_IDENTIFIER", "value": "ON"},
@@ -2959,6 +2983,10 @@ def test_primary_key_clustered():
     GO"""
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
+        "comments": [
+            "***** Object:  Table [aud].[tcal_tgt]    Script Date: "
+            "11/11/2021 11:18:41 AM ******/"
+        ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
             {"name": "QUOTED_IDENTIFIER", "value": "ON"},

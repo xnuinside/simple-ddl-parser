@@ -6,6 +6,10 @@ Big refactoring: less code complexity & increase code coverage. Radon added to p
 
 1. Fix for issue with ALTER UNIQUE - https://github.com/xnuinside/simple-ddl-parser/issues/101 
 
+### New Features
+
+1. SQL Comments string from DDL now parsed to "comments" key in output.
+
 
 **v0.22.5**
 ### Fixes:

@@ -98,7 +98,8 @@ def test_inline_comment():
             "partitioned_by": [],
             "table_name": "user_history",
             "tablespace": None,
-        }
+        },
+        {"comments": [" group_id or role_id"]},
     ]
     assert expected == parse_result
 
@@ -173,7 +174,8 @@ def test_block_comments():
             "partitioned_by": [],
             "table_name": "A",
             "tablespace": None,
-        }
+        },
+        {"comments": [" outer comment start", " inner comment */"]},
     ]
     assert expected == parse_result
 
@@ -198,7 +200,7 @@ def test_mysql_comments_support():
     );
     """
     parse_result = DDLParser(ddl).run()
-    expected = expected = [
+    expected = [
         {
             "columns": [
                 {
@@ -250,7 +252,8 @@ def test_mysql_comments_support():
             "partitioned_by": [],
             "table_name": "A",
             "tablespace": None,
-        }
+        },
+        {"comments": [" outer comment start", " inner comment */"]},
     ]
     assert expected == parse_result
 

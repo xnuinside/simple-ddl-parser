@@ -250,6 +250,7 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "domains": [],
         "schemas": [],
         "ddl_properties": [],
+        "comments": [],
     }
     keys_map = {
         "table_name": "tables",
@@ -260,6 +261,7 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "tablespace_name": "tablespaces",
         "database_name": "databases",
         "value": "ddl_properties",
+        "comments": "comments",
     }
     for item in final_result:
         for key in keys_map:
@@ -268,9 +270,13 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
                 if _type is None:
                     result_as_dict[keys_map.get(key)] = []
                     _type = result_as_dict[keys_map.get(key)]
-                _type.append(item)
+                if key != "comments":
+                    _type.append(item)
+                else:
+                    _type.append(item["comments"][0])
                 break
-
+    if result_as_dict["comments"] == []:
+        del result_as_dict["comments"]
     return result_as_dict
 
 
