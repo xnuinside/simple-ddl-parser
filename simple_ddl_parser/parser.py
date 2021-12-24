@@ -61,7 +61,7 @@ class Parser:
 
     def process_inline_comments(self, code_line: str) -> Tuple[str, List]:
         comment = None
-        
+
         if IN_COM in self.line:
             code_line = self.process_in_comment(self.line)
         elif CL_COM not in self.line and OP_COM not in self.line:

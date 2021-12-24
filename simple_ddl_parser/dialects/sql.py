@@ -1095,6 +1095,7 @@ class BaseSQL(
         | alter_default
         """
         p[0] = p[1]
+        print(p[0], "expe")
         if len(p) == 3:
             p[0].update(p[2])
 
@@ -1104,6 +1105,7 @@ class BaseSQL(
         """
 
         p_list = remove_par(list(p))
+        print(p_list, "unique")
         p[0] = p[1]
         p[0]["unique"] = {"constraint_name": None, "columns": p_list[-1]}
         if "constraint" in p[2]:
@@ -1235,12 +1237,19 @@ class BaseSQL(
                 column.update({"constraint_name": p_list[2]["constraint"]["name"]})
 
     def p_alt_table_name(self, p: List) -> None:
-        """alt_table : ALTER TABLE t_name ADD"""
-        table_data = list(p)[-2]
+        """alt_table : ALTER TABLE t_name ADD
+        | ALTER TABLE IF EXISTS t_name ADD
+        | ALTER TABLE ID t_name ADD"""
+        p_list = list(p)
+        table_data = p_list[-2]
         p[0] = {
             "alter_table_name": table_data["table_name"],
             "schema": table_data["schema"],
         }
+        if "IF" in p_list:
+            p[0]["if_exists"] = True
+        if len(p_list) == 6:
+            p[0]["only"] = True
         if table_data.get("project"):
             p[0]["project"] = table_data["project"]
 

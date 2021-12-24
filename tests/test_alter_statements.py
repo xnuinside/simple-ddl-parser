@@ -1433,3 +1433,215 @@ CREATE TABLE employees (
         },
     ]
     assert expected == parse_results
+
+
+def test_alter_table_only():
+    ddl = """
+        
+    CREATE TABLE public.accounts (
+        user_id integer NOT NULL,
+        username character varying(50) NOT NULL,
+        password character varying(50) NOT NULL,
+        email character varying(255) NOT NULL,
+        created_on timestamp without time zone NOT NULL,
+        last_login timestamp without time zone
+    );
+    ALTER TABLE ONLY public.accounts
+        ADD CONSTRAINT accounts_username_key UNIQUE (username);
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "uniques": [
+                        {
+                            "columns": ["username"],
+                            "constraint_name": "accounts_username_key",
+                        }
+                    ]
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "user_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "username",
+                        "nullable": False,
+                        "references": None,
+                        "size": 50,
+                        "type": "character varying",
+                        "unique": True,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "password",
+                        "nullable": False,
+                        "references": None,
+                        "size": 50,
+                        "type": "character varying",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "email",
+                        "nullable": False,
+                        "references": None,
+                        "size": 255,
+                        "type": "character varying",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "created_on",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "timestamp without time zone",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "last_login",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "timestamp without time zone",
+                        "unique": False,
+                    },
+                ],
+                "dataset": "public",
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "table_name": "accounts",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_alter_table_if_exists():
+    ddl = """
+       
+    CREATE TABLE public.accounts (
+        user_id integer NOT NULL,
+        username character varying(50) NOT NULL,
+        password character varying(50) NOT NULL,
+        email character varying(255) NOT NULL,
+        created_on timestamp without time zone NOT NULL,
+        last_login timestamp without time zone
+    );
+    ALTER TABLE IF EXISTS public.accounts
+        ADD CONSTRAINT accounts_username_key UNIQUE (username);
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "uniques": [
+                        {
+                            "columns": ["username"],
+                            "constraint_name": "accounts_username_key",
+                        }
+                    ]
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "user_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "username",
+                        "nullable": False,
+                        "references": None,
+                        "size": 50,
+                        "type": "character varying",
+                        "unique": True,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "password",
+                        "nullable": False,
+                        "references": None,
+                        "size": 50,
+                        "type": "character varying",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "email",
+                        "nullable": False,
+                        "references": None,
+                        "size": 255,
+                        "type": "character varying",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "created_on",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "timestamp without time zone",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "last_login",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "timestamp without time zone",
+                        "unique": False,
+                    },
+                ],
+                "dataset": "public",
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "table_name": "accounts",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
