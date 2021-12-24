@@ -6,7 +6,7 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
 ### Is it Stable?
 
-Yes, library already has about 7000+ downloads per day.
+Yes, library already has about 7000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
 
 As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
 
