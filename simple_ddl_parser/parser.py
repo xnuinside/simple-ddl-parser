@@ -59,13 +59,17 @@ class Parser:
             self.comments.append(splitted_line[1])
         return code_line
 
-    def process_inline_comments(self, code_line: str) -> Tuple[str, List]:
-        comment = None
-
+    def previous_comment_processing(self) -> str:
+        code_line = ""
         if IN_COM in self.line:
             code_line = self.process_in_comment(self.line)
         elif CL_COM not in self.line and OP_COM not in self.line:
             code_line = self.line
+        return code_line
+
+    def process_inline_comments(self, code_line: str) -> Tuple[str, List]:
+        comment = None
+        code_line = self.previous_comment_processing()
         if OP_COM in self.line:
             splitted_line = self.line.split(OP_COM)
             code_line += splitted_line[0]
@@ -112,33 +116,29 @@ class Parser:
         )
         return data
 
-    @staticmethod
-    def process_set(tables: List, set_line: str) -> None:
-        set_line = set_line.split()
-        if set_line[-2] == "=":
-            name = set_line[1]
+    def process_set(self) -> None:
+        self.set_line = self.set_line.split()
+        if self.set_line[-2] == "=":
+            name = self.set_line[1]
         else:
-            name = set_line[-2]
-        value = set_line[-1].replace(";", "")
-        tables.append({"name": name, "value": value})
+            name = self.set_line[-2]
+        value = self.set_line[-1].replace(";", "")
+        self.tables.append({"name": name, "value": value})
 
-    def parse_set_statement(
-        self, tables: List, line: str, set_line: Optional[str], set_was_in_line: bool
-    ) -> Optional[str]:
-        if re.match(r"SET", line):
-            set_was_in_line = True
-            if not set_line:
-                set_line = line
+    def parse_set_statement(self):
+        if re.match(r"SET", self.line):
+            self.set_was_in_line = True
+            if not self.set_line:
+                self.set_line = self.line
             else:
-                self.process_set(tables, set_line)
-                set_line = line
-        elif (set_line and len(set_line.split()) == 3) or (
-            set_line and set_was_in_line
+                self.process_set()
+                self.set_line = self.line
+        elif (self.set_line and len(self.set_line.split()) == 3) or (
+            self.set_line and self.set_was_in_line
         ):
-            self.process_set(tables, set_line)
-            set_line = None
-            set_was_in_line = False
-        return set_line, set_was_in_line
+            self.process_set()
+            self.set_line = None
+            self.set_was_in_line = False
 
     def check_new_statement_start(self, line: str) -> bool:
         new_statement = False
@@ -149,77 +149,85 @@ class Parser:
                     new_statement = True
         return new_statement
 
-    @staticmethod
-    def check_line_on_skip_words(line: str) -> bool:
+    def check_line_on_skip_words(self) -> bool:
         skip_line_words = ["USE", "GO"]
 
-        skip = False
+        self.skip = False
         for word in skip_line_words:
-            if line.startswith(word):
-                skip = True
+            if self.line.startswith(word):
+                self.skip = True
                 break
-        return skip
+        return self.skip
 
-    def add_line_to_statement(self, line: str) -> str:
+    def add_line_to_statement(self) -> str:
         if self.statement is None:
-            self.statement = line
+            self.statement = self.line
         else:
-            self.statement += f" {line}"
+            self.statement += f" {self.line}"
 
     def parse_data(self):
-        tables = []
+        self.tables: List[Dict] = []
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
 
-        set_line = None
+        self.set_line: Optional[str] = None
 
-        set_was_in_line = False
+        self.set_was_in_line: bool = False
 
         for num, self.line in enumerate(lines):
-            self.pre_process_line()
-
-            self.line = self.line.strip().replace("\n", "").replace("\t", "")
-
-            skip = self.check_line_on_skip_words(self.line)
-
-            set_line, set_was_in_line = self.parse_set_statement(
-                tables, self.line, set_line, set_was_in_line
-            )
-            # to avoid issues when comma or parath are glued to column name
-            new_statement = self.check_new_statement_start(self.line)
-
-            final_line = self.line.endswith(";") and not set_was_in_line
-
-            if self.line and not skip and not set_was_in_line and not new_statement:
-                self.add_line_to_statement(self.line)
-
-            if final_line or new_statement:
-                # end of sql operation, remove ; from end of line
-                self.statement = self.statement[:-1]
-            elif num != len(lines) - 1 and not skip:
-                # continue combine lines in one massive
-                continue
-
-            self.set_default_flags_in_lexer()
-
-            self.process_statement(set_line, new_statement, tables)
+            self.process_line(num != len(lines) - 1)
         if self.comments:
-            tables.append({"comments": self.comments})
-        return tables
+            self.tables.append({"comments": self.comments})
+        return self.tables
 
-    def process_statement(self, set_line, new_statement, tables):
-        if not set_line and self.statement:
-            self.parse_statement(tables)
+    def process_line(
+        self,
+        last_line: bool,
+    ) -> Tuple[Optional[str], bool]:
+        self.pre_process_line()
+
+        self.line = self.line.strip().replace("\n", "").replace("\t", "")
+
+        self.skip = self.check_line_on_skip_words()
+
+        self.parse_set_statement()
+        # to avoid issues when comma or parath are glued to column name
+        new_statement = self.check_new_statement_start(self.line)
+
+        final_line = self.line.endswith(";") and not self.set_was_in_line
+
+        if (
+            self.line
+            and not self.skip
+            and not self.set_was_in_line
+            and not new_statement
+        ):
+            self.add_line_to_statement()
+
+        if final_line or new_statement:
+            # end of sql operation, remove ; from end of line
+            self.statement = self.statement[:-1]
+        elif last_line and not self.skip:
+            # continue combine lines in one massive
+            return
+
+        self.set_default_flags_in_lexer()
+
+        self.process_statement(new_statement)
+
+    def process_statement(self, new_statement):
+        if not self.set_line and self.statement:
+            self.parse_statement()
         if new_statement:
             self.statement = self.line
         else:
             self.statement = None
 
-    def parse_statement(self, tables: List) -> None:
+    def parse_statement(self) -> None:
         _parse_result = yacc.parse(self.statement)
 
         if _parse_result:
-            tables.append(_parse_result)
+            self.tables.append(_parse_result)
 
     def set_default_flags_in_lexer(self):
         attrs = [
@@ -253,24 +261,24 @@ class Parser:
         file_path: pass full path to ddl file if you want to use this
             file name as name for the target output file
         output_mode: change output mode to get information relative to specific dialect,
-            for example, in output_mode='hql' you will see also in tables such information as
+            for example, in output_mode='hql' you will see also in self.tables such information as
             'external', 'stored_as', etc. Possible variants: ["mssql", "mysql", "oracle", "hql", "sql", "redshift"]
-        group_by_type: if you set True, output will be formed as Dict with keys ['tables',
+        group_by_type: if you set True, output will be formed as Dict with keys ['self.tables',
                 'sequences', 'types', 'domains']
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each
             Dict == one entity from ddl - one table or sequence or type.
         """
-        tables = self.parse_data()
-        tables = result_format(tables, output_mode, group_by_type)
+        self.tables = self.parse_data()
+        self.tables = result_format(self.tables, output_mode, group_by_type)
         if dump:
             if file_path:
                 # if we run parse from one file - save same way to one file
                 dump_data_to_file(
-                    os.path.basename(file_path).split(".")[0], dump_path, tables
+                    os.path.basename(file_path).split(".")[0], dump_path, self.tables
                 )
             else:
-                for table in tables:
+                for table in self.tables:
                     dump_data_to_file(table["table_name"], dump_path, table)
         if json_dump:
-            tables = json.dumps(tables)
-        return tables
+            self.tables = json.dumps(self.tables)
+        return self.tables

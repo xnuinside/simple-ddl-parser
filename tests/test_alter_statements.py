@@ -1437,7 +1437,6 @@ CREATE TABLE employees (
 
 def test_alter_table_only():
     ddl = """
-        
     CREATE TABLE public.accounts (
         user_id integer NOT NULL,
         username character varying(50) NOT NULL,
@@ -1543,7 +1542,6 @@ def test_alter_table_only():
 
 def test_alter_table_if_exists():
     ddl = """
-       
     CREATE TABLE public.accounts (
         user_id integer NOT NULL,
         username character varying(50) NOT NULL,
