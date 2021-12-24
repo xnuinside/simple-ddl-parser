@@ -388,6 +388,22 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
+**v0.23.0**
+
+Big refactoring: less code complexity & increase code coverage. Radon added to pre-commit hooks.
+
+### Fixes:
+
+1. Fix for issue with ALTER UNIQUE - https://github.com/xnuinside/simple-ddl-parser/issues/101 
+
+### New Features
+
+1. SQL Comments string from DDL now parsed to "comments" key in output.
+
+PostgreSQL:
+
+2. Added support for ALTER TABLE ONLY | ALTER TABLE IF EXISTS
+
 **v0.22.5**
 ### Fixes:
 
