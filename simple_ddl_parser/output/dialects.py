@@ -133,24 +133,28 @@ def key_cleaning(table_data: Dict, output_mode: str) -> Dict:
     return table_data
 
 
+def process_redshift_dialect(table_data: List[Dict]) -> List[Dict]:
+    for column in table_data.get("columns", []):
+        column, table_data = add_additional_redshift_keys_in_column(column, table_data)
+        if table_data.get("encode"):
+            column["encode"] = column["encode"] or table_data.get("encode")
+    return table_data
+
+
 def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
     key_cleaning(table_data, output_mode)
     update_mappers_for_table_properties = {"bigquery": update_bigquery_output}
     update_table_prop = update_mappers_for_table_properties.get(output_mode)
+
     if update_table_prop:
         table_data = update_table_prop(table_data)
+
     if output_mode == "oracle":
         for column in table_data["columns"]:
             column = add_additional_oracle_keys_in_column(column)
-
     elif output_mode == "snowflake":
         for column in table_data["columns"]:
             column = add_additional_snowflake_keys_in_column(column)
     elif output_mode == "redshift":
-        for column in table_data.get("columns", []):
-            column, table_data = add_additional_redshift_keys_in_column(
-                column, table_data
-            )
-            if table_data.get("encode"):
-                column["encode"] = column["encode"] or table_data.get("encode")
+        table_data = process_redshift_dialect(table_data)
     return table_data

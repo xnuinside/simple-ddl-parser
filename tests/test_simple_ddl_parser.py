@@ -888,7 +888,8 @@ def test_defaults_with_comments():
             "schema": "v2",
             "table_name": "entitlement_requests",
             "tablespace": None,
-        }
+        },
+        {"comments": [" inline comment", " inline comment", " inline comment"]},
     ]
     assert expected == result
 
@@ -2137,6 +2138,9 @@ def test_ddl_properties():
         "sequences": [],
         "tables": [],
         "types": [],
+        "comments": [
+            "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: 9/29/2021 9:55:26 PM ******/"
+        ],
     }
 
     assert result == expected

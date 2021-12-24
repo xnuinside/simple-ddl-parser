@@ -6,7 +6,7 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
 ### Is it Stable?
 
-Yes, library already has about 7000+ downloads per day.
+Yes, library already has about 7000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
 
 As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
 
@@ -275,7 +275,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 
 - STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
-- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR
+- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS
 
 - PARTITION BY statement
 
@@ -388,6 +388,22 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
+**v0.23.0**
+
+Big refactoring: less code complexity & increase code coverage. Radon added to pre-commit hooks.
+
+### Fixes:
+
+1. Fix for issue with ALTER UNIQUE - https://github.com/xnuinside/simple-ddl-parser/issues/101 
+
+### New Features
+
+1. SQL Comments string from DDL now parsed to "comments" key in output.
+
+PostgreSQL:
+
+2. Added support for ALTER TABLE ONLY | ALTER TABLE IF EXISTS
+
 **v0.22.5**
 ### Fixes:
 

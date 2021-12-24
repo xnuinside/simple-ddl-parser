@@ -18,7 +18,7 @@ output_modes = [
 
 
 def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str]) -> Dict:
-    """ get table by name and schema or rise exception """
+    """get table by name and schema or rise exception"""
     target_table = tables_dict.get(table_id)
     if target_table is None:
         raise ValueError(
@@ -28,7 +28,7 @@ def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str]) -> 
 
 
 def add_index_to_table(tables_dict: Dict, statement: Dict, output_mode: str) -> Dict:
-    """ populate 'index' key in output data """
+    """populate 'index' key in output data"""
     table_id = (statement["table_name"], statement["schema"])
     target_table = get_table_from_tables_data(tables_dict, table_id)
 
@@ -44,7 +44,7 @@ def add_index_to_table(tables_dict: Dict, statement: Dict, output_mode: str) -> 
 
 
 def create_alter_column(index: int, column: Dict, ref_statement: Dict) -> Dict:
-    """ create alter column metadata """
+    """create alter column metadata"""
     column_reference = ref_statement["columns"][index]
     alter_column = {
         "name": column["name"],
@@ -57,7 +57,7 @@ def create_alter_column(index: int, column: Dict, ref_statement: Dict) -> Dict:
 
 
 def prepare_alter_columns(target_table: Dict, statement: Dict) -> Dict:
-    """ prepare alters column metadata """
+    """prepare alters column metadata"""
     alter_columns = []
     for num, column in enumerate(statement["columns"]):
         alter_columns.append(create_alter_column(num, column, statement["references"]))
@@ -69,7 +69,7 @@ def prepare_alter_columns(target_table: Dict, statement: Dict) -> Dict:
 
 
 def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
-    """ add 'alter' statement to the table """
+    """add 'alter' statement to the table"""
     table_id = (statement["alter_table_name"], statement["schema"])
 
     target_table = get_table_from_tables_data(tables_dict, table_id)
@@ -139,7 +139,7 @@ def process_alter_and_index_result(
 
 
 def process_entities(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
-    """ process tables, types, sequence and etc. data """
+    """process tables, types, sequence and etc. data"""
     table_data = init_table_data()
     table_data = d.populate_dialects_table_data(output_mode, table_data)
     not_table = False
@@ -160,7 +160,7 @@ def process_entities(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
 def result_format(
     result: List[Dict], output_mode: str, group_by_type: bool
 ) -> List[Dict]:
-    """ method to format final output after parser """
+    """method to format final output after parser"""
     final_result = []
     tables_dict = {}
     for table in result:
@@ -250,6 +250,7 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "domains": [],
         "schemas": [],
         "ddl_properties": [],
+        "comments": [],
     }
     keys_map = {
         "table_name": "tables",
@@ -260,6 +261,7 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
         "tablespace_name": "tablespaces",
         "database_name": "databases",
         "value": "ddl_properties",
+        "comments": "comments",
     }
     for item in final_result:
         for key in keys_map:
@@ -268,9 +270,13 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
                 if _type is None:
                     result_as_dict[keys_map.get(key)] = []
                     _type = result_as_dict[keys_map.get(key)]
-                _type.append(item)
+                if key != "comments":
+                    _type.append(item)
+                else:
+                    _type.append(item["comments"][0])
                 break
-
+    if result_as_dict["comments"] == []:
+        del result_as_dict["comments"]
     return result_as_dict
 
 
@@ -302,7 +308,7 @@ def check_pk_in_columns_and_constraints(table_data: Dict) -> Dict:
 
 
 def dump_data_to_file(table_name: str, dump_path: str, data: List[Dict]) -> None:
-    """ method to dump json schema """
+    """method to dump json schema"""
     if not os.path.isdir(dump_path):
         os.makedirs(dump_path, exist_ok=True)
     with open("{}/{}_schema.json".format(dump_path, table_name), "w+") as schema_file:
