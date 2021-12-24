@@ -141,13 +141,13 @@ class Parser:
             self.set_was_in_line = False
 
     def check_new_statement_start(self, line: str) -> bool:
-        new_statement = False
+        self.new_statement = False
         if self.statement and self.statement.count("(") == self.statement.count(")"):
             new_statements_tokens = ["ALTER ", "CREATE ", "DROP ", "SET "]
             for key in new_statements_tokens:
                 if line.upper().startswith(key):
-                    new_statement = True
-        return new_statement
+                    self.new_statement = True
+        return self.new_statement
 
     def check_line_on_skip_words(self) -> bool:
         skip_line_words = ["USE", "GO"]
@@ -160,10 +160,16 @@ class Parser:
         return self.skip
 
     def add_line_to_statement(self) -> str:
-        if self.statement is None:
-            self.statement = self.line
-        else:
-            self.statement += f" {self.line}"
+        if (
+            self.line
+            and not self.skip
+            and not self.set_was_in_line
+            and not self.new_statement
+        ):
+            if self.statement is None:
+                self.statement = self.line
+            else:
+                self.statement += f" {self.line}"
 
     def parse_data(self):
         self.tables: List[Dict] = []
@@ -192,19 +198,13 @@ class Parser:
 
         self.parse_set_statement()
         # to avoid issues when comma or parath are glued to column name
-        new_statement = self.check_new_statement_start(self.line)
+        self.check_new_statement_start(self.line)
 
         final_line = self.line.endswith(";") and not self.set_was_in_line
 
-        if (
-            self.line
-            and not self.skip
-            and not self.set_was_in_line
-            and not new_statement
-        ):
-            self.add_line_to_statement()
+        self.add_line_to_statement()
 
-        if final_line or new_statement:
+        if final_line or self.new_statement:
             # end of sql operation, remove ; from end of line
             self.statement = self.statement[:-1]
         elif last_line and not self.skip:
@@ -213,12 +213,12 @@ class Parser:
 
         self.set_default_flags_in_lexer()
 
-        self.process_statement(new_statement)
+        self.process_statement()
 
-    def process_statement(self, new_statement):
+    def process_statement(self):
         if not self.set_line and self.statement:
             self.parse_statement()
-        if new_statement:
+        if self.new_statement:
             self.statement = self.line
         else:
             self.statement = None

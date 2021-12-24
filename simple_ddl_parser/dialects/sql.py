@@ -1,6 +1,6 @@
 import re
 from copy import deepcopy
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 from simple_ddl_parser.utils import check_spec, remove_par
 
@@ -184,14 +184,22 @@ class Column:
             _type = self.process_type(_type, p_list, p)
         p[0]["type"] = _type
 
-    @staticmethod
-    def process_type(_type: str, p_list: List, p: List) -> str:
-        if isinstance(p_list[-1], str) and p_list[-1].lower() == "distkey":
-            p[0] = {"property": {"distkey": True}}
-            _type = _type.split("distkey")[0]
+    def process_type(self, _type: Union[str, List], p_list: List, p: List) -> str:
+
         if isinstance(_type, list):
             _type = _type[0]
+
+        elif isinstance(p_list[-1], str) and p_list[-1].lower() == "distkey":
+            p[0] = {"property": {"distkey": True}}
+            _type = _type.split("distkey")[0]
+
         _type = _type.strip().replace('" . "', '"."')
+
+        _type = self.process_array_types(_type, p_list)
+        return _type
+
+    @staticmethod
+    def process_array_types(_type: str, p_list: List) -> str:
         if "<" not in _type and "ARRAY" in _type:
             if "[" not in p_list[-1]:
                 _type = _type.replace(" ARRAY", "[]").replace("ARRAY", "[]")
@@ -393,27 +401,30 @@ class Schema:
         """
         p_list = list(p)
         p[0] = {}
-        auth_ind = None
+        auth_index = None
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
             self.set_properties_for_schema_and_database(p, p_list)
         elif auth in p_list:
-            auth_ind = p_list.index(auth)
+            auth_index = p_list.index(auth)
             self.set_auth_property_in_schema(p, p_list)
 
-        if isinstance(p_list[-1], str):
-            if auth_ind:
-                schema_name = p_list[auth_ind - 1]
+        elif isinstance(p_list[-1], str):
+            if auth_index:
+                schema_name = p_list[auth_index - 1]
                 if schema_name is None:
-                    schema_name = p_list[auth_ind + 1]
-
+                    schema_name = p_list[auth_index + 1]
             else:
                 schema_name = p_list[-1]
-
             p[0]["schema_name"] = schema_name.replace("`", "")
 
-        if len(p_list) > 4 and not auth_ind and "." in p_list:
-            p[0]["project"] = p_list[-3].replace("`", "")
+        p[0] = self.set_project_in_schema(p[0], p_list, auth_index)
+
+    @staticmethod
+    def set_project_in_schema(data: Dict, p_list: List, auth_index: int) -> Dict:
+        if len(p_list) > 4 and not auth_index and "." in p_list:
+            data["project"] = p_list[-3].replace("`", "")
+        return data
 
     def p_create_database(self, p: List) -> None:
         """create_database : CREATE DATABASE id
@@ -461,6 +472,32 @@ class Type:
             if p_list[-1] != ",":
                 p[0].append(p_list[-1])
 
+    @staticmethod
+    def add_columns_property_for_type(data: Dict, p_list: List) -> Dict:
+        if "TABLE" in p_list or isinstance(p_list[-1], dict) and p_list[-1].get("name"):
+            if not data["properties"].get("columns"):
+                data["properties"]["columns"] = []
+            data["properties"]["columns"].append(p_list[-1])
+        return data
+
+    @staticmethod
+    def set_base_type(data: Dict, p_list: List) -> Dict:
+        if len(p_list) > 3:
+            data["base_type"] = p_list[2]
+        else:
+            data["base_type"] = None
+        return data
+
+    @staticmethod
+    def process_str_base_type(data: Dict, p_list: List) -> Dict:
+        base_type = data["base_type"].upper()
+        if base_type == "ENUM":
+            data["properties"]["values"] = p_list[3]
+        elif data["base_type"] == "OBJECT":
+            if "type" in p_list[3][0]:
+                data["properties"]["attributes"] = p_list[3]
+        return data
+
     def p_type_definition(self, p: List) -> None:  # noqa: C901
         """type_definition : type_name id LP pid RP
         | type_name id LP multiple_column_names RP
@@ -474,26 +511,15 @@ class Type:
         if not p[0].get("properties"):
             p[0]["properties"] = {}
 
-        if "TABLE" in p_list or isinstance(p_list[-1], dict) and p_list[-1].get("name"):
-            if not p[0]["properties"].get("columns"):
-                p[0]["properties"]["columns"] = []
-            p[0]["properties"]["columns"].append(p_list[-1])
+        p[0] = self.add_columns_property_for_type(p[0], p_list)
 
-        if len(p_list) > 3:
-            p[0]["base_type"] = p_list[2]
-        else:
-            p[0]["base_type"] = None
+        p[0] = self.set_base_type(p[0], p_list)
+
         if isinstance(p[0]["base_type"], str):
-            base_type = p[0]["base_type"].upper()
-            if base_type == "ENUM":
-                p[0]["properties"]["values"] = p_list[3]
-            elif p[0]["base_type"] == "OBJECT":
-                if "type" in p_list[3][0]:
-                    p[0]["properties"]["attributes"] = p_list[3]
-        else:
-            if isinstance(p_list[-1], list):
-                for item in p_list[-1]:
-                    p[0]["properties"].update(item)
+            p[0] = self.process_str_base_type(p[0], p_list)
+        elif isinstance(p_list[-1], list):
+            for item in p_list[-1]:
+                p[0]["properties"].update(item)
 
     def p_expression_type_as(self, p: List) -> None:
         """expr : type_definition"""
@@ -549,7 +575,7 @@ class Domain:
 class BaseSQL(
     Database, Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces
 ):
-    def clean_up_id_list_in_equal(self, p_list: List) -> List:
+    def clean_up_id_list_in_equal(self, p_list: List) -> List:  # noqa R701
         if isinstance(p_list[1], str) and p_list[1].endswith("="):
             p_list[1] = p_list[1][:-1]
         elif "," in p_list:
@@ -669,6 +695,8 @@ class BaseSQL(
         else:
             check = p_list[-1]["check"]
             p[0] = self.set_constraint(p[0], "checks", check, check["constraint_name"])
+        if not p[0].get("checks"):
+            p[0]["checks"] = []
         p[0]["checks"].append(check)
         return p[0]
 
@@ -695,8 +723,8 @@ class BaseSQL(
         | expr RP
         """
         p[0] = p[1]
-        p_list = list(p)
-        if p_list[-1] != "," and p_list[-1] != ")":
+        p_list = remove_par(list(p))
+        if p_list[-1] != ",":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
             elif "check" in p_list[-1]:
@@ -708,57 +736,66 @@ class BaseSQL(
                 p[0].update(p_list[-1])
 
         if isinstance(p_list[-1], dict):
-            if "constraint" in p_list[-2]:
-                if p_list[-1].get("unique_statement"):
-                    p[0] = self.set_constraint(
-                        p[0],
-                        "uniques",
-                        {"columns": p_list[-1]["unique_statement"]},
-                        p_list[-2]["constraint"]["name"],
-                    )
-                else:
-                    p[0] = self.set_constraint(
-                        p[0],
-                        "primary_keys",
-                        {"columns": p_list[-1]["primary_key"]},
-                        p_list[-2]["constraint"]["name"],
-                    )
-            elif (
-                len(p_list) >= 4
-                and isinstance(p_list[3], dict)
-                and p_list[3].get("constraint")
-                and p_list[3]["constraint"].get("primary_key")
-            ):
-                del p_list[3]["constraint"]["primary_key"]
-                p[0] = self.set_constraint(
-                    target_dict=p[0],
-                    _type="primary_keys",
-                    constraint=p_list[3]["constraint"],
-                    constraint_name=p_list[3]["constraint"]["name"],
-                )
-                del p[0]["constraint"]
-            elif p_list[-1].get("references"):
-                p[0] = self.add_ref_information_to_table(p, p_list)
+            p[0] = self.process_constraints_and_refs(p[0], p_list)
 
-    def add_ref_information_to_table(self, p, p_list):
+    def process_unique_and_primary_constraint(self, data: Dict, p_list: List) -> Dict:
+        if p_list[-1].get("unique_statement"):
+            data = self.set_constraint(
+                data,
+                "uniques",
+                {"columns": p_list[-1]["unique_statement"]},
+                p_list[-2]["constraint"]["name"],
+            )
+        else:
+            data = self.set_constraint(
+                data,
+                "primary_keys",
+                {"columns": p_list[-1]["primary_key"]},
+                p_list[-2]["constraint"]["name"],
+            )
+        return data
+
+    def process_constraints_and_refs(self, data: Dict, p_list: List) -> Dict:
+
+        if "constraint" in p_list[-2]:
+            data = self.process_unique_and_primary_constraint(data, p_list)
+        elif (
+            len(p_list) >= 4
+            and isinstance(p_list[3], dict)
+            and p_list[3].get("constraint")
+            and p_list[3]["constraint"].get("primary_key")
+        ):
+            del p_list[3]["constraint"]["primary_key"]
+            data = self.set_constraint(
+                target_dict=data,
+                _type="primary_keys",
+                constraint=p_list[3]["constraint"],
+                constraint_name=p_list[3]["constraint"]["name"],
+            )
+            del data["constraint"]
+        elif p_list[-1].get("references"):
+            data = self.add_ref_information_to_table(data, p_list)
+        return data
+
+    def add_ref_information_to_table(self, data, p_list):
         if len(p_list) > 4 and "constraint" in p_list[3]:
-            p[0] = self.set_constraint(
-                p[0],
+            data = self.set_constraint(
+                data,
                 "references",
                 p_list[-1]["references"],
                 p_list[3]["constraint"]["name"],
             )
         elif isinstance(p_list[-2], list):
-            if "ref_columns" not in p[0]:
-                p[0]["ref_columns"] = []
+            if "ref_columns" not in data:
+                data["ref_columns"] = []
 
             for num, column in enumerate(p_list[-2]):
                 ref = deepcopy(p_list[-1]["references"])
                 ref["column"] = ref["columns"][num]
                 del ref["columns"]
                 ref["name"] = column
-                p[0]["ref_columns"].append(ref)
-        return p[0]
+                data["ref_columns"].append(ref)
+        return data
 
     @staticmethod
     def set_constraint(
@@ -1000,31 +1037,41 @@ class BaseSQL(
         """
         p_list = list(p)
 
-        if len(p_list) == 5 and isinstance(p[3], list):
-            default = p[3][0]
-        elif "DEFAULT" in p_list and len(p_list) == 4:
-            default = f"{p[2]} {p[3]}"
-        else:
-            default = p[2]
+        default = self.pre_process_default(p_list)
 
         if not isinstance(default, dict) and default.isnumeric():
             default = int(default)
 
         if isinstance(p[1], dict):
-            p[0] = p[1]
-            if "FOR" in default:
-                p[0]["default"] = {"next_value_for": p_list[-1]}
-            else:
-                for i in p[2:]:
-                    if isinstance(p[2], str):
-                        p[2] = p[2].replace("\\'", "'")
-                        if i == ")" or i == "(":
-                            p[0]["default"] = str(p[0]["default"]) + f"{i}"
-                        else:
-                            p[0]["default"] = str(p[0]["default"]) + f" {i}"
-                        p[0]["default"] = p[0]["default"].replace("))", ")")
+            p[0] = self.process_dict_default_value(p_list, default)
         else:
             p[0] = {"default": default}
+
+    @staticmethod
+    def pre_process_default(p_list: List) -> Any:
+        if len(p_list) == 5 and isinstance(p_list[3], list):
+            default = p_list[3][0]
+        elif "DEFAULT" in p_list and len(p_list) == 4:
+            default = f"{p_list[2]} {p_list[3]}"
+        else:
+            default = p_list[2]
+        return default
+
+    @staticmethod
+    def process_dict_default_value(p_list: List, default: Any) -> Dict:
+        data = p_list[1]
+        if "FOR" in default:
+            data["default"] = {"next_value_for": p_list[-1]}
+        else:
+            for i in p_list[2:]:
+                if isinstance(p_list[2], str):
+                    p_list[2] = p_list[2].replace("\\'", "'")
+                    if i == ")" or i == "(":
+                        data["default"] = str(data["default"]) + f"{i}"
+                    else:
+                        data["default"] = str(data["default"]) + f" {i}"
+                    data["default"] = data["default"].replace("))", ")")
+        return data
 
     def p_enforced(self, p: List) -> None:
         """enforced : ENFORCED
@@ -1282,16 +1329,21 @@ class BaseSQL(
         else:
             data = {"references": self.extract_references(p_list[-1])}
             p[0] = data
+        p[0] = self.process_references_with_properties(p[0], p_list)
+
+    @staticmethod
+    def process_references_with_properties(data: Dict, p_list: List) -> Dict:
         if "ON" in p_list:
             if "DELETE" in p_list:
-                p[0]["references"]["on_delete"] = p_list[-1]
+                data["references"]["on_delete"] = p_list[-1]
             elif "UPDATE" in p_list:
-                p[0]["references"]["on_update"] = p_list[-1]
+                data["references"]["on_update"] = p_list[-1]
         elif "DEFERRABLE" in p_list:
             if "NOT" not in p_list:
-                p[0]["references"]["deferrable_initially"] = p_list[-1]
+                data["references"]["deferrable_initially"] = p_list[-1]
             else:
-                p[0]["references"]["deferrable_initially"] = "NOT"
+                data["references"]["deferrable_initially"] = "NOT"
+        return data
 
     def p_expression_primary_key(self, p):
         "expr : pkey"
@@ -1321,7 +1373,9 @@ class BaseSQL(
         p_list = remove_par(list(p))
 
         columns = []
+
         p[0] = {}
+
         if isinstance(p_list[2], str) and "CLUSTERED" == p_list[2]:
             order = None
             column = None
@@ -1336,13 +1390,16 @@ class BaseSQL(
                     order = None
             p[0]["clustered_primary_key"] = columns
 
+        p[0] = self.process_order_in_pk(p[0], p_list)
+
+    @staticmethod
+    def process_order_in_pk(data: Dict, p_list: List) -> Dict:
         columns = []
         for item in p_list[-1]:
             if item not in ["ASC", "DESC"]:
                 columns.append(item)
-            else:
-                order = item
-        p[0]["primary_key"] = columns
+        data["primary_key"] = columns
+        return data
 
     def p_pkey_statement(self, p: List) -> None:
         """pkey_statement : PRIMARY KEY"""
