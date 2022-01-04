@@ -44,7 +44,7 @@ class HQL:
     def p_multi_assigments(self, p):
         """multi_assigments : LP assigment
         | multi_assigments RP
-        | multi_assigments COMMA assigment RP"""
+        | multi_assigments COMMA assigment"""
         p_list = remove_par(list(p))
         p[0] = p_list[1]
         p[0].update(p_list[-1])
