@@ -1924,3 +1924,264 @@ def test_allow_use_tags_in_column_names():
         "types": [],
     }
     assert expected == result
+
+
+def test_clustered():
+    ddl = """
+        CREATE TABLE user_info_bucketed(user_id BIGINT, firstname STRING, lastname STRING)
+    COMMENT 'A bucketed copy of user_info'
+    PARTITIONED BY(ds STRING)
+    CLUSTERED BY(user_id)
+    CLUSTERED ON(user_id);
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "clustered_by": ["user_id"],
+                "clustered_on": ["user_id"],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "user_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "BIGINT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "firstname",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "lastname",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                ],
+                "comment": "'A bucketed copy of user_info'",
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [{"name": "ds", "size": None, "type": "STRING"}],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": None,
+                "table_name": "user_info_bucketed",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_into_buckets():
+
+    ddl = """
+        CREATE TABLE user_info_bucketed(user_id BIGINT, firstname STRING, lastname STRING)
+    COMMENT 'A bucketed copy of user_info'
+    PARTITIONED BY(ds STRING)
+    CLUSTERED BY(user_id) INTO 256 BUCKETS;
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "clustered_by": ["user_id"],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "user_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "BIGINT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "firstname",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "lastname",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                ],
+                "comment": "'A bucketed copy of user_info'",
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "into_buckets": "256",
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [{"name": "ds", "size": None, "type": "STRING"}],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": None,
+                "table_name": "user_info_bucketed",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_clustered_by_multiple_columns():
+
+    ddl = """
+
+    set hive.enforce.bucketing = true;
+        CREATE TABLE user_info_bucketed(user_id BIGINT, firstname STRING, lastname STRING)
+    COMMENT 'A bucketed copy of user_info'
+    PARTITIONED BY(ds STRING)
+    CLUSTERED BY(user_id, new_column, one_more_column) INTO 256 BUCKETS;
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "ddl_properties": [{"name": "hive.enforce.bucketing", "value": "true"}],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "clustered_by": ["user_id", "new_column", "one_more_column"],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "user_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "BIGINT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "firstname",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "lastname",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                ],
+                "comment": "'A bucketed copy of user_info'",
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "into_buckets": "256",
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [{"name": "ds", "size": None, "type": "STRING"}],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": None,
+                "table_name": "user_info_bucketed",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_hql_create_remote_schema():
+
+    ddl = """
+
+    CREATE REMOTE SCHEMA one;
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [{"properties": "one", "remote": True, "schema_name": "one"}],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_remote_database():
+
+    ddl = """
+
+    CREATE REMOTE DATABASE one;
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "databases": [{"database_name": "one", "remote": True}],
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
+    assert expected == result

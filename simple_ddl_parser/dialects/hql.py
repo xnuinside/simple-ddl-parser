@@ -8,6 +8,19 @@ class HQL:
         p_list = list(p)
         p[0]["location"] = p_list[-1]
 
+    def p_expression_clustered(self, p):
+        """expr : expr ID ON LP pid RP
+        |  expr ID BY LP pid RP"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0][f"{p_list[2].lower()}_{p_list[3].lower()}"] = p_list[-2]
+
+    def p_expression_into_buckets(self, p):
+        """expr : expr INTO ID ID"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0][f"{p_list[2].lower()}_{p_list[-1].lower()}"] = p_list[-2]
+
     def p_row_format(self, p):
         """row_format : ROW FORMAT SERDE
         | ROW FORMAT

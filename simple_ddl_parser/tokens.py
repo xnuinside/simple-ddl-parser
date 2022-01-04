@@ -66,6 +66,7 @@ after_columns_tokens = {
     "PARTITION": "PARTITION",
     "BY": "BY",
     # hql
+    "INTO": "INTO",
     "STORED": "STORED",
     "LOCATION": "LOCATION",
     "ROW": "ROW",

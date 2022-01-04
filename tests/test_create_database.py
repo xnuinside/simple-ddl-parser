@@ -26,3 +26,23 @@ def test_parse_properties_in_create_db():
         "ddl_properties": [],
     }
     assert expected == result
+
+
+def test_create_database_database():
+    expected = {
+        "databases": [{"database_name": "database"}],
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [{"schema_name": "SCHEMA"}],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
+
+    ddl = """
+
+    CREATE DATABASE database;
+    CREATE SCHEMA SCHEMA;
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    assert expected == result
