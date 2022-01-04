@@ -1718,7 +1718,9 @@ def test_table_properties():
     STORED AS PARQUET LOCATION 'hdfs://test'
     TBLPROPERTIES (
     'parquet.compression'='SNAPPY',
-    'parquet.compression2'='SNAPPY2'
+    'parquet.compression2'='SNAPPY2',
+    'parquet.compression3'='SNAPPY3',
+    'parquet.compression4'='SNAPPY4'
     )
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
@@ -1762,6 +1764,8 @@ def test_table_properties():
                 "tblproperties": {
                     "'parquet.compression'": "'SNAPPY'",
                     "'parquet.compression2'": "'SNAPPY2'",
+                    "'parquet.compression3'": "'SNAPPY3'",
+                    "'parquet.compression4'": "'SNAPPY4'",
                 },
             }
         ],
