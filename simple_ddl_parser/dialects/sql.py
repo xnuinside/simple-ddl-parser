@@ -26,22 +26,28 @@ class AfterColumns:
 
 
 class Database:
-    def p_database_base(self, p: List) -> None:
-        """database_base : CREATE DATABASE id
-        | database_base clone
-        """
-        p[0] = p[1]
-        p_list = list(p)
-        if isinstance(p_list[-1], dict):
-            p[0].update(p_list[-1])
-        else:
-            p[0]["database_name"] = p_list[-1]
-
     def p_expression_create_database(self, p: List) -> None:
         """expr : expr database_base"""
         p[0] = p[1]
         p_list = list(p)
         p[0].update(p_list[-1])
+
+    def p_database_base(self, p: List) -> None:
+        """database_base : CREATE DATABASE id
+        | CREATE ID DATABASE id
+        | database_base clone
+        """
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+        else:
+            p[0] = {}
+        p_list = list(p)
+        if isinstance(p_list[-1], dict):
+            p[0].update(p_list[-1])
+        else:
+            p[0]["database_name"] = p_list[-1]
+        if len(p_list) == 5:
+            p[0][p[2].lower()] = True
 
 
 class TableSpaces:
@@ -372,9 +378,12 @@ class Schema:
         if not p[0].get("properties"):
             if len(p_list) == 3:
                 properties = p_list[-1]
-            else:
+            elif len(p_list) > 3:
                 properties = {p_list[-3]: p_list[-1]}
-            p[0]["properties"] = properties
+            else:
+                properties = {}
+            if properties:
+                p[0]["properties"] = properties
         else:
             p[0]["properties"].update({p_list[-3]: p_list[-1]})
 
@@ -385,8 +394,10 @@ class Schema:
             p[0] = {"schema_name": p_list[2], auth.lower(): p_list[-1]}
 
     def p_c_schema(self, p: List) -> None:
-        """c_schema : CREATE SCHEMA"""
-        pass
+        """c_schema : CREATE SCHEMA
+        | CREATE ID SCHEMA"""
+        if len(p) == 4:
+            p[0] = {"remote": True}
 
     def p_create_schema(self, p: List) -> None:
         """create_schema : c_schema id id
@@ -409,7 +420,7 @@ class Schema:
             auth_index = p_list.index(auth)
             self.set_auth_property_in_schema(p, p_list)
 
-        elif isinstance(p_list[-1], str):
+        if isinstance(p_list[-1], str):
             if auth_index:
                 schema_name = p_list[auth_index - 1]
                 if schema_name is None:
@@ -427,7 +438,7 @@ class Schema:
         return data
 
     def p_create_database(self, p: List) -> None:
-        """create_database : CREATE DATABASE id
+        """create_database : database_base
         | create_database id id id
         | create_database id id STRING
         | create_database options
@@ -703,6 +714,7 @@ class BaseSQL(
     def p_expression_table(self, p: List) -> None:
         """expr : table_name defcolumn
         | table_name LP defcolumn
+        | table_name
         | expr COMMA defcolumn
         | expr COMMA
         | expr COMMA constraint
@@ -1142,7 +1154,6 @@ class BaseSQL(
         | alter_default
         """
         p[0] = p[1]
-        print(p[0], "expe")
         if len(p) == 3:
             p[0].update(p[2])
 
@@ -1152,7 +1163,6 @@ class BaseSQL(
         """
 
         p_list = remove_par(list(p))
-        print(p_list, "unique")
         p[0] = p[1]
         p[0]["unique"] = {"constraint_name": None, "columns": p_list[-1]}
         if "constraint" in p[2]:

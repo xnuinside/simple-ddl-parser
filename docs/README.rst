@@ -25,7 +25,7 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 Is it Stable?
 ^^^^^^^^^^^^^
 
-Yes, library already has about 7000+ downloads per day.
+Yes, library already has about 7000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
 
 As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
 
@@ -342,6 +342,7 @@ HQL Dialect statements
 * FIELDS TERMINATED BY, LINES TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
 * TBLPROPERTIES ('parquet.compression'='SNAPPY' & etc.)
 * SKEWED BY
+* CLUSTERED BY 
 
 MySQL
 ^^^^^
@@ -446,6 +447,36 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 Changelog
 ---------
+
+**v0.24.0**
+
+Fixes:
+------
+
+HQL:
+^^^^
+
+
+#. More then 2 tblproperties now are parsed correctly https://github.com/xnuinside/simple-ddl-parser/pull/104 
+
+Common:
+^^^^^^^
+
+
+#. 'set' in lower case now also parsed validly.
+#. Now names like 'schema', 'database', 'table' can be used as names in CREATE DABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT. 
+#. Creation of empty tables also parsed correctly (like CREATE Table table;).
+
+New Statements Support:
+-----------------------
+
+HQL:
+^^^^
+
+
+#. Added support for CLUSTERED BY - https://github.com/xnuinside/simple-ddl-parser/issues/103
+#. Added support for  INTO ... BUCKETS
+#. CREATE REMOTE DATABASE | SCHEMA
 
 **v0.23.0**
 

@@ -84,11 +84,13 @@ class DDLParser(
     def t_STRING(self, t):
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
+        self.lexer.last_token = t.type
         return t
 
     def t_DQ_STRING(self, t):
         r"((\")([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}'\[\]\/\\\\#\*&^|?;±§@~]*)(\")){1}"
         t.type = "DQ_STRING"
+        self.lexer.last_token = t.type
         return t
 
     def is_token_column_name(self, t):
@@ -103,9 +105,31 @@ class DDLParser(
             and t.value.upper() not in tok.first_liners
         )
 
+    def is_creation_name(self, t):
+        """many of reserved words can be used as column name,
+        to decide is it a column name or not we need do some checks"""
+        skip_id_tokens = ["(", ")", ","]
+        return (
+            t.value not in skip_id_tokens
+            and t.value.upper() not in ["IF"]
+            and self.lexer.last_token
+            in [
+                "SCHEMA",
+                "TABLE",
+                "DATABASE",
+                "TYPE",
+                "DOMAIN",
+                "TABLESPACE",
+                "INDEX",
+                "CONSTRAINT",
+                "EXISTS",
+            ]
+        )
+
     def t_ID(self, t):
         r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*\()!{}\[\]\`\[\]]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
+
         if t.type == "LP":
             self.lexer.lp_open += 1
             self.lexer.columns_def = True
@@ -114,16 +138,21 @@ class DDLParser(
 
         elif self.is_token_column_name(t):
             t.type = "ID"
+        elif t.type != "DQ_STRING" and self.is_creation_name(t):
+            t.type = "ID"
         else:
             t = self.tokens_not_columns_names(t)
 
-        # capitalize tokens
-        if t.type != "ID" and t.type not in ["LT", "RT"]:
-            t.value = t.value.upper()
+        self.capitalize_tokens(t)
 
         if t.type == "COMMA" and self.lexer.lt_open:
             t.type = "COMMAT"
+
         return self.set_last_token(t)
+
+    def capitalize_tokens(self, t):
+        if t.type != "ID" and t.type not in ["LT", "RT"]:
+            t.value = t.value.upper()
 
     def set_last_token(self, t):
         self.lexer.last_token = t.type

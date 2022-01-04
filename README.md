@@ -308,6 +308,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 - FIELDS TERMINATED BY, LINES TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
 - TBLPROPERTIES ('parquet.compression'='SNAPPY' & etc.)
 - SKEWED BY
+- CLUSTERED BY 
 
 ### MySQL
 
@@ -388,6 +389,28 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
+**v0.24.0**
+
+## Fixes:
+
+### HQL: 
+
+1. More then 2 tblproperties now are parsed correctly https://github.com/xnuinside/simple-ddl-parser/pull/104 
+
+
+### Common:
+
+2. 'set' in lower case now also parsed validly.
+3. Now names like 'schema', 'database', 'table' can be used as names in CREATE DABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT. 
+4. Creation of empty tables also parsed correctly (like CREATE Table table;).
+
+## New Statements Support: 
+
+### HQL: 
+1. Added support for CLUSTERED BY - https://github.com/xnuinside/simple-ddl-parser/issues/103
+2. Added support for  INTO ... BUCKETS
+3. CREATE REMOTE DATABASE | SCHEMA
+
 **v0.23.0**
 
 Big refactoring: less code complexity & increase code coverage. Radon added to pre-commit hooks.

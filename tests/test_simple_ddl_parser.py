@@ -2333,3 +2333,43 @@ def test_schema_with_project_name():
         "types": [],
     }
     assert expected == result
+
+
+def test_create_empty_table():
+
+    ddl = """
+
+            CREATE TABLE "material_attachments"
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [],
+                "comment": None,
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": None,
+                "table_name": '"material_attachments"',
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

@@ -162,3 +162,21 @@ def test_parse_validly_tables_after_set():
         "types": [],
     }
     assert expected == result
+
+
+def test_set_lower_parsed():
+
+    ddl = """
+
+    set hive.enforce.bucketing = true;
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "ddl_properties": [{"name": "hive.enforce.bucketing", "value": "true"}],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [],
+        "types": [],
+    }
+    assert expected == result
