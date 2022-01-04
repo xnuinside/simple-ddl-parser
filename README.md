@@ -387,6 +387,9 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/ankitdata ,
 * https://github.com/kalyan939
 
+for contributions in parser:
+https://github.com/swiatek25 
+
 
 ## Changelog
 **v0.24.0**
