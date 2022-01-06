@@ -88,7 +88,6 @@ class HQL:
         """
         p[0] = p[1]
         p_list = list(p)
-        print(p_list)
         p[0][f"{p[2].lower()}_terminated_by"] = check_spec(p_list[-1])
 
     def p_expression_map_keys_terminated_by(self, p):
