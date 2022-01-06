@@ -112,6 +112,12 @@ class TableSpaces:
 
 
 class Table:
+    @staticmethod
+    def add_if_not_exists(data: Dict, p_list: List):
+        if "EXISTS" in p_list:
+            data["if_not_exists"] = True
+        return data
+
     def p_create_table(self, p: List):
         """create_table : CREATE TABLE IF NOT EXISTS
         | CREATE TABLE
@@ -122,10 +128,13 @@ class Table:
         # id - for EXTERNAL
         # get schema & table name
         p[0] = {}
+        p_list = list(p)
+        self.add_if_not_exists(p[0], p_list)
+
         if p[2].upper() == "EXTERNAL":
-            p[0] = {"external": True}
+            p[0]["external"] = True
         if p[2].upper() == "TEMP" or p[2].upper() == "TEMPORARY":
-            p[0] = {"temp": True}
+            p[0]["temp"] = True
 
 
 class Column:
@@ -413,6 +422,8 @@ class Schema:
         p_list = list(p)
         p[0] = {}
         auth_index = None
+
+        self.add_if_not_exists(p[0], p_list)
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
             self.set_properties_for_schema_and_database(p, p_list)
@@ -930,7 +941,8 @@ class BaseSQL(
 
         """
         # get schema & table name
-        pass
+
+        self.add_if_not_exists(p[0], list(p))
 
     def p_tid(self, p: List) -> None:
         """tid : LT id

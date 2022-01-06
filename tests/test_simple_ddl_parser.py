@@ -1201,6 +1201,7 @@ def test_comments_in_columns():
     expected = {
         "tables": [
             {
+                "if_not_exists": True,
                 "columns": [
                     {
                         "name": "col1",
@@ -1255,6 +1256,7 @@ CREATE TABLE IF NOT EXISTS users (
     expected = {
         "tables": [
             {
+                "if_not_exists": True,
                 "columns": [
                     {
                         "name": "id",
@@ -1334,7 +1336,10 @@ def test_schema():
         "types": [],
         "sequences": [],
         "domains": [],
-        "schemas": [{"schema_name": "bob"}, {"schema_name": "schema_name"}],
+        "schemas": [
+            {"schema_name": "bob"},
+            {"if_not_exists": True, "schema_name": "schema_name"},
+        ],
     }
 
     ddl = """
@@ -1862,6 +1867,7 @@ def test_tabs_not_fails_ddl():
         "sequences": [],
         "tables": [
             {
+                "if_not_exists": True,
                 "alter": {},
                 "checks": [],
                 "columns": [
@@ -1950,6 +1956,7 @@ def test_quotes():
             "external": False,
             "schema": "`shema`",
             "table_name": "table",
+            "if_not_exists": True,
         }
     ]
     assert expected == parse_result
@@ -2327,7 +2334,9 @@ def test_schema_with_project_name():
     expected = {
         "ddl_properties": [],
         "domains": [],
-        "schemas": [{"project": "my", "schema_name": "data-cdh-hub"}],
+        "schemas": [
+            {"if_not_exists": True, "project": "my", "schema_name": "data-cdh-hub"}
+        ],
         "sequences": [],
         "tables": [],
         "types": [],

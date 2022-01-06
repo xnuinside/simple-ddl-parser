@@ -392,6 +392,15 @@ https://github.com/swiatek25
 
 
 ## Changelog
+**v0.24.1**
+
+## Fixes:
+### HQL: 
+1. fields_terminated_by now parses , as "','", not as '' previously
+
+### Common:
+1. To output added 'if_not_exists' field in result to get availability 1-to-1 re-create ddl by metadata. 
+
 **v0.24.0**
 
 ## Fixes:

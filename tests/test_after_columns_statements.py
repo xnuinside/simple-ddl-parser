@@ -23,6 +23,7 @@ def test_partitioned_by_hql():
 
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "day_long_nm",
@@ -229,6 +230,7 @@ def test_stored_as_parsed_but_not_showed():
     result = DDLParser(ddl).run()
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "day_long_nm",
@@ -355,6 +357,7 @@ def test_location_parsed_but_not_showed():
     result = DDLParser(ddl).run()
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "day_long_nm",
@@ -605,6 +608,7 @@ def test_row_format_is_not_showed():
     result = DDLParser(ddl).run()
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "SalesOrderID",
@@ -677,6 +681,7 @@ def test_fields_terminated_by_not_showed():
     result = DDLParser(ddl).run()
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "SalesOrderID",
@@ -750,6 +755,7 @@ def test_collection_items_terminated_by_not_showed():
     result = DDLParser(ddl).run()
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "SalesOrderID",
@@ -826,6 +832,7 @@ def test_map_keys_terminated_not_showed():
 
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "SalesOrderID",

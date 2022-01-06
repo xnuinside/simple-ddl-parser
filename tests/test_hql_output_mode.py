@@ -35,6 +35,7 @@ def test_partitioned_by_hql_output_mode_hql():
 
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "day_long_nm",
@@ -146,6 +147,7 @@ def test_partitioned_by_hql_output_mode_hql():
             "comment": None,
         },
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "day_long_nm",
@@ -281,6 +283,7 @@ def test_stored_as_hql_showed():
     result = DDLParser(ddl).run(output_mode="hql")
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "day_long_nm",
@@ -415,6 +418,7 @@ def test_location_showed():
     result = DDLParser(ddl).run(output_mode="hql")
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "day_long_nm",
@@ -683,6 +687,7 @@ def test_hql_row_format():
     result = DDLParser(ddl).run(output_mode="hql")
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "SalesOrderID",
@@ -764,6 +769,7 @@ def test_fields_terminated_by_hql():
     result = DDLParser(ddl).run(output_mode="hql")
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "SalesOrderID",
@@ -814,7 +820,7 @@ def test_fields_terminated_by_hql():
             "stored_as": "TEXTFILE",
             "location": None,
             "row_format": "DELIMITED",
-            "fields_terminated_by": ",",
+            "fields_terminated_by": "','",
             "external": False,
             "schema": "default",
             "table_name": "salesorderdetail",
@@ -846,6 +852,7 @@ def test_collection_items_terminated_by_hql():
     result = DDLParser(ddl).run(output_mode="hql")
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "SalesOrderID",
@@ -930,6 +937,7 @@ def test_map_keys_terminated_by_hql():
 
     expected = [
         {
+            "if_not_exists": True,
             "columns": [
                 {
                     "name": "SalesOrderID",
@@ -980,7 +988,7 @@ def test_map_keys_terminated_by_hql():
             "stored_as": "TEXTFILE",
             "location": None,
             "row_format": "DELIMITED",
-            "fields_terminated_by": ",",
+            "fields_terminated_by": "','",
             "external": False,
             "schema": "default",
             "table_name": "salesorderdetail",
@@ -1059,6 +1067,7 @@ def test_complex_structure_test_hql():
     expected = {
         "tables": [
             {
+                "if_not_exists": True,
                 "columns": [
                     {
                         "name": "column_abc",
@@ -1179,6 +1188,7 @@ def test_comment_and_lines():
         "schemas": [],
         "tables": [
             {
+                "if_not_exists": True,
                 "alter": {},
                 "checks": [],
                 "collection_items_terminated_by": None,
@@ -1899,6 +1909,7 @@ def test_allow_use_tags_in_column_names():
         "sequences": [],
         "tables": [
             {
+                "if_not_exists": True,
                 "alter": {},
                 "checks": [],
                 "columns": [
