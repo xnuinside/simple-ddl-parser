@@ -108,6 +108,7 @@ def test_schema_options():
         "domains": [],
         "schemas": [
             {
+                "if_not_exists": True,
                 "properties": {"options": [{"location": '"path"'}]},
                 "schema_name": "name-name",
             }
@@ -139,6 +140,7 @@ def test_two_options_values():
                         {"second_option": "second_value"},
                     ]
                 },
+                "if_not_exists": True,
                 "schema_name": "name-name",
             }
         ],
@@ -174,6 +176,7 @@ def test_long_string_in_option():
                         }
                     ]
                 },
+                "if_not_exists": True,
                 "schema_name": "name-name",
             }
         ],
@@ -429,6 +432,7 @@ def test_table_name_with_project_id():
                 "properties": {"options": [{"location": '"project-location"'}]},
                 "schema_name": "calender",
                 "project": "project",
+                "if_not_exists": True,
             }
         ],
         "sequences": [],
@@ -589,6 +593,7 @@ def test_multiple_options():
                 "properties": {"options": [{"location": '"project-location"'}]},
                 "schema_name": "calender",
                 "project": "project",
+                "if_not_exists": True,
             }
         ],
         "sequences": [],

@@ -84,14 +84,12 @@ class DDLParser(
     def t_STRING(self, t):
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
-        self.lexer.last_token = t.type
-        return t
+        return self.set_last_token(t)
 
     def t_DQ_STRING(self, t):
         r"((\")([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}'\[\]\/\\\\#\*&^|?;±§@~]*)(\")){1}"
         t.type = "DQ_STRING"
-        self.lexer.last_token = t.type
-        return t
+        return self.set_last_token(t)
 
     def is_token_column_name(self, t):
         """many of reserved words can be used as column name,
@@ -148,14 +146,15 @@ class DDLParser(
         if t.type == "COMMA" and self.lexer.lt_open:
             t.type = "COMMAT"
 
+        self.set_lexx_tags(t)
+
         return self.set_last_token(t)
 
     def capitalize_tokens(self, t):
         if t.type != "ID" and t.type not in ["LT", "RT"]:
             t.value = t.value.upper()
 
-    def set_last_token(self, t):
-        self.lexer.last_token = t.type
+    def set_lexx_tags(self, t):
         if t.type in ["RP", "LP"]:
             if t.type == "RP" and self.lexer.lp_open:
                 self.lexer.lp_open -= 1
@@ -164,6 +163,9 @@ class DDLParser(
             self.lexer.is_table = False
         elif t.type in ["TABLE", "INDEX"]:
             self.lexer.is_table = True
+
+    def set_last_token(self, t):
+        self.lexer.last_token = t.type
         return t
 
     def p_id(self, p):
