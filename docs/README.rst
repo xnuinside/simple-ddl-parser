@@ -422,6 +422,8 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
       =|<|>|<=..., "value": value}]
 
 
+#. Add support for ALTER TABLE ... ADD INDEX 
+
 non-feature todo
 ----------------
 
@@ -450,6 +452,14 @@ https://github.com/swiatek25
 
 Changelog
 ---------
+
+**v0.24.2**
+
+Fixes:
+------
+
+
+#. Fix for the issue: https://github.com/xnuinside/simple-ddl-parser/issues/108 (reserved words can be used as table name after '.')
 
 **v0.24.1**
 

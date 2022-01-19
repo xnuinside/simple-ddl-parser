@@ -368,6 +368,7 @@ You also can provide a path where you want to have a dumps with schema with argu
 2. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
 3. Change output for CHECKS -> 'checks': [{"column_name": str, "operator": =
 >=|<|>|<=..., "value": value}]
+4. Add support for ALTER TABLE ... ADD INDEX 
 
 ## non-feature todo
 
@@ -392,6 +393,12 @@ https://github.com/swiatek25
 
 
 ## Changelog
+**v0.24.2**
+## Fixes:
+
+1. Fix for the issue: https://github.com/xnuinside/simple-ddl-parser/issues/108 (reserved words can be used as table name after '.')
+
+
 **v0.24.1**
 
 ## Fixes:

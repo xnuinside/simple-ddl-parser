@@ -2382,3 +2382,117 @@ def test_create_empty_table():
         "types": [],
     }
     assert expected == result
+
+
+def test_table_name_reserved_word_after_dot():
+
+    ddl = """create table index (col1 int);
+
+    create table foo.[index] (col1 int);
+
+    create table foo.index (col1 int);
+        """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "col1",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": None,
+                "schema": None,
+                "stored_as": None,
+                "table_name": "index",
+                "tablespace": None,
+            },
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "col1",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": None,
+                "schema": "foo",
+                "stored_as": None,
+                "table_name": "[index]",
+                "tablespace": None,
+            },
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "col1",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "row_format": None,
+                "schema": "foo",
+                "stored_as": None,
+                "table_name": "index",
+                "tablespace": None,
+            },
+        ],
+        "types": [],
+    }
+    assert expected == result
