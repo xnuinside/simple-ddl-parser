@@ -18,7 +18,6 @@ class DDLParser(
 
     tokens = tok.tokens
     t_ignore = "\t  \r"
-    t_DOT = r"."
 
     def get_tag_symbol_value_and_increment(self, t):
         # todo: need to find less hacky way to parse HQL structure types
@@ -81,6 +80,11 @@ class DDLParser(
         elif t.type == "CHECK":
             self.lexer.check = True
 
+    def t_DOT(self, t):
+        r"\."
+        t.type = "DOT"
+        return self.set_last_token(t)
+
     def t_STRING(self, t):
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
@@ -134,7 +138,7 @@ class DDLParser(
             self.lexer.last_token = "LP"
             return t
 
-        elif self.is_token_column_name(t):
+        elif self.is_token_column_name(t) or self.lexer.last_token == "DOT":
             t.type = "ID"
         elif t.type != "DQ_STRING" and self.is_creation_name(t):
             t.type = "ID"
@@ -142,13 +146,15 @@ class DDLParser(
             t = self.tokens_not_columns_names(t)
 
         self.capitalize_tokens(t)
-
-        if t.type == "COMMA" and self.lexer.lt_open:
-            t.type = "COMMAT"
+        self.commat_type(t)
 
         self.set_lexx_tags(t)
 
         return self.set_last_token(t)
+
+    def commat_type(self, t):
+        if t.type == "COMMA" and self.lexer.lt_open:
+            t.type = "COMMAT"
 
     def capitalize_tokens(self, t):
         if t.type != "ID" and t.type not in ["LT", "RT"]:
@@ -166,6 +172,7 @@ class DDLParser(
 
     def set_last_token(self, t):
         self.lexer.last_token = t.type
+
         return t
 
     def p_id(self, p):
