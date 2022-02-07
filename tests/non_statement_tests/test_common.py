@@ -106,3 +106,110 @@ def test_flag_normalize_names():
         "types": [],
     }
     assert expected == result
+
+
+def test_flag_normalize_names_mixed_usage():
+
+    ddl = ddl = """
+    CREATE TABLE [dbo].T1(ID int NOT NULL PRIMARY KEY)    
+    CREATE TABLE dbo.[T2](T2_TO_T1_ID int FOREIGN KEY REFERENCES dbo.[T1](ID))
+    CREATE TABLE dbo.T3(T3_TO_T1_ID int FOREIGN KEY REFERENCES [dbo].[T1](ID))
+    """
+
+
+    result = DDLParser(ddl, silent=False, normalize_names=True).run(group_by_type=True)
+    expected = {
+        'tables': [
+            {
+                'columns': [
+                    {
+                        'name': 'ID',
+                        'type': 'int',
+                        'size': None,
+                        'references': None,
+                        'unique': False,
+                        'nullable': False,
+                        'default': None,
+                        'check': None
+                    }
+                ],
+                'primary_key': ['ID'],
+                'alter': {},
+                'checks': [],
+                'index': [],
+                'partitioned_by': [],
+                'tablespace': None,
+                'schema': 'dbo',
+                'table_name': 'T1'
+            },
+            {
+                'columns': [
+                    {
+                        'name': 'T2_TO_T1_ID',
+                        'type': 'int',
+                        'size': None,
+                        'references':
+                        {
+                            'table': 'T1',
+                            'schema': 'dbo',
+                            'on_delete': None,
+                            'on_update': None,
+                            'deferrable_initially': None,
+                            'column': 'ID'
+                        },
+                        'unique': False,
+                        'nullable': True,
+                        'default': None,
+                        'check': None
+                    }
+                ],
+                'primary_key': [],
+                'alter': {},
+                'checks': [],
+                'index': [],
+                'partitioned_by': [],
+                'tablespace': None,
+                'schema': 'dbo',
+                'table_name': 'T2'
+            },
+
+            {
+                'columns': [
+                    {
+                        'name': 'T3_TO_T1_ID',
+                        'type': 'int',
+                        'size': None,
+                        'references':
+                        {
+                            'table': 'T1',
+                            'schema': 'dbo',
+                            'on_delete': None,
+                            'on_update': None,
+                            'deferrable_initially': None,
+                            'column': 'ID'
+                        },
+                        'unique': False,
+                        'nullable': True,
+                        'default': None,
+                        'check': None
+                    }
+                ],
+                'primary_key': [],
+                'alter': {},
+                'checks': [],
+                'index': [],
+                'partitioned_by': [],
+                'tablespace': None,
+                'schema': 'dbo',
+                'table_name': 'T3'
+            },
+
+        ],
+        'types': [],
+        'sequences': [],
+        'domains': [],
+        'schemas': [],
+        'ddl_properties': []
+    }
+    
+    assert expected == result
