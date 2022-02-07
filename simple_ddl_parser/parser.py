@@ -26,12 +26,15 @@ class Parser:
         Subclass must include tokens for parser and rules
     """
 
-    def __init__(self, content: str, silent: bool = True) -> None:
+    def __init__(
+        self, content: str, silent: bool = True, normalize_names: bool = False
+    ) -> None:
         """init parser for file"""
         self.tables = []
         self.silent = silent
         self.data = content.encode("unicode_escape")
         self.paren_count = 0
+        self.normalize_names = normalize_names
         self.lexer = lex.lex(object=self, debug=False)
         self.yacc = yacc.yacc(module=self, debug=False)
         self.columns_closed = False
@@ -226,7 +229,6 @@ class Parser:
 
     def parse_statement(self) -> None:
         _parse_result = yacc.parse(self.statement)
-
         if _parse_result:
             self.tables.append(_parse_result)
 

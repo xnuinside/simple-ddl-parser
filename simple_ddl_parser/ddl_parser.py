@@ -181,8 +181,14 @@ class DDLParser(
     def p_id(self, p):
         """id : ID
         | DQ_STRING"""
-
+        delimeters_to_start = ["`", '"', "["]
+        delimeters_to_end = ["`", '"', "]"]
         p[0] = p[1]
+
+        if self.normalize_names:
+            for num, symbol in enumerate(delimeters_to_start):
+                if p[0].startswith(symbol) and p[0].endswith(delimeters_to_end[num]):
+                    p[0] = p[0][1:-1]
 
     def t_error(self, t):
         raise DDLParserError("Unknown symbol %r" % (t.value[0],))
