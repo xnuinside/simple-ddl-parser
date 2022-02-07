@@ -2496,3 +2496,67 @@ def test_table_name_reserved_word_after_dot():
         "types": [],
     }
     assert expected == result
+
+
+def test_add_timezone():
+    ddl = """
+CREATE TABLE foo
+        (
+            bar_timestamp  bigint DEFAULT 1002 * extract(epoch from now()) * 1000,
+            bar_timestamp2  bigint DEFAULT (1002 * extract(epoch from now()) * 1000),
+  created_timestamp  TIMESTAMPTZ NOT NULL DEFAULT (now() at time zone 'utc')
+        );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": "1002 * extract(epoch from now()) * 1000",
+                        "name": "bar_timestamp",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "bigint",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": "1002 * extract(epoch from now()) * 1000",
+                        "name": "bar_timestamp2",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "bigint",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": "DEFAULT now() at time zone 'utc'",
+                        "name": "created_timestamp",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "TIMESTAMPTZ",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "foo",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result

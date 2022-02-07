@@ -1056,14 +1056,18 @@ class BaseSQL(
         | default FOR dot_id
         | DEFAULT funct_expr
         | DEFAULT LP pid RP
+        | DEFAULT LP funct_expr pid RP
         | default id
         | default LP RP
         """
-        p_list = list(p)
+        p_list = remove_par(list(p))
 
         default = self.pre_process_default(p_list)
 
-        if not isinstance(default, dict) and default.isnumeric():
+        if isinstance(p_list[-1], list):
+            p_list[-1] = " ".join(p_list[-1])
+            default = " ".join(p_list[1:])
+        elif not isinstance(default, dict) and default.isnumeric():
             default = int(default)
 
         if isinstance(p[1], dict):

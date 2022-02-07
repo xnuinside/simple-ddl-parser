@@ -1,4 +1,6 @@
-from simple_ddl_parser import DDLParser
+import pytest
+
+from simple_ddl_parser import DDLParser, DDLParserError
 
 
 def test_no_unexpected_logs(capsys):
@@ -18,3 +20,16 @@ def test_no_unexpected_logs(capsys):
     out, err = capsys.readouterr()
     assert out == ""
     assert err == ""
+
+
+def test_silent_false_flag():
+    ddl = """
+CREATE TABLE foo
+        (
+  created_timestamp  TIMESTAMPTZ  NOT NULL DEFAULT ALTER (now() at time zone 'utc')
+        );
+"""
+    with pytest.raises(DDLParserError) as e:
+        DDLParser(ddl, silent=False).run(group_by_type=True)
+
+        assert "Unknown statement" in e.value[1]

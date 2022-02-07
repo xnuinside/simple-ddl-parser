@@ -1,3 +1,13 @@
+**v0.25.0**
+## Fixes:
+
+1. Fix for issue with 'at time zone' https://github.com/xnuinside/simple-ddl-parser/issues/112
+
+## New features:
+
+1. Added flag to raise errors if parser cannot parse statement DDLParser(.., silent=False) - https://github.com/xnuinside/simple-ddl-parser/issues/109
+
+
 **v0.24.2**
 ## Fixes:
 

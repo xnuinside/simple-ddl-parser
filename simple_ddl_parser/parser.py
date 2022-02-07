@@ -26,9 +26,10 @@ class Parser:
         Subclass must include tokens for parser and rules
     """
 
-    def __init__(self, content: str) -> None:
+    def __init__(self, content: str, silent: bool = True) -> None:
         """init parser for file"""
         self.tables = []
+        self.silent = silent
         self.data = content.encode("unicode_escape")
         self.paren_count = 0
         self.lexer = lex.lex(object=self, debug=False)
