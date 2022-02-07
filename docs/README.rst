@@ -286,6 +286,18 @@ To dump result in json use argument .run(dump=True)
 
 You also can provide a path where you want to have a dumps with schema with argument .run(dump_path='folder_that_use_for_dumps/')
 
+Raise error if DDL cannot be parsed by Parser
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default Parser does not raise the error if some statement cannot be parsed - and just skip & produce empty output.
+
+To change this behavior you can pass 'silent=False' argumen to main parser class, like:
+
+.. code-block::
+
+   DDLParser(.., silent=False)
+
+
 Supported Statements
 --------------------
 
@@ -452,6 +464,20 @@ https://github.com/swiatek25
 
 Changelog
 ---------
+
+**v0.25.0**
+
+Fixes:
+------
+
+
+#. Fix for issue with 'at time zone' https://github.com/xnuinside/simple-ddl-parser/issues/112
+
+New features:
+-------------
+
+
+#. Added flag to raise errors if parser cannot parse statement DDLParser(.., silent=False) - https://github.com/xnuinside/simple-ddl-parser/issues/109
 
 **v0.24.2**
 

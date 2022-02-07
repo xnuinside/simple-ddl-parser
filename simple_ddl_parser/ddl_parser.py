@@ -12,6 +12,10 @@ from simple_ddl_parser.dialects.sql import BaseSQL
 from simple_ddl_parser.parser import Parser
 
 
+class DDLParserError(Exception):
+    pass
+
+
 class DDLParser(
     Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift, BigQuery
 ):
@@ -172,7 +176,6 @@ class DDLParser(
 
     def set_last_token(self, t):
         self.lexer.last_token = t.type
-
         return t
 
     def p_id(self, p):
@@ -182,10 +185,11 @@ class DDLParser(
         p[0] = p[1]
 
     def t_error(self, t):
-        raise SyntaxError("Unknown symbol %r" % (t.value[0],))
+        raise DDLParserError("Unknown symbol %r" % (t.value[0],))
 
     def p_error(self, p):
-        pass
+        if not self.silent:
+            raise DDLParserError(f"Unknown statement at {p}")
 
 
 def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
