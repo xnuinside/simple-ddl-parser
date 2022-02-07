@@ -181,7 +181,7 @@ If you don't want to dump schema in file and just print result to the console, u
 
        sdp tests/sql/test_two_tables.sql --no-dump
 
-You can provide target path where you want to dump result with argument **-t**\ , **--targer**\ :
+You can provide target path where you want to dump result with argument **-t**\ , **--target**\ :
 
 .. code-block:: bash
 
@@ -297,6 +297,18 @@ To change this behavior you can pass 'silent=False' argumen to main parser class
 
    DDLParser(.., silent=False)
 
+
+Normalize names
+^^^^^^^^^^^^^^^
+
+Use DDLParser(.., normalize_names=True)flag that change output of parser:
+If flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimeters that used in different SQL dialects to separate custom names from reserverd words & statements.
+For example, if flag set 'True' and you pass this input: 
+
+CREATE TABLE [dbo].\ `TO_Requests <[Request_ID] [int] IDENTITY(1,1>`_ NOT NULL,
+    [user_id] [int]
+
+In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO_Requests]'.
 
 Supported Statements
 --------------------
@@ -478,6 +490,14 @@ New features:
 
 
 #. Added flag to raise errors if parser cannot parse statement DDLParser(.., silent=False) - https://github.com/xnuinside/simple-ddl-parser/issues/109
+#. Added flag to DDLParser(.., normalize_names=True) that change output of parser:
+   if flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimeters that used in different SQL dialects to separate custom names from reserverd words & statements.
+   For example, if flag set 'True' and you pass this input: 
+
+CREATE TABLE [dbo].\ `TO_Requests <[Request_ID] [int] IDENTITY(1,1>`_ NOT NULL,
+    [user_id] [int]
+
+In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO_Requests]'.
 
 **v0.24.2**
 

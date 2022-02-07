@@ -162,7 +162,7 @@ If you don't want to dump schema in file and just print result to the console, u
     
 ```
 
-You can provide target path where you want to dump result with argument **-t**, **--targer**:
+You can provide target path where you want to dump result with argument **-t**, **--target**:
 
 
 ```bash
@@ -277,6 +277,19 @@ By default Parser does not raise the error if some statement cannot be parsed - 
 To change this behavior you can pass 'silent=False' argumen to main parser class, like:
 
     DDLParser(.., silent=False)
+
+### Normalize names
+
+Use DDLParser(.., normalize_names=True)flag that change output of parser:
+If flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimeters that used in different SQL dialects to separate custom names from reserverd words & statements.
+For example, if flag set 'True' and you pass this input: 
+
+CREATE TABLE [dbo].[TO_Requests](
+    [Request_ID] [int] IDENTITY(1,1) NOT NULL,
+    [user_id] [int]
+
+In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO_Requests]'.
+
 
 ## Supported Statements
 
@@ -410,7 +423,15 @@ https://github.com/swiatek25
 ## New features:
 
 1. Added flag to raise errors if parser cannot parse statement DDLParser(.., silent=False) - https://github.com/xnuinside/simple-ddl-parser/issues/109
+2. Added flag to DDLParser(.., normalize_names=True) that change output of parser:
+if flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimeters that used in different SQL dialects to separate custom names from reserverd words & statements.
+For example, if flag set 'True' and you pass this input: 
 
+CREATE TABLE [dbo].[TO_Requests](
+    [Request_ID] [int] IDENTITY(1,1) NOT NULL,
+    [user_id] [int]
+
+In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO_Requests]'.
 
 **v0.24.2**
 ## Fixes:
