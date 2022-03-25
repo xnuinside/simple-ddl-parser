@@ -130,7 +130,7 @@ class Parser:
         self.tables.append({"name": name, "value": value})
 
     def parse_set_statement(self):
-        if re.match(r"SET", self.line.upper()):
+        if re.match(r"SET ", self.line.upper()):
             self.set_was_in_line = True
             if not self.set_line:
                 self.set_line = self.line
