@@ -21,6 +21,7 @@ def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str]) -> 
     """get table by name and schema or rise exception"""
     target_table = tables_dict.get(table_id)
     if target_table is None:
+
         raise ValueError(
             f"Found ALTER statement to not existed TABLE {table_id[0]} with SCHEMA {table_id[1]}"
         )
@@ -87,6 +88,8 @@ def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
     elif "default" in statement:
         target_table = set_alter_to_table_data("default", statement, target_table)
         target_table = set_default_columns_from_alter(statement, target_table)
+    elif "primary_key" in statement:
+        target_table = set_alter_to_table_data("primary_key", statement, target_table)
     return tables_dict
 
 
@@ -110,6 +113,8 @@ def set_unique_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
 def set_alter_to_table_data(key: str, statement: Dict, target_table: Dict) -> Dict:
     if not target_table["alter"].get(key + "s"):
         target_table["alter"][key + "s"] = []
+    if "using" in statement:
+        statement[key]["using"] = statement["using"]
     target_table["alter"][key + "s"].append(statement[key])
     return target_table
 

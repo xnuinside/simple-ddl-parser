@@ -2560,3 +2560,59 @@ CREATE TABLE foo
         "types": [],
     }
     assert expected == result
+
+
+def test_check_that_all_columns_parsed_correctly():
+
+    result = DDLParser(
+        """CREATE TABLE myset.mytable (
+        id_a character varying,
+        id_b character varying,
+        id_c character varying,
+    ); """
+    ).run()
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "id_a",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "character varying",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "id_b",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "character varying",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "id_c",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "character varying",
+                    "unique": False,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": "myset",
+            "table_name": "mytable",
+            "tablespace": None,
+        }
+    ]
+    assert expected == result

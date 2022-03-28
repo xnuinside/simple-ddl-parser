@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 from typing import Dict, List, Optional, Tuple
@@ -13,6 +14,14 @@ CL_COM = "*/"
 
 IN_COM = "--"
 MYSQL_COM = "#"
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename="parselog.txt",
+    filemode="w",
+    format="%(filename)10s:%(lineno)4d:%(message)s",
+)
+log = logging.getLogger()
 
 
 class Parser:
@@ -35,8 +44,8 @@ class Parser:
         self.data = content.encode("unicode_escape")
         self.paren_count = 0
         self.normalize_names = normalize_names
-        self.lexer = lex.lex(object=self, debug=False)
-        self.yacc = yacc.yacc(module=self, debug=False)
+        self.lexer = lex.lex(object=self, debug=False, debuglog=log)
+        self.yacc = yacc.yacc(module=self, debug=False, debuglog=log)
         self.columns_closed = False
         self.statement = None
         self.block_comments = []
@@ -243,6 +252,7 @@ class Parser:
             "is_table",
             "last_par",
             "lp_open",
+            "is_alter",
         ]
         for attr in attrs:
             setattr(self.lexer, attr, False)

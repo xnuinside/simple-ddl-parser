@@ -14,7 +14,21 @@ However, in process of adding support for new statements & features I see that o
 
 
 ### How does it work?
-Parser tested on different DDLs mostly for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS Redshift, Oracle, Hive, MsSQL, BigQuery etc.). You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser.
+
+Parser supports: 
+
+- SQL
+- HQL (Hive)
+- MSSQL dialec
+- Oracle dialect
+- MySQL dialect
+- PostgreSQL dialect
+- BigQuery
+- Redshift
+- Snowflake
+- SparkSQL
+
+You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser. If you need to add more statements or new dialects - feel free to open the issue. 
 
 ### Feel free to open Issue with DDL sample
 **If you need some statement, that not supported by parser yet**: please provide DDL example & information about that is it SQL dialect or DB.
@@ -170,6 +184,26 @@ You can provide target path where you want to dump result with argument **-t**, 
     sdp tests/sql/test_two_tables.sql -t dump_results/
     
 ```
+### Get Output in JSON
+
+If you want to get output in JSON in stdout you can use argument **json_dump=True** in method **.run()** for this
+```python
+    from simple_ddl_parser import DDLParser
+
+
+    parse_results = DDLParser("""create table dev.data_sync_history(
+        data_sync_id bigint not null,
+        sync_count bigint not null,
+    ); """).run(json_dump=True)
+
+    print(parse_results) 
+
+```
+Output will be:
+
+```json
+[{"columns": [{"name": "data_sync_id", "type": "bigint", "size": null, "references": null, "unique": false, "nullable": false, "default": null, "check": null}, {"name": "sync_count", "type": "bigint", "size": null, "references": null, "unique": false, "nullable": false, "default": null, "check": null}], "primary_key": [], "alter": {}, "checks": [], "index": [], "partitioned_by": [], "tablespace": null, "schema": "dev", "table_name": "data_sync_history"}]
+```
 
 ### More details
 
@@ -297,7 +331,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 
 - STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
-- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS
+- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS; ALTER .. PRIMARY KEY; ALTER .. USING INDEX TABLESPACE
 
 - PARTITION BY statement
 
@@ -318,6 +352,11 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - CREATE [SMALLFILE | BIGFILE] [TEMPORARY] TABLESPACE statement
 
 - CREATE DATABASE + Properties parsing
+
+### SparkSQL Dialect statements
+
+- USING
+
 
 ### HQL Dialect statements
 
@@ -385,6 +424,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
+-1. Update command line to parse all arguments, that supported by Parser
 0. Add support for ALTER TABLE ... ADD COLUMN
 1. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 2. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...

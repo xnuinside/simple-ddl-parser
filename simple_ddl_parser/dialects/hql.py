@@ -129,9 +129,10 @@ class HQL:
             p[0]["stored_as"] = p_list[-1]
 
     def p_expression_partitioned_by_hql(self, p):
-        """expr : expr PARTITIONED BY pid_with_type"""
+        """expr : expr PARTITIONED BY pid_with_type
+        | expr PARTITIONED BY LP pid RP"""
         p[0] = p[1]
-        p_list = list(p)
+        p_list = remove_par(list(p))
         p[0]["partitioned_by"] = p_list[-1]
 
     def p_pid_with_type(self, p):

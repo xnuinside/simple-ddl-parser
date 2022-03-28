@@ -80,6 +80,7 @@ after_columns_tokens = {
     "CLUSTER": "CLUSTER",
     "SERDEPROPERTIES": "SERDEPROPERTIES",
     "TBLPROPERTIES": "TBLPROPERTIES",
+    "USING": "USING",
     "SKEWED": "SKEWED",
     # oracle
     "STORAGE": "STORAGE",

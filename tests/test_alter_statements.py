@@ -1643,3 +1643,135 @@ def test_alter_table_if_exists():
         "types": [],
     }
     assert expected == result
+
+
+def test_alter_table_primary_key():
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "primary_keys": [
+                        {
+                            "columns": ["DATETIME", "REGIONID"],
+                            "constraint_name": "PK_MY_TABLE",
+                        }
+                    ]
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "DATETIME",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "datetime",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "MY_TABLE",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+
+    ddl = """
+    CREATE TABLE MY_TABLE (
+        DATETIME datetime,
+        REGIONID varchar
+    )
+    alter table MY_TABLE
+    add constraint PK_MY_TABLE primary key (DATETIME, REGIONID);"""
+    result = DDLParser(ddl, silent=False, normalize_names=True).run(group_by_type=True)
+    assert expected == result
+
+
+def test_alter_using():
+
+    ddl = """
+    CREATE TABLE MY_TABLE (
+        DATETIME datetime,
+        REGIONID varchar
+    );
+    alter table MY_TABLE
+    add constraint PK_MY_TABLE primary key (DATETIME, REGIONID)
+        using index tablespace SOME_TABLE_SPACE"""
+    result = DDLParser(ddl, silent=False, normalize_names=True).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "primary_keys": [
+                        {
+                            "columns": ["DATETIME", "REGIONID"],
+                            "constraint_name": "PK_MY_TABLE",
+                            "using": {
+                                "index": True,
+                                "tablespace": {
+                                    "properties": None,
+                                    "tablespace_name": "SOME_TABLE_SPACE",
+                                    "temporary": False,
+                                    "type": None,
+                                },
+                            },
+                        }
+                    ]
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "DATETIME",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "datetime",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "MY_TABLE",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
