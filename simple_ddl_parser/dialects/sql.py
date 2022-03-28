@@ -1,6 +1,6 @@
 import re
 from copy import deepcopy
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from simple_ddl_parser.utils import check_spec, remove_par
 
@@ -255,7 +255,6 @@ class Column:
         """
         p[0] = self.set_base_column_propery(p)
         p_list = remove_par(list(p))
-
         if isinstance(p_list[-1], dict) and "type" in p_list[-1] and len(p_list) <= 3:
             p[0]["type"] = p_list[-1]["type"]
             if p_list[-1].get("property"):
@@ -339,8 +338,20 @@ class Column:
         p[0]["check"] = p[0].get("check", None)
         if isinstance(p_list[-1], dict) and p_list[-1].get("encode"):
             p[0]["encode"] = p[0].get("encode", p_list[-1]["encode"])
-        if p[0]["check"]:
-            p[0]["check"] = " ".join(p[0]["check"])
+        p[0]["check"] = self.set_check_in_columm(p[0].get("check"))
+
+    @staticmethod
+    def set_check_in_columm(check: Optional[List]) -> Optional[str]:
+        if check:
+            check_statement = ""
+            for n, item in enumerate(check):
+                if isinstance(item, list):
+                    in_clause = ", ".join(item)
+                    check_statement += f" ({in_clause})"
+                else:
+                    check_statement += f" {item}" if n > 0 else f"{item}"
+
+            return check_statement
 
     def p_check_ex(self, p: List) -> None:
         """check_ex :  check_st
@@ -741,7 +752,6 @@ class BaseSQL(
         | expr COMMA constraint pkey enforced
         | expr COMMA constraint foreign ref
         | expr COMMA foreign ref
-        | expr COMMA table_properties
         | expr encode
         | expr RP
         """
@@ -1148,11 +1158,14 @@ class BaseSQL(
         """check_st : CHECK LP id
         | check_st id
         | check_st STRING
+        | check_st id STRING
         | check_st id RP
         | check_st STRING RP
         | check_st funct_args
+        | check_st LP pid RP
         """
         p_list = remove_par(list(p))
+
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
@@ -1163,15 +1176,33 @@ class BaseSQL(
             else:
                 p[0]["check"].append(item)
 
+    def p_using_tablespace(self, p: List) -> None:
+        """using_tablespace : USING INDEX tablespace"""
+        p_list = list(p)
+        p[0] = {"using": {"tablespace": p_list[-1], "index": True}}
+
     def p_expression_alter(self, p: List) -> None:
         """expr : alter_foreign ref
         | alter_check
         | alter_unique
         | alter_default
+        | alter_primary_key
+        | alter_primary_key using_tablespace
         """
         p[0] = p[1]
         if len(p) == 3:
             p[0].update(p[2])
+
+    def p_alter_primary_key(self, p: List) -> None:
+        """alter_primary_key : alt_table PRIMARY KEY LP pid RP
+        | alt_table constraint PRIMARY KEY LP pid RP
+        """
+
+        p_list = remove_par(list(p))
+        p[0] = p[1]
+        p[0]["primary_key"] = {"constraint_name": None, "columns": p_list[-1]}
+        if "constraint" in p[2]:
+            p[0]["primary_key"]["constraint_name"] = p[2]["constraint"]["name"]
 
     def p_alter_unique(self, p: List) -> None:
         """alter_unique : alt_table UNIQUE LP pid RP

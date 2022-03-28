@@ -1,5 +1,7 @@
 from typing import Dict, List
 
+from ply.lex import LexToken
+
 from simple_ddl_parser import tokens as tok
 from simple_ddl_parser.dialects.bigquery import BigQuery
 from simple_ddl_parser.dialects.hql import HQL
@@ -8,6 +10,7 @@ from simple_ddl_parser.dialects.mysql import MySQL
 from simple_ddl_parser.dialects.oracle import Oracle
 from simple_ddl_parser.dialects.redshift import Redshift
 from simple_ddl_parser.dialects.snowflake import Snowflake
+from simple_ddl_parser.dialects.spark_sql import SparkSQL
 from simple_ddl_parser.dialects.sql import BaseSQL
 from simple_ddl_parser.parser import Parser
 
@@ -17,13 +20,13 @@ class DDLParserError(Exception):
 
 
 class DDLParser(
-    Parser, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift, BigQuery
+    Parser, SparkSQL, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift, BigQuery
 ):
 
     tokens = tok.tokens
     t_ignore = "\t  \r"
 
-    def get_tag_symbol_value_and_increment(self, t):
+    def get_tag_symbol_value_and_increment(self, t: LexToken):
         # todo: need to find less hacky way to parse HQL structure types
         if "<" in t.value:
             t.type = "LT"
@@ -33,7 +36,7 @@ class DDLParser(
             self.lexer.lt_open -= t.value.count(">")
         return t
 
-    def after_columns_tokens(self, t):
+    def after_columns_tokens(self, t: LexToken):
         t.type = tok.after_columns_tokens.get(t.value.upper(), t.type)
         if t.type != "ID":
             self.lexer.after_columns = True
@@ -41,7 +44,7 @@ class DDLParser(
             t.type = tok.columns_defenition.get(t.value.upper(), t.type)
         return t
 
-    def process_body_tokens(self, t):
+    def process_body_tokens(self, t: LexToken):
         if (
             self.lexer.last_par == "RP" and not self.lexer.lp_open
         ) or self.lexer.after_columns:
@@ -52,7 +55,7 @@ class DDLParser(
             t.type = tok.sequence_reserved.get(t.value.upper(), "ID")
         return t
 
-    def tokens_not_columns_names(self, t):
+    def tokens_not_columns_names(self, t: LexToken):
         if not self.lexer.check:
             for key in tok.symbol_tokens_no_check:
                 if key in t.value:
@@ -78,28 +81,28 @@ class DDLParser(
 
         return t
 
-    def set_lexer_tags(self, t):
+    def set_lexer_tags(self, t: LexToken):
         if t.type == "SEQUENCE":
             self.lexer.sequence = True
         elif t.type == "CHECK":
             self.lexer.check = True
 
-    def t_DOT(self, t):
+    def t_DOT(self, t: LexToken):
         r"\."
         t.type = "DOT"
         return self.set_last_token(t)
 
-    def t_STRING(self, t):
+    def t_STRING(self, t: LexToken):
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
         return self.set_last_token(t)
 
-    def t_DQ_STRING(self, t):
+    def t_DQ_STRING(self, t: LexToken):
         r"((\")([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}'\[\]\/\\\\#\*&^|?;±§@~]*)(\")){1}"
         t.type = "DQ_STRING"
         return self.set_last_token(t)
 
-    def is_token_column_name(self, t):
+    def is_token_column_name(self, t: LexToken):
         """many of reserved words can be used as column name,
         to decide is it a column name or not we need do some checks"""
         skip_id_tokens = ["(", ")", ","]
@@ -111,28 +114,34 @@ class DDLParser(
             and t.value.upper() not in tok.first_liners
         )
 
-    def is_creation_name(self, t):
+    def is_creation_name(self, t: LexToken):
         """many of reserved words can be used as column name,
         to decide is it a column name or not we need do some checks"""
         skip_id_tokens = ["(", ")", ","]
+        exceptional_keys = [
+            "SCHEMA",
+            "TABLE",
+            "DATABASE",
+            "TYPE",
+            "DOMAIN",
+            "TABLESPACE",
+            "INDEX",
+            "CONSTRAINT",
+            "EXISTS",
+        ]
         return (
             t.value not in skip_id_tokens
             and t.value.upper() not in ["IF"]
-            and self.lexer.last_token
-            in [
-                "SCHEMA",
-                "TABLE",
-                "DATABASE",
-                "TYPE",
-                "DOMAIN",
-                "TABLESPACE",
-                "INDEX",
-                "CONSTRAINT",
-                "EXISTS",
-            ]
+            and self.lexer.last_token in exceptional_keys
+            and not self.exceptional_cases(t.value.upper())
         )
 
-    def t_ID(self, t):
+    def exceptional_cases(self, value: str) -> bool:
+        if value == "TABLESPACE" and self.lexer.last_token == "INDEX":
+            return True
+        return False
+
+    def t_ID(self, t: LexToken):
         r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\=\-\+\~\%$\*\()!{}\[\]\`\[\]]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
 
@@ -141,7 +150,6 @@ class DDLParser(
             self.lexer.columns_def = True
             self.lexer.last_token = "LP"
             return t
-
         elif self.is_token_column_name(t) or self.lexer.last_token == "DOT":
             t.type = "ID"
         elif t.type != "DQ_STRING" and self.is_creation_name(t):
@@ -156,25 +164,31 @@ class DDLParser(
 
         return self.set_last_token(t)
 
-    def commat_type(self, t):
+    def commat_type(self, t: LexToken):
         if t.type == "COMMA" and self.lexer.lt_open:
             t.type = "COMMAT"
 
-    def capitalize_tokens(self, t):
+    def capitalize_tokens(self, t: LexToken):
         if t.type != "ID" and t.type not in ["LT", "RT"]:
             t.value = t.value.upper()
 
-    def set_lexx_tags(self, t):
+    def set_parathesis_tokens(self, t: LexToken):
         if t.type in ["RP", "LP"]:
             if t.type == "RP" and self.lexer.lp_open:
                 self.lexer.lp_open -= 1
             self.lexer.last_par = t.type
+
+    def set_lexx_tags(self, t: LexToken):
+        self.set_parathesis_tokens(t)
+
+        if t.type == "ALTER":
+            self.lexer.is_alter = True
         elif t.type in ["TYPE", "DOMAIN", "TABLESPACE"]:
             self.lexer.is_table = False
-        elif t.type in ["TABLE", "INDEX"]:
+        elif t.type in ["TABLE", "INDEX"] and not self.lexer.is_alter:
             self.lexer.is_table = True
 
-    def set_last_token(self, t):
+    def set_last_token(self, t: LexToken):
         self.lexer.last_token = t.type
         return t
 
@@ -190,7 +204,7 @@ class DDLParser(
                 if p[0].startswith(symbol) and p[0].endswith(delimeters_to_end[num]):
                     p[0] = p[0][1:-1]
 
-    def t_error(self, t):
+    def t_error(self, t: LexToken):
         raise DDLParserError("Unknown symbol %r" % (t.value[0],))
 
     def p_error(self, p):

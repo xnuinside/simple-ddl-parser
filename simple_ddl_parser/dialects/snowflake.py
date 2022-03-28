@@ -10,6 +10,7 @@ class Snowflake:
     def p_table_properties(self, p):
         """table_properties : id id id"""
         p_list = list(p)
+        print(p_list, "table_properties")
         p[0] = {p_list[-3]: p_list[-1]}
 
     def p_expression_cluster_by(self, p):
