@@ -1,15 +1,10 @@
-**v0.27.0**
+**v0.26.1**
 
 Fixes:
 
 1. support Multiple SERDEPROPERTIES  - https://github.com/xnuinside/simple-ddl-parser/issues/126
 2. Fix for issue with LOCATION and TBLPROPERTIES clauses in CREATE TABLE LIKE - https://github.com/xnuinside/simple-ddl-parser/issues/125
 3. LOCATION now works correctly with double quote strings
-
-Improvements:
-
-1. Commond line tool switched to use Typer (https://typer.tiangolo.com/) under the hood. 
-Updated documentation, now all properties for parser can be send with cli arguments.
 
 
 **v0.26.0**

@@ -34,7 +34,21 @@ However, in process of adding support for new statements & features I see that o
 How does it work?
 ^^^^^^^^^^^^^^^^^
 
-Parser tested on different DDLs mostly for PostgreSQL & Hive. But idea to support as much as possible DDL dialects (AWS Redshift, Oracle, Hive, MsSQL, BigQuery etc.). You can check dialects sections after ``Supported Statements`` section to get more information that statements from dialects already supported by parser.
+Parser supports: 
+
+
+* SQL
+* HQL (Hive)
+* MSSQL dialec
+* Oracle dialect
+* MySQL dialect
+* PostgreSQL dialect
+* BigQuery
+* Redshift
+* Snowflake
+* SparkSQL
+
+You can check dialects sections after ``Supported Statements`` section to get more information that statements from dialects already supported by parser. If you need to add more statements or new dialects - feel free to open the issue. 
 
 Feel free to open Issue with DDL sample
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -188,6 +202,29 @@ You can provide target path where you want to dump result with argument **-t**\ 
 
        sdp tests/sql/test_two_tables.sql -t dump_results/
 
+Get Output in JSON
+^^^^^^^^^^^^^^^^^^
+
+If you want to get output in JSON in stdout you can use argument **json_dump=True** in method **.run()** for this
+
+.. code-block:: python
+
+       from simple_ddl_parser import DDLParser
+
+
+       parse_results = DDLParser("""create table dev.data_sync_history(
+           data_sync_id bigint not null,
+           sync_count bigint not null,
+       ); """).run(json_dump=True)
+
+       print(parse_results)
+
+Output will be:
+
+.. code-block:: json
+
+   [{"columns": [{"name": "data_sync_id", "type": "bigint", "size": null, "references": null, "unique": false, "nullable": false, "default": null, "check": null}, {"name": "sync_count", "type": "bigint", "size": null, "references": null, "unique": false, "nullable": false, "default": null, "check": null}], "primary_key": [], "alter": {}, "checks": [], "index": [], "partitioned_by": [], "tablespace": null, "schema": "dev", "table_name": "data_sync_history"}]
+
 More details
 ^^^^^^^^^^^^
 
@@ -321,7 +358,7 @@ Supported Statements
   STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
 * 
-  ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS
+  ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS; ALTER .. PRIMARY KEY; ALTER .. USING INDEX TABLESPACE
 
 * 
   PARTITION BY statement
@@ -352,6 +389,12 @@ Supported Statements
 
 * 
   CREATE DATABASE + Properties parsing
+
+SparkSQL Dialect statements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+* USING
 
 HQL Dialect statements
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -437,6 +480,8 @@ TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+
+
 #. Add support for ALTER TABLE ... ADD COLUMN
 #. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
 #. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
@@ -476,6 +521,41 @@ https://github.com/swiatek25
 
 Changelog
 ---------
+
+**v0.26.1**
+
+Fixes:
+
+
+#. support Multiple SERDEPROPERTIES  - https://github.com/xnuinside/simple-ddl-parser/issues/126
+#. Fix for issue with LOCATION and TBLPROPERTIES clauses in CREATE TABLE LIKE - https://github.com/xnuinside/simple-ddl-parser/issues/125
+#. LOCATION now works correctly with double quote strings
+
+**v0.26.0**
+Improvements:
+
+
+#. Added more explicit debug message on Statement errors - https://github.com/xnuinside/simple-ddl-parser/issues/116
+#. Added support for "USING INDEX TABLESPACE" statement in ALTER - https://github.com/xnuinside/simple-ddl-parser/issues/119
+#. Added support for IN statements in CHECKS - https://github.com/xnuinside/simple-ddl-parser/issues/121
+
+New features:
+
+
+#. Support SparkSQL USING - https://github.com/xnuinside/simple-ddl-parser/issues/117
+   Updates initiated by ticket https://github.com/xnuinside/simple-ddl-parser/issues/120:
+#. In Parser you can use argument json_dump=True in method .run() if you want get result in JSON format. 
+
+
+* README updated
+
+Fixes:
+
+
+#. Added support for PARTITION BY one column without type
+#. Alter table add constraint PRIMARY KEY - https://github.com/xnuinside/simple-ddl-parser/issues/119
+#. Fix for paring SET statement - https://github.com/xnuinside/simple-ddl-parser/pull/122
+#. Fix for disappeared colums without properties - https://github.com/xnuinside/simple-ddl-parser/issues/123
 
 **v0.25.0**
 

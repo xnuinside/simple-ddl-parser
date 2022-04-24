@@ -455,6 +455,34 @@ https://github.com/swiatek25
 
 
 ## Changelog
+**v0.26.1**
+
+Fixes:
+
+1. support Multiple SERDEPROPERTIES  - https://github.com/xnuinside/simple-ddl-parser/issues/126
+2. Fix for issue with LOCATION and TBLPROPERTIES clauses in CREATE TABLE LIKE - https://github.com/xnuinside/simple-ddl-parser/issues/125
+3. LOCATION now works correctly with double quote strings
+
+
+**v0.26.0**
+Improvements:
+
+1. Added more explicit debug message on Statement errors - https://github.com/xnuinside/simple-ddl-parser/issues/116
+2. Added support for "USING INDEX TABLESPACE" statement in ALTER - https://github.com/xnuinside/simple-ddl-parser/issues/119
+3. Added support for IN statements in CHECKS - https://github.com/xnuinside/simple-ddl-parser/issues/121
+
+New features:
+1. Support SparkSQL USING - https://github.com/xnuinside/simple-ddl-parser/issues/117
+Updates initiated by ticket https://github.com/xnuinside/simple-ddl-parser/issues/120:
+2. In Parser you can use argument json_dump=True in method .run() if you want get result in JSON format. 
+- README updated
+
+Fixes:
+1. Added support for PARTITION BY one column without type
+2. Alter table add constraint PRIMARY KEY - https://github.com/xnuinside/simple-ddl-parser/issues/119
+3. Fix for paring SET statement - https://github.com/xnuinside/simple-ddl-parser/pull/122
+4. Fix for disappeared colums without properties - https://github.com/xnuinside/simple-ddl-parser/issues/123
+
 **v0.25.0**
 ## Fixes:
 
