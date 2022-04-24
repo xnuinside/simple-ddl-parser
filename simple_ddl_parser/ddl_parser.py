@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from ply.lex import LexToken
 
@@ -26,7 +26,7 @@ class DDLParser(
     tokens = tok.tokens
     t_ignore = "\t  \r"
 
-    def get_tag_symbol_value_and_increment(self, t: LexToken):
+    def get_tag_symbol_value_and_increment(self, t: LexToken) -> LexToken:
         # todo: need to find less hacky way to parse HQL structure types
         if "<" in t.value:
             t.type = "LT"
@@ -36,7 +36,7 @@ class DDLParser(
             self.lexer.lt_open -= t.value.count(">")
         return t
 
-    def after_columns_tokens(self, t: LexToken):
+    def after_columns_tokens(self, t: LexToken) -> LexToken:
         t.type = tok.after_columns_tokens.get(t.value.upper(), t.type)
         if t.type != "ID":
             self.lexer.after_columns = True
@@ -44,7 +44,7 @@ class DDLParser(
             t.type = tok.columns_defenition.get(t.value.upper(), t.type)
         return t
 
-    def process_body_tokens(self, t: LexToken):
+    def process_body_tokens(self, t: LexToken) -> LexToken:
         if (
             self.lexer.last_par == "RP" and not self.lexer.lp_open
         ) or self.lexer.after_columns:
@@ -55,14 +55,24 @@ class DDLParser(
             t.type = tok.sequence_reserved.get(t.value.upper(), "ID")
         return t
 
-    def tokens_not_columns_names(self, t: LexToken):
+    def parse_tags_symbols(self, t) -> Optional[LexToken]:
+        """like symbols < >"""
         if not self.lexer.check:
             for key in tok.symbol_tokens_no_check:
                 if key in t.value:
                     return self.get_tag_symbol_value_and_increment(t)
+
+    def tokens_not_columns_names(self, t: LexToken) -> LexToken:
+
+        t_tag = self.parse_tags_symbols(t)
+        if t_tag:
+            return t_tag
+
         if "ARRAY" in t.value:
             t.type = "ARRAY"
             return t
+        elif self.lexer.is_like:
+            t.type = tok.after_columns_tokens.get(t.value.upper(), t.type)
         elif not self.lexer.is_table:
             # if is_table mean wi already met INDEX or TABLE statement and
             # the definition already done and this is a string
@@ -81,28 +91,28 @@ class DDLParser(
 
         return t
 
-    def set_lexer_tags(self, t: LexToken):
+    def set_lexer_tags(self, t: LexToken) -> None:
         if t.type == "SEQUENCE":
             self.lexer.sequence = True
         elif t.type == "CHECK":
             self.lexer.check = True
 
-    def t_DOT(self, t: LexToken):
+    def t_DOT(self, t: LexToken) -> LexToken:
         r"\."
         t.type = "DOT"
         return self.set_last_token(t)
 
-    def t_STRING(self, t: LexToken):
+    def t_STRING(self, t: LexToken) -> LexToken:
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
         t.type = "STRING"
         return self.set_last_token(t)
 
-    def t_DQ_STRING(self, t: LexToken):
+    def t_DQ_STRING(self, t: LexToken) -> LexToken:
         r"((\")([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}'\[\]\/\\\\#\*&^|?;±§@~]*)(\")){1}"
         t.type = "DQ_STRING"
         return self.set_last_token(t)
 
-    def is_token_column_name(self, t: LexToken):
+    def is_token_column_name(self, t: LexToken) -> bool:
         """many of reserved words can be used as column name,
         to decide is it a column name or not we need do some checks"""
         skip_id_tokens = ["(", ")", ","]
@@ -110,11 +120,12 @@ class DDLParser(
             t.value not in skip_id_tokens
             and self.lexer.is_table
             and self.lexer.lp_open
+            and not self.lexer.is_like
             and (self.lexer.last_token == "COMMA" or self.lexer.last_token == "LP")
             and t.value.upper() not in tok.first_liners
         )
 
-    def is_creation_name(self, t: LexToken):
+    def is_creation_name(self, t: LexToken) -> bool:
         """many of reserved words can be used as column name,
         to decide is it a column name or not we need do some checks"""
         skip_id_tokens = ["(", ")", ","]
@@ -183,6 +194,8 @@ class DDLParser(
 
         if t.type == "ALTER":
             self.lexer.is_alter = True
+        if t.type == "LIKE":
+            self.lexer.is_like = True
         elif t.type in ["TYPE", "DOMAIN", "TABLESPACE"]:
             self.lexer.is_table = False
         elif t.type in ["TABLE", "INDEX"] and not self.lexer.is_alter:
