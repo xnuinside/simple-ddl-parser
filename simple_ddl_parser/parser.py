@@ -184,7 +184,7 @@ class Parser:
             else:
                 self.statement += f" {self.line}"
 
-    def parse_data(self):
+    def parse_data(self) -> List[Dict]:
         self.tables: List[Dict] = []
         data = self.pre_process_data(self.data)
         lines = data.replace("\\t", "").split("\\n")
@@ -228,7 +228,7 @@ class Parser:
 
         self.process_statement()
 
-    def process_statement(self):
+    def process_statement(self) -> None:
         if not self.set_line and self.statement:
             self.parse_statement()
         if self.new_statement:
@@ -241,7 +241,7 @@ class Parser:
         if _parse_result:
             self.tables.append(_parse_result)
 
-    def set_default_flags_in_lexer(self):
+    def set_default_flags_in_lexer(self) -> None:
         attrs = [
             "is_table",
             "sequence",
