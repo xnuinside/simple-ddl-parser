@@ -2196,3 +2196,53 @@ def test_remote_database():
         "types": [],
     }
     assert expected == result
+
+
+def test_multiple_serde_options():
+    ddl = """CREATE TABLE `x` (`a` STRING) ROW FORMAT SERDE 'my_serde'
+WITH SERDEPROPERTIES ( 'key1'='value1', 'key2'='value2' , 'key3'='value3' , 'keyN'='valueN' )"""
+
+    result = DDLParser(ddl, normalize_names=True).run(output_mode="hql")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "collection_items_terminated_by": None,
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "a",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "STRING",
+                    "unique": False,
+                }
+            ],
+            "comment": None,
+            "external": False,
+            "fields_terminated_by": None,
+            "index": [],
+            "lines_terminated_by": None,
+            "location": None,
+            "map_keys_terminated_by": None,
+            "partitioned_by": [],
+            "primary_key": [],
+            "row_format": {
+                "java_class": "'my_serde'",
+                "properties": {
+                    "'key1'": "'value1'",
+                    "'key2'": "'value2'",
+                    "'key3'": "'value3'",
+                    "'keyN'": "'valueN'",
+                },
+                "serde": True,
+            },
+            "schema": None,
+            "stored_as": None,
+            "table_name": "x",
+            "tablespace": None,
+        }
+    ]
+    assert result == expected

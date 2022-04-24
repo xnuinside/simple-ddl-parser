@@ -42,11 +42,12 @@ class HQL:
         p[0]["row_format"] = format
 
     def p_expression_with_serde(self, p):
-        """expr : expr WITH SERDEPROPERTIES LP assigment RP"""
+        """expr : expr WITH SERDEPROPERTIES multi_assigments"""
         p[0] = p[1]
         p_list = list(p)
+
         row_format = p[0]["row_format"]
-        row_format["properties"] = p_list[-2]
+        row_format["properties"] = p_list[-1]
         p[0]["row_format"] = row_format
 
     def p_expression_tblproperties(self, p):
