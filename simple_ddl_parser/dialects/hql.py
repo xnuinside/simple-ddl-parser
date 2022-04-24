@@ -3,7 +3,8 @@ from simple_ddl_parser.utils import check_spec, remove_par
 
 class HQL:
     def p_expression_location(self, p):
-        """expr : expr LOCATION STRING"""
+        """expr : expr LOCATION STRING
+        | expr LOCATION DQ_STRING"""
         p[0] = p[1]
         p_list = list(p)
         p[0]["location"] = p_list[-1]

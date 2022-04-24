@@ -253,6 +253,7 @@ class Parser:
             "last_par",
             "lp_open",
             "is_alter",
+            "is_like",
         ]
         for attr in attrs:
             setattr(self.lexer, attr, False)

@@ -2246,3 +2246,39 @@ WITH SERDEPROPERTIES ( 'key1'='value1', 'key2'='value2' , 'key3'='value3' , 'key
         }
     ]
     assert result == expected
+
+
+def test_location_with_table_properties_in_like():
+
+    ddl = """
+    CREATE EXTERNAL TABLE IF NOT EXISTS schema.specific_table LIKE
+    schema.table_template LOCATION "/path/to/table"
+    TBLPROPERTIES ("external.table.purge" = "true")
+    """
+    result = DDLParser(ddl, normalize_names=True).run(output_mode="hql")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "collection_items_terminated_by": None,
+            "columns": [],
+            "comment": None,
+            "external": True,
+            "fields_terminated_by": None,
+            "if_not_exists": True,
+            "index": [],
+            "like": {"schema": "schema", "table_name": "table_template"},
+            "lines_terminated_by": None,
+            "location": '"/path/to/table"',
+            "map_keys_terminated_by": None,
+            "partitioned_by": [],
+            "primary_key": [],
+            "row_format": None,
+            "schema": "schema",
+            "stored_as": None,
+            "table_name": "specific_table",
+            "tablespace": None,
+            "tblproperties": {"external.table.purge": "true"},
+        }
+    ]
+    assert expected == result
