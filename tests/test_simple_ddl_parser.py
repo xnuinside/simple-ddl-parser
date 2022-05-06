@@ -1234,6 +1234,7 @@ def test_comments_in_columns():
                 "tablespace": None,
                 "schema": None,
                 "table_name": "test_table",
+                "comment": "'This is test table'",
             }
         ],
         "types": [],

@@ -416,6 +416,7 @@ class Schema:
     def p_c_schema(self, p: List) -> None:
         """c_schema : CREATE SCHEMA
         | CREATE ID SCHEMA"""
+
         if len(p) == 4:
             p[0] = {"remote": True}
 
@@ -424,6 +425,8 @@ class Schema:
         | c_schema id id id
         | c_schema id
         | c_schema id DOT id
+        | c_schema id option_comment
+        | c_schema id DOT id option_comment
         | c_schema IF NOT EXISTS id
         | c_schema IF NOT EXISTS id DOT id
         | create_schema id id id
@@ -431,8 +434,13 @@ class Schema:
         | create_schema options
         """
         p_list = list(p)
+
         p[0] = {}
         auth_index = None
+
+        if "comment" in p_list[-1]:
+            p[0].update(p_list[-1])
+            del p_list[-1]
 
         self.add_if_not_exists(p[0], p_list)
         if isinstance(p_list[1], dict):
