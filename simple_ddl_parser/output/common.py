@@ -145,19 +145,22 @@ def process_alter_and_index_result(
 
 def process_entities(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
     """process tables, types, sequence and etc. data"""
-    table_data = init_table_data()
-    table_data = d.populate_dialects_table_data(output_mode, table_data)
-    not_table = False
+    is_it_table = True
+
     if table.get("table_name"):
+        table_data = init_table_data()
+        table_data = d.populate_dialects_table_data(output_mode, table_data)
         table_data.update(table)
         table_data = set_unique_columns(table_data)
     else:
         table_data = table
-        not_table = True
-    if not not_table:
-        table_data = process_not_table_item(table_data, tables_dict)
+        is_it_table = False
+
+    if is_it_table:
+        table_data = process_is_it_table_item(table_data, tables_dict)
 
     table_data = normalize_ref_columns_in_final_output(table_data)
+
     d.dialects_clean_up(output_mode, table_data)
     return table_data
 
@@ -183,7 +186,7 @@ def result_format(
     return final_result
 
 
-def process_not_table_item(table_data: Dict, tables_dict: Dict) -> Dict:
+def process_is_it_table_item(table_data: Dict, tables_dict: Dict) -> Dict:
     if table_data.get("table_name"):
         tables_dict[(table_data["table_name"], table_data["schema"])] = table_data
     else:

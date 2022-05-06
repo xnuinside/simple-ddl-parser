@@ -211,3 +211,38 @@ def test_flag_normalize_names_mixed_usage():
         'ddl_properties': []
     }
     assert expected == result
+
+
+def test_parsing_go_and_use_correctly():
+    ddl="""
+    create TABLE ASIN.EXCLUSION (
+        USER_COMMENT VARCHAR(100),
+    );
+    """
+    result = DDLParser(ddl, normalize_names=True).run(output_mode="hql")
+    expected = [{'alter': {},
+  'checks': [],
+  'collection_items_terminated_by': None,
+  'columns': [{'check': None,
+               'default': None,
+               'name': 'USER_COMMENT',
+               'nullable': True,
+               'references': None,
+               'size': 100,
+               'type': 'VARCHAR',
+               'unique': False}],
+  'comment': None,
+  'external': False,
+  'fields_terminated_by': None,
+  'index': [],
+  'lines_terminated_by': None,
+  'location': None,
+  'map_keys_terminated_by': None,
+  'partitioned_by': [],
+  'primary_key': [],
+  'row_format': None,
+  'schema': 'ASIN',
+  'stored_as': None,
+  'table_name': 'EXCLUSION',
+  'tablespace': None}]
+    assert expected == result

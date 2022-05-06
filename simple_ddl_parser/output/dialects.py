@@ -13,7 +13,6 @@ sql_clean_up_list = [
     "fields_terminated_by",
     "collection_items_terminated_by",
     "map_keys_terminated_by",
-    "comment",
 ]
 
 
@@ -145,16 +144,17 @@ def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
     key_cleaning(table_data, output_mode)
     update_mappers_for_table_properties = {"bigquery": update_bigquery_output}
     update_table_prop = update_mappers_for_table_properties.get(output_mode)
-
     if update_table_prop:
         table_data = update_table_prop(table_data)
 
     if output_mode == "oracle":
-        for column in table_data["columns"]:
+        for column in table_data.get("columns", []):
             column = add_additional_oracle_keys_in_column(column)
     elif output_mode == "snowflake":
-        for column in table_data["columns"]:
+        # can be no columns if it is a create database or create schema
+        for column in table_data.get("columns", []):
             column = add_additional_snowflake_keys_in_column(column)
+
     elif output_mode == "redshift":
         table_data = process_redshift_dialect(table_data)
     return table_data

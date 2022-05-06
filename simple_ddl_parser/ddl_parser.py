@@ -203,6 +203,7 @@ class DDLParser(
 
     def set_last_token(self, t: LexToken):
         self.lexer.last_token = t.type
+
         return t
 
     def p_id(self, p):

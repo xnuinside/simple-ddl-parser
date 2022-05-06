@@ -57,6 +57,7 @@ def test_spark_sql_using():
                 "tablespace": None,
                 "tblproperties": {"'foo'": "'bar'"},
                 "using": "CSV",
+                'comment': "'this is a comment'",
             }
         ],
         "types": [],

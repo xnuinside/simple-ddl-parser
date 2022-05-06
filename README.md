@@ -414,6 +414,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - CREATE .. CLONE statements for table, database and schema
 - CREATE TABLE .. CLUSTER BY ..
 - CONSTRAINT .. [NOT] ENFORCED 
+- COMMENT = in CREATE TABLE & CREATE SCHEMA statements
 
 ### BigQuery
 

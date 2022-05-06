@@ -163,16 +163,16 @@ class Parser:
         return self.new_statement
 
     def check_line_on_skip_words(self) -> bool:
-        skip_line_words = ["USE", "GO"]
+        skip_regex = r"^(GO|USE)\b"
 
         self.skip = False
-        for word in skip_line_words:
-            if self.line.startswith(word):
-                self.skip = True
-                break
+
+        if re.match(skip_regex, self.line.upper()):
+            self.skip = True
         return self.skip
 
     def add_line_to_statement(self) -> str:
+
         if (
             self.line
             and not self.skip
@@ -206,7 +206,6 @@ class Parser:
         self.pre_process_line()
 
         self.line = self.line.strip().replace("\n", "").replace("\t", "")
-
         self.skip = self.check_line_on_skip_words()
 
         self.parse_set_statement()
@@ -214,7 +213,6 @@ class Parser:
         self.check_new_statement_start(self.line)
 
         final_line = self.line.endswith(";") and not self.set_was_in_line
-
         self.add_line_to_statement()
 
         if final_line or self.new_statement:
@@ -237,6 +235,7 @@ class Parser:
             self.statement = None
 
     def parse_statement(self) -> None:
+
         _parse_result = yacc.parse(self.statement)
         if _parse_result:
             self.tables.append(_parse_result)
