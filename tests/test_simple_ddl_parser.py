@@ -2617,3 +2617,92 @@ def test_check_that_all_columns_parsed_correctly():
         }
     ]
     assert expected == result
+
+
+def test_create_or_replace():
+        
+    ddl="""create or replace table someTable (
+        someField varchar(4)
+    );
+    """
+
+    result = DDLParser(ddl,normalize_names=True).run()
+  
+    expected = [{'alter': {},
+            'checks': [],
+            'columns': [{'check': None,
+                        'default': None,
+                        'name': 'someField',
+                        'nullable': True,
+                        'references': None,
+                        'size': 4,
+                        'type': 'varchar',
+                        'unique': False}],
+            'index': [],
+            'partitioned_by': [],
+            'primary_key': [],
+            'replace': True,
+            'schema': None,
+            'table_name': 'someTable',
+            'tablespace': None}]
+    
+    assert expected == result
+
+
+def test_increment_column():
+    expected = [{'alter': {},
+  'checks': [],
+  'columns': [{'check': None,
+               'default': None,
+               'increment': True,
+               'name': 'user_id',
+               'nullable': False,
+               'references': None,
+               'size': None,
+               'type': 'INT',
+               'unique': False},
+              {'check': None,
+               'default': None,
+               'name': 'username',
+               'nullable': False,
+               'references': None,
+               'size': 100,
+               'type': 'VARCHAR',
+               'unique': False},
+              {'check': None,
+               'default': None,
+               'name': 'password',
+               'nullable': False,
+               'references': None,
+               'size': 40,
+               'type': 'VARCHAR',
+               'unique': False},
+              {'check': None,
+               'default': None,
+               'name': 'submission_date',
+               'nullable': True,
+               'references': None,
+               'size': None,
+               'type': 'DATE',
+               'unique': False}],
+  'constraints': {'checks': None, 'references': None, 'uniques': None},
+  'index': [],
+  'partitioned_by': [],
+  'primary_key': ['user_id'],
+  'schema': None,
+  'table_name': 'Users',
+  'tablespace': None}]
+        
+    ddl = """
+    CREATE TABLE Users (
+    user_id INT NOT NULL AUTO INCREMENT,
+    username VARCHAR(100) NOT NULL,
+    password VARCHAR(40) NOT NULL,
+    submission_date DATE,
+    PRIMARY KEY ( user_id )
+    );
+    """
+
+    result = DDLParser(ddl).run(output_mode="mysql")
+
+    assert expected == result

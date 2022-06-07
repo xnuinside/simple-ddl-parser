@@ -1,3 +1,10 @@
+**v0.26.3**
+
+Improvements:
+1. Added support for OR REPLACE in CREATE TABLE: https://github.com/xnuinside/simple-ddl-parser/issues/131
+2. Added support for AUTO INCREMENT in column:https://github.com/xnuinside/simple-ddl-parser/issues/130
+
+
 **v0.26.2**
 
 Fixes:
