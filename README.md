@@ -327,7 +327,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 
 ## Supported Statements
 
-- CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED, COLLATE
+- CREATE [OR REPLACE] TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED, COLLATE
 
 - STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
 
@@ -456,6 +456,24 @@ https://github.com/swiatek25
 
 
 ## Changelog
+**v0.26.3**
+
+Improvements:
+1. Added support for OR REPLACE in CREATE TABLE: https://github.com/xnuinside/simple-ddl-parser/issues/131
+2. Added support for AUTO INCREMENT in column:https://github.com/xnuinside/simple-ddl-parser/issues/130
+
+
+**v0.26.2**
+
+Fixes:
+1. Fixed a huge bug for incorrect parsing lines with 'USE' & 'GO' strings inside.
+2. Fixed parsing for CREATE SCHEMA for Snowlake & Oracle DDLs
+
+Improvements:
+1. Added  COMMENT statement for CREATE TABLE ddl (for SNOWFLAKE dialect support)
+2. Added  COMMENT statement for CREATE SCHEMA ddl (for SNOWFLAKE dialect support)
+
+
 **v0.26.1**
 
 Fixes:

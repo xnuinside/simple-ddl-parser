@@ -121,6 +121,8 @@ class Table:
     def p_create_table(self, p: List):
         """create_table : CREATE TABLE IF NOT EXISTS
         | CREATE TABLE
+        | CREATE OR REPLACE TABLE IF NOT EXISTS
+        | CREATE OR REPLACE TABLE
         | CREATE id TABLE IF NOT EXISTS
         | CREATE id TABLE
 
@@ -130,7 +132,8 @@ class Table:
         p[0] = {}
         p_list = list(p)
         self.add_if_not_exists(p[0], p_list)
-
+        if 'REPLACE' in p_list:
+            p[0]["replace"] = True
         if p[2].upper() == "EXTERNAL":
             p[0]["external"] = True
         if p[2].upper() == "TEMP" or p[2].upper() == "TEMPORARY":
@@ -141,7 +144,10 @@ class Column:
     def p_column_property(self, p: List):
         """c_property : id id"""
         p_list = list(p)
-        p[0] = {"property": {p_list[1]: p_list[-1]}}
+        if p[1].lower() == "auto":
+            p[0] = {"increment": True}
+        else:
+            p[0] = {"property": {p_list[1]: p_list[-1]}}
 
     def set_base_column_propery(self, p: List) -> Dict:
 

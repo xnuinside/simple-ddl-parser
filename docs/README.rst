@@ -352,7 +352,7 @@ Supported Statements
 
 
 * 
-  CREATE TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED, COLLATE
+  CREATE [OR REPLACE] TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED, COLLATE
 
 * 
   STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
@@ -467,6 +467,7 @@ Snowflake Dialect statements
 * CREATE .. CLONE statements for table, database and schema
 * CREATE TABLE .. CLUSTER BY ..
 * CONSTRAINT .. [NOT] ENFORCED 
+* COMMENT = in CREATE TABLE & CREATE SCHEMA statements
 
 BigQuery
 ^^^^^^^^
@@ -521,6 +522,28 @@ https://github.com/swiatek25
 
 Changelog
 ---------
+
+**v0.26.3**
+
+Improvements:
+
+
+#. Added support for OR REPLACE in CREATE TABLE: https://github.com/xnuinside/simple-ddl-parser/issues/131
+#. Added support for AUTO INCREMENT in column:https://github.com/xnuinside/simple-ddl-parser/issues/130
+
+**v0.26.2**
+
+Fixes:
+
+
+#. Fixed a huge bug for incorrect parsing lines with 'USE' & 'GO' strings inside.
+#. Fixed parsing for CREATE SCHEMA for Snowlake & Oracle DDLs
+
+Improvements:
+
+
+#. Added  COMMENT statement for CREATE TABLE ddl (for SNOWFLAKE dialect support)
+#. Added  COMMENT statement for CREATE SCHEMA ddl (for SNOWFLAKE dialect support)
 
 **v0.26.1**
 
