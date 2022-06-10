@@ -1,3 +1,7 @@
+**v0.26.4**
+
+1. Bugfix for (support CREATE OR REPLACE with additional keys like transient/temporary): https://github.com/xnuinside/simple-ddl-parser/issues/133
+
 **v0.26.3**
 
 Improvements:

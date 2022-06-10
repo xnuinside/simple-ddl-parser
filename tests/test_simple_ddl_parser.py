@@ -2706,3 +2706,77 @@ def test_increment_column():
     result = DDLParser(ddl).run(output_mode="mysql")
 
     assert expected == result
+
+
+def test_replace_with_id():
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'collection_items_terminated_by': None,
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': 'someField',
+                          'nullable': True,
+                          'references': None,
+                          'size': 4,
+                          'type': 'VARCHAR',
+                          'unique': False}],
+             'comment': None,
+             'external': False,
+             'fields_terminated_by': None,
+             'index': [],
+             'lines_terminated_by': None,
+             'location': None,
+             'map_keys_terminated_by': None,
+             'partitioned_by': [],
+             'primary_key': [],
+             'replace': True,
+             'row_format': None,
+             'schema': None,
+             'stored_as': None,
+             'table_name': 'someTable',
+             'tablespace': None,
+             'transient': True},
+            {'alter': {},
+             'checks': [],
+             'collection_items_terminated_by': None,
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': 'someField',
+                          'nullable': True,
+                          'references': None,
+                          'size': 4,
+                          'type': 'VARCHAR',
+                          'unique': False}],
+             'comment': None,
+             'external': False,
+             'fields_terminated_by': None,
+             'index': [],
+             'lines_terminated_by': None,
+             'location': None,
+             'map_keys_terminated_by': None,
+             'partitioned_by': [],
+             'primary_key': [],
+             'replace': True,
+             'row_format': None,
+             'schema': None,
+             'stored_as': None,
+             'table_name': 'someTable',
+             'tablespace': None,
+             'temp': True}],
+ 'types': []}
+        
+    ddl = """CREATE OR REPLACE TRANSIENT TABLE someTable (
+        someField VARCHAR(4)
+    );
+    CREATE OR REPLACE TEMPORARY TABLE someTable (
+        someField VARCHAR(4)
+    );
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    
+    assert expected == result

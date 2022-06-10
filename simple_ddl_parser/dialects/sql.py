@@ -125,18 +125,25 @@ class Table:
         | CREATE OR REPLACE TABLE
         | CREATE id TABLE IF NOT EXISTS
         | CREATE id TABLE
+        | CREATE OR REPLACE id TABLE IF NOT EXISTS
+        | CREATE OR REPLACE id TABLE
 
         """
-        # id - for EXTERNAL
+        # id - for EXTERNAL, TRANSIENT, TEMPORARY
         # get schema & table name
         p[0] = {}
         p_list = list(p)
         self.add_if_not_exists(p[0], p_list)
+
         if 'REPLACE' in p_list:
             p[0]["replace"] = True
-        if p[2].upper() == "EXTERNAL":
-            p[0]["external"] = True
-        if p[2].upper() == "TEMP" or p[2].upper() == "TEMPORARY":
+
+        id_key = p_list[4] if 'REPLACE' in p_list else p_list[2]
+        id_key = id_key.upper()
+
+        if id_key in ["EXTERNAL", "TRANSIENT"]:
+            p[0][id_key.lower()] = True
+        elif id_key in ["TEMP", "TEMPORARY"]:
             p[0]["temp"] = True
 
 
