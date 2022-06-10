@@ -465,7 +465,7 @@ Snowflake Dialect statements
 
 
 * CREATE .. CLONE statements for table, database and schema
-* CREATE TABLE .. CLUSTER BY ..
+* CREATE TABLE [or REPLACE] [ TRANSIET | TEMPORARY ] .. CLUSTER BY ..
 * CONSTRAINT .. [NOT] ENFORCED 
 * COMMENT = in CREATE TABLE & CREATE SCHEMA statements
 
@@ -522,6 +522,11 @@ https://github.com/swiatek25
 
 Changelog
 ---------
+
+**v0.26.4**
+
+
+#. Bugfix for (support CREATE OR REPLACE with additional keys like transient/temporary): https://github.com/xnuinside/simple-ddl-parser/issues/133
 
 **v0.26.3**
 

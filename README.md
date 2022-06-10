@@ -412,7 +412,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 ### Snowflake Dialect statements
 
 - CREATE .. CLONE statements for table, database and schema
-- CREATE TABLE .. CLUSTER BY ..
+- CREATE TABLE [or REPLACE] [ TRANSIET | TEMPORARY ] .. CLUSTER BY ..
 - CONSTRAINT .. [NOT] ENFORCED 
 - COMMENT = in CREATE TABLE & CREATE SCHEMA statements
 
@@ -456,6 +456,10 @@ https://github.com/swiatek25
 
 
 ## Changelog
+**v0.26.4**
+
+1. Bugfix for (support CREATE OR REPLACE with additional keys like transient/temporary): https://github.com/xnuinside/simple-ddl-parser/issues/133
+
 **v0.26.3**
 
 Improvements:
