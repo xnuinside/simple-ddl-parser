@@ -477,6 +477,32 @@ BigQuery
 * OPTION in CREATE TABLE statement
 * OPTION in column defenition statement
 
+Parser settings
+^^^^^^^^^^^^^^^
+
+Logging
+~~~~~~~
+
+
+#. Logging to file
+
+To get logging output to file you should provide to Parser 'log_file' argument with path or file name:
+
+.. code-block:: console
+
+
+       DDLParser(ddl, log_file='parser221.log').run(group_by_type=True)
+
+
+#. Logging level
+
+To set logging level you should provide argument 'log_level'
+
+.. code-block:: console
+
+
+       DDLParser(ddl, log_level=logging.INFO).run(group_by_type=True)
+
 TODO in next Releases (if you don't see feature that you need - open the issue)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -522,6 +548,14 @@ https://github.com/swiatek25
 
 Changelog
 ---------
+
+**v0.26.5**
+
+Fixes:
+
+
+#. Parsetab included in builds.
+#. Added additional argumen log_file='path_to_file', to enable logging to file with providen name.
 
 **v0.26.4**
 
