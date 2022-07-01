@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 from ply import lex, yacc
 
@@ -15,13 +15,23 @@ CL_COM = "*/"
 IN_COM = "--"
 MYSQL_COM = "#"
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename="parselog.txt",
-    filemode="w",
-    format="%(filename)10s:%(lineno)4d:%(message)s",
-)
-log = logging.getLogger()
+
+def set_logging_config(
+        log_level: Union[str, int],
+        log_file: Optional[str] = None) -> None:
+
+    if log_file:
+        logging.basicConfig(
+            level=log_level,
+            filename=log_file,
+            filemode="w",
+            format="%(filename)10s:%(lineno)4d:%(message)s",
+        )
+    else:
+        logging.basicConfig(
+            level=log_level,
+            format="%(filename)10s:%(lineno)4d:%(message)s",
+        )
 
 
 class Parser:
@@ -36,7 +46,12 @@ class Parser:
     """
 
     def __init__(
-        self, content: str, silent: bool = True, normalize_names: bool = False
+        self,
+        content: str,
+        silent: bool = True,
+        normalize_names: bool = False,
+        log_file: Optional[str] = None,
+        log_level: Union[str, int] = logging.DEBUG,
     ) -> None:
         """init parser for file"""
         self.tables = []
@@ -44,6 +59,8 @@ class Parser:
         self.data = content.encode("unicode_escape")
         self.paren_count = 0
         self.normalize_names = normalize_names
+        set_logging_config(log_level, log_file)
+        log = logging.getLogger()
         self.lexer = lex.lex(object=self, debug=False, debuglog=log)
         self.yacc = yacc.yacc(module=self, debug=False, debuglog=log)
         self.columns_closed = False

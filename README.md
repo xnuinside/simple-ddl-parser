@@ -422,6 +422,30 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - OPTION in CREATE TABLE statement
 - OPTION in column defenition statement
 
+### Parser settings
+
+
+#### Logging
+
+1. Logging to file
+
+To get logging output to file you should provide to Parser 'log_file' argument with path or file name:
+
+```console
+
+    DDLParser(ddl, log_file='parser221.log').run(group_by_type=True)
+
+```
+
+2. Logging level
+
+To set logging level you should provide argument 'log_level'
+
+```console
+
+    DDLParser(ddl, log_level=logging.INFO).run(group_by_type=True)
+
+```
 
 ### TODO in next Releases (if you don't see feature that you need - open the issue)
 
