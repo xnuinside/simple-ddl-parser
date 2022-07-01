@@ -523,6 +523,13 @@ https://github.com/swiatek25
 Changelog
 ---------
 
+**v0.26.4**
+
+Fixes:
+
+
+#. Parsetab included in builds.
+
 **v0.26.3**
 
 Improvements:

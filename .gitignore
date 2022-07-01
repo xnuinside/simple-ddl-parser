@@ -6,6 +6,5 @@ dist/
 .pytest_cache/
 simple_ddl_parser.egg-info/
 simple_ddl_parser/parser.out
-simple_ddl_parser/parsetab.py
 simple_ddl_parser/dialects/__pycache__
 .vscode/
