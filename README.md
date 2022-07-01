@@ -480,10 +480,11 @@ https://github.com/swiatek25
 
 
 ## Changelog
-**v0.26.4**
+**v0.26.5**
 
 Fixes:
 1. Parsetab included in builds.
+2. Added additional argumen log_file='path_to_file', to enable logging to file with providen name.
 
 
 **v0.26.3**

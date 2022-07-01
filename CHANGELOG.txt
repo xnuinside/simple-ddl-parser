@@ -1,4 +1,4 @@
-**v0.26.4**
+**v0.26.5**
 
 Fixes:
 1. Parsetab included in builds.
