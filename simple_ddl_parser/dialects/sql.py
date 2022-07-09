@@ -244,7 +244,12 @@ class Column:
         else:
             size = p_list[-1]
         if len(p_list) != 3:
-            size = (int(p_list[-3]), int(p_list[-1]))
+            if p_list[-3] != "*":
+                # oracle can contain * in column size
+                value_0 = int(p_list[-3])
+            else:
+                value_0 = p_list[-3]
+            size = (value_0, int(p_list[-1]))
         return size
 
     @staticmethod
