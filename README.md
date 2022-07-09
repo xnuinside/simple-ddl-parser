@@ -392,6 +392,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - 'max' specifier in column size
 - CONSTRAINT ... UNIQUE, CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY, CONSTRAINT ... PRIMARY KEY
 - CREATE CLUSTERED INDEX
+- CREATE TABLE (...) ORGANIZATION INDEX 
 
 ### Oracle
 

@@ -47,7 +47,7 @@ def test_in_clause_in_check():
                     "unique": False,
                 },
                 {
-                    "check": "`col_name` IN ('year', 'month')",
+                    "check": "`col_name` IN ('year','month')",
                     "default": None,
                     "name": "`col_name`",
                     "nullable": True,
@@ -66,3 +66,78 @@ def test_in_clause_in_check():
         }
     ]
     assert result == expected
+
+
+def test_checks_with_in_works():
+    
+
+    ddl =   """
+    CREATE TABLE meta_criteria_combo
+    (
+    parent_criterion_id NUMBER(3),
+    child_criterion_id  NUMBER(3),
+    include_exclude_ind CHAR(1) NOT NULL CONSTRAINT chk_metalistcombo_logicalopr CHECK (include_exclude_ind IN ('I', 'E')),
+    CONSTRAINT pk_meta_criteria_combo PRIMARY KEY(parent_criterion_id, child_criterion_id),
+    CONSTRAINT fk_metacritcombo_parent FOREIGN KEY(parent_criterion_id) REFERENCES meta_criteria ON DELETE CASCADE, 
+    CONSTRAINT fk_metacritcombo_child FOREIGN KEY(child_criterion_id) REFERENCES meta_criteria 
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': 'parent_criterion_id',
+                          'nullable': False,
+                          'references': None,
+                          'size': 3,
+                          'type': 'NUMBER',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': 'child_criterion_id',
+                          'nullable': False,
+                          'references': None,
+                          'size': 3,
+                          'type': 'NUMBER',
+                          'unique': False},
+                         {'check': 'constraint_name statement',
+                          'default': None,
+                          'name': 'include_exclude_ind',
+                          'nullable': False,
+                          'references': None,
+                          'size': 1,
+                          'type': 'CHAR',
+                          'unique': False}],
+             'constraints': {'primary_keys': [{'columns': ['parent_criterion_id',
+                                                           'child_criterion_id'],
+                                               'constraint_name': 'pk_meta_criteria_combo'}],
+                             'references': [{'columns': [None],
+                                             'constraint_name': 'fk_metacritcombo_parent',
+                                             'deferrable_initially': None,
+                                             'on_delete': 'CASCADE',
+                                             'on_update': None,
+                                             'schema': None,
+                                             'table': 'meta_criteria'},
+                                            {'columns': [None],
+                                             'constraint_name': 'fk_metacritcombo_child',
+                                             'deferrable_initially': None,
+                                             'on_delete': None,
+                                             'on_update': None,
+                                             'schema': None,
+                                             'table': 'meta_criteria'}]},
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': ['parent_criterion_id', 'child_criterion_id'],
+             'schema': None,
+             'table_name': 'meta_criteria_combo',
+             'tablespace': None}],
+ 'types': []}
+    
+    assert result == expected
+
+    

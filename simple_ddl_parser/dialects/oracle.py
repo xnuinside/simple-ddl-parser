@@ -49,3 +49,8 @@ class Oracle:
         p_list = list(p)
         p[0] = p[1]
         p[0]["storage"] = p_list[-1]
+
+    def p_expr_index(self, p):
+        """expr : expr ID INDEX"""
+        p[0] = p[1]
+        p[0][f"{p[2].lower()}_index"] = True

@@ -1191,7 +1191,6 @@ class BaseSQL(
         | check_st LP pid RP
         """
         p_list = remove_par(list(p))
-
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
@@ -1199,6 +1198,8 @@ class BaseSQL(
         for item in p_list[2:]:
             if isinstance(p_list[-1], dict) and p_list[-1].get("args"):
                 p[0]["check"][-1] += p_list[-1]["args"]
+            elif isinstance(item, list):
+                p[0]["check"].append(f"({','.join(item)})")
             else:
                 p[0]["check"].append(item)
 
