@@ -759,7 +759,7 @@ class BaseSQL(
         p[0]["checks"].append(check)
         return p[0]
 
-    def p_expression_table(self, p: List) -> None:
+    def p_expression_table(self, p: List) -> None:  # noqa R701
         """expr : table_name defcolumn
         | table_name LP defcolumn
         | table_name
@@ -779,10 +779,12 @@ class BaseSQL(
         | expr COMMA constraint foreign ref
         | expr COMMA foreign ref
         | expr encode
+        | expr DEFAULT id id id
         | expr RP
         """
         p[0] = p[1]
         p_list = remove_par(list(p))
+
         if p_list[-1] != ",":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
@@ -791,6 +793,8 @@ class BaseSQL(
             elif "enforced" in p_list[-1]:
                 p_list[-2].update(p_list[-1])
                 p[0].update({"primary_key_enforced": p_list[-1]["enforced"]})
+            elif 'DEFAULT' in p_list:
+                p[0].update({"default_charset": p_list[-1]})
             else:
                 p[0].update(p_list[-1])
 

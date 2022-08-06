@@ -29,6 +29,5 @@ class Snowflake:
         | COMMENT ID DQ_STRING
         """
         p_list = remove_par(list(p))
-        print(p_list)
         if "comment" in p[1].lower():
             p[0] = {"comment": p_list[-1]}
