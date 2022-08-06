@@ -244,7 +244,12 @@ class Column:
         else:
             size = p_list[-1]
         if len(p_list) != 3:
-            size = (int(p_list[-3]), int(p_list[-1]))
+            if p_list[-3] != "*":
+                # oracle can contain * in column size
+                value_0 = int(p_list[-3])
+            else:
+                value_0 = p_list[-3]
+            size = (value_0, int(p_list[-1]))
         return size
 
     @staticmethod
@@ -754,7 +759,7 @@ class BaseSQL(
         p[0]["checks"].append(check)
         return p[0]
 
-    def p_expression_table(self, p: List) -> None:
+    def p_expression_table(self, p: List) -> None:  # noqa R701
         """expr : table_name defcolumn
         | table_name LP defcolumn
         | table_name
@@ -774,10 +779,12 @@ class BaseSQL(
         | expr COMMA constraint foreign ref
         | expr COMMA foreign ref
         | expr encode
+        | expr DEFAULT id id id
         | expr RP
         """
         p[0] = p[1]
         p_list = remove_par(list(p))
+
         if p_list[-1] != ",":
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
@@ -786,6 +793,8 @@ class BaseSQL(
             elif "enforced" in p_list[-1]:
                 p_list[-2].update(p_list[-1])
                 p[0].update({"primary_key_enforced": p_list[-1]["enforced"]})
+            elif 'DEFAULT' in p_list:
+                p[0].update({"default_charset": p_list[-1]})
             else:
                 p[0].update(p_list[-1])
 
@@ -1067,6 +1076,21 @@ class BaseSQL(
         """funct_args : LP multi_id RP"""
         p[0] = {"args": f"({p[2]})"}
 
+    def p_funct(self, p: List) -> None:
+        """funct : id LP multi_id RP"""
+        p[0] = {"func_name": p[1], "args": f"({p[3]})"}
+
+    def p_multiple_funct(self, p: List) -> None:
+        """multiple_funct : funct
+        | multiple_funct COMMA funct
+        | multiple_funct COMMA
+        """
+        if not isinstance(p[1], list):
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1]
+            p[0].append(p[-1])
+
     def p_funct_expr(self, p: List) -> None:
         """funct_expr : LP multi_id RP
         | multi_id
@@ -1186,7 +1210,6 @@ class BaseSQL(
         | check_st LP pid RP
         """
         p_list = remove_par(list(p))
-
         if isinstance(p[1], dict):
             p[0] = p[1]
         else:
@@ -1194,6 +1217,8 @@ class BaseSQL(
         for item in p_list[2:]:
             if isinstance(p_list[-1], dict) and p_list[-1].get("args"):
                 p[0]["check"][-1] += p_list[-1]["args"]
+            elif isinstance(item, list):
+                p[0]["check"].append(f"({','.join(item)})")
             else:
                 p[0]["check"].append(item)
 

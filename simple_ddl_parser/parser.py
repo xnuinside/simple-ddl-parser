@@ -49,13 +49,14 @@ class Parser:
         self,
         content: str,
         silent: bool = True,
+        debug: bool = False,
         normalize_names: bool = False,
         log_file: Optional[str] = None,
         log_level: Union[str, int] = logging.DEBUG,
     ) -> None:
         """init parser for file"""
         self.tables = []
-        self.silent = silent
+        self.silent = not debug if debug else silent
         self.data = content.encode("unicode_escape")
         self.paren_count = 0
         self.normalize_names = normalize_names

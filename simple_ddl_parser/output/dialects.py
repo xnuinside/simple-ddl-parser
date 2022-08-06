@@ -7,7 +7,6 @@ sql_clean_up_list = [
     "external",
     "external",
     "stored_as",
-    "location",
     "row_format",
     "lines_terminated_by",
     "fields_terminated_by",
