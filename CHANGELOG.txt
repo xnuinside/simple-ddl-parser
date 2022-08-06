@@ -10,7 +10,7 @@ Improvements:
 
 New features:
 1. Added support for ORACLE 'ORGANIZATION INDEX' 
-
+2. Added support for SparkSQL Partition by with procedure call - https://github.com/xnuinside/simple-ddl-parser/issues/154
 
 
 **v0.26.5**

@@ -132,7 +132,9 @@ class HQL:
 
     def p_expression_partitioned_by_hql(self, p):
         """expr : expr PARTITIONED BY pid_with_type
-        | expr PARTITIONED BY LP pid RP"""
+        | expr PARTITIONED BY LP pid RP
+        | expr PARTITIONED BY LP multiple_funct RP
+        """
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["partitioned_by"] = p_list[-1]

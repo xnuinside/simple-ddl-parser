@@ -481,6 +481,21 @@ https://github.com/swiatek25
 
 
 ## Changelog
+**v0.27.0**
+
+Fixes:
+1. Fixed parsing CHECKS with IN statement - https://github.com/xnuinside/simple-ddl-parser/issues/150
+
+
+Improvements:
+
+1. Added support for '*' in size column (ORACLE dialect) - https://github.com/xnuinside/simple-ddl-parser/issues/151
+
+New features:
+1. Added support for ORACLE 'ORGANIZATION INDEX' 
+2. Added support for SparkSQL Partition by with procedure call - https://github.com/xnuinside/simple-ddl-parser/issues/154
+
+
 **v0.26.5**
 
 Fixes:
