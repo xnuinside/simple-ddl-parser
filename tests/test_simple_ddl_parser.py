@@ -2780,3 +2780,4 @@ def test_replace_with_id():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     
     assert expected == result
+
