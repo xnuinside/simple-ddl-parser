@@ -556,17 +556,20 @@ Fixes:
 
 
 #. Fixed parsing CHECKS with IN statement - https://github.com/xnuinside/simple-ddl-parser/issues/150
+#. @# symbols added to ID token - (partialy) https://github.com/xnuinside/simple-ddl-parser/issues/146
 
 Improvements:
 
 
 #. Added support for '*' in size column (ORACLE dialect) - https://github.com/xnuinside/simple-ddl-parser/issues/151
+#. Added arg 'debug' to parser, works same way as 'silent' - to get more clear error output. 
 
 New features:
 
 
 #. Added support for ORACLE 'ORGANIZATION INDEX' 
 #. Added support for SparkSQL Partition by with procedure call - https://github.com/xnuinside/simple-ddl-parser/issues/154
+#. Added support for DEFAULT CHARSET statement MySQL - https://github.com/xnuinside/simple-ddl-parser/issues/153
 
 **v0.26.5**
 
