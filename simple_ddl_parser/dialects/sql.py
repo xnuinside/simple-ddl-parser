@@ -1075,7 +1075,7 @@ class BaseSQL(
     def p_funct(self, p: List) -> None:
         """funct : id LP multi_id RP"""
         p[0] = {"func_name": p[1], "args": f"({p[3]})"}
-    
+
     def p_multiple_funct(self, p: List) -> None:
         """multiple_funct : funct
         | multiple_funct COMMA funct
@@ -1086,7 +1086,7 @@ class BaseSQL(
         else:
             p[0] = p[1]
             p[0].append(p[-1])
-    
+
     def p_funct_expr(self, p: List) -> None:
         """funct_expr : LP multi_id RP
         | multi_id
