@@ -8,7 +8,7 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
 Yes, library already has about 7000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
 
-As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
+As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. But! Pay attention that sometimes output in keywords can be changed in minor version because of fixing wrong behaviour in past. For example, previously 'auto_increment' was a part of column type, but later it became a separate column property. So, please read for minor versions changedlog. 
 
 However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version `1.0.*` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version `0.26.0` :)
 
@@ -30,7 +30,10 @@ Parser supports:
 
 You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser. If you need to add more statements or new dialects - feel free to open the issue. 
 
+
 ### Feel free to open Issue with DDL sample
+Pay attentions that I'm adding functional tests for all supported statement, so if you see that your statement is failed and you didn't see it in the test 99,9% that I did n't have sample with such SQL statement - so feel free to open the issue and I will add support for it. 
+
 **If you need some statement, that not supported by parser yet**: please provide DDL example & information about that is it SQL dialect or DB.
 
 Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
@@ -481,6 +484,29 @@ https://github.com/swiatek25
 
 
 ## Changelog
+**v0.28.0**
+
+Important Changes (Pay attention):
+1. Because of parsing now AUTO_INCREMENT as a separate property of column previous output changed. 
+Previously it was parsed as a part of type like:  'INT AUTO_INCREMENT'. 
+Now type will be only 'INT', but in column property you will see 'autoincrement': True.
+
+Amazing innovation:
+1. It's is weird to write in Changelog, but only in version 0.28.0 I recognize that floats that not supported by parser & it was fixed.
+Thanks for the sample in the issue: https://github.com/xnuinside/simple-ddl-parser/issues/163
+
+Improvements:
+MariaDB:
+1. Added support for MariaDB AUTO_INCREMENT (from ddl here - https://github.com/xnuinside/simple-ddl-parser/issues/144)
+If column is Auto Incremented - it indicated as 'autoincrement': True in column defenition
+
+Common:
+1. Added parsing for multiline comments in DDL with `/* */` syntax.
+2. Comments from DDL now all placed in 'comments' keyword if you use `group_by_type=` arg in parser.
+3. Added argument 'parser_settings={}' (dict type) in method  parse_from_file() - this way you can pass any arguments that you want to DDLParser (& that supported by it)
+So, if you want to set log_level=logging.WARNING for parser - just use it as:
+parse_from_file('path_to_file', parser_settings={'log_level': logging.WARNING}). For issue: https://github.com/xnuinside/simple-ddl-parser/issues/160
+
 **v0.27.0**
 
 Fixes:

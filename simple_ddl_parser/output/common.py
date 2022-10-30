@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from copy import deepcopy
 from typing import Dict, List, Tuple
@@ -15,6 +16,9 @@ output_modes = [
     "redshift",
     "bigquery",
 ]
+
+
+logger = logging.getLogger('simple_ddl_parser')
 
 
 def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str]) -> Dict:
@@ -190,7 +194,7 @@ def process_is_it_table_item(table_data: Dict, tables_dict: Dict) -> Dict:
     if table_data.get("table_name"):
         tables_dict[(table_data["table_name"], table_data["schema"])] = table_data
     else:
-        print(
+        logger.error(
             "\n Something goes wrong. Possible you try to parse unsupported statement \n "
         )
     if not table_data.get("primary_key"):
@@ -281,7 +285,7 @@ def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
                 if key != "comments":
                     _type.append(item)
                 else:
-                    _type.append(item["comments"][0])
+                    _type.extend(item["comments"])
                 break
     if result_as_dict["comments"] == []:
         del result_as_dict["comments"]

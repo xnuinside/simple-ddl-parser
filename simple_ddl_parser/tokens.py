@@ -48,6 +48,7 @@ columns_defenition = {
     "ENCODE": "ENCODE",
     "GENERATED": "GENERATED",
     "COMMENT": "COMMENT",
+    "AUTO_INCREMENT": "AUTO_INCREMENT"
 }
 first_liners = {
     "LIKE": "LIKE",

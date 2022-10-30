@@ -9,7 +9,9 @@ from ply import lex, yacc
 from simple_ddl_parser.output.common import dump_data_to_file, result_format
 from simple_ddl_parser.utils import find_first_unpair_closed_par
 
+# open comment
 OP_COM = "/*"
+# close comment
 CL_COM = "*/"
 
 IN_COM = "--"
@@ -43,6 +45,13 @@ class Parser:
         for example: DDLParser
 
         Subclass must include tokens for parser and rules
+
+    This class contains logic for lines pre-processing before passing them to lexx&yacc parser:
+
+        - clean up
+        - catch comments
+        - catch statements like 'SET' (they are not parsed by parser)
+        - etc
     """
 
     def __init__(
@@ -54,7 +63,23 @@ class Parser:
         log_file: Optional[str] = None,
         log_level: Union[str, int] = logging.DEBUG,
     ) -> None:
-        """init parser for file"""
+        """
+            content: is a file content for processing
+            silent: if true - will not raise errors, just return empty output
+            debug: if True - parser will produce huge tokens tree & parser.out file, normally you don't want this enable
+            normalize_names: if flag is True (default 'False') then all identifiers will be returned without
+                            '[', '"' and other delimeters that used in different SQL dialects to separate custom names
+                            from reserverd words & statements.
+                                For example, if flag set 'True' and you pass this input:
+
+                                CREATE TABLE [dbo].[TO_Requests](
+                                    [Request_ID] [int] IDENTITY(1,1) NOT NULL,
+                                    [user_id] [int]
+
+                            In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO_Requests]'.
+            log_file: path to file for logging
+            log_level: set logging level for parser
+        """
         self.tables = []
         self.silent = not debug if debug else silent
         self.data = content.encode("unicode_escape")
@@ -69,16 +94,26 @@ class Parser:
         self.block_comments = []
         self.comments = []
 
+    def catch_comment_or_process_line(self, code_line: str) -> str:
+        if self.multi_line_comment and CL_COM not in self.line:
+            self.comments.append(self.line)
+            return ''
+        elif not (
+            self.line.strip().startswith(MYSQL_COM)
+            or self.line.strip().startswith(IN_COM)
+        ):
+            return self.process_inline_comments(code_line)
+        return code_line
+
     def pre_process_line(self) -> Tuple[str, List]:
         code_line = ""
         comma_only_str = r"((\')|(' ))+(,)((\')|( '))+\B"
         self.line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", self.line)
-
-        if not (
-            self.line.strip().startswith(MYSQL_COM)
-            or self.line.strip().startswith(IN_COM)
-        ):
-            code_line = self.process_inline_comments(code_line)
+        code_line = self.catch_comment_or_process_line(code_line)
+        if self.line.startswith(OP_COM) and CL_COM not in self.line:
+            self.multi_line_comment = True
+        elif self.line.startswith(CL_COM):
+            self.multi_line_comment = False
         self.line = code_line
 
     def process_in_comment(self, line: str) -> str:
@@ -90,7 +125,8 @@ class Parser:
             self.comments.append(splitted_line[1])
         return code_line
 
-    def previous_comment_processing(self) -> str:
+    def process_line_before_comment(self) -> str:
+        """ get useful codeline - remove comment """
         code_line = ""
         if IN_COM in self.line:
             code_line = self.process_in_comment(self.line)
@@ -99,8 +135,9 @@ class Parser:
         return code_line
 
     def process_inline_comments(self, code_line: str) -> Tuple[str, List]:
+        """ this method сatches comments like "create table ( # some comment" - inline this statement"""
         comment = None
-        code_line = self.previous_comment_processing()
+        code_line = self.process_line_before_comment()
         if OP_COM in self.line:
             splitted_line = self.line.split(OP_COM)
             code_line += splitted_line[0]
@@ -211,6 +248,8 @@ class Parser:
 
         self.set_was_in_line: bool = False
 
+        self.multi_line_comment = False
+
         for num, self.line in enumerate(lines):
             self.process_line(num != len(lines) - 1)
         if self.comments:
@@ -245,6 +284,7 @@ class Parser:
         self.process_statement()
 
     def process_statement(self) -> None:
+
         if not self.set_line and self.statement:
             self.parse_statement()
         if self.new_statement:

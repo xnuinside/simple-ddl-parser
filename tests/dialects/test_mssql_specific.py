@@ -69,7 +69,7 @@ def test_mssql_foreign_ref_in_column():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "comments": [" NOTE"],
+        'comments': [' NOTE', ' ADD THIS COLUMN FOR THE FOREIGN KEY'],
         "ddl_properties": [],
         "sequences": [],
         "domains": [],
@@ -369,7 +369,11 @@ def test_two_unique_constructs():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "comments": [" NOTE"],
+        'comments': [' NOTE', ' ADD THIS COLUMN FOR THE FOREIGN KEY',
+' added to demonstrate sql sever Defaults',
+' added to demonstrate sql sever Defaults',
+' Sql Server Defaults to Null',
+' Sql Server Defaults to Null'],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -753,7 +757,11 @@ def test_foreign_keys():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "comments": [" NOTE"],
+        'comments': [' NOTE', ' ADD THIS COLUMN FOR THE FOREIGN KEY',
+' added to demonstrate sql sever Defaults',
+' added to demonstrate sql sever Defaults',
+' Sql Server Defaults to Null',
+' Sql Server Defaults to Null'],
         "sequences": [],
         "domains": [],
         "schemas": [],
@@ -1102,7 +1110,11 @@ def test_alter_unique():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "comments": [" NOTE"],
+        'comments': [' NOTE', ' ADD THIS COLUMN FOR THE FOREIGN KEY',
+' added to demonstrate sql sever Defaults',
+' added to demonstrate sql sever Defaults',
+' Sql Server Defaults to Null',
+' Sql Server Defaults to Null'],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -1488,7 +1500,11 @@ def test_defaults_in_alter():
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
-        "comments": [" NOTE"],
+        'comments': [' NOTE', ' ADD THIS COLUMN FOR THE FOREIGN KEY',
+' added to demonstrate sql sever Defaults',
+' added to demonstrate sql sever Defaults',
+' Sql Server Defaults to Null',
+' Sql Server Defaults to Null'],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -2610,10 +2626,12 @@ ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO"""
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        "comments": [
-            "***** Object:  Table [dbo].[TO_Requests]    Script Date: "
-            "9/29/2021 9:55:26 PM ******/"
-        ],
+        'comments': ['***** Object:  Table [dbo].[TO_Requests]    Script Date: '
+'9/29/2021 9:55:26 PM ******/',
+'***** Object:  Table [dbo].[ToDo]    Script Date: 9/29/2021 '
+'9:55:26 PM ******/',
+'***** Object:  Table [dbo].[ToDoComments]    Script Date: '
+'9/29/2021 9:55:26 PM ******/'],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
             {"name": "QUOTED_IDENTIFIER", "value": "ON"},
