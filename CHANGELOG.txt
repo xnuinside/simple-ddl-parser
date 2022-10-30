@@ -1,3 +1,26 @@
+**v0.28.0**
+
+Important Changes (Pay attention):
+1. Because of parsing now AUTO_INCREMENT as a separate property of column previous output changed. 
+Previously it was parsed as a part of type like:  'INT AUTO_INCREMENT'. 
+Now type will be only 'INT', but in column property you will see 'autoincrement': True.
+
+Amazing innovation:
+1. It's is weird to write in Changelog, but only in version 0.28.0 I recognize that floats that not supported by parser & it was fixed.
+Thanks for the sample in the issue: https://github.com/xnuinside/simple-ddl-parser/issues/163
+
+Improvements:
+MariaDB:
+1. Added support for MariaDB AUTO_INCREMENT (from ddl here - https://github.com/xnuinside/simple-ddl-parser/issues/144)
+If column is Auto Incremented - it indicated as 'autoincrement': True in column defenition
+
+Common:
+1. Added parsing for multiline comments in DDL with `/* */` syntax.
+2. Comments from DDL now all placed in 'comments' keyword if you use `group_by_type=` arg in parser.
+3. Added argument 'parser_settings={}' (dict type) in method  parse_from_file() - this way you can pass any arguments that you want to DDLParser (& that supported by it)
+So, if you want to set log_level=logging.WARNING for parser - just use it as:
+parse_from_file('path_to_file', parser_settings={'log_level': logging.WARNING}). For issue: https://github.com/xnuinside/simple-ddl-parser/issues/160
+
 **v0.27.0**
 
 Fixes:

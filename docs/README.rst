@@ -27,7 +27,7 @@ Is it Stable?
 
 Yes, library already has about 7000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
 
-As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. Only additionals & new features.
+As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. But! Pay attention that sometimes output in keywords can be changed in minor version because of fixing wrong behaviour in past. For example, previously 'auto_increment' was a part of column type, but later it became a separate column property. So, please read for minor versions changedlog. 
 
 However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version ``1.0.*`` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version ``0.26.0`` :)
 
@@ -52,6 +52,8 @@ You can check dialects sections after ``Supported Statements`` section to get mo
 
 Feel free to open Issue with DDL sample
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pay attentions that I'm adding functional tests for all supported statement, so if you see that your statement is failed and you didn't see it in the test 99,9% that I did n't have sample with such SQL statement - so feel free to open the issue and I will add support for it. 
 
 **If you need some statement, that not supported by parser yet**\ : please provide DDL example & information about that is it SQL dialect or DB.
 
@@ -549,6 +551,37 @@ https://github.com/swiatek25
 
 Changelog
 ---------
+
+**v0.28.0**
+
+Important Changes (Pay attention):
+
+
+#. Because of parsing now AUTO_INCREMENT as a separate property of column previous output changed. 
+   Previously it was parsed as a part of type like:  'INT AUTO_INCREMENT'. 
+   Now type will be only 'INT', but in column property you will see 'autoincrement': True.
+
+Amazing innovation:
+
+
+#. It's is weird to write in Changelog, but only in version 0.28.0 I recognize that floats that not supported by parser & it was fixed.
+   Thanks for the sample in the issue: https://github.com/xnuinside/simple-ddl-parser/issues/163
+
+Improvements:
+MariaDB:
+
+
+#. Added support for MariaDB AUTO_INCREMENT (from ddl here - https://github.com/xnuinside/simple-ddl-parser/issues/144)
+   If column is Auto Incremented - it indicated as 'autoincrement': True in column defenition
+
+Common:
+
+
+#. Added parsing for multiline comments in DDL with ``/* */`` syntax.
+#. Comments from DDL now all placed in 'comments' keyword if you use ``group_by_type=`` arg in parser.
+#. Added argument 'parser_settings={}' (dict type) in method  parse_from_file() - this way you can pass any arguments that you want to DDLParser (& that supported by it)
+   So, if you want to set log_level=logging.WARNING for parser - just use it as:
+   parse_from_file('path_to_file', parser_settings={'log_level': logging.WARNING}). For issue: https://github.com/xnuinside/simple-ddl-parser/issues/160
 
 **v0.27.0**
 

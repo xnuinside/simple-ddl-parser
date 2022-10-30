@@ -320,12 +320,17 @@ class Column:
             references = p_list[-1]["references"]
         return pk, default, unique, references, nullable
 
+    def p_autoincrement(self, p: List) -> None:
+        """ autoincrement : AUTO_INCREMENT"""
+        p[0] = {"autoincrement": True}
+
     def p_defcolumn(self, p: List) -> None:
         """defcolumn : column
         | defcolumn comment
         | defcolumn null
         | defcolumn encode
         | defcolumn PRIMARY KEY
+        | defcolumn UNIQUE KEY
         | defcolumn UNIQUE
         | defcolumn check_ex
         | defcolumn default
@@ -338,6 +343,7 @@ class Column:
         | defcolumn c_property
         | defcolumn on_update
         | defcolumn options
+        | defcolumn autoincrement
         """
         p[0] = p[1]
         p_list = list(p)

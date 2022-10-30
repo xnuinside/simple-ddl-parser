@@ -153,7 +153,7 @@ class DDLParser(
         return False
 
     def t_ID(self, t: LexToken):
-        r"([0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\\\=\-\+\~\%$@#\*\()!{}\[\]\`\[\]]+)"
+        r"([0-9]+[.][0-9]*([e][+-]?[0-9]+)?|[0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\\\=\-\+\~\%$@#\|&?;*\()!{}\[\]\`\[\]]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
 
         if t.type == "LP":
@@ -203,7 +203,6 @@ class DDLParser(
 
     def set_last_token(self, t: LexToken):
         self.lexer.last_token = t.type
-
         return t
 
     def p_id(self, p):
@@ -226,7 +225,7 @@ class DDLParser(
             raise DDLParserError(f"Unknown statement at {p}")
 
 
-def parse_from_file(file_path: str, **kwargs) -> List[Dict]:
+def parse_from_file(file_path: str, parser_settings: Optional[dict] = None, **kwargs) -> List[Dict]:
     """get useful data from ddl"""
     with open(file_path, "r") as df:
-        return DDLParser(df.read()).run(file_path=file_path, **kwargs)
+        return DDLParser(df.read(), **(parser_settings or {})).run(file_path=file_path, **kwargs)

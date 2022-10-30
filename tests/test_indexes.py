@@ -39,8 +39,13 @@ def test_several_indexes_types():
     """
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
-    expected = {
-        "comments": [" NOTE THE IDENTITY"],
+    expected = {'comments': [' NOTE THE IDENTITY',
+' ADD THIS COLUMN FOR THE FOREIGN KEY',
+' added to demonstrate sql sever Defaults',
+' added to demonstrate sql sever Defaults',
+' Sql Server Defaults to Null',
+' Sql Server Defaults to Null',
+'- This line is commented'],
         "sequences": [],
         "ddl_properties": [],
         "domains": [],
@@ -375,7 +380,12 @@ def test_clustered_index():
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
-        "comments": [" NOTE"],
+        'comments': [' NOTE', ' ADD THIS COLUMN FOR THE FOREIGN KEY',
+' added to demonstrate sql sever Defaults',
+' added to demonstrate sql sever Defaults',
+' Sql Server Defaults to Null',
+' Sql Server Defaults to Null',
+'- This'],
         "sequences": [],
         "domains": [],
         "schemas": [],
