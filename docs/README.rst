@@ -552,6 +552,17 @@ https://github.com/swiatek25
 Changelog
 ---------
 
+**v0.28.1**
+Imporvements:
+
+
+#. Lines started with INSERT INTO statement now successfully ignored by parser (so you can keep them in ddl - they will be just skiped)
+
+Fixes:
+
+
+#. Important fix for multiline comments
+
 **v0.28.0**
 
 Important Changes (Pay attention):
