@@ -95,9 +95,12 @@ class Parser:
         self.comments = []
 
     def catch_comment_or_process_line(self, code_line: str) -> str:
-        if self.multi_line_comment and CL_COM not in self.line:
+        if self.multi_line_comment:
             self.comments.append(self.line)
+            if CL_COM in self.line:
+                self.multi_line_comment = False
             return ''
+
         elif not (
             self.line.strip().startswith(MYSQL_COM)
             or self.line.strip().startswith(IN_COM)
@@ -218,7 +221,7 @@ class Parser:
         return self.new_statement
 
     def check_line_on_skip_words(self) -> bool:
-        skip_regex = r"^(GO|USE)\b"
+        skip_regex = r"^(GO|USE|INSERT)\b"
 
         self.skip = False
 
@@ -272,7 +275,7 @@ class Parser:
         final_line = self.line.endswith(";") and not self.set_was_in_line
         self.add_line_to_statement()
 
-        if final_line or self.new_statement:
+        if (final_line or self.new_statement) and self.statement:
             # end of sql operation, remove ; from end of line
             self.statement = self.statement[:-1]
         elif last_line and not self.skip:
