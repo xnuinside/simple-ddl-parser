@@ -152,6 +152,11 @@ class DDLParser(
             return True
         return False
 
+    def t_AUTOINCREMENT(self, t: LexToken):
+        r"(AUTO_INCREMENT|AUTOINCREMENT)(?i)\b"
+        t.type = "AUTOINCREMENT"
+        return self.set_last_token(t)
+
     def t_ID(self, t: LexToken):
         r"([0-9]+[.][0-9]*([e][+-]?[0-9]+)?|[0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\\\=\-\+\~\%$@#\|&?;*\()!{}\[\]\`\[\]]+)"
         t.type = tok.symbol_tokens.get(t.value, "ID")
