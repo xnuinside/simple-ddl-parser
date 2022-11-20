@@ -8,3 +8,4 @@ simple_ddl_parser.egg-info/
 simple_ddl_parser/parser.out
 simple_ddl_parser/dialects/__pycache__
 .vscode/
+poetry.lock

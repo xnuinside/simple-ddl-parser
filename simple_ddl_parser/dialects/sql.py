@@ -246,7 +246,11 @@ class Column:
         if len(p_list) != 3:
             if p_list[-3] != "*":
                 # oracle can contain * in column size
-                value_0 = int(p_list[-3])
+                try:
+                    value_0 = int(p_list[-3])
+                except ValueError:
+                    # we have column like p Geometry(MultiPolygon, 26918)
+                    value_0 = p_list[-3]
             else:
                 value_0 = p_list[-3]
             size = (value_0, int(p_list[-1]))
@@ -262,6 +266,14 @@ class Column:
             for key, value in p_list[-1]["property"].items():
                 p[0][key] = value
         p_list.pop(-1)
+
+    @staticmethod
+    def check_type_parameter(size: Union[tuple, int]) -> bool:
+        if isinstance(size, tuple) and not (
+                isinstance(size[0], str) and size[0].strip() == '*') and not (
+                    isinstance(size[0], int) or isinstance(size[0], float)):
+            return True
+        return False
 
     def p_column(self, p: List) -> None:
         """column : id c_type
@@ -288,7 +300,11 @@ class Column:
             and bool(re.match(r"[0-9]+", p_list[-1]))
             or p_list[-1] == "max"
         ):
-            p[0]["size"] = self.get_size(p_list)
+            size = self.get_size(p_list)
+            if self.check_type_parameter(size):
+                p[0]["type_parameters"] = size
+            else:
+                p[0]["size"] = size
 
     @staticmethod
     def set_property(p: List) -> List:
@@ -321,7 +337,7 @@ class Column:
         return pk, default, unique, references, nullable
 
     def p_autoincrement(self, p: List) -> None:
-        """ autoincrement : AUTO_INCREMENT"""
+        """ autoincrement : AUTOINCREMENT"""
         p[0] = {"autoincrement": True}
 
     def p_defcolumn(self, p: List) -> None:
@@ -788,10 +804,11 @@ class BaseSQL(
         | expr DEFAULT id id id
         | expr RP
         """
-        p[0] = p[1]
+        p[0] = p[1] or {}
+
         p_list = remove_par(list(p))
 
-        if p_list[-1] != ",":
+        if p_list[-1] != "," and p_list[-1] is not None:
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 p[0]["columns"].append(p_list[-1])
             elif "check" in p_list[-1]:
@@ -801,7 +818,7 @@ class BaseSQL(
                 p[0].update({"primary_key_enforced": p_list[-1]["enforced"]})
             elif 'DEFAULT' in p_list:
                 p[0].update({"default_charset": p_list[-1]})
-            else:
+            elif isinstance(p_list[-1], dict):
                 p[0].update(p_list[-1])
 
         if isinstance(p_list[-1], dict):

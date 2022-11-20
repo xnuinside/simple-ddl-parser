@@ -47,8 +47,7 @@ columns_defenition = {
     "ENFORCED": "ENFORCED",
     "ENCODE": "ENCODE",
     "GENERATED": "GENERATED",
-    "COMMENT": "COMMENT",
-    "AUTO_INCREMENT": "AUTO_INCREMENT"
+    "COMMENT": "COMMENT"
 }
 first_liners = {
     "LIKE": "LIKE",
@@ -101,7 +100,7 @@ sequence_reserved = {
 
 tokens = tuple(
     set(
-        ["ID", "DOT", "STRING", "DQ_STRING", "LP", "RP", "LT", "RT", "COMMAT"]
+        ["ID", "DOT", "STRING", "DQ_STRING", "LP", "RP", "LT", "RT", "COMMAT", "AUTOINCREMENT"]
         + list(defenition_statements.values())
         + list(common_statements.values())
         + list(columns_defenition.values())

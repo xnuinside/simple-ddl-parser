@@ -386,3 +386,75 @@ def test_deferrable_initially_not():
         }
     ]
     assert expected == result
+
+
+def test_foreigen_keys():
+    
+    result = DDLParser("""
+    CREATE TABLE timeperiod_exceptions (
+    exception_id int NOT NULL auto_increment,
+
+    timeperiod_id int NOT NULL,
+    days varchar(255) NOT NULL,
+    timerange varchar(255) NOT NULL,
+
+    PRIMARY KEY (exception_id),
+    INDEX (timeperiod_id),
+    FOREIGN KEY (timeperiod_id) REFERENCES timeperiod (tp_id)
+        ON DELETE CASCADE
+    ) ENGINE=InnoDB CHARACTER SET utf8;
+    """, normalize_names=True).run(group_by_type=True)
+    expected = {'ddl_properties': [],
+    'domains': [],
+    'schemas': [],
+    'sequences': [],
+    'tables': [{'ENGINE=InnoDB': 'CHARACTER',
+                'SET': 'utf8',
+                'alter': {},
+                'checks': [],
+                'columns': [{'autoincrement': True,
+                            'check': None,
+                            'default': None,
+                            'name': 'exception_id',
+                            'nullable': False,
+                            'references': None,
+                            'size': None,
+                            'type': 'int',
+                            'unique': False},
+                            {'check': None,
+                            'default': None,
+                            'name': 'timeperiod_id',
+                            'nullable': False,
+                            'references': {'column': 'tp_id',
+                                            'deferrable_initially': None,
+                                            'on_delete': 'CASCADE',
+                                            'on_update': None,
+                                            'schema': None,
+                                            'table': 'timeperiod'},
+                            'size': None,
+                            'type': 'int',
+                            'unique': False},
+                            {'check': None,
+                            'default': None,
+                            'name': 'days',
+                            'nullable': False,
+                            'references': None,
+                            'size': 255,
+                            'type': 'varchar',
+                            'unique': False},
+                            {'check': None,
+                            'default': None,
+                            'name': 'timerange',
+                            'nullable': False,
+                            'references': None,
+                            'size': 255,
+                            'type': 'varchar',
+                            'unique': False}],
+                'index': [],
+                'partitioned_by': [],
+                'primary_key': ['exception_id'],
+                'schema': None,
+                'table_name': 'timeperiod_exceptions',
+                'tablespace': None}],
+    'types': []}
+    assert result == expected

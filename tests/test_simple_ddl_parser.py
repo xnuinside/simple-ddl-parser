@@ -3089,4 +3089,76 @@ COMMIT;
              'tablespace': None}],
  'types': []}
     assert expected == result
+
+
+def test_autoincrement():
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'autoincrement': True,
+                          'check': None,
+                          'default': None,
+                          'name': 'field_1',
+                          'nullable': False,
+                          'references': None,
+                          'size': (38, 0),
+                          'type': 'NUMBER',
+                          'unique': False}],
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': [],
+             'replace': True,
+             'schema': None,
+             'table_name': 'mytable',
+             'tablespace': None}],
+ 'types': []}
+    results_one = DDLParser("""
+                    
+        CREATE OR REPLACE TABLE mytable (
+    field_1 NUMBER(38, 0) NOT NULL auto_increment
+);
+""", normalize_names=True).run(group_by_type=True)
     
+    results_two = DDLParser("""
+                    
+        CREATE OR REPLACE TABLE mytable (
+    field_1 NUMBER(38, 0) NOT NULL AUTOINCREMENT
+);
+""", normalize_names=True).run(group_by_type=True)
+    
+    assert results_one == results_two == expected
+
+
+def test_non_int_type_paramteter():
+        
+    results = DDLParser("""
+    CREATE TABLE t1 (
+        p Geometry(MultiPolygon, 26918)
+    );
+    """, normalize_names=True).run(group_by_type=True)
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': 'p',
+                          'nullable': True,
+                          'references': None,
+                          'size': None,
+                          'type': 'Geometry',
+                          'type_parameters': ('MultiPolygon', 26918),
+                          'unique': False}],
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': [],
+             'schema': None,
+             'table_name': 't1',
+             'tablespace': None}],
+ 'types': []}
+    assert results == expected

@@ -552,6 +552,23 @@ https://github.com/swiatek25
 Changelog
 ---------
 
+**v0.29.0**
+
+Fixes
+^^^^^
+
+
+#. AUTOINCREMENT statement now parsed validly same way as AUTO_INCREMENT and showed up in output as 'autoincrement' property of the column
+   Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/170
+#. Fix issue ' TypeError argument of type 'NoneType' is not iterable' on some foreigen keys https://github.com/xnuinside/simple-ddl-parser/issues/148 
+
+New Features
+^^^^^^^^^^^^
+
+
+#. Support for non-numeric column type parameters https://github.com/xnuinside/simple-ddl-parser/issues/171 
+   It shows in column attribute 'type_parameters'.
+
 **v0.28.1**
 Imporvements:
 
