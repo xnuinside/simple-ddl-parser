@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -804,12 +805,12 @@ class BaseSQL(
         | expr DEFAULT id id id
         | expr RP
         """
-        p[0] = p[1] or {}
-
+        p[0] = p[1] or defaultdict(list)
         p_list = remove_par(list(p))
-
         if p_list[-1] != "," and p_list[-1] is not None:
             if "type" in p_list[-1] and "name" in p_list[-1]:
+                if not p[0].get("columns"):
+                    p[0]["columns"] = []
                 p[0]["columns"].append(p_list[-1])
             elif "check" in p_list[-1]:
                 p[0] = self.extract_check_data(p, p_list)
