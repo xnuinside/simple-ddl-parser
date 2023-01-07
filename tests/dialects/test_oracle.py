@@ -714,3 +714,34 @@ GRANT SELECT ON meta_criteria_combo TO PUBLIC;
     result = DDLParser(ddl).run(group_by_type=True)
     
     assert result == expected
+
+
+
+def test_oracle_sizes():
+    result = DDLParser("""
+create table test (
+  col varchar2(30 char) default user not null
+);
+""", normalize_names=True).run(group_by_type=True)
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': 'user',
+                          'name': 'col',
+                          'nullable': False,
+                          'references': None,
+                          'size': '30 char',
+                          'type': 'varchar2',
+                          'unique': False}],
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': [],
+             'schema': None,
+             'table_name': 'test',
+             'tablespace': None}],
+ 'types': []}
+    assert result == expected

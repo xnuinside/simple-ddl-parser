@@ -276,16 +276,30 @@ class Column:
             return True
         return False
 
+    @staticmethod
+    def process_oracle_type_size(p_list):
+        if p_list[-1] == ')' and p_list[-4] == '(':
+            # for Oracle sizes like 30 CHAR
+            p_list[-3] += f" {p_list[-2]}"
+            del p_list[-2]
+        return p_list
+
     def p_column(self, p: List) -> None:
         """column : id c_type
         | column comment
         | column LP id RP
+        | column LP id id RP
         | column LP id RP c_type
         | column LP id COMMA id RP
         | column LP id COMMA id RP c_type
         """
         p[0] = self.set_base_column_propery(p)
-        p_list = remove_par(list(p))
+        p_list = list(p)
+
+        p_list = self.process_oracle_type_size(p_list)
+
+        p_list = remove_par(p_list)
+
         if isinstance(p_list[-1], dict) and "type" in p_list[-1] and len(p_list) <= 3:
             p[0]["type"] = p_list[-1]["type"]
             if p_list[-1].get("property"):
@@ -696,10 +710,10 @@ class BaseSQL(
         return _property
 
     def p_id_equals(self, p: List) -> None:
-        """id_equals : id id id
-        | id id
+        """id_equals : id id id_or_string
+        | id id_or_string
         | id_equals COMMA
-        | id_equals COMMA id id id
+        | id_equals COMMA id id id_or_string
         | id
         | id_equals LP pid RP
         | id_equals LP pid RP id

@@ -552,6 +552,26 @@ https://github.com/swiatek25
 Changelog
 ---------
 
+**v0.29.1**
+
+Important updates:
+^^^^^^^^^^^^^^^^^^
+
+
+#. Python 3.6 is deprecated in tests and by default, try to move to Python3.7, but better to 3.8, because 3.7 will be deprecated in 2023.
+
+Fixes
+^^^^^
+
+
+#. Fix for https://github.com/xnuinside/simple-ddl-parser/issues/177
+
+Imporvements
+^^^^^^^^^^^^
+
+
+#. Added support for Oracle 2 component size for types, like '30 CHAR'. From https://github.com/xnuinside/simple-ddl-parser/issues/176
+
 **v0.29.0**
 
 Fixes
