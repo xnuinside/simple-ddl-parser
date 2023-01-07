@@ -825,3 +825,35 @@ def test_multiple_options_statements():
         "types": [],
     }
     assert expected == result
+
+def test_bigquery_options_string():
+        
+    result = DDLParser("""
+    CREATE TABLE data.test ( col STRING OPTIONS(description='test') ) OPTIONS(description='test');
+
+    """, normalize_names=True).run(group_by_type=True)
+    
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': 'col',
+                          'nullable': True,
+                          'options': [{'description': "'test'"}],
+                          'references': None,
+                          'size': None,
+                          'type': 'STRING',
+                          'unique': False}],
+             'index': [],
+             'options': [{'description': "'test'"}],
+             'partitioned_by': [],
+             'primary_key': [],
+             'schema': 'data',
+             'table_name': 'test',
+             'tablespace': None}],
+ 'types': []}
+    assert result == expected
