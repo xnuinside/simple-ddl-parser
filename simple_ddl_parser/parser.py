@@ -95,12 +95,7 @@ class Parser:
         self.comments = []
 
     def catch_comment_or_process_line(self, code_line: str) -> str:
-        print(not (
-            self.line.strip().startswith(MYSQL_COM)
-            or self.line.strip().startswith(IN_COM)
-        ))
         if self.multi_line_comment:
-            print(self.multi_line_comment, 'multi_line_comment')
             self.comments.append(self.line)
             if CL_COM in self.line:
                 self.multi_line_comment = False
@@ -110,19 +105,14 @@ class Parser:
             self.line.strip().startswith(MYSQL_COM)
             or self.line.strip().startswith(IN_COM)
         ):
-            print(code_line, 'code_line')
             return self.process_inline_comments(code_line)
-        print(code_line, 'code_line')
         return code_line
 
     def pre_process_line(self) -> Tuple[str, List]:
         code_line = ""
         comma_only_str = r"((\')|(' ))+(,)((\')|( '))+\B"
         self.line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", self.line)
-        print(self.line)
         code_line = self.catch_comment_or_process_line(code_line)
-        if '*/' in self.line:
-            self.line = self.line.replace('*/', '*/ ')
         if self.line.startswith(OP_COM) and CL_COM not in self.line:
             self.multi_line_comment = True
         elif self.line.startswith(CL_COM):
@@ -194,7 +184,6 @@ class Parser:
             .replace("'\\n'", "'pars_m_n'")
             .replace("\\'", "pars_m_single")
             .replace("\\t", " ")
-            .replace('*/', '*/ ')
         )
         return data
 
