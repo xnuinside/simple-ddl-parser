@@ -1,154 +1,161 @@
+import pytest
+
 from simple_ddl_parser import DDLParser
 
-
-def test_dataset_in_output():
-    expected = {
-        "domains": [],
-        "ddl_properties": [],
-        "schemas": [],
-        "sequences": [],
-        "tables": [
-            {
-                "alter": {},
-                "checks": [],
-                "columns": [
-                    {
-                        "check": None,
-                        "default": None,
-                        "name": "x",
-                        "nullable": True,
-                        "references": None,
-                        "size": None,
-                        "type": "INT64",
-                        "unique": False,
-                    }
-                ],
-                "dataset": "mydataset",
-                "index": [],
-                "partitioned_by": [],
-                "primary_key": [],
-                "table_name": "newtable",
-                "tablespace": None,
-            }
-        ],
-        "types": [],
-    }
-
-    ddl = """
-    CREATE TABLE mydataset.newtable ( x INT64 );
-    """
-    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
-    assert expected == result
-
-
-def test_simple_struct():
-    ddl = """
+testcases = [
+    {
+        "test_id": "test_dataset_in_output",
+        "ddl": """
+        CREATE TABLE mydataset.newtable ( x INT64 );
+        """,
+        "parsed_ddl": {
+            "domains": [],
+            "ddl_properties": [],
+            "schemas": [],
+            "sequences": [],
+            "tables": [
+                {
+                    "alter": {},
+                    "checks": [],
+                    "columns": [
+                        {
+                            "check": None,
+                            "default": None,
+                            "name": "x",
+                            "nullable": True,
+                            "references": None,
+                            "size": None,
+                            "type": "INT64",
+                            "unique": False,
+                        }
+                    ],
+                    "dataset": "mydataset",
+                    "index": [],
+                    "partitioned_by": [],
+                    "primary_key": [],
+                    "table_name": "newtable",
+                    "tablespace": None,
+                }
+            ],
+            "types": [],
+        },
+    },
+    {
+        "test_id": "test_simple_struct",
+        "ddl": """
     CREATE TABLE mydataset.newtable
      (
        x INT64 ,
        y STRUCT<a ARRAY<STRING>,b BOOL>
      )
-    """
-    parse_results = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
-    expected = {
-        "tables": [
-            {
-                "columns": [
-                    {
-                        "name": "x",
-                        "type": "INT64",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": None,
-                    },
-                    {
-                        "name": "y",
-                        "type": "STRUCT<a ARRAY<STRING>, b BOOL>",
-                        "size": None,
-                        "references": None,
-                        "unique": False,
-                        "nullable": True,
-                        "default": None,
-                        "check": None,
-                    },
-                ],
-                "primary_key": [],
-                "alter": {},
-                "checks": [],
-                "index": [],
-                "partitioned_by": [],
-                "tablespace": None,
-                "table_name": "newtable",
-                "dataset": "mydataset",
-            }
-        ],
-        "types": [],
-        "ddl_properties": [],
-        "sequences": [],
-        "domains": [],
-        "schemas": [],
-    }
-
-    assert expected == parse_results
-
-
-def test_schema_options():
-    ddl = """
+    """,
+        "parsed_ddl": {
+            "tables": [
+                {
+                    "columns": [
+                        {
+                            "name": "x",
+                            "type": "INT64",
+                            "size": None,
+                            "references": None,
+                            "unique": False,
+                            "nullable": True,
+                            "default": None,
+                            "check": None,
+                        },
+                        {
+                            "name": "y",
+                            "type": "STRUCT<a ARRAY<STRING>, b BOOL>",
+                            "size": None,
+                            "references": None,
+                            "unique": False,
+                            "nullable": True,
+                            "default": None,
+                            "check": None,
+                        },
+                    ],
+                    "primary_key": [],
+                    "alter": {},
+                    "checks": [],
+                    "index": [],
+                    "partitioned_by": [],
+                    "tablespace": None,
+                    "table_name": "newtable",
+                    "dataset": "mydataset",
+                }
+            ],
+            "types": [],
+            "ddl_properties": [],
+            "sequences": [],
+            "domains": [],
+            "schemas": [],
+        }
+    },
+    {
+        "test_id": "test_schema_options",
+        "ddl": """
     CREATE SCHEMA IF NOT EXISTS name-name
     OPTIONS (
     location="path"
     );
-    """
-    parse_result = DDLParser(ddl).run(group_by_type=True)
-    expected = {
-        "ddl_properties": [],
-        "domains": [],
-        "schemas": [
-            {
-                "if_not_exists": True,
-                "properties": {"options": [{"location": '"path"'}]},
-                "schema_name": "name-name",
-            }
-        ],
-        "sequences": [],
-        "tables": [],
-        "types": [],
-    }
-    assert expected == parse_result
-
-
-def test_two_options_values():
-    ddl = """
+    """,
+        "parsed_ddl": {
+            "ddl_properties": [],
+            "domains": [],
+            "schemas": [
+                {
+                    "if_not_exists": True,
+                    "properties": {"options": [{"location": '"path"'}]},
+                    "schema_name": "name-name",
+                }
+            ],
+            "sequences": [],
+            "tables": [],
+            "types": [],
+        }
+    },
+    {
+        "test_id": "test_two_options_values",
+        "ddl": """
     CREATE SCHEMA IF NOT EXISTS name-name
     OPTIONS (
     location="path",
     second_option=second_value
     );
-    """
-    parse_result = DDLParser(ddl).run(group_by_type=True)
-    expected = {
-        "ddl_properties": [],
-        "domains": [],
-        "schemas": [
-            {
-                "properties": {
-                    "options": [
-                        {"location": '"path"'},
-                        {"second_option": "second_value"},
-                    ]
-                },
-                "if_not_exists": True,
-                "schema_name": "name-name",
-            }
-        ],
-        "sequences": [],
-        "tables": [],
-        "types": [],
+    """,
+        "parsed_ddl": {
+            "ddl_properties": [],
+            "domains": [],
+            "schemas": [
+                {
+                    "properties": {
+                        "options": [
+                            {"location": '"path"'},
+                            {"second_option": "second_value"},
+                        ]
+                    },
+                    "if_not_exists": True,
+                    "schema_name": "name-name",
+                }
+            ],
+            "sequences": [],
+            "tables": [],
+            "types": [],
+        }
     }
-    assert expected == parse_result
+]
+
+testdata = [
+    (testcase["ddl"], testcase["parsed_ddl"])
+    for testcase in testcases
+]
+test_ids = [testcase["test_id"] for testcase in testcases]
+
+
+@pytest.mark.parametrize("ddl,parsed_ddl", testdata, ids=test_ids)
+def test_bigquery(ddl, parsed_ddl):
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    assert result == parsed_ddl
 
 
 def test_long_string_in_option():
@@ -168,11 +175,11 @@ def test_long_string_in_option():
                     "options": [
                         {
                             "description": '"Calendar table '
-                            "records reference "
-                            "list of calendar "
-                            "dates and related "
-                            "attributes used for "
-                            'reporting."'
+                                           "records reference "
+                                           "list of calendar "
+                                           "dates and related "
+                                           "attributes used for "
+                                           'reporting."'
                         }
                     ]
                 },
@@ -188,7 +195,6 @@ def test_long_string_in_option():
 
 
 def test_option_in_create_table():
-
     ddl = """
     CREATE TABLE name.hub.REF_CALENDAR (
     calendar_dt DATE,
@@ -223,8 +229,8 @@ def test_option_in_create_table():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                        "list of calendar dates and related "
-                        'attributes used for reporting."'
+                                       "list of calendar dates and related "
+                                       'attributes used for reporting."'
                     }
                 ],
                 "partitioned_by": [],
@@ -276,8 +282,8 @@ def test_options_in_column():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                        "list of calendar dates and related "
-                        'attributes used for reporting."'
+                                       "list of calendar dates and related "
+                                       'attributes used for reporting."'
                     }
                 ],
                 "partitioned_by": [],
@@ -332,8 +338,8 @@ def test_cluster_by_without_brackets():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                        "list of calendar dates and related "
-                        'attributes used for reporting."'
+                                       "list of calendar dates and related "
+                                       'attributes used for reporting."'
                     }
                 ],
                 "partitioned_by": [],
@@ -350,7 +356,6 @@ def test_cluster_by_without_brackets():
 
 
 def test_two_options_in_create_table():
-
     ddl = """
     CREATE TABLE mydataset.newtable
     (
@@ -403,7 +408,6 @@ def test_two_options_in_create_table():
 
 
 def test_table_name_with_project_id():
-
     ddl = """
     CREATE SCHEMA IF NOT EXISTS project.calender
     OPTIONS (
@@ -478,8 +482,8 @@ def test_table_name_with_project_id():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                        "list of calendar dates and related "
-                        'attributes used for reporting."'
+                                       "list of calendar dates and related "
+                                       'attributes used for reporting."'
                     }
                 ],
                 "partition_by": {
@@ -499,7 +503,6 @@ def test_table_name_with_project_id():
 
 
 def test_project_id_in_alter_and_references():
-
     ddl = """
         create TABLE project_id.schema.ChildTableName(
                 parentTable varchar
@@ -564,7 +567,6 @@ def test_project_id_in_alter_and_references():
 
 
 def test_multiple_options():
-
     ddl = """
     CREATE SCHEMA IF NOT EXISTS project.calender
     OPTIONS (
@@ -639,8 +641,8 @@ def test_multiple_options():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                        "list of calendar dates and related "
-                        'attributes used for reporting."'
+                                       "list of calendar dates and related "
+                                       'attributes used for reporting."'
                     },
                     {"one_more_option": '"Option"'},
                     {"three_options": '"Three"'},
@@ -802,8 +804,8 @@ def test_multiple_options_statements():
                     {"location": '"location"'},
                     {
                         "description": '"Calendar table records reference '
-                        "list of calendar dates and related "
-                        'attributes used for reporting."'
+                                       "list of calendar dates and related "
+                                       'attributes used for reporting."'
                     },
                     {"name": '"path"'},
                     {"kms_two": '"path"'},
@@ -826,34 +828,47 @@ def test_multiple_options_statements():
     }
     assert expected == result
 
+
 def test_bigquery_options_string():
-        
-    result = DDLParser("""
+    result = DDLParser(
+        """
     CREATE TABLE data.test ( col STRING OPTIONS(description='test') ) OPTIONS(description='test');
 
-    """, normalize_names=True).run(group_by_type=True)
-    
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'columns': [{'check': None,
-                          'default': None,
-                          'name': 'col',
-                          'nullable': True,
-                          'options': [{'description': "'test'"}],
-                          'references': None,
-                          'size': None,
-                          'type': 'STRING',
-                          'unique': False}],
-             'index': [],
-             'options': [{'description': "'test'"}],
-             'partitioned_by': [],
-             'primary_key': [],
-             'schema': 'data',
-             'table_name': 'test',
-             'tablespace': None}],
- 'types': []}
+    """,
+        normalize_names=True,
+    ).run(group_by_type=True)
+
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "col",
+                        "nullable": True,
+                        "options": [{"description": "'test'"}],
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "options": [{"description": "'test'"}],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": "data",
+                "table_name": "test",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
     assert result == expected
