@@ -13,6 +13,7 @@ defenition_statements = {
     "CLUSTERED": "CLUSTERED",
     "SEQUENCE": "SEQUENCE",
     "TABLESPACE": "TABLESPACE",
+    "TRUNCATE": "TRUNCATE",
 }
 common_statements = {
     "INDEX": "INDEX",

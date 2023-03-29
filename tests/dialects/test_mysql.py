@@ -306,3 +306,36 @@ def test_default_charset():
         "types": [],
     }
     assert expected == results
+
+
+def test_identity_with_properties():
+    ddl = """
+CREATE TABLE IF NOT EXISTS database.table_name
+    (
+        [cifno] [numeric](10, 0) IDENTITY(1,1) NOT NULL,
+        puts (1,1) in the size field
+    )
+"""
+
+    result = DDLParser(ddl).run()
+    expected = [{'alter': {},
+  'checks': [],
+  'columns': [{'check': None,
+               'default': None,
+               'identity': (1, 1),
+               'name': '[cifno]',
+               'nullable': False,
+               'references': None,
+               'size': (10, 0),
+               'type': '[numeric]',
+               'unique': False}],
+  'if_not_exists': True,
+  'in': 'the',
+  'index': [],
+  'partitioned_by': [],
+  'primary_key': [],
+  'schema': 'database',
+  'size': 'field',
+  'table_name': 'table_name',
+  'tablespace': None}]
+    assert expected == result

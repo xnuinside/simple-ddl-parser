@@ -1,4 +1,8 @@
 **v0.30.0**
+### Fixes:
+
+1. IDENTITY now parsed normally as a separate column property. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/184
+
 ### New Features:
 
 1. IN TABLESPACE IBM DB2 statement now is parsed into 'tablespace' key. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/194.
@@ -6,6 +10,8 @@ INDEX IN also parsed to 'index_in' key.
 Added support for ORGANIZE BY statement
 
 2. Added support for PostgreSQL INHERITS statement. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/191
+
+3. Added support for TRUNCATE statement. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/190
 
 
 **v0.29.1**

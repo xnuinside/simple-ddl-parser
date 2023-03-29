@@ -193,6 +193,7 @@ class Column:
         | id id
         | id id id id
         | id id id
+        | c_type pid
         | id DOT id
         | tid
         | ARRAY
@@ -284,6 +285,23 @@ class Column:
             del p_list[-2]
         return p_list
 
+    def process_type_to_column_data(self, p_list, p):
+        if len(p_list) <= 3:
+            p[0]["type"] = p_list[-1]["type"]
+            if p_list[-1].get("property"):
+                for key, value in p_list[-1]["property"].items():
+                    p[0][key] = value
+        elif p_list[-1]['type'].upper() in ['IDENTITY']:
+            del p_list[-1]
+            self.set_column_size(p_list, p)
+            p[0]['identity'] = None
+            return True
+        else:
+            # for [] arrays
+            p[0]['type'] += p_list[-1]['type']
+            del p_list[-1]
+        return False
+
     def p_column(self, p: List) -> None:
         """column : id c_type
         | column comment
@@ -294,20 +312,19 @@ class Column:
         | column LP id COMMA id RP c_type
         """
         p[0] = self.set_base_column_propery(p)
+        identity = False
         p_list = list(p)
 
         p_list = self.process_oracle_type_size(p_list)
 
         p_list = remove_par(p_list)
-
-        if isinstance(p_list[-1], dict) and "type" in p_list[-1] and len(p_list) <= 3:
-            p[0]["type"] = p_list[-1]["type"]
-            if p_list[-1].get("property"):
-                for key, value in p_list[-1]["property"].items():
-                    p[0][key] = value
-        elif isinstance(p_list[-1], dict):
-            self.get_column_details(p_list, p)
-        self.set_column_size(p_list, p)
+        if isinstance(p_list[-1], dict):
+            if "type" in p_list[-1]:
+                identity = self.process_type_to_column_data(p_list, p)
+            else:
+                self.get_column_details(p_list, p)
+        if not identity:
+            self.set_column_size(p_list, p)
 
     def set_column_size(self, p_list: List, p: List):
         if (
@@ -318,6 +335,8 @@ class Column:
             size = self.get_size(p_list)
             if self.check_type_parameter(size):
                 p[0]["type_parameters"] = size
+            elif 'identity' in p[0]:
+                p[0]['identity'] = size
             else:
                 p[0]["size"] = size
 
@@ -537,6 +556,14 @@ class Schema:
             p[0] = {f"{p[2].lower()}_name": p_list[-1]}
 
 
+class Truncate:
+    def p_expression_drop_table(self, p: List) -> None:
+        """expr : TRUNCATE t_name
+        """
+        p_list = list(p)
+        p[0] = {"truncate": {"schema": p_list[-1]['schema'], "table_name": p_list[-1]['table_name']}}
+
+
 class Drop:
     def p_expression_drop_table(self, p: List) -> None:
         """expr : DROP TABLE id
@@ -669,7 +696,7 @@ class Domain:
 
 
 class BaseSQL(
-    Database, Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces
+    Database, Table, Drop, Truncate, Domain, Column, AfterColumns, Type, Schema, TableSpaces
 ):
     def clean_up_id_list_in_equal(self, p_list: List) -> List:  # noqa R701
         if isinstance(p_list[1], str) and p_list[1].endswith("="):
