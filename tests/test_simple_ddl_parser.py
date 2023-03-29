@@ -1464,7 +1464,7 @@ def test_generated_always_with_concat():
                     {
                         "name": "id",
                         "type": "INT",
-                        'autoincrement': True,
+                        "autoincrement": True,
                         "size": None,
                         "references": None,
                         "unique": False,
@@ -2621,79 +2621,101 @@ def test_check_that_all_columns_parsed_correctly():
 
 
 def test_create_or_replace():
-        
-    ddl="""create or replace table someTable (
+
+    ddl = """create or replace table someTable (
         someField varchar(4)
     );
     """
 
-    result = DDLParser(ddl,normalize_names=True).run()
-  
-    expected = [{'alter': {},
-            'checks': [],
-            'columns': [{'check': None,
-                        'default': None,
-                        'name': 'someField',
-                        'nullable': True,
-                        'references': None,
-                        'size': 4,
-                        'type': 'varchar',
-                        'unique': False}],
-            'index': [],
-            'partitioned_by': [],
-            'primary_key': [],
-            'replace': True,
-            'schema': None,
-            'table_name': 'someTable',
-            'tablespace': None}]
-    
+    result = DDLParser(ddl, normalize_names=True).run()
+
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "someField",
+                    "nullable": True,
+                    "references": None,
+                    "size": 4,
+                    "type": "varchar",
+                    "unique": False,
+                }
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "replace": True,
+            "schema": None,
+            "table_name": "someTable",
+            "tablespace": None,
+        }
+    ]
+
     assert expected == result
 
 
 def test_increment_column():
-    expected = [{'alter': {},
-  'checks': [],
-  'columns': [{'check': None,
-               'default': None,
-               'increment': True,
-               'name': 'user_id',
-               'nullable': False,
-               'references': None,
-               'size': None,
-               'type': 'INT',
-               'unique': False},
-              {'check': None,
-               'default': None,
-               'name': 'username',
-               'nullable': False,
-               'references': None,
-               'size': 100,
-               'type': 'VARCHAR',
-               'unique': False},
-              {'check': None,
-               'default': None,
-               'name': 'password',
-               'nullable': False,
-               'references': None,
-               'size': 40,
-               'type': 'VARCHAR',
-               'unique': False},
-              {'check': None,
-               'default': None,
-               'name': 'submission_date',
-               'nullable': True,
-               'references': None,
-               'size': None,
-               'type': 'DATE',
-               'unique': False}],
-  'constraints': {'checks': None, 'references': None, 'uniques': None},
-  'index': [],
-  'partitioned_by': [],
-  'primary_key': ['user_id'],
-  'schema': None,
-  'table_name': 'Users',
-  'tablespace': None}]
-        
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "increment": True,
+                    "name": "user_id",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "username",
+                    "nullable": False,
+                    "references": None,
+                    "size": 100,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "password",
+                    "nullable": False,
+                    "references": None,
+                    "size": 40,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "submission_date",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "DATE",
+                    "unique": False,
+                },
+            ],
+            "constraints": {"checks": None, "references": None, "uniques": None},
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": ["user_id"],
+            "schema": None,
+            "table_name": "Users",
+            "tablespace": None,
+        }
+    ]
+
     ddl = """
     CREATE TABLE Users (
     user_id INT NOT NULL AUTO INCREMENT,
@@ -2710,66 +2732,82 @@ def test_increment_column():
 
 
 def test_replace_with_id():
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'collection_items_terminated_by': None,
-             'columns': [{'check': None,
-                          'default': None,
-                          'name': 'someField',
-                          'nullable': True,
-                          'references': None,
-                          'size': 4,
-                          'type': 'VARCHAR',
-                          'unique': False}],
-             'comment': None,
-             'external': False,
-             'fields_terminated_by': None,
-             'index': [],
-             'lines_terminated_by': None,
-             'location': None,
-             'map_keys_terminated_by': None,
-             'partitioned_by': [],
-             'primary_key': [],
-             'replace': True,
-             'row_format': None,
-             'schema': None,
-             'stored_as': None,
-             'table_name': 'someTable',
-             'tablespace': None,
-             'transient': True},
-            {'alter': {},
-             'checks': [],
-             'collection_items_terminated_by': None,
-             'columns': [{'check': None,
-                          'default': None,
-                          'name': 'someField',
-                          'nullable': True,
-                          'references': None,
-                          'size': 4,
-                          'type': 'VARCHAR',
-                          'unique': False}],
-             'comment': None,
-             'external': False,
-             'fields_terminated_by': None,
-             'index': [],
-             'lines_terminated_by': None,
-             'location': None,
-             'map_keys_terminated_by': None,
-             'partitioned_by': [],
-             'primary_key': [],
-             'replace': True,
-             'row_format': None,
-             'schema': None,
-             'stored_as': None,
-             'table_name': 'someTable',
-             'tablespace': None,
-             'temp': True}],
- 'types': []}
-        
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "someField",
+                        "nullable": True,
+                        "references": None,
+                        "size": 4,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "replace": True,
+                "row_format": None,
+                "schema": None,
+                "stored_as": None,
+                "table_name": "someTable",
+                "tablespace": None,
+                "transient": True,
+            },
+            {
+                "alter": {},
+                "checks": [],
+                "collection_items_terminated_by": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "someField",
+                        "nullable": True,
+                        "references": None,
+                        "size": 4,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    }
+                ],
+                "comment": None,
+                "external": False,
+                "fields_terminated_by": None,
+                "index": [],
+                "lines_terminated_by": None,
+                "location": None,
+                "map_keys_terminated_by": None,
+                "partitioned_by": [],
+                "primary_key": [],
+                "replace": True,
+                "row_format": None,
+                "schema": None,
+                "stored_as": None,
+                "table_name": "someTable",
+                "tablespace": None,
+                "temp": True,
+            },
+        ],
+        "types": [],
+    }
+
     ddl = """CREATE OR REPLACE TRANSIENT TABLE someTable (
         someField VARCHAR(4)
     );
@@ -2779,14 +2817,14 @@ def test_replace_with_id():
     """
 
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
-    
+
     assert expected == result
 
 
-
 def test_floats():
-        
-    results = DDLParser("""
+
+    results = DDLParser(
+        """
     create table "foo" (
     "auto" integer not null primary key auto_increment,
     "inty" integer not null default(4),
@@ -2799,109 +2837,138 @@ def test_floats():
     "flt" float default(1.1),
     "dbl" double default(2.2)
     );
-    """).run(group_by_type=True)
-    
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'columns': [{'autoincrement': True,
-                          'check': None,
-                          'default': None,
-                          'name': '"auto"',
-                          'nullable': False,
-                          'references': None,
-                          'size': None,
-                          'type': 'integer',
-                          'unique': False},
-                         {'check': None,
-                          'default': 4,
-                          'name': '"inty"',
-                          'nullable': False,
-                          'references': None,
-                          'size': None,
-                          'type': 'integer',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"blob"',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'blob',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"blob3"',
-                          'nullable': True,
-                          'references': None,
-                          'size': 3,
-                          'type': 'binary',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"blob4"',
-                          'nullable': True,
-                          'references': None,
-                          'size': 4,
-                          'type': 'varbinary',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"tex"',
-                          'nullable': False,
-                          'references': None,
-                          'size': None,
-                          'type': 'text',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"siz3v"',
-                          'nullable': True,
-                          'references': None,
-                          'size': 3,
-                          'type': 'varchar',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': '"siz3"',
-                          'nullable': True,
-                          'references': None,
-                          'size': 3,
-                          'type': 'character',
-                          'unique': False},
-                         {'check': None,
-                          'default': '1.1',
-                          'name': '"flt"',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'float',
-                          'unique': False},
-                         {'check': None,
-                          'default': '2.2',
-                          'name': '"dbl"',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'double',
-                          'unique': False}],
-             'index': [],
-             'partitioned_by': [],
-             'primary_key': ['"auto"'],
-             'schema': None,
-             'table_name': '"foo"',
-             'tablespace': None}],
- 'types': []}
- 
+    """
+    ).run(group_by_type=True)
+
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "autoincrement": True,
+                        "check": None,
+                        "default": None,
+                        "name": '"auto"',
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": 4,
+                        "name": '"inty"',
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"blob"',
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "blob",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"blob3"',
+                        "nullable": True,
+                        "references": None,
+                        "size": 3,
+                        "type": "binary",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"blob4"',
+                        "nullable": True,
+                        "references": None,
+                        "size": 4,
+                        "type": "varbinary",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"tex"',
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "text",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"siz3v"',
+                        "nullable": True,
+                        "references": None,
+                        "size": 3,
+                        "type": "varchar",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"siz3"',
+                        "nullable": True,
+                        "references": None,
+                        "size": 3,
+                        "type": "character",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": "1.1",
+                        "name": '"flt"',
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "float",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": "2.2",
+                        "name": '"dbl"',
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "double",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ['"auto"'],
+                "schema": None,
+                "table_name": '"foo"',
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+
     assert expected == results
 
 
 def test_fix_multiline_comments_not_joined_with_table():
     result = DDLParser(
-"""/************************
+        """/************************
 @Author: Azat Erol
 Always happy coding!
 ************************/
@@ -2912,253 +2979,338 @@ CREATE TABLE Kunde (
   AbteilungID INT
   FOREIGN KEY(AbteilungID) REFERENCES Abteilung(AbteilungID) ON DELETE SET NULL
 );
-""", normalize_names=True).run(group_by_type=True)
-    expected = {'comments': ['***********************',
-              '@Author: Azat Erol',
-              'Always happy coding!',
-              '************************/'],
- 'ddl_properties': [],
- 'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'columns': [{'check': None,
-                          'default': None,
-                          'name': 'KundenID',
-                          'nullable': False,
-                          'references': None,
-                          'size': None,
-                          'type': 'INT',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'KundenName',
-                          'nullable': True,
-                          'references': None,
-                          'size': 40,
-                          'type': 'VARCHAR',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'AbteilungID',
-                          'nullable': True,
-                          'references': {'column': 'AbteilungID',
-                                         'deferrable_initially': None,
-                                         'on_delete': 'SET',
-                                         'on_update': None,
-                                         'schema': None,
-                                         'table': 'Abteilung'},
-                          'size': None,
-                          'type': 'INT',
-                          'unique': False}],
-             'index': [],
-             'partitioned_by': [],
-             'primary_key': ['KundenID'],
-             'schema': None,
-             'table_name': 'Kunde',
-             'tablespace': None}],
- 'types': []}
+""",
+        normalize_names=True,
+    ).run(group_by_type=True)
+    expected = {
+        "comments": [
+            "***********************",
+            "@Author: Azat Erol",
+            "Always happy coding!",
+            "************************/",
+        ],
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "KundenID",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "KundenName",
+                        "nullable": True,
+                        "references": None,
+                        "size": 40,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "AbteilungID",
+                        "nullable": True,
+                        "references": {
+                            "column": "AbteilungID",
+                            "deferrable_initially": None,
+                            "on_delete": "SET",
+                            "on_update": None,
+                            "schema": None,
+                            "table": "Abteilung",
+                        },
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["KundenID"],
+                "schema": None,
+                "table_name": "Kunde",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
     assert expected == result
 
 
 def test_inserts_skipped_validly():
     result = DDLParser(
-"""
+        """
 INSERT INTO "autofill_profiles" VALUES('Jim Johnson, 789 4th Street',1,'Jim','','Johnson','jim@acme.com','Acme Inc.','789 4th Street','Apt. #4','San Francisco','CA','94102','USA','4155512255','4155512233',1287508123);
 INSERT INTO "autofill_profiles" VALUES('Billy Jean, 1 Ghost Blvd.',3,'Billy','','Jean','billy@thriller.com','Thriller Inc.','1 Ghost Blvd.','','Santa Monica','CA','98990','USA','4431110000','',1287508123);
 CREATE TABLE credit_cards ( label VARCHAR, unique_id INTEGER PRIMARY KEY, name_on_card VARCHAR, type VARCHAR, card_number VARCHAR, expiration_month INTEGER, expiration_year INTEGER, verification_code VARCHAR, billing_address VARCHAR, shipping_address VARCHAR, card_number_encrypted BLOB, verification_code_encrypted BLOB, date_modified INTEGER NOT NULL DEFAULT 0);
 
 COMMIT;
-""", normalize_names=True).run(group_by_type=True)
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'columns': [{'check': None,
-                          'default': None,
-                          'name': 'label',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'VARCHAR',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'unique_id',
-                          'nullable': False,
-                          'references': None,
-                          'size': None,
-                          'type': 'INTEGER',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'name_on_card',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'VARCHAR',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'type',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'VARCHAR',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'card_number',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'VARCHAR',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'expiration_month',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'INTEGER',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'expiration_year',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'INTEGER',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'verification_code',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'VARCHAR',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'billing_address',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'VARCHAR',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'shipping_address',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'VARCHAR',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'card_number_encrypted',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'BLOB',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'verification_code_encrypted',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'BLOB',
-                          'unique': False},
-                         {'check': None,
-                          'default': 0,
-                          'name': 'date_modified',
-                          'nullable': False,
-                          'references': None,
-                          'size': None,
-                          'type': 'INTEGER',
-                          'unique': False}],
-             'index': [],
-             'partitioned_by': [],
-             'primary_key': ['unique_id'],
-             'schema': None,
-             'table_name': 'credit_cards',
-             'tablespace': None}],
- 'types': []}
+""",
+        normalize_names=True,
+    ).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "label",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "unique_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "INTEGER",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "name_on_card",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "type",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "card_number",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "expiration_month",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INTEGER",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "expiration_year",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INTEGER",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "verification_code",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "billing_address",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "shipping_address",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "card_number_encrypted",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "BLOB",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "verification_code_encrypted",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "BLOB",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": 0,
+                        "name": "date_modified",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "INTEGER",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["unique_id"],
+                "schema": None,
+                "table_name": "credit_cards",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
     assert expected == result
 
 
 def test_autoincrement():
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'columns': [{'autoincrement': True,
-                          'check': None,
-                          'default': None,
-                          'name': 'field_1',
-                          'nullable': False,
-                          'references': None,
-                          'size': (38, 0),
-                          'type': 'NUMBER',
-                          'unique': False}],
-             'index': [],
-             'partitioned_by': [],
-             'primary_key': [],
-             'replace': True,
-             'schema': None,
-             'table_name': 'mytable',
-             'tablespace': None}],
- 'types': []}
-    results_one = DDLParser("""
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "autoincrement": True,
+                        "check": None,
+                        "default": None,
+                        "name": "field_1",
+                        "nullable": False,
+                        "references": None,
+                        "size": (38, 0),
+                        "type": "NUMBER",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "replace": True,
+                "schema": None,
+                "table_name": "mytable",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    results_one = DDLParser(
+        """
                     
         CREATE OR REPLACE TABLE mytable (
     field_1 NUMBER(38, 0) NOT NULL auto_increment
 );
-""", normalize_names=True).run(group_by_type=True)
-    
-    results_two = DDLParser("""
+""",
+        normalize_names=True,
+    ).run(group_by_type=True)
+
+    results_two = DDLParser(
+        """
                     
         CREATE OR REPLACE TABLE mytable (
     field_1 NUMBER(38, 0) NOT NULL AUTOINCREMENT
 );
-""", normalize_names=True).run(group_by_type=True)
-    
+""",
+        normalize_names=True,
+    ).run(group_by_type=True)
+
     assert results_one == results_two == expected
 
 
 def test_non_int_type_paramteter():
-        
-    results = DDLParser("""
+
+    results = DDLParser(
+        """
     CREATE TABLE t1 (
         p Geometry(MultiPolygon, 26918)
     );
-    """, normalize_names=True).run(group_by_type=True)
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'columns': [{'check': None,
-                          'default': None,
-                          'name': 'p',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'Geometry',
-                          'type_parameters': ('MultiPolygon', 26918),
-                          'unique': False}],
-             'index': [],
-             'partitioned_by': [],
-             'primary_key': [],
-             'schema': None,
-             'table_name': 't1',
-             'tablespace': None}],
- 'types': []}
+    """,
+        normalize_names=True,
+    ).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "p",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "Geometry",
+                        "type_parameters": ("MultiPolygon", 26918),
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "t1",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
     assert results == expected

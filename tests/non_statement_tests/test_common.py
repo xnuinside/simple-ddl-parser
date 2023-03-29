@@ -4,7 +4,6 @@ from simple_ddl_parser import DDLParser, DDLParserError
 
 
 def test_no_unexpected_logs(capsys):
-
     ddl = """
     CREATE EXTERNAL TABLE test (
     test STRING NULL COMMENT 'xxxx',
@@ -36,7 +35,6 @@ CREATE TABLE foo
 
 
 def test_flag_normalize_names():
-
     ddl = ddl = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
     SET ANSI_NULLS ON
     GO
@@ -109,7 +107,6 @@ def test_flag_normalize_names():
 
 
 def test_flag_normalize_names_mixed_usage():
-
     ddl = ddl = """
     CREATE TABLE [dbo].T1(ID int NOT NULL PRIMARY KEY)
     CREATE TABLE dbo.[T2](T2_TO_T1_ID int FOREIGN KEY REFERENCES dbo.[T1](ID))
@@ -118,131 +115,135 @@ def test_flag_normalize_names_mixed_usage():
 
     result = DDLParser(ddl, silent=False, normalize_names=True).run(group_by_type=True)
     expected = {
-        'tables': [
+        "tables": [
             {
-                'columns': [
+                "columns": [
                     {
-                        'name': 'ID',
-                        'type': 'int',
-                        'size': None,
-                        'references': None,
-                        'unique': False,
-                        'nullable': False,
-                        'default': None,
-                        'check': None
+                        "name": "ID",
+                        "type": "int",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
                     }
                 ],
-                'primary_key': ['ID'],
-                'alter': {},
-                'checks': [],
-                'index': [],
-                'partitioned_by': [],
-                'tablespace': None,
-                'schema': 'dbo',
-                'table_name': 'T1'
+                "primary_key": ["ID"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": "dbo",
+                "table_name": "T1",
             },
             {
-                'columns': [
+                "columns": [
                     {
-                        'name': 'T2_TO_T1_ID',
-                        'type': 'int',
-                        'size': None,
-                        'references':
-                        {
-                            'table': 'T1',
-                            'schema': 'dbo',
-                            'on_delete': None,
-                            'on_update': None,
-                            'deferrable_initially': None,
-                            'column': 'ID'
+                        "name": "T2_TO_T1_ID",
+                        "type": "int",
+                        "size": None,
+                        "references": {
+                            "table": "T1",
+                            "schema": "dbo",
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "column": "ID",
                         },
-                        'unique': False,
-                        'nullable': True,
-                        'default': None,
-                        'check': None
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
                     }
                 ],
-                'primary_key': [],
-                'alter': {},
-                'checks': [],
-                'index': [],
-                'partitioned_by': [],
-                'tablespace': None,
-                'schema': 'dbo',
-                'table_name': 'T2'
+                "primary_key": [],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": "dbo",
+                "table_name": "T2",
             },
-
             {
-                'columns': [
+                "columns": [
                     {
-                        'name': 'T3_TO_T1_ID',
-                        'type': 'int',
-                        'size': None,
-                        'references':
-                        {
-                            'table': 'T1',
-                            'schema': 'dbo',
-                            'on_delete': None,
-                            'on_update': None,
-                            'deferrable_initially': None,
-                            'column': 'ID'
+                        "name": "T3_TO_T1_ID",
+                        "type": "int",
+                        "size": None,
+                        "references": {
+                            "table": "T1",
+                            "schema": "dbo",
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "column": "ID",
                         },
-                        'unique': False,
-                        'nullable': True,
-                        'default': None,
-                        'check': None
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
                     }
                 ],
-                'primary_key': [],
-                'alter': {},
-                'checks': [],
-                'index': [],
-                'partitioned_by': [],
-                'tablespace': None,
-                'schema': 'dbo',
-                'table_name': 'T3'
+                "primary_key": [],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": "dbo",
+                "table_name": "T3",
             },
-
         ],
-        'types': [],
-        'sequences': [],
-        'domains': [],
-        'schemas': [],
-        'ddl_properties': []
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "ddl_properties": [],
     }
     assert expected == result
 
 
 def test_parsing_go_and_use_correctly():
-    ddl="""
+    ddl = """
     create TABLE ASIN.EXCLUSION (
         USER_COMMENT VARCHAR(100),
     );
     """
     result = DDLParser(ddl, normalize_names=True).run(output_mode="hql")
-    expected = [{'alter': {},
-  'checks': [],
-  'collection_items_terminated_by': None,
-  'columns': [{'check': None,
-               'default': None,
-               'name': 'USER_COMMENT',
-               'nullable': True,
-               'references': None,
-               'size': 100,
-               'type': 'VARCHAR',
-               'unique': False}],
-  'comment': None,
-  'external': False,
-  'fields_terminated_by': None,
-  'index': [],
-  'lines_terminated_by': None,
-  'location': None,
-  'map_keys_terminated_by': None,
-  'partitioned_by': [],
-  'primary_key': [],
-  'row_format': None,
-  'schema': 'ASIN',
-  'stored_as': None,
-  'table_name': 'EXCLUSION',
-  'tablespace': None}]
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "collection_items_terminated_by": None,
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "USER_COMMENT",
+                    "nullable": True,
+                    "references": None,
+                    "size": 100,
+                    "type": "VARCHAR",
+                    "unique": False,
+                }
+            ],
+            "comment": None,
+            "external": False,
+            "fields_terminated_by": None,
+            "index": [],
+            "lines_terminated_by": None,
+            "location": None,
+            "map_keys_terminated_by": None,
+            "partitioned_by": [],
+            "primary_key": [],
+            "row_format": None,
+            "schema": "ASIN",
+            "stored_as": None,
+            "table_name": "EXCLUSION",
+            "tablespace": None,
+        }
+    ]
     assert expected == result

@@ -57,7 +57,7 @@ def test_spark_sql_using():
                 "tablespace": None,
                 "tblproperties": {"'foo'": "'bar'"},
                 "using": "CSV",
-                'comment': "'this is a comment'",
+                "comment": "'this is a comment'",
             }
         ],
         "types": [],
@@ -127,44 +127,58 @@ def test_partition_by():
 
 
 def test_spark_sql_partitioned_by_function():
-        
-    results = DDLParser("""
+
+    results = DDLParser(
+        """
     create table a (b timestamp, c int)
     using iceberg
     partitioned by (months(b))
     location 's3://tables/a'
-    """).run(group_by_type=True)
-    
-    expected = {'ddl_properties': [],
- 'domains': [],
- 'schemas': [],
- 'sequences': [],
- 'tables': [{'alter': {},
-             'checks': [],
-             'columns': [{'check': None,
-                          'default': None,
-                          'name': 'b',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'timestamp',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'c',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'int',
-                          'unique': False}],
-             'index': [],
-             'location': "'s3://tables/a'",
-             'partitioned_by': [{'args': '(b)', 'func_name': 'months'}],
-             'primary_key': [],
-             'schema': None,
-             'table_name': 'a',
-             'tablespace': None,
-             'using': 'iceberg'}],
- 'types': []}
-    
+    """
+    ).run(group_by_type=True)
+
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "b",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "timestamp",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "c",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "location": "'s3://tables/a'",
+                "partitioned_by": [{"args": "(b)", "func_name": "months"}],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "a",
+                "tablespace": None,
+                "using": "iceberg",
+            }
+        ],
+        "types": [],
+    }
+
     assert expected == results
