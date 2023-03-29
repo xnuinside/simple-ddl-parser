@@ -68,8 +68,9 @@ def test_flag_normalize_names():
                         "name": "Request_ID",
                         "nullable": False,
                         "references": None,
-                        "size": (1, 1),
-                        "type": "int IDENTITY",
+                        "size": None,
+                        "identity": (1, 1),
+                        "type": "int",
                         "unique": False,
                     },
                     {

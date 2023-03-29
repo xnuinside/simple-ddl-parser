@@ -76,8 +76,9 @@ def test_several_indexes_types():
                             "schema": None,
                             "table": "Persons",
                         },
-                        "size": (1, 1),
-                        "type": "INT IDENTITY",
+                        "size": None, 
+                        "identity": (1, 1),
+                        "type": "INT",
                         "unique": False,
                     },
                     {
@@ -418,8 +419,9 @@ def test_clustered_index():
                             "schema": None,
                             "table": "Persons",
                         },
-                        "size": (1, 1),
-                        "type": "INT IDENTITY",
+                        "size": None,
+                        "identity": (1, 1),
+                        "type": "INT",
                         "unique": False,
                     },
                     {

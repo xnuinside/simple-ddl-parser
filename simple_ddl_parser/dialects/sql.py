@@ -286,16 +286,20 @@ class Column:
         return p_list
 
     def process_type_to_column_data(self, p_list, p):
-        if len(p_list) <= 3:
+        if 'IDENTITY' in p_list[-1]['type'].upper():
+            split_type = p_list[-1]['type'].split()
+            del p_list[-1]
+            if len(split_type) == 1:
+                self.set_column_size(p_list, p)
+            else:
+                p[0]['type'] = split_type[0]
+            p[0]['identity'] = None
+            return True
+        elif len(p_list) <= 3:
             p[0]["type"] = p_list[-1]["type"]
             if p_list[-1].get("property"):
                 for key, value in p_list[-1]["property"].items():
                     p[0][key] = value
-        elif p_list[-1]['type'].upper() in ['IDENTITY']:
-            del p_list[-1]
-            self.set_column_size(p_list, p)
-            p[0]['identity'] = None
-            return True
         else:
             # for [] arrays
             p[0]['type'] += p_list[-1]['type']
