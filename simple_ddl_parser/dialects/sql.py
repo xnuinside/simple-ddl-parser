@@ -1564,11 +1564,10 @@ class BaseSQL(
         p[0] = p[1]
         p[0]["tablespace"] = p_list[-1]
 
-
     def p_by_smthg(self, p):
         """by_smthg : BY id
         | BY ROW
         | BY LP pid RP
         """
         p_list = remove_par(list(p))
-        p[0] ={"by": p_list[-1]}
+        p[0] = {"by": p_list[-1]}

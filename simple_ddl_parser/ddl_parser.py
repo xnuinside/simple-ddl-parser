@@ -3,7 +3,9 @@ from typing import Dict, List, Optional
 from ply.lex import LexToken
 
 from simple_ddl_parser import tokens as tok
-from simple_ddl_parser.dialects import IBMDb2, SparkSQL, Snowflake, Oracle, BaseSQL, Redshift, MySQL, MSSQL, HQL, BigQuery
+from simple_ddl_parser.dialects import (HQL, MSSQL, PSQL, BaseSQL, BigQuery,
+                                        IBMDb2, MySQL, Oracle, Redshift,
+                                        Snowflake, SparkSQL)
 from simple_ddl_parser.parser import Parser
 
 
@@ -11,8 +13,14 @@ class DDLParserError(Exception):
     pass
 
 
+class Dialects(
+    SparkSQL, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift, BigQuery, IBMDb2, PSQL
+):
+    pass
+
+
 class DDLParser(
-    Parser, SparkSQL, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift, BigQuery, IBMDb2
+    Parser, Dialects
 ):
 
     tokens = tok.tokens

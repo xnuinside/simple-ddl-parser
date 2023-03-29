@@ -404,6 +404,10 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - STORAGE column property
 
 
+### PotgreSQL
+
+- INHERITS table statement - https://postgrespro.ru/docs/postgresql/14/ddl-inherit 
+
 ### AWS Redshift Dialect statements
 
 - ENCODE column property

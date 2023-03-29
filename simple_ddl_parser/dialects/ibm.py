@@ -8,4 +8,3 @@ class IBMDb2:
         if p_list[-2].upper() == 'IN':
             p[1].update({"index_in": p_list[-1]})
         p[0] = p[1]
-

@@ -87,6 +87,8 @@ after_columns_tokens = {
     "TABLESPACE": "TABLESPACE",
     # mssql
     "TEXTIMAGE_ON": "TEXTIMAGE_ON",
+    # psql
+    "INHERITS": "INHERITS"
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",

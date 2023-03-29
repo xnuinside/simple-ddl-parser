@@ -15,7 +15,7 @@ class HQL:
         p[0] = p[1]
         p_list = list(p)
         if isinstance(p_list[-1], dict):
-            # mean we in by statement 
+            # mean we 'in by' statement
             p[0][f'{p_list[-2].lower()}_by'] = list(p_list[-1].values())[0]
         else:
             p[0][f"{p_list[2].lower()}_{p_list[3].lower()}"] = p_list[-2]
