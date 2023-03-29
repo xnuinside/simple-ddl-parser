@@ -11,9 +11,6 @@ Added support for ORGANIZE BY statement
 
 2. Added support for PostgreSQL INHERITS statement. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/191
 
-3. Added support for TRUNCATE statement. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/190
-
-
 **v0.29.1**
 ### Important updates:
 1. Python 3.6 is deprecated in tests and by default, try to move to Python3.7, but better to 3.8, because 3.7 will be deprecated in 2023.

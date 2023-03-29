@@ -560,14 +560,6 @@ class Schema:
             p[0] = {f"{p[2].lower()}_name": p_list[-1]}
 
 
-class Truncate:
-    def p_expression_drop_table(self, p: List) -> None:
-        """expr : TRUNCATE t_name
-        """
-        p_list = list(p)
-        p[0] = {"truncate": {"schema": p_list[-1]['schema'], "table_name": p_list[-1]['table_name']}}
-
-
 class Drop:
     def p_expression_drop_table(self, p: List) -> None:
         """expr : DROP TABLE id
@@ -700,7 +692,7 @@ class Domain:
 
 
 class BaseSQL(
-    Database, Table, Drop, Truncate, Domain, Column, AfterColumns, Type, Schema, TableSpaces
+    Database, Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces
 ):
     def clean_up_id_list_in_equal(self, p_list: List) -> List:  # noqa R701
         if isinstance(p_list[1], str) and p_list[1].endswith("="):
