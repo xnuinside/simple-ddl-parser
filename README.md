@@ -27,6 +27,7 @@ Parser supports:
 - Redshift
 - Snowflake
 - SparkSQL
+- IBM DB2 dialect
 
 You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser. If you need to add more statements or new dialects - feel free to open the issue. 
 
