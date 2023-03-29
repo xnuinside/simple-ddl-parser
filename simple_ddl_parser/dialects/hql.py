@@ -11,10 +11,14 @@ class HQL:
 
     def p_expression_clustered(self, p):
         """expr : expr ID ON LP pid RP
-        |  expr ID BY LP pid RP"""
+        | expr ID by_smthg"""
         p[0] = p[1]
         p_list = list(p)
-        p[0][f"{p_list[2].lower()}_{p_list[3].lower()}"] = p_list[-2]
+        if isinstance(p_list[-1], dict):
+            # mean we 'in by' statement
+            p[0][f'{p_list[-2].lower()}_by'] = list(p_list[-1].values())[0]
+        else:
+            p[0][f"{p_list[2].lower()}_{p_list[3].lower()}"] = p_list[-2]
 
     def p_expression_into_buckets(self, p):
         """expr : expr INTO ID ID"""

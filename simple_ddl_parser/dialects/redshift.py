@@ -15,7 +15,11 @@ class Redshift:
         | expr id KEY
         """
         p_list = list(p)
-        p[1].update({p_list[-2]: p_list[-1]})
+        if p_list[-2] == 'IN':
+            # mean we in 'IN TABLESPACE'
+            p[1].update({'tablespace': p_list[-1]})
+        else:
+            p[1].update({p_list[-2]: p_list[-1]})
         p[0] = p[1]
 
     def p_expression_sortkey(self, p):

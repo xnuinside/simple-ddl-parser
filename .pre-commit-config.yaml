@@ -3,13 +3,11 @@ repos:
         rev: 21.7b0
         hooks:
         - id: black
-          language_version: python3
           entry: bash -c 'black "$@"; git add -u' --
     -   repo: https://github.com/timothycrosley/isort
-        rev: 5.9.2
+        rev: 5.11.5
         hooks:
         -   id: isort
-            language_version: python3
             entry: bash -c 'isort "$@"; git add -u' --
     -   repo: https://github.com/pycqa/flake8
         rev: 3.9.2

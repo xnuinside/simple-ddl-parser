@@ -61,7 +61,7 @@ class Parser:
         debug: bool = False,
         normalize_names: bool = False,
         log_file: Optional[str] = None,
-        log_level: Union[str, int] = logging.DEBUG,
+        log_level: Union[str, int] = logging.INFO,
     ) -> None:
         """
             content: is a file content for processing

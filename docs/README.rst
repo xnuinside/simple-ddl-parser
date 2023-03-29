@@ -47,6 +47,7 @@ Parser supports:
 * Redshift
 * Snowflake
 * SparkSQL
+* IBM DB2 dialect
 
 You can check dialects sections after ``Supported Statements`` section to get more information that statements from dialects already supported by parser. If you need to add more statements or new dialects - feel free to open the issue. 
 
@@ -449,6 +450,12 @@ Oracle
 * ENCRYPT column property [+ NO SALT, SALT, USING]
 * STORAGE column property
 
+PotgreSQL
+^^^^^^^^^
+
+
+* INHERITS table statement - https://postgrespro.ru/docs/postgresql/14/ddl-inherit 
+
 AWS Redshift Dialect statements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -551,6 +558,26 @@ https://github.com/swiatek25
 
 Changelog
 ---------
+
+**v0.30.0**
+
+Fixes:
+^^^^^^
+
+
+#. IDENTITY now parsed normally as a separate column property. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/184
+
+New Features:
+^^^^^^^^^^^^^
+
+
+#. 
+   IN TABLESPACE IBM DB2 statement now is parsed into 'tablespace' key. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/194.
+   INDEX IN also parsed to 'index_in' key.
+   Added support for ORGANIZE BY statement
+
+#. 
+   Added support for PostgreSQL INHERITS statement. Issue: https://github.com/xnuinside/simple-ddl-parser/issues/191
 
 **v0.29.1**
 
@@ -964,146 +991,3 @@ New Features:
    #### MSSQL
    3. Added support for CONSTRAINT [CLUSTERED]... PRIMARY KEY for Table definition
    4. Added support for WITH statement in CONSTRAINT (Table definition)
-
-
-
-**v0.19.9**
-
-
-#. Fixed issue with the weird log - https://github.com/xnuinside/simple-ddl-parser/issues/78.
-
-**v0.19.8**
-Features:
-
-.. code-block::
-
-   1. Method `DDLParser(...).run(...)` now get argument json=True if you want to get result as json,
-   but not as Python Object
-
-
-Fixes:
-
-.. code-block::
-
-   1. Fixed issue when variables are 'glue' during Struct parse like previously STRUCT<a ARRAY<STRING>,b BOOL> was
-   extracted like 'STRUCT <aARRAY <STRING>,bBOOL>', now this issue was fixed and it parsed as is STRUCT < a
-   ARRAY < STRING > ,b BOOL >. Now '>' and '<' always will be with space near them.
-
-   2. CHECK CONSTRAINT with functions. Fix for https://github.com/xnuinside/simple-ddl-parser/issues/76.
-
-
-
-**v0.19.7**
-Fixes:
-
-
-#. Add support for more special symbols to strings - https://github.com/xnuinside/simple-ddl-parser/issues/68
-
-Features:
-
-
-#. Added support for HQL statements:
-    STORED AS INPUTFORMAT, OUTPUTFORMAT - https://github.com/xnuinside/simple-ddl-parser/issues/69
-    SKEWED BY
-
-**v0.19.6**
-Fixes:
-
-
-#. Fixed issue with PARTITIONED BY multiple columns in HQL - https://github.com/xnuinside/simple-ddl-parser/issues/66
-#. Question symbol '?' now handled valid in strings - https://github.com/xnuinside/simple-ddl-parser/issues/64
-#. Fixed issue with escaping symbols & added tests -https://github.com/xnuinside/simple-ddl-parser/issues/63
-
-Features:
-
-
-#. Added support for HQL statement TBLPROPERTIES - https://github.com/xnuinside/simple-ddl-parser/issues/65
-
-**v0.19.5**
-Fixes:
-
-
-#. Fixed issues with COMMENT statement in column definitions. Add bunch of tests, now they expect working ok.
-
-**v0.19.4**
-
-
-#. Added support for PARTITION BY (previously was only PARTITIONED BY from HQL)
-
-**v0.19.2**
-
-
-#. Added support for ` quotes in column & tables names
-
-**v0.19.1**
-Fixes:
-
-
-#. Issue with '\t' reported in https://github.com/xnuinside/simple-ddl-parser/issues/53
-
-Features:
-
-
-#. Added base for future BigQuery support: added output_mode="bigquery". Pay attention that there is no schemas in BigQuery, so schemas are Datasets.
-
-**v0.19.0**
-**Features**
-
-
-#. Added support for base Snowflake SQL Dialect.
-   Added new --output-mode='snowflake' (add "clone" key)
-
-Added support for CREATE .. CLONE with same behaviour as CREATE .. LIKE
-Added support for CREATE .. CLONE for schemas and database - displayed in output as {"clone": {"from": ... }}
-CREATE TABLE .. CLUSTER BY ..
-CONSTRAINT .. [NOT] ENFORCED (value stored in 'primary_key_enforced')
-
-
-#. in CREATE DATABASE properties that goes after name like key=value now parsed valid. Check examples in tests
-#. Added support for varchar COLLATE column property
-
-**v0.18.0**
-**Features**
-
-
-#. Added base support fot AWS Redshift SQL dialect. 
-   Added support for ENCODE property in column.
-   Added new --output-mode='redshift' that add to column 'encrypt' property by default.
-   Also add table properties: distkeys, sortkey, diststyle, encode (table level encode), temp.
-
-Supported Redshift statements: SORTKEY, DISTSTYLE, DISTKEY, ENCODE
-
-CREATE TEMP / TEMPORARY TABLE
-
-syntax like with LIKE statement:
-
-create temp table tempevent(like event); 
-
-**v0.17.0**
-
-
-#. All dependencies were updated for the latest version.
-#. Added base support for CREATE [BIGFILE | SMALLFILE] [TEMPORARY] TABLESPACE 
-#. Added support for create table properties like ``TABLESPACE user_data ENABLE STORAGE IN ROW CHUNK 8K RETENTION CACHE``
-#. Added support for CREATE DATABASE statement
-
-**v0.16.3**
-
-
-#. Fixed issue then using columns names equals some tokens like, for example, ``key`` caused the error. 
-   But still words 'foreign' and 'constraint' as column names cause the empty result. I hope they rarely used.
-   Will be fixed in next releases.
-
-**v0.16.2**
-
-
-#. Fixed issue with enum in lowercase
-
-**v0.16.0**
-
-
-#. Fixed the issue when NULL column after DEFAULT used as default value.
-#. Added support for generated columns, statatements: AS , GENERATED ALWAYS, STORED in Column Defenitions, in output it placed to key 'generated'. Keyword 'generated' showed only if column is generated.
-#. Half of changelogs moved to ARCHIVE_CHANGELOG.txt
-#. Added base support for CREATE DOMAIN statement
-#. Added base support for CREATE SCHEMA [IF NOT EXISTS] ... [AUTHORIZATION] statement, added new type keyword 'schemas'

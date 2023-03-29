@@ -193,6 +193,7 @@ class Column:
         | id id
         | id id id id
         | id id id
+        | c_type pid
         | id DOT id
         | tid
         | ARRAY
@@ -284,6 +285,27 @@ class Column:
             del p_list[-2]
         return p_list
 
+    def process_type_to_column_data(self, p_list, p):
+        if 'IDENTITY' in p_list[-1]['type'].upper():
+            split_type = p_list[-1]['type'].split()
+            del p_list[-1]
+            if len(split_type) == 1:
+                self.set_column_size(p_list, p)
+            else:
+                p[0]['type'] = split_type[0]
+            p[0]['identity'] = None
+            return True
+        elif len(p_list) <= 3:
+            p[0]["type"] = p_list[-1]["type"]
+            if p_list[-1].get("property"):
+                for key, value in p_list[-1]["property"].items():
+                    p[0][key] = value
+        else:
+            # for [] arrays
+            p[0]['type'] += p_list[-1]['type']
+            del p_list[-1]
+        return False
+
     def p_column(self, p: List) -> None:
         """column : id c_type
         | column comment
@@ -294,20 +316,19 @@ class Column:
         | column LP id COMMA id RP c_type
         """
         p[0] = self.set_base_column_propery(p)
+        identity = False
         p_list = list(p)
 
         p_list = self.process_oracle_type_size(p_list)
 
         p_list = remove_par(p_list)
-
-        if isinstance(p_list[-1], dict) and "type" in p_list[-1] and len(p_list) <= 3:
-            p[0]["type"] = p_list[-1]["type"]
-            if p_list[-1].get("property"):
-                for key, value in p_list[-1]["property"].items():
-                    p[0][key] = value
-        elif isinstance(p_list[-1], dict):
-            self.get_column_details(p_list, p)
-        self.set_column_size(p_list, p)
+        if isinstance(p_list[-1], dict):
+            if "type" in p_list[-1]:
+                identity = self.process_type_to_column_data(p_list, p)
+            else:
+                self.get_column_details(p_list, p)
+        if not identity:
+            self.set_column_size(p_list, p)
 
     def set_column_size(self, p_list: List, p: List):
         if (
@@ -318,6 +339,8 @@ class Column:
             size = self.get_size(p_list)
             if self.check_type_parameter(size):
                 p[0]["type_parameters"] = size
+            elif 'identity' in p[0]:
+                p[0]['identity'] = size
             else:
                 p[0]["size"] = size
 
@@ -1563,3 +1586,11 @@ class BaseSQL(
         p_list = list(p)
         p[0] = p[1]
         p[0]["tablespace"] = p_list[-1]
+
+    def p_by_smthg(self, p):
+        """by_smthg : BY id
+        | BY ROW
+        | BY LP pid RP
+        """
+        p_list = remove_par(list(p))
+        p[0] = {"by": p_list[-1]}
