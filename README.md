@@ -421,9 +421,14 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 ### Snowflake Dialect statements
 
 - CREATE .. CLONE statements for table, database and schema
-- CREATE TABLE [or REPLACE] [ TRANSIET | TEMPORARY ] .. CLUSTER BY ..
+- CREATE TABLE [or REPLACE] [ TRANSIENT | TEMPORARY ] .. CLUSTER BY ..
 - CONSTRAINT .. [NOT] ENFORCED 
 - COMMENT = in CREATE TABLE & CREATE SCHEMA statements
+- WITH MASKING POLICY
+- WITH TAG
+- DATA_RETENTION_TIME_IN_DAYS
+- MAX_DATA_EXTENSION_TIME_IN_DAYS
+- CHANGE_TRACKING
 
 ### BigQuery
 

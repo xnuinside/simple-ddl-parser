@@ -47,7 +47,12 @@ columns_defenition = {
     "ENFORCED": "ENFORCED",
     "ENCODE": "ENCODE",
     "GENERATED": "GENERATED",
-    "COMMENT": "COMMENT"
+    "COMMENT": "COMMENT",
+    "TAG": "TAG",
+    "POLICY":"POLICY",
+    "MASKING": "MASKING",
+    "MASKED": "MASKED",
+    "WITH" : "WITH",
 }
 first_liners = {
     "LIKE": "LIKE",
@@ -88,7 +93,11 @@ after_columns_tokens = {
     # mssql
     "TEXTIMAGE_ON": "TEXTIMAGE_ON",
     # psql
-    "INHERITS": "INHERITS"
+    "INHERITS": "INHERITS",
+    #snowflake
+    "DATA_RETENTION_TIME_IN_DAYS" : "DATA_RETENTION_TIME_IN_DAYS",
+    "MAX_DATA_EXTENSION_TIME_IN_DAYS" : "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+    "CHANGE_TRACKING" : "CHANGE_TRACKING"
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",

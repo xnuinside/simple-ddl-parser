@@ -130,7 +130,7 @@ class Table:
         | CREATE OR REPLACE id TABLE
 
         """
-        # id - for EXTERNAL, TRANSIENT, TEMPORARY
+        # id - for EXTERNAL, TRANSIENT, TEMPORARY, GLOBAL, LOCAL, TEMP, VOLATILE
         # get schema & table name
         p[0] = {}
         p_list = list(p)
@@ -398,6 +398,8 @@ class Column:
         | defcolumn on_update
         | defcolumn options
         | defcolumn autoincrement
+        | defcolumn option_with_tag
+        | defcolumn option_with_masking_policy
         """
         p[0] = p[1]
         p_list = list(p)

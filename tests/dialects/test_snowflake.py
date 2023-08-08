@@ -274,3 +274,237 @@ def test_comment_on_create_schema():
     result = DDLParser(ddl, normalize_names=True).run(output_mode="snowflake")
     expected = [{"comment": "'this is comment1'", "schema_name": "my_schema"}]
     assert result == expected
+
+def test_table_with_tag():
+
+    ddl = """
+    create TABLE ASIN.EXCLUSION (
+        USER_COMMENT VARCHAR(100) COMMENT 'User input' WITH TAG (DBName.MASKING_POLICY_LIBRARY.PROJECT_POLICY_MASK='mask_object'),
+        PROCESS_SQN NUMBER(10,0) NOT NULL,
+        constraint PK_EXCLUSION primary key (ASIN)
+    )
+    ;
+    """
+    result_tagged = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    expected_tagged = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "USER_COMMENT",
+                    "type": "VARCHAR",
+                    "size": 100,
+                    "comment": "'User input'",
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "with_tag": "DBName.MASKING_POLICY_LIBRARY.PROJECT_POLICY_MASK='mask_object'",
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "PROCESS_SQN",
+                    "nullable": False,
+                    "references": None,
+                    "size": (10, 0),
+                    "type": "NUMBER",
+                    "unique": False,
+                },
+            ],
+            "constraints": {
+                "primary_keys": [
+                    {"columns": ["ASIN"], "constraint_name": "PK_EXCLUSION"}
+                ]
+            },
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": ["ASIN"],
+            "primary_key_enforced": None,
+            "schema": "ASIN",
+            "table_name": "EXCLUSION",
+            "tablespace": None,
+        }
+    ]
+    f = open("payload.json", "a")
+    f.write(str(result_tagged))
+    f.close()
+
+    assert result_tagged == expected_tagged
+
+def test_table_with_mask():
+
+    ddl = """
+    create TABLE ASIN.EXCLUSION (
+        USER_COMMENT VARCHAR(100) COMMENT 'User input' WITH MASKING POLICY DBName.MASKING_POLICY_LIBRARY.MASK_STRING,
+        PROCESS_SQN NUMBER(10,0) NOT NULL,
+        constraint PK_EXCLUSION primary key (ASIN)
+    )
+    ;
+    """
+    result_masked = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+
+    expected_masked = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "USER_COMMENT",
+                    "type": "VARCHAR",
+                    "size": 100,
+                    "comment": "'User input'",
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "with_masking_policy": "DBName.MASKING_POLICY_LIBRARY.MASK_STRING",
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "PROCESS_SQN",
+                    "nullable": False,
+                    "references": None,
+                    "size": (10, 0),
+                    "type": "NUMBER",
+                    "unique": False,
+                },
+            ],
+            "constraints": {
+                "primary_keys": [
+                    {"columns": ["ASIN"], "constraint_name": "PK_EXCLUSION"}
+                ]
+            },
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": ["ASIN"],
+            "primary_key_enforced": None,
+            "schema": "ASIN",
+            "table_name": "EXCLUSION",
+            "tablespace": None,
+        }
+    ]
+
+    assert result_masked == expected_masked
+
+def test_table_with_retention():
+
+    ddl = """
+    create TABLE ASIN.EXCLUSION (
+        USER_COMMENT VARCHAR(100) COMMENT 'User input',
+        PROCESS_SQN NUMBER(10,0) NOT NULL,
+        constraint PK_EXCLUSION primary key (ASIN)
+    ) DATA_RETENTION_TIME_IN_DAYS = 15
+    ;
+    """
+    result_retention = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+
+    expected_retention = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "USER_COMMENT",
+                    "type": "VARCHAR",
+                    "size": 100,
+                    "comment": "'User input'",
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                 },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "PROCESS_SQN",
+                    "nullable": False,
+                    "references": None,
+                    "size": (10, 0),
+                    "type": "NUMBER",
+                    "unique": False,
+                },
+            ],
+            "constraints": {
+                "primary_keys": [
+                    {"columns": ["ASIN"], "constraint_name": "PK_EXCLUSION"}
+                ]
+            },
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": ["ASIN"],
+            "primary_key_enforced": None,
+            "schema": "ASIN",
+            "table_name": "EXCLUSION",
+            "tablespace": None,
+            "data_retention_time_in_days" : 15
+        }
+    ]
+
+    assert result_retention == expected_retention
+
+def test_table_with_change_tracking():
+
+    ddl = """
+    create TABLE ASIN.EXCLUSION (
+        USER_COMMENT VARCHAR(100) COMMENT 'User input',
+        PROCESS_SQN NUMBER(10,0) NOT NULL,
+        constraint PK_EXCLUSION primary key (ASIN)
+    ) change_tracking = False
+    ;
+    """
+    result_change_tracking = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+
+    expected_change_tracking = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "USER_COMMENT",
+                    "type": "VARCHAR",
+                    "size": 100,
+                    "comment": "'User input'",
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                 },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "PROCESS_SQN",
+                    "nullable": False,
+                    "references": None,
+                    "size": (10, 0),
+                    "type": "NUMBER",
+                    "unique": False,
+                },
+            ],
+            "constraints": {
+                "primary_keys": [
+                    {"columns": ["ASIN"], "constraint_name": "PK_EXCLUSION"}
+                ]
+            },
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": ["ASIN"],
+            "primary_key_enforced": None,
+            "schema": "ASIN",
+            "table_name": "EXCLUSION",
+            "tablespace": None,
+            "change_tracking" : False
+        }
+    ]
+
+    assert result_change_tracking == expected_change_tracking
