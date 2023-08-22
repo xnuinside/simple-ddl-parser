@@ -259,7 +259,6 @@ def test_mysql_comments_support():
 
 
 def test_two_defices_in_string_work_ok():
-
     ddl = """
     CREATE TABLE "my--custom--schema"."users" (
     "id" SERIAL PRIMARY KEY,

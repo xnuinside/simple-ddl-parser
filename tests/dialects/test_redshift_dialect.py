@@ -75,7 +75,6 @@ def test_base_encode():
 
 
 def test_distkey_sortkey():
-
     ddl = """
     create table sales(
     salesid integer not null,
@@ -265,7 +264,6 @@ def test_distkey_sortkey():
 
 
 def test_distyle():
-
     ddl = """
     create table t1(col1 int distkey) diststyle key;
     """
@@ -312,7 +310,6 @@ def test_distyle():
 
 
 def test_encode_for_full_table():
-
     ddl = """
     create table t2(c0 int, c1 varchar) encode auto;
     """
@@ -369,7 +366,6 @@ def test_encode_for_full_table():
 
 
 def test_interleaved_sortkey_also_ok():
-
     ddl = """
     create table customer_interleaved (
     c_custkey     	integer        not null,
@@ -505,7 +501,6 @@ def test_interleaved_sortkey_also_ok():
 
 
 def test_create_temp_table():
-
     ddl = """
     create temp table tempevent(
         qtysold smallint not null encode mostly8,

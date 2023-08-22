@@ -2,7 +2,6 @@ from simple_ddl_parser import DDLParser
 
 
 def test_custom_enum():
-
     ddl = """
     CREATE TYPE "schema--notification"."ContentType" AS
     ENUM ('TEXT','MARKDOWN','HTML');
@@ -46,7 +45,6 @@ def test_custom_enum():
 
 
 def test_custom_enum_wihtout_schema():
-
     ddl = """
     CREATE TYPE "ContentType" AS
     ENUM ('TEXT','MARKDOWN','HTML');
@@ -90,7 +88,6 @@ def test_custom_enum_wihtout_schema():
 
 
 def test_create_type_as_object():
-
     ddl = """
     CREATE OR REPLACE TYPE addr_obj_typ AS OBJECT (
         street          VARCHAR2(30),

@@ -18,14 +18,13 @@ output_modes = [
 ]
 
 
-logger = logging.getLogger('simple_ddl_parser')
+logger = logging.getLogger("simple_ddl_parser")
 
 
 def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str]) -> Dict:
     """get table by name and schema or rise exception"""
     target_table = tables_dict.get(table_id)
     if target_table is None:
-
         raise ValueError(
             f"Found ALTER statement to not existed TABLE {table_id[0]} with SCHEMA {table_id[1]}"
         )
@@ -242,7 +241,6 @@ def set_column_unique_param(table_data: Dict, key: str) -> Dict:
 
 
 def set_unique_columns(table_data: Dict) -> Dict:
-
     unique_keys = ["unique_statement", "constraints"]
 
     for key in unique_keys:

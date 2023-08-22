@@ -1,3 +1,5 @@
+from typing import List
+
 from simple_ddl_parser.utils import remove_par
 
 
@@ -15,9 +17,50 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0]["cluster_by"] = p_list[-1]
 
-    def p_table_comment(self, p):
-        """expr : expr option_comment
+    def p_table_property_equals(self, p: List) -> None:
+        """table_property_equals : id id id_or_string
+        | id id_or_string
         """
+        p_list = remove_par(list(p))
+        p[0] = int(p_list[-1])
+
+    def p_table_property_equals_bool(self, p: List) -> None:
+        """table_property_equals_bool : id id id_or_string
+        | id id_or_string
+        """
+        p_list = remove_par(list(p))
+        print(p_list)
+        if p_list[-1].lower() == "true":
+            p[0] = True
+        else:
+            p[0] = False
+
+    def p_expression_data_retention_time_in_days(self, p):
+        """expr : expr DATA_RETENTION_TIME_IN_DAYS table_property_equals"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["data_retention_time_in_days"] = p_list[-1]
+
+    def p_expression_max_data_extension_time_in_days(self, p):
+        """expr : expr MAX_DATA_EXTENSION_TIME_IN_DAYS table_property_equals"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["max_data_extension_time_in_days"] = p_list[-1]
+
+    def p_expression_change_tracking(self, p):
+        """expr : expr CHANGE_TRACKING table_property_equals_bool"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["change_tracking"] = p_list[-1]
+
+    def p_table_comment(self, p):
+        """expr : expr option_comment"""
+        p[0] = p[1]
+        if p[2]:
+            p[0].update(p[2])
+
+    def p_table_tag(self, p):
+        """expr : expr option_with_tag"""
         p[0] = p[1]
         if p[2]:
             p[0].update(p[2])
@@ -31,3 +74,27 @@ class Snowflake:
         p_list = remove_par(list(p))
         if "comment" in p[1].lower():
             p[0] = {"comment": p_list[-1]}
+
+    def p_tag_equals(self, p: List) -> None:
+        """tag_equals : id id id_or_string
+        | id id_or_string
+        """
+        p_list = remove_par(list(p))
+        p[0] = f"{p_list[-2]}{p_list[-1]}"
+
+    def p_option_with_tag(self, p):
+        """option_with_tag : TAG LP id RP
+        | TAG LP id DOT id DOT id RP
+        | TAG LP id DOT id DOT tag_equals RP
+        | WITH TAG LP id RP
+        | WITH TAG LP id DOT id DOT tag_equals RP
+        """
+        p_list = remove_par(list(p))
+        p[0] = {"with_tag": f"{p_list[-5]}.{p_list[-3]}.{p_list[-1]}"}
+
+    def p_option_with_masking_policy(self, p):
+        """option_with_masking_policy : MASKING POLICY id DOT id DOT id
+        | WITH MASKING POLICY id DOT id DOT id
+        """
+        p_list = remove_par(list(p))
+        p[0] = {"with_masking_policy": f"{p_list[-5]}.{p_list[-3]}.{p_list[-1]}"}

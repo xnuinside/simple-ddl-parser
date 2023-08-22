@@ -7,7 +7,7 @@ import sys
 from simple_ddl_parser import parse_from_file
 from simple_ddl_parser.output.common import output_modes
 
-logger = logging.getLogger('simple_ddl_parser')
+logger = logging.getLogger("simple_ddl_parser")
 
 
 def cli():

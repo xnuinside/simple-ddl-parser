@@ -53,7 +53,6 @@ def test_sets_with_dot_and_comma():
 
 
 def test_parse_validly_tables_after_set():
-
     ddl = """
         --
     -- PostgreSQL database dump
@@ -165,7 +164,6 @@ def test_parse_validly_tables_after_set():
 
 
 def test_set_lower_parsed():
-
     ddl = """
 
     set hive.enforce.bucketing = true;

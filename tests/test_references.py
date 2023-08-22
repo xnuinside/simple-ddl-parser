@@ -198,7 +198,6 @@ def test_references_with_schema():
 
 
 def test_ref_in_alter():
-
     ddl = """
 
     create table ChildTableName(
@@ -322,7 +321,6 @@ def test_defferable_initially():
 
 
 def test_deferrable_initially_not():
-
     ddl = """
 
     CREATE TABLE child (
@@ -389,7 +387,6 @@ def test_deferrable_initially_not():
 
 
 def test_foreigen_keys():
-
     result = DDLParser(
         """
     CREATE TABLE timeperiod_exceptions (

@@ -89,7 +89,7 @@ testcases = [
             "sequences": [],
             "domains": [],
             "schemas": [],
-        }
+        },
     },
     {
         "test_id": "test_schema_options",
@@ -112,7 +112,7 @@ testcases = [
             "sequences": [],
             "tables": [],
             "types": [],
-        }
+        },
     },
     {
         "test_id": "test_two_options_values",
@@ -141,14 +141,11 @@ testcases = [
             "sequences": [],
             "tables": [],
             "types": [],
-        }
-    }
+        },
+    },
 ]
 
-testdata = [
-    (testcase["ddl"], testcase["parsed_ddl"])
-    for testcase in testcases
-]
+testdata = [(testcase["ddl"], testcase["parsed_ddl"]) for testcase in testcases]
 test_ids = [testcase["test_id"] for testcase in testcases]
 
 
@@ -175,11 +172,11 @@ def test_long_string_in_option():
                     "options": [
                         {
                             "description": '"Calendar table '
-                                           "records reference "
-                                           "list of calendar "
-                                           "dates and related "
-                                           "attributes used for "
-                                           'reporting."'
+                            "records reference "
+                            "list of calendar "
+                            "dates and related "
+                            "attributes used for "
+                            'reporting."'
                         }
                     ]
                 },
@@ -229,8 +226,8 @@ def test_option_in_create_table():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                                       "list of calendar dates and related "
-                                       'attributes used for reporting."'
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
                     }
                 ],
                 "partitioned_by": [],
@@ -282,8 +279,8 @@ def test_options_in_column():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                                       "list of calendar dates and related "
-                                       'attributes used for reporting."'
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
                     }
                 ],
                 "partitioned_by": [],
@@ -338,8 +335,8 @@ def test_cluster_by_without_brackets():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                                       "list of calendar dates and related "
-                                       'attributes used for reporting."'
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
                     }
                 ],
                 "partitioned_by": [],
@@ -482,8 +479,8 @@ def test_table_name_with_project_id():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                                       "list of calendar dates and related "
-                                       'attributes used for reporting."'
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
                     }
                 ],
                 "partition_by": {
@@ -641,8 +638,8 @@ def test_multiple_options():
                 "options": [
                     {
                         "description": '"Calendar table records reference '
-                                       "list of calendar dates and related "
-                                       'attributes used for reporting."'
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
                     },
                     {"one_more_option": '"Option"'},
                     {"three_options": '"Three"'},
@@ -804,8 +801,8 @@ def test_multiple_options_statements():
                     {"location": '"location"'},
                     {
                         "description": '"Calendar table records reference '
-                                       "list of calendar dates and related "
-                                       'attributes used for reporting."'
+                        "list of calendar dates and related "
+                        'attributes used for reporting."'
                     },
                     {"name": '"path"'},
                     {"kms_two": '"path"'},

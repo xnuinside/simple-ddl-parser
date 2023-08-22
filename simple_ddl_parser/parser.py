@@ -19,9 +19,8 @@ MYSQL_COM = "#"
 
 
 def set_logging_config(
-        log_level: Union[str, int],
-        log_file: Optional[str] = None) -> None:
-
+    log_level: Union[str, int], log_file: Optional[str] = None
+) -> None:
     if log_file:
         logging.basicConfig(
             level=log_level,
@@ -64,21 +63,21 @@ class Parser:
         log_level: Union[str, int] = logging.INFO,
     ) -> None:
         """
-            content: is a file content for processing
-            silent: if true - will not raise errors, just return empty output
-            debug: if True - parser will produce huge tokens tree & parser.out file, normally you don't want this enable
-            normalize_names: if flag is True (default 'False') then all identifiers will be returned without
-                            '[', '"' and other delimeters that used in different SQL dialects to separate custom names
-                            from reserverd words & statements.
-                                For example, if flag set 'True' and you pass this input:
+        content: is a file content for processing
+        silent: if true - will not raise errors, just return empty output
+        debug: if True - parser will produce huge tokens tree & parser.out file, normally you don't want this enable
+        normalize_names: if flag is True (default 'False') then all identifiers will be returned without
+                        '[', '"' and other delimeters that used in different SQL dialects to separate custom names
+                        from reserverd words & statements.
+                            For example, if flag set 'True' and you pass this input:
 
-                                CREATE TABLE [dbo].[TO_Requests](
-                                    [Request_ID] [int] IDENTITY(1,1) NOT NULL,
-                                    [user_id] [int]
+                            CREATE TABLE [dbo].[TO_Requests](
+                                [Request_ID] [int] IDENTITY(1,1) NOT NULL,
+                                [user_id] [int]
 
-                            In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO_Requests]'.
-            log_file: path to file for logging
-            log_level: set logging level for parser
+                        In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO_Requests]'.
+        log_file: path to file for logging
+        log_level: set logging level for parser
         """
         self.tables = []
         self.silent = not debug if debug else silent
@@ -99,7 +98,7 @@ class Parser:
             self.comments.append(self.line)
             if CL_COM in self.line:
                 self.multi_line_comment = False
-            return ''
+            return ""
 
         elif not (
             self.line.strip().startswith(MYSQL_COM)
@@ -129,7 +128,7 @@ class Parser:
         return code_line
 
     def process_line_before_comment(self) -> str:
-        """ get useful codeline - remove comment """
+        """get useful codeline - remove comment"""
         code_line = ""
         if IN_COM in self.line:
             code_line = self.process_in_comment(self.line)
@@ -138,7 +137,7 @@ class Parser:
         return code_line
 
     def process_inline_comments(self, code_line: str) -> Tuple[str, List]:
-        """ this method сatches comments like "create table ( # some comment" - inline this statement"""
+        """this method сatches comments like "create table ( # some comment" - inline this statement"""
         comment = None
         code_line = self.process_line_before_comment()
         if OP_COM in self.line:
@@ -230,7 +229,6 @@ class Parser:
         return self.skip
 
     def add_line_to_statement(self) -> str:
-
         if (
             self.line
             and not self.skip
@@ -287,7 +285,6 @@ class Parser:
         self.process_statement()
 
     def process_statement(self) -> None:
-
         if not self.set_line and self.statement:
             self.parse_statement()
         if self.new_statement:
@@ -296,7 +293,6 @@ class Parser:
             self.statement = None
 
     def parse_statement(self) -> None:
-
         _parse_result = yacc.parse(self.statement)
         if _parse_result:
             self.tables.append(_parse_result)

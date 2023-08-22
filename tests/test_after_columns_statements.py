@@ -2,7 +2,6 @@ from simple_ddl_parser import DDLParser
 
 
 def test_partitioned_by_hql():
-
     ddl = """
     CREATE EXTERNAL TABLE IF NOT EXISTS database.table_name
     (
@@ -131,7 +130,6 @@ def test_partitioned_by_hql():
 
 
 def test_partitioned_by_postgresql():
-
     ddl = """
 CREATE TABLE measurement (
     city_id         int not null,
@@ -337,7 +335,6 @@ def test_stored_as_parsed_but_not_showed():
 
 
 def partitioned_by_multiple_tables_hql():
-
     ddl = """
     CREATE EXTERNAL TABLE IF NOT EXISTS database.table_name
     (
@@ -537,7 +534,6 @@ def test_row_format_is_not_showed():
 
 
 def test_fields_terminated_by_not_showed():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS default.salesorderdetail(
             SalesOrderID int,
@@ -610,7 +606,6 @@ def test_fields_terminated_by_not_showed():
 
 
 def test_collection_items_terminated_by_not_showed():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS default.salesorderdetail(
             SalesOrderID int,
@@ -685,7 +680,6 @@ def test_collection_items_terminated_by_not_showed():
 
 
 def test_map_keys_terminated_not_showed():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS default.salesorderdetail(
             SalesOrderID int,

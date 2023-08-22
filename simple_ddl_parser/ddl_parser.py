@@ -3,9 +3,19 @@ from typing import Dict, List, Optional
 from ply.lex import LexToken
 
 from simple_ddl_parser import tokens as tok
-from simple_ddl_parser.dialects import (HQL, MSSQL, PSQL, BaseSQL, BigQuery,
-                                        IBMDb2, MySQL, Oracle, Redshift,
-                                        Snowflake, SparkSQL)
+from simple_ddl_parser.dialects import (
+    HQL,
+    MSSQL,
+    PSQL,
+    BaseSQL,
+    BigQuery,
+    IBMDb2,
+    MySQL,
+    Oracle,
+    Redshift,
+    Snowflake,
+    SparkSQL,
+)
 from simple_ddl_parser.parser import Parser
 
 
@@ -14,15 +24,22 @@ class DDLParserError(Exception):
 
 
 class Dialects(
-    SparkSQL, Snowflake, BaseSQL, HQL, MySQL, MSSQL, Oracle, Redshift, BigQuery, IBMDb2, PSQL
+    SparkSQL,
+    Snowflake,
+    BaseSQL,
+    HQL,
+    MySQL,
+    MSSQL,
+    Oracle,
+    Redshift,
+    BigQuery,
+    IBMDb2,
+    PSQL,
 ):
     pass
 
 
-class DDLParser(
-    Parser, Dialects
-):
-
+class DDLParser(Parser, Dialects):
     tokens = tok.tokens
     t_ignore = "\t  \r"
 
@@ -63,7 +80,6 @@ class DDLParser(
                     return self.get_tag_symbol_value_and_increment(t)
 
     def tokens_not_columns_names(self, t: LexToken) -> LexToken:
-
         t_tag = self.parse_tags_symbols(t)
         if t_tag:
             return t_tag
@@ -235,7 +251,11 @@ class DDLParser(
             raise DDLParserError(f"Unknown statement at {p}")
 
 
-def parse_from_file(file_path: str, parser_settings: Optional[dict] = None, **kwargs) -> List[Dict]:
+def parse_from_file(
+    file_path: str, parser_settings: Optional[dict] = None, **kwargs
+) -> List[Dict]:
     """get useful data from ddl"""
     with open(file_path, "r") as df:
-        return DDLParser(df.read(), **(parser_settings or {})).run(file_path=file_path, **kwargs)
+        return DDLParser(df.read(), **(parser_settings or {})).run(
+            file_path=file_path, **kwargs
+        )
