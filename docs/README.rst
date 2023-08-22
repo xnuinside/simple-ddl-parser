@@ -475,9 +475,14 @@ Snowflake Dialect statements
 
 
 * CREATE .. CLONE statements for table, database and schema
-* CREATE TABLE [or REPLACE] [ TRANSIET | TEMPORARY ] .. CLUSTER BY ..
+* CREATE TABLE [or REPLACE] [ TRANSIENT | TEMPORARY ] .. CLUSTER BY ..
 * CONSTRAINT .. [NOT] ENFORCED 
 * COMMENT = in CREATE TABLE & CREATE SCHEMA statements
+* WITH MASKING POLICY
+* WITH TAG
+* DATA_RETENTION_TIME_IN_DAYS
+* MAX_DATA_EXTENSION_TIME_IN_DAYS
+* CHANGE_TRACKING
 
 BigQuery
 ^^^^^^^^
@@ -554,10 +559,33 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/kalyan939
 
 for contributions in parser:
-https://github.com/swiatek25 
+https://github.com/swiatek25
+https://github.com/slurpyb
+https://github.com/dmaresma 
 
 Changelog
 ---------
+
+**v0.31.0**
+
+Fixes:
+^^^^^^
+
+
+#. Move inline flag in regexp (issue with python 3.11) - https://github.com/xnuinside/simple-ddl-parser/pull/200
+   Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/199
+
+Improvements:
+^^^^^^^^^^^^^
+
+
+#. Added ``Snowflake Table DDL support of WITH MASKING POLICY column definition`` - https://github.com/xnuinside/simple-ddl-parser/issues/201 
+
+Updates:
+^^^^^^^^
+
+
+#. All deps updated to the latest versions.
 
 **v0.30.0**
 

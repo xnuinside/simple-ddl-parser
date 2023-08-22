@@ -496,6 +496,18 @@ https://github.com/dmaresma
 
 
 ## Changelog
+**v0.31.0**
+### Fixes:
+1. Move inline flag in regexp (issue with python 3.11) - https://github.com/xnuinside/simple-ddl-parser/pull/200
+Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/199
+
+### Improvements:
+1. Added `Snowflake Table DDL support of WITH MASKING POLICY column definition` - https://github.com/xnuinside/simple-ddl-parser/issues/201 
+
+
+### Updates:
+1. All deps updated to the latest versions.
+
 **v0.30.0**
 ### Fixes:
 
