@@ -1,6 +1,4 @@
-import logging
-
-from simple_ddl_parser import DDLParser, parse_from_file
+from simple_ddl_parser import DDLParser
 
 
 def test_json_dump_arg():

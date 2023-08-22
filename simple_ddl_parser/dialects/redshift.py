@@ -15,9 +15,9 @@ class Redshift:
         | expr id KEY
         """
         p_list = list(p)
-        if p_list[-2] == 'IN':
+        if p_list[-2] == "IN":
             # mean we in 'IN TABLESPACE'
-            p[1].update({'tablespace': p_list[-1]})
+            p[1].update({"tablespace": p_list[-1]})
         else:
             p[1].update({p_list[-2]: p_list[-1]})
         p[0] = p[1]

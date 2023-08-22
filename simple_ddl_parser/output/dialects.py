@@ -102,7 +102,6 @@ def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
 
 
 def populate_dialects_table_data(output_mode: str, table_data: Dict) -> Dict:
-
     mehtod_mapper = {
         "hql": add_additional_hql_keys,
         "mssql": add_additional_mssql_keys,

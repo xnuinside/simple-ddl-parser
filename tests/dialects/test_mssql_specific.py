@@ -58,7 +58,6 @@ def test_int_identity_type():
 
 
 def test_mssql_foreign_ref_in_column():
-
     ddl = """
     CREATE TABLE sqlserverlist (
 
@@ -799,7 +798,7 @@ def test_foreign_keys():
                             "schema": None,
                             "table": "Persons",
                         },
-                        "size": None, 
+                        "size": None,
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
@@ -2264,7 +2263,6 @@ def test_period_for_system_time():
 
 
 def test_on_primary_on_table_level():
-
     ddl = """CREATE TABLE [dbo].[users_WorkSchedule](
         [id] [int] IDENTITY(1,1) NOT NULL,
         [RequestDropDate] [smalldatetime] NULL,
@@ -2389,7 +2387,6 @@ def test_on_primary_on_table_level():
 
 
 def test_with_on_table_level():
-
     ddl = """USE [mystaffonline]
     GO
     /****** Object:  Table [dbo].[users_WorkSchedule]    Script Date: 9/29/2021 9:55:26 PM ******/
@@ -2480,7 +2477,6 @@ def test_with_on_table_level():
 
 
 def test_with_on_with_properties():
-
     ddl = """USE [mystaffonline]
 GO
 /****** Object:  Table [dbo].[users_WorkSchedule]    Script Date: 9/29/2021 9:55:26 PM ******/
@@ -2592,7 +2588,6 @@ SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[users_WorkScheduleHistory] )
 
 
 def test_output_separated_by_go_and_textimage():
-
     ddl = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -2971,7 +2966,6 @@ GO"""
 
 
 def test_next_value_for():
-
     ddl = """CREATE TABLE [dbo].[SLIPEVENTO] (
     [cdSLIP] [bigint] NOT NULL
     DEFAULT NEXT VALUE FOR [dbo].[sqCdSLIPEvt] )"""

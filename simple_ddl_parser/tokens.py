@@ -49,10 +49,10 @@ columns_defenition = {
     "GENERATED": "GENERATED",
     "COMMENT": "COMMENT",
     "TAG": "TAG",
-    "POLICY":"POLICY",
+    "POLICY": "POLICY",
     "MASKING": "MASKING",
     "MASKED": "MASKED",
-    "WITH" : "WITH",
+    "WITH": "WITH",
 }
 first_liners = {
     "LIKE": "LIKE",
@@ -94,10 +94,10 @@ after_columns_tokens = {
     "TEXTIMAGE_ON": "TEXTIMAGE_ON",
     # psql
     "INHERITS": "INHERITS",
-    #snowflake
-    "DATA_RETENTION_TIME_IN_DAYS" : "DATA_RETENTION_TIME_IN_DAYS",
-    "MAX_DATA_EXTENSION_TIME_IN_DAYS" : "MAX_DATA_EXTENSION_TIME_IN_DAYS",
-    "CHANGE_TRACKING" : "CHANGE_TRACKING"
+    # snowflake
+    "DATA_RETENTION_TIME_IN_DAYS": "DATA_RETENTION_TIME_IN_DAYS",
+    "MAX_DATA_EXTENSION_TIME_IN_DAYS": "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+    "CHANGE_TRACKING": "CHANGE_TRACKING",
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",
@@ -111,7 +111,18 @@ sequence_reserved = {
 
 tokens = tuple(
     set(
-        ["ID", "DOT", "STRING", "DQ_STRING", "LP", "RP", "LT", "RT", "COMMAT", "AUTOINCREMENT"]
+        [
+            "ID",
+            "DOT",
+            "STRING",
+            "DQ_STRING",
+            "LP",
+            "RP",
+            "LT",
+            "RT",
+            "COMMAT",
+            "AUTOINCREMENT",
+        ]
         + list(defenition_statements.values())
         + list(common_statements.values())
         + list(columns_defenition.values())

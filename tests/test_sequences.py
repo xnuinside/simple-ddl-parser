@@ -135,7 +135,6 @@ def test_sequence_with_by():
 
 
 def test_add_support_no_value():
-
     ddl = """
     CREATE SEQUENCE public.accounts_user_id_seq
         AS integer

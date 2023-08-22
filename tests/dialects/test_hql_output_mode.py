@@ -534,7 +534,6 @@ def test_location_showed():
 
 
 def partitioned_by_multiple_tables_hql():
-
     ddl = """
     CREATE EXTERNAL TABLE IF NOT EXISTS database.table_name
     (
@@ -753,7 +752,6 @@ def test_hql_row_format():
 
 
 def test_fields_terminated_by_hql():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS default.salesorderdetail(
             SalesOrderID int,
@@ -835,7 +833,6 @@ def test_fields_terminated_by_hql():
 
 
 def test_collection_items_terminated_by_hql():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS default.salesorderdetail(
             SalesOrderID int,
@@ -918,7 +915,6 @@ def test_collection_items_terminated_by_hql():
 
 
 def test_map_keys_terminated_by_hql():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS default.salesorderdetail(
             SalesOrderID int,
@@ -1004,7 +1000,6 @@ def test_map_keys_terminated_by_hql():
 
 
 def simple_structure_type_support():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS default.salesorderdetail(
             column_abc ARRAY<structcolx:string,coly:string>
@@ -1257,7 +1252,6 @@ def test_comment_and_lines():
 
 
 def test_simple_serde():
-
     ddl = """
     CREATE TABLE apachelog (
     host STRING,
@@ -1401,7 +1395,6 @@ def test_simple_serde():
 
 
 def test_with_serde_properties():
-
     ddl = """
     CREATE TABLE apachelog (
     host STRING,
@@ -1896,7 +1889,6 @@ def test_skewed_by():
 
 
 def test_allow_use_tags_in_column_names():
-
     ddl = """
         CREATE TABLE IF NOT EXISTS default.salesorderdetail(
                 something<2% ARRAY<structcolx:string,coly:string>
@@ -2012,7 +2004,6 @@ def test_clustered():
 
 
 def test_into_buckets():
-
     ddl = """
         CREATE TABLE user_info_bucketed(user_id BIGINT, firstname STRING, lastname STRING)
     COMMENT 'A bucketed copy of user_info'
@@ -2086,7 +2077,6 @@ def test_into_buckets():
 
 
 def test_clustered_by_multiple_columns():
-
     ddl = """
 
     set hive.enforce.bucketing = true;
@@ -2162,7 +2152,6 @@ def test_clustered_by_multiple_columns():
 
 
 def test_hql_create_remote_schema():
-
     ddl = """
 
     CREATE REMOTE SCHEMA one;
@@ -2180,7 +2169,6 @@ def test_hql_create_remote_schema():
 
 
 def test_remote_database():
-
     ddl = """
 
     CREATE REMOTE DATABASE one;
@@ -2249,7 +2237,6 @@ WITH SERDEPROPERTIES ( 'key1'='value1', 'key2'='value2' , 'key3'='value3' , 'key
 
 
 def test_location_with_table_properties_in_like():
-
     ddl = """
     CREATE EXTERNAL TABLE IF NOT EXISTS schema.specific_table LIKE
     schema.table_template LOCATION "/path/to/table"

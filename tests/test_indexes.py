@@ -2,7 +2,6 @@ from simple_ddl_parser import DDLParser
 
 
 def test_several_indexes_types():
-
     ddl = """
     CREATE TABLE sqlserverlist (
 
@@ -76,7 +75,7 @@ def test_several_indexes_types():
                             "schema": None,
                             "table": "Persons",
                         },
-                        "size": None, 
+                        "size": None,
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
@@ -347,7 +346,6 @@ def test_several_indexes_types():
 
 
 def test_clustered_index():
-
     ddl = """
    CREATE TABLE sqlserverlist (
 

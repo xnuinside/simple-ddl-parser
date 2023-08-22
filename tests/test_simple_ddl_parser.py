@@ -169,7 +169,6 @@ def test_run_query_caps_in_columns():
 
 
 def test_parser_multiple_tables():
-
     ddl = """
 
     CREATE TABLE "countries" (
@@ -277,7 +276,6 @@ def test_parser_multiple_tables():
 
 
 def test_unique_statement_in_columns():
-
     ddl = """
 
     CREATE TABLE "steps" (
@@ -356,7 +354,6 @@ def test_unique_statement_in_columns():
 
 
 def test_unique_statement_separate_line():
-
     ddl = """
 
     CREATE TABLE "steps" (
@@ -808,7 +805,6 @@ def test_arrays():
 
 
 def test_like_statement():
-
     ddl = """
 
     CREATE TABLE New_Users LIKE Old_Users ;
@@ -835,7 +831,6 @@ def test_like_statement():
 
 
 def test_defaults_with_comments():
-
     ddl = """
 
     CREATE table v2.entitlement_requests (
@@ -895,7 +890,6 @@ def test_defaults_with_comments():
 
 
 def test_parse_table_name_table():
-
     ddl = """
     CREATE TABLE "prefix--schema-name"."table" (
     _id uuid PRIMARY KEY,
@@ -1001,7 +995,6 @@ CREATE TYPE "schema--notification"."ContentType" AS
 
 
 def test_do_not_fail_on_brackets_in_default():
-
     ddl = """
 
     CREATE TABLE "content_filters" (
@@ -1089,7 +1082,6 @@ def test_do_not_fail_on_brackets_in_default():
 
 
 def test_default_and_primary_inline():
-
     ddl = """
     CREATE TABLE foo
     (
@@ -1133,7 +1125,6 @@ def test_default_and_primary_inline():
 
 
 def test_default_expression():
-
     ddl = """
     CREATE TABLE foo
     (
@@ -1300,7 +1291,6 @@ CREATE TABLE IF NOT EXISTS users (
 
 
 def test_domains():
-
     ddl = """
     CREATE DOMAIN domain_1 AS CHAR(10);
     CREATE DOMAIN domain_2 CHAR(16);
@@ -1538,7 +1528,6 @@ def test_generated_always_with_concat():
 
 
 def test_enum_in_lowercase():
-
     ddl = """
     CREATE TYPE my_status AS enum (
         'NEW',
@@ -1777,7 +1766,6 @@ def test_tablespaces_temporary():
 
 
 def test_create_database():
-
     ddl = """
     CREATE DATABASE yourdbname;
     CREATE DATABASE "yourdbname2";
@@ -1853,7 +1841,6 @@ def test_collate():
 
 
 def test_tabs_not_fails_ddl():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS schema.table
     (
@@ -1908,7 +1895,6 @@ def test_tabs_not_fails_ddl():
 
 
 def test_quotes():
-
     ddl = """
     CREATE TABLE IF NOT EXISTS `shema`.table
     (
@@ -2069,7 +2055,6 @@ def test_escaping_symbols_raw_string():
 
 
 def test_method_in_check():
-
     ddl = r"""
     CREATE TABLE foo
     (
@@ -2328,7 +2313,6 @@ def test_lines_starts_with_statement_keys():
 
 
 def test_schema_with_project_name():
-
     ddl = """
     CREATE SCHEMA IF NOT EXISTS `my.data-cdh-hub`
     """
@@ -2347,7 +2331,6 @@ def test_schema_with_project_name():
 
 
 def test_create_empty_table():
-
     ddl = """
 
             CREATE TABLE "material_attachments"
@@ -2387,7 +2370,6 @@ def test_create_empty_table():
 
 
 def test_table_name_reserved_word_after_dot():
-
     ddl = """create table index (col1 int);
 
     create table foo.[index] (col1 int);
@@ -2565,7 +2547,6 @@ CREATE TABLE foo
 
 
 def test_check_that_all_columns_parsed_correctly():
-
     result = DDLParser(
         """CREATE TABLE myset.mytable (
         id_a character varying,
@@ -2621,7 +2602,6 @@ def test_check_that_all_columns_parsed_correctly():
 
 
 def test_create_or_replace():
-
     ddl = """create or replace table someTable (
         someField varchar(4)
     );
@@ -2822,7 +2802,6 @@ def test_replace_with_id():
 
 
 def test_floats():
-
     results = DDLParser(
         """
     create table "foo" (
@@ -3052,9 +3031,18 @@ CREATE TABLE Kunde (
 def test_inserts_skipped_validly():
     result = DDLParser(
         """
-INSERT INTO "autofill_profiles" VALUES('Jim Johnson, 789 4th Street',1,'Jim','','Johnson','jim@acme.com','Acme Inc.','789 4th Street','Apt. #4','San Francisco','CA','94102','USA','4155512255','4155512233',1287508123);
-INSERT INTO "autofill_profiles" VALUES('Billy Jean, 1 Ghost Blvd.',3,'Billy','','Jean','billy@thriller.com','Thriller Inc.','1 Ghost Blvd.','','Santa Monica','CA','98990','USA','4431110000','',1287508123);
-CREATE TABLE credit_cards ( label VARCHAR, unique_id INTEGER PRIMARY KEY, name_on_card VARCHAR, type VARCHAR, card_number VARCHAR, expiration_month INTEGER, expiration_year INTEGER, verification_code VARCHAR, billing_address VARCHAR, shipping_address VARCHAR, card_number_encrypted BLOB, verification_code_encrypted BLOB, date_modified INTEGER NOT NULL DEFAULT 0);
+INSERT INTO "autofill_profiles" VALUES('Jim Johnson, 789 4th Street',1,'Jim','',
+'Johnson','jim@acme.com','Acme Inc.','789 4th Street','Apt. #4','San Francisco',
+'CA','94102','USA','4155512255','4155512233',1287508123);
+INSERT INTO "autofill_profiles" VALUES('Billy Jean, 1 Ghost Blvd.
+',3,'Billy','','Jean','billy@thriller.com','Thriller Inc.','1 Ghost Blvd.','',
+'Santa Monica','CA','98990','USA','4431110000','',1287508123);
+CREATE TABLE credit_cards ( label VARCHAR, unique_id
+INTEGER PRIMARY KEY, name_on_card VARCHAR, type VARCHAR,
+card_number VARCHAR, expiration_month INTEGER, expiration_year INTEGER, verification_code VARCHAR,
+billing_address VARCHAR,
+shipping_address VARCHAR, card_number_encrypted BLOB,
+verification_code_encrypted BLOB, date_modified INTEGER NOT NULL DEFAULT 0);
 
 COMMIT;
 """,
@@ -3250,7 +3238,6 @@ def test_autoincrement():
     }
     results_one = DDLParser(
         """
-                    
         CREATE OR REPLACE TABLE mytable (
     field_1 NUMBER(38, 0) NOT NULL auto_increment
 );
@@ -3260,7 +3247,6 @@ def test_autoincrement():
 
     results_two = DDLParser(
         """
-                    
         CREATE OR REPLACE TABLE mytable (
     field_1 NUMBER(38, 0) NOT NULL AUTOINCREMENT
 );
@@ -3272,7 +3258,6 @@ def test_autoincrement():
 
 
 def test_non_int_type_paramteter():
-
     results = DDLParser(
         """
     CREATE TABLE t1 (

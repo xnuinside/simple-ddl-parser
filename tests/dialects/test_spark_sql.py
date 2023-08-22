@@ -2,7 +2,6 @@ from simple_ddl_parser import DDLParser
 
 
 def test_spark_sql_using():
-
     ddl = """CREATE TABLE student (id INT, name STRING, age INT) USING CSV
         COMMENT 'this is a comment'
         TBLPROPERTIES ('foo'='bar');"""
@@ -66,7 +65,6 @@ def test_spark_sql_using():
 
 
 def test_partition_by():
-
     ddl = """CREATE TABLE student (id INT, name STRING, age INT)
         USING CSV
         PARTITIONED BY (age);"""
@@ -127,7 +125,6 @@ def test_partition_by():
 
 
 def test_spark_sql_partitioned_by_function():
-
     results = DDLParser(
         """
     create table a (b timestamp, c int)

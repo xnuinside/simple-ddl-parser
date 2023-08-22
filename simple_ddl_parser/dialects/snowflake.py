@@ -1,5 +1,6 @@
-from simple_ddl_parser.utils import remove_par
 from typing import List
+
+from simple_ddl_parser.utils import remove_par
 
 
 class Snowflake:
@@ -29,7 +30,7 @@ class Snowflake:
         """
         p_list = remove_par(list(p))
         print(p_list)
-        if p_list[-1].lower() == 'true':
+        if p_list[-1].lower() == "true":
             p[0] = True
         else:
             p[0] = False

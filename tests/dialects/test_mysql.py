@@ -1,5 +1,3 @@
-from unittest import result
-
 from simple_ddl_parser import DDLParser
 
 
@@ -106,7 +104,6 @@ def test_on_update_with_fcall():
 
 
 def test_default_charset():
-
     results = DDLParser(
         """
     CREATE TABLE t_table_records (
@@ -318,24 +315,32 @@ CREATE TABLE IF NOT EXISTS database.table_name
 """
 
     result = DDLParser(ddl).run()
-    expected = [{'alter': {},
-  'checks': [],
-  'columns': [{'check': None,
-               'default': None,
-               'identity': (1, 1),
-               'name': '[cifno]',
-               'nullable': False,
-               'references': None,
-               'size': (10, 0),
-               'type': '[numeric]',
-               'unique': False}],
-  'if_not_exists': True,
-  'in': 'the',
-  'index': [],
-  'partitioned_by': [],
-  'primary_key': [],
-  'schema': 'database',
-  'size': 'field',
-  'table_name': 'table_name',
-  'tablespace': None}]
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "identity": (1, 1),
+                    "name": "[cifno]",
+                    "nullable": False,
+                    "references": None,
+                    "size": (10, 0),
+                    "type": "[numeric]",
+                    "unique": False,
+                }
+            ],
+            "if_not_exists": True,
+            "in": "the",
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": "database",
+            "size": "field",
+            "table_name": "table_name",
+            "tablespace": None,
+        }
+    ]
     assert expected == result

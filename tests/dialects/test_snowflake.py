@@ -2,7 +2,6 @@ from simple_ddl_parser import DDLParser
 
 
 def test_clone_db():
-
     ddl = """
     create database mytestdb_clone clone mytestdb;
     """
@@ -71,7 +70,6 @@ def test_clone_schema():
 
 
 def test_cluster_by():
-
     ddl = """
     create table mytable (date timestamp_ntz, id number, content variant) cluster by (date, id);
     """
@@ -132,7 +130,6 @@ def test_cluster_by():
 
 
 def test_enforced():
-
     ddl = """
     create table table2 (
         col1 integer not null,
@@ -187,7 +184,6 @@ def test_enforced():
 
 
 def test_table_comment_parsed_validly():
-
     ddl = """
     create TABLE ASIN.EXCLUSION (
         USER_COMMENT VARCHAR(100),
@@ -255,7 +251,6 @@ def test_table_comment_parsed_validly():
 
 
 def test_schema_parsed_normally():
-
     ddl = """
     create schema my_schema;
     """
@@ -267,7 +262,6 @@ def test_schema_parsed_normally():
 
 
 def test_comment_on_create_schema():
-
     ddl = """
     create schema my_schema comment='this is comment1';
     """
@@ -275,17 +269,20 @@ def test_comment_on_create_schema():
     expected = [{"comment": "'this is comment1'", "schema_name": "my_schema"}]
     assert result == expected
 
-def test_table_with_tag():
 
+def test_table_with_tag():
     ddl = """
     create TABLE ASIN.EXCLUSION (
-        USER_COMMENT VARCHAR(100) COMMENT 'User input' WITH TAG (DBName.MASKING_POLICY_LIBRARY.PROJECT_POLICY_MASK='mask_object'),
+        USER_COMMENT VARCHAR(100) COMMENT 'User input' WITH TAG
+        (DBName.MASKING_POLICY_LIBRARY.PROJECT_POLICY_MASK='mask_object'),
         PROCESS_SQN NUMBER(10,0) NOT NULL,
         constraint PK_EXCLUSION primary key (ASIN)
     )
     ;
     """
-    result_tagged = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    result_tagged = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
     expected_tagged = [
         {
             "alter": {},
@@ -335,8 +332,8 @@ def test_table_with_tag():
 
     assert result_tagged == expected_tagged
 
-def test_table_with_mask():
 
+def test_table_with_mask():
     ddl = """
     create TABLE ASIN.EXCLUSION (
         USER_COMMENT VARCHAR(100) COMMENT 'User input' WITH MASKING POLICY DBName.MASKING_POLICY_LIBRARY.MASK_STRING,
@@ -345,7 +342,9 @@ def test_table_with_mask():
     )
     ;
     """
-    result_masked = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    result_masked = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
 
     expected_masked = [
         {
@@ -393,8 +392,8 @@ def test_table_with_mask():
 
     assert result_masked == expected_masked
 
-def test_table_with_retention():
 
+def test_table_with_retention():
     ddl = """
     create TABLE ASIN.EXCLUSION (
         USER_COMMENT VARCHAR(100) COMMENT 'User input',
@@ -403,7 +402,9 @@ def test_table_with_retention():
     ) DATA_RETENTION_TIME_IN_DAYS = 15
     ;
     """
-    result_retention = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    result_retention = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
 
     expected_retention = [
         {
@@ -421,7 +422,7 @@ def test_table_with_retention():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                 },
+                },
                 {
                     "check": None,
                     "default": None,
@@ -445,14 +446,14 @@ def test_table_with_retention():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
-            "data_retention_time_in_days" : 15
+            "data_retention_time_in_days": 15,
         }
     ]
 
     assert result_retention == expected_retention
 
-def test_table_with_change_tracking():
 
+def test_table_with_change_tracking():
     ddl = """
     create TABLE ASIN.EXCLUSION (
         USER_COMMENT VARCHAR(100) COMMENT 'User input',
@@ -461,7 +462,9 @@ def test_table_with_change_tracking():
     ) change_tracking = False
     ;
     """
-    result_change_tracking = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    result_change_tracking = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
 
     expected_change_tracking = [
         {
@@ -479,7 +482,7 @@ def test_table_with_change_tracking():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                 },
+                },
                 {
                     "check": None,
                     "default": None,
@@ -503,7 +506,7 @@ def test_table_with_change_tracking():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
-            "change_tracking" : False
+            "change_tracking": False,
         }
     ]
 

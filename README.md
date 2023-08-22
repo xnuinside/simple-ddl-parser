@@ -490,7 +490,9 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/kalyan939
 
 for contributions in parser:
-https://github.com/swiatek25 
+https://github.com/swiatek25
+https://github.com/slurpyb
+https://github.com/dmaresma 
 
 
 ## Changelog

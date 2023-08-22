@@ -307,7 +307,6 @@ def test_alter_check():
 
 
 def test_alter_check_combine_all_variants():
-
     ddl = """
     CREATE TABLE employees (
     id SERIAL PRIMARY KEY,
@@ -1707,7 +1706,6 @@ def test_alter_table_primary_key():
 
 
 def test_alter_using():
-
     ddl = """
     CREATE TABLE MY_TABLE (
         DATETIME datetime,

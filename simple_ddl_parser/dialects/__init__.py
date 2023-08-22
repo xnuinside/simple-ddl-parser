@@ -11,5 +11,15 @@ from simple_ddl_parser.dialects.spark_sql import SparkSQL
 from simple_ddl_parser.dialects.sql import BaseSQL
 
 __all__ = [
-    'BigQuery', 'HQL', 'MSSQL', 'MySQL', 'Oracle', 'Redshift', 'Snowflake', 'SparkSQL', 'IBMDb2', 'BaseSQL', 'PSQL'
+    "BigQuery",
+    "HQL",
+    "MSSQL",
+    "MySQL",
+    "Oracle",
+    "Redshift",
+    "Snowflake",
+    "SparkSQL",
+    "IBMDb2",
+    "BaseSQL",
+    "PSQL",
 ]

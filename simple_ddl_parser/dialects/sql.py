@@ -136,10 +136,10 @@ class Table:
         p_list = list(p)
         self.add_if_not_exists(p[0], p_list)
 
-        if 'REPLACE' in p_list:
+        if "REPLACE" in p_list:
             p[0]["replace"] = True
 
-        id_key = p_list[4] if 'REPLACE' in p_list else p_list[2]
+        id_key = p_list[4] if "REPLACE" in p_list else p_list[2]
         id_key = id_key.upper()
 
         if id_key in ["EXTERNAL", "TRANSIENT"]:
@@ -158,7 +158,6 @@ class Column:
             p[0] = {"property": {p_list[1]: p_list[-1]}}
 
     def set_base_column_propery(self, p: List) -> Dict:
-
         if "." in list(p):
             type_str = f"{p[2]}.{p[4]}"
         else:
@@ -215,7 +214,6 @@ class Column:
         p[0]["type"] = _type
 
     def process_type(self, _type: Union[str, List], p_list: List, p: List) -> str:
-
         if isinstance(_type, list):
             _type = _type[0]
 
@@ -271,29 +269,31 @@ class Column:
 
     @staticmethod
     def check_type_parameter(size: Union[tuple, int]) -> bool:
-        if isinstance(size, tuple) and not (
-                isinstance(size[0], str) and size[0].strip() == '*') and not (
-                    isinstance(size[0], int) or isinstance(size[0], float)):
+        if (
+            isinstance(size, tuple)
+            and not (isinstance(size[0], str) and size[0].strip() == "*")
+            and not (isinstance(size[0], int) or isinstance(size[0], float))
+        ):
             return True
         return False
 
     @staticmethod
     def process_oracle_type_size(p_list):
-        if p_list[-1] == ')' and p_list[-4] == '(':
+        if p_list[-1] == ")" and p_list[-4] == "(":
             # for Oracle sizes like 30 CHAR
             p_list[-3] += f" {p_list[-2]}"
             del p_list[-2]
         return p_list
 
     def process_type_to_column_data(self, p_list, p):
-        if 'IDENTITY' in p_list[-1]['type'].upper():
-            split_type = p_list[-1]['type'].split()
+        if "IDENTITY" in p_list[-1]["type"].upper():
+            split_type = p_list[-1]["type"].split()
             del p_list[-1]
             if len(split_type) == 1:
                 self.set_column_size(p_list, p)
             else:
-                p[0]['type'] = split_type[0]
-            p[0]['identity'] = None
+                p[0]["type"] = split_type[0]
+            p[0]["identity"] = None
             return True
         elif len(p_list) <= 3:
             p[0]["type"] = p_list[-1]["type"]
@@ -302,7 +302,7 @@ class Column:
                     p[0][key] = value
         else:
             # for [] arrays
-            p[0]['type'] += p_list[-1]['type']
+            p[0]["type"] += p_list[-1]["type"]
             del p_list[-1]
         return False
 
@@ -339,8 +339,8 @@ class Column:
             size = self.get_size(p_list)
             if self.check_type_parameter(size):
                 p[0]["type_parameters"] = size
-            elif 'identity' in p[0]:
-                p[0]['identity'] = size
+            elif "identity" in p[0]:
+                p[0]["identity"] = size
             else:
                 p[0]["size"] = size
 
@@ -375,7 +375,7 @@ class Column:
         return pk, default, unique, references, nullable
 
     def p_autoincrement(self, p: List) -> None:
-        """ autoincrement : AUTOINCREMENT"""
+        """autoincrement : AUTOINCREMENT"""
         p[0] = {"autoincrement": True}
 
     def p_defcolumn(self, p: List) -> None:
@@ -856,7 +856,7 @@ class BaseSQL(
             elif "enforced" in p_list[-1]:
                 p_list[-2].update(p_list[-1])
                 p[0].update({"primary_key_enforced": p_list[-1]["enforced"]})
-            elif 'DEFAULT' in p_list:
+            elif "DEFAULT" in p_list:
                 p[0].update({"default_charset": p_list[-1]})
             elif isinstance(p_list[-1], dict):
                 p[0].update(p_list[-1])
@@ -882,7 +882,6 @@ class BaseSQL(
         return data
 
     def process_constraints_and_refs(self, data: Dict, p_list: List) -> Dict:
-
         if "constraint" in p_list[-2]:
             data = self.process_unique_and_primary_constraint(data, p_list)
         elif (
@@ -1326,7 +1325,6 @@ class BaseSQL(
 
     @staticmethod
     def get_column_and_value_from_alter(p: List) -> Tuple:
-
         p_list = remove_par(list(p))
 
         column = None
@@ -1353,7 +1351,6 @@ class BaseSQL(
         column, value = self.get_column_and_value_from_alter(p)
 
         if "default" not in p[0]:
-
             p[0]["default"] = {
                 "constraint_name": None,
                 "columns": column,
