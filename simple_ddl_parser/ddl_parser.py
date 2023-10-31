@@ -117,6 +117,11 @@ class DDLParser(Parser, Dialects):
         r"\."
         t.type = "DOT"
         return self.set_last_token(t)
+    
+    # def t_EQUAL(self, t: LexToken) -> LexToken:
+    #     r"\="
+    #     t.type = "EQUAL"
+    #     return self.set_last_token(t)
 
     def t_STRING(self, t: LexToken) -> LexToken:
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"

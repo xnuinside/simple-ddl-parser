@@ -78,19 +78,34 @@ class Snowflake:
     def p_tag_equals(self, p: List) -> None:
         """tag_equals : id id id_or_string
         | id id_or_string
+        | id DOT id id id_or_string
+        | id DOT id id_or_string
+        | id DOT id DOT id id id_or_string
+        | id DOT id DOT id id_or_string
         """
+        # in `id id id_or_string`, the second id is an =
         p_list = remove_par(list(p))
-        p[0] = f"{p_list[-2]}{p_list[-1]}"
+        p[0] = [''.join(p_list[1:])]
+
+    def p_multiple_tag_equals(self, p):
+        """multiple_tag_equals : tag_equals
+        | multiple_tag_equals COMMA tag_equals
+        """
+        if len(p) > 2:
+            p[1].extend(p[3])
+        p[0] = p[1]
+
 
     def p_option_with_tag(self, p):
         """option_with_tag : TAG LP id RP
         | TAG LP id DOT id DOT id RP
         | TAG LP id DOT id DOT tag_equals RP
+        | TAG LP id DOT tag_equals RP
         | WITH TAG LP id RP
-        | WITH TAG LP id DOT id DOT tag_equals RP
+        | WITH TAG LP multiple_tag_equals RP
         """
         p_list = remove_par(list(p))
-        p[0] = {"with_tag": f"{p_list[-5]}.{p_list[-3]}.{p_list[-1]}"}
+        p[0] = {"with_tag": p_list[-1] if len(p_list[-1]) > 1 else p_list[-1][0]}
 
     def p_option_with_masking_policy(self, p):
         """option_with_masking_policy : MASKING POLICY id DOT id DOT id
