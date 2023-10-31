@@ -85,22 +85,21 @@ class Snowflake:
         """
         # in `id id id_or_string`, the second id is an =
         p_list = remove_par(list(p))
-        p[0] = [''.join(p_list[1:])]
+        p[0] = ["".join(p_list[1:])]
 
     def p_multiple_tag_equals(self, p):
         """multiple_tag_equals : tag_equals
         | multiple_tag_equals COMMA tag_equals
         """
+        # Handles multiple tags in the same WITH TAG statement
         if len(p) > 2:
             p[1].extend(p[3])
         p[0] = p[1]
 
-
     def p_option_with_tag(self, p):
         """option_with_tag : TAG LP id RP
         | TAG LP id DOT id DOT id RP
-        | TAG LP id DOT id DOT tag_equals RP
-        | TAG LP id DOT tag_equals RP
+        | TAG LP multiple_tag_equals RP
         | WITH TAG LP id RP
         | WITH TAG LP multiple_tag_equals RP
         """
