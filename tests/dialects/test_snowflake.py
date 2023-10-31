@@ -332,6 +332,84 @@ def test_table_with_tag():
 
     assert result_tagged == expected_tagged
 
+def test_column_with_multiple_tag():
+    ddl = """
+    create TABLE TABLE_NAME (
+        USER_COMMENT VARCHAR(100) COMMENT 'User input' WITH TAG (a.b.c = 'tag1', a.b.d='tag2')
+    )
+    ;
+    """
+    result_tagged = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
+    expected_tagged = [{
+        'alter': {},
+        'checks': [],
+        'clone': None,
+        'columns': [{'check': None,
+                    'comment': "'User input'",
+                    'default': None,
+                    'name': 'USER_COMMENT',
+                    'nullable': True,
+                    'references': None,
+                    'size': 100,
+                    'type': 'VARCHAR',
+                    'unique': False,
+                    'with_tag': ["a.b.c='tag1'", "a.b.d='tag2'"]}],
+        'index': [],
+        'partitioned_by': [],
+        'primary_key': [],
+        'primary_key_enforced': None,
+        'schema': None,
+        'table_name': 'TABLE_NAME',
+        'tablespace': None
+    }]
+    f = open("payload.json", "a")
+    f.write(str(result_tagged))
+    f.close()
+
+    assert result_tagged == expected_tagged
+
+
+def test_table_with_multiple_tag():
+    ddl = """
+    create TABLE TABLE_NAME (
+        COL VARCHAR(100) COMMENT 'User input'
+    ) WITH TAG (b.c = 'tag1', b.d='tag2')
+    ;
+    """
+    result_tagged = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
+    expected_tagged = [{
+        'alter': {},
+        'checks': [],
+        'clone': None,
+        'columns': [{'check': None,
+                    'comment': "'User input'",
+                    'default': None,
+                    'name': 'COL',
+                    'nullable': True,
+                    'references': None,
+                    'size': 100,
+                    'type': 'VARCHAR',
+                    'unique': False}],
+        'index': [],
+        'partitioned_by': [],
+        'primary_key': [],
+        'primary_key_enforced': None,
+        'schema': None,
+        'table_name': 'TABLE_NAME',
+        'tablespace': None,
+        'with_tag': ["b.c='tag1'", "b.d='tag2'"]
+    }]
+    f = open("payload.json", "a")
+    f.write(str(result_tagged))
+    f.close()
+
+    assert result_tagged == expected_tagged
+
+
 
 def test_table_with_mask():
     ddl = """
