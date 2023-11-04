@@ -425,7 +425,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - CONSTRAINT .. [NOT] ENFORCED 
 - COMMENT = in CREATE TABLE & CREATE SCHEMA statements
 - WITH MASKING POLICY
-- WITH TAG
+- WITH TAG, including multiple tags in the same statement.
 - DATA_RETENTION_TIME_IN_DAYS
 - MAX_DATA_EXTENSION_TIME_IN_DAYS
 - CHANGE_TRACKING
