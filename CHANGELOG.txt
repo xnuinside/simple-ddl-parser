@@ -1,6 +1,8 @@
 **v0.31.1**
 ### Improvements
+#### Snowflake update:
 1. Support multiple tag definitions in a single `WITH TAG` statement.
+2. Added support for Snowflake double single quotes - https://github.com/xnuinside/simple-ddl-parser/issues/208
 
 **v0.31.0**
 ### Fixes:
@@ -34,7 +36,7 @@ Added support for ORGANIZE BY statement
 ### Fixes
 1. Fix for https://github.com/xnuinside/simple-ddl-parser/issues/177
 
-### Imporvements
+### Improvements
 1. Added support for Oracle 2 component size for types, like '30 CHAR'. From https://github.com/xnuinside/simple-ddl-parser/issues/176
 
 
@@ -52,8 +54,8 @@ It shows in column attribute 'type_parameters'.
 
 
 **v0.28.1**
-Imporvements:
-1. Lines started with INSERT INTO statement now successfully ignored by parser (so you can keep them in ddl - they will be just skiped)
+Improvements:
+1. Lines started with INSERT INTO statement now successfully ignored by parser (so you can keep them in ddl - they will be just skipped)
 
 Fixes:
 1. Important fix for multiline comments
@@ -73,7 +75,7 @@ Thanks for the sample in the issue: https://github.com/xnuinside/simple-ddl-pars
 Improvements:
 MariaDB:
 1. Added support for MariaDB AUTO_INCREMENT (from ddl here - https://github.com/xnuinside/simple-ddl-parser/issues/144)
-If column is Auto Incremented - it indicated as 'autoincrement': True in column defenition
+If column is Auto Incremented - it indicated as 'autoincrement': True in column definition
 
 Common:
 1. Added parsing for multiline comments in DDL with `/* */` syntax.
@@ -86,7 +88,7 @@ parse_from_file('path_to_file', parser_settings={'log_level': logging.WARNING}).
 
 Fixes:
 1. Fixed parsing CHECKS with IN statement - https://github.com/xnuinside/simple-ddl-parser/issues/150
-2. @# symbols added to ID token - (partialy) https://github.com/xnuinside/simple-ddl-parser/issues/146
+2. @# symbols added to ID token - (partially) https://github.com/xnuinside/simple-ddl-parser/issues/146
 
 
 Improvements:
@@ -154,7 +156,7 @@ Fixes:
 1. Added support for PARTITION BY one column without type
 2. Alter table add constraint PRIMARY KEY - https://github.com/xnuinside/simple-ddl-parser/issues/119
 3. Fix for paring SET statement - https://github.com/xnuinside/simple-ddl-parser/pull/122
-4. Fix for disappeared colums without properties - https://github.com/xnuinside/simple-ddl-parser/issues/123
+4. Fix for disappeared columns without properties - https://github.com/xnuinside/simple-ddl-parser/issues/123
 
 **v0.25.0**
 ## Fixes:
@@ -165,7 +167,7 @@ Fixes:
 
 1. Added flag to raise errors if parser cannot parse statement DDLParser(.., silent=False) - https://github.com/xnuinside/simple-ddl-parser/issues/109
 2. Added flag to DDLParser(.., normalize_names=True) that change output of parser:
-if flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimeters that used in different SQL dialects to separate custom names from reserverd words & statements.
+if flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimiters that used in different SQL dialects to separate custom names from reserved words & statements.
 For example, if flag set 'True' and you pass this input: 
 
 CREATE TABLE [dbo].[TO_Requests](
@@ -201,7 +203,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 ### Common:
 
 2. 'set' in lower case now also parsed validly.
-3. Now names like 'schema', 'database', 'table' can be used as names in CREATE DABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT. 
+3. Now names like 'schema', 'database', 'table' can be used as names in CREATE DATABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT. 
 4. Creation of empty tables also parsed correctly (like CREATE Table table;).
 
 ## New Statements Support: 
@@ -276,7 +278,7 @@ I started to add partial support for BigQuery
 ## MSSQL:
 
 1. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'. 
-I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beutiful and logically output structure.
+I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beautiful and logically output structure.
 https://github.com/xnuinside/simple-ddl-parser/issues/91
 
 Pay attention: previously they parsed somehow, but in incorrect structure.

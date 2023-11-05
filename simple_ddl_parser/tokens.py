@@ -1,5 +1,5 @@
-# statements that used at the start of defenition or in statements without columns
-defenition_statements = {
+# statements that used at the start of definition or in statements without columns
+definition_statements = {
     "DROP": "DROP",
     "CREATE": "CREATE",
     "TABLE": "TABLE",
@@ -36,7 +36,7 @@ common_statements = {
     "OPTIONS": "OPTIONS",
 }
 
-columns_defenition = {
+columns_definition = {
     "DELETE": "DELETE",
     "UPDATE": "UPDATE",
     "NULL": "NULL",
@@ -65,7 +65,7 @@ first_liners = {
 }
 
 common_statements.update(first_liners)
-defenition_statements.update(common_statements)
+definition_statements.update(common_statements)
 after_columns_tokens = {
     "PARTITIONED": "PARTITIONED",
     "PARTITION": "PARTITION",
@@ -114,7 +114,7 @@ tokens = tuple(
         [
             "ID",
             "DOT",
-            "STRING",
+            "STRING_BASE",
             "DQ_STRING",
             "LP",
             "RP",
@@ -123,9 +123,9 @@ tokens = tuple(
             "COMMAT",
             "AUTOINCREMENT",
         ]
-        + list(defenition_statements.values())
+        + list(definition_statements.values())
         + list(common_statements.values())
-        + list(columns_defenition.values())
+        + list(columns_definition.values())
         + list(sequence_reserved.values())
         + list(after_columns_tokens.values())
     )

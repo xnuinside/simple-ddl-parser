@@ -72,7 +72,7 @@ CONSTRAINT .. [NOT] ENFORCED (value stored in 'primary_key_enforced')
 
 **v0.18.0**
 **Features**
-1. Added base support fot AWS Redshift SQL dialect. 
+1. Added base support for AWS Redshift SQL dialect. 
 Added support for ENCODE property in column.
 Added new --output-mode='redshift' that add to column 'encrypt' property by default.
 Also add table properties: distkeys, sortkey, diststyle, encode (table level encode), temp.
@@ -102,7 +102,7 @@ Will be fixed in next releases.
 
 **v0.16.0**
 1. Fixed the issue when NULL column after DEFAULT used as default value.
-2. Added support for generated columns, statatements: AS , GENERATED ALWAYS, STORED in Column Defenitions, in output it placed to key 'generated'. Keyword 'generated' showed only if column is generated.
+2. Added support for generated columns, statatements: AS , GENERATED ALWAYS, STORED in Column definitions, in output it placed to key 'generated'. Keyword 'generated' showed only if column is generated.
 3. Half of changelogs moved to ARCHIVE_CHANGELOG.txt
 4. Added base support for CREATE DOMAIN statement
 5. Added base support for CREATE SCHEMA [IF NOT EXISTS] ... [AUTHORIZATION] statement, added new type keyword 'schemas'
@@ -120,7 +120,7 @@ Will be fixed in next releases.
 1. Added support for CONSTRAINT ... PRIMARY KEY ...
 2. Added support for ENCRYPT [+ NO SALT, SALT, USING] statements for Oracle dialect. All default values taken from this doc https://docs.oracle.com/en/database/oracle/oracle-database/21/asoag/encrypting-columns-tables2.html
 Now if you use output_mode='oracle' in column will be showed new property 'encrypt'.
-If no ENCRYPT statement will be in table defenition - then value will be 'None', but if ENCRYPT exists when in encrypt property you will find this information:
+If no ENCRYPT statement will be in table definition - then value will be 'None', but if ENCRYPT exists when in encrypt property you will find this information:
 
 {'encrypt' : {
     'salt': True,
@@ -128,8 +128,8 @@ If no ENCRYPT statement will be in table defenition - then value will be 'None',
     'integrity_algorithm': 'SHA-1'
     }}
 
-3. Added support for oracle STORAGE statement, 'oracle' output_mode now has key 'storage' in table data defenition.
-4. Added support for TABLESPACE statement after columns defenition
+3. Added support for oracle STORAGE statement, 'oracle' output_mode now has key 'storage' in table data definition.
+4. Added support for TABLESPACE statement after columns definition
 
 **v0.12.1**
 1. () after DEFAULT now does not cause an issue
@@ -137,10 +137,10 @@ If no ENCRYPT statement will be in table defenition - then value will be 'None',
 
 **v0.12.0**
 1. Added support for MSSQL: types with 2 words like 'int IDENTITY',
-FOREIGN KEY REFERENCES statement, supported 'max' as type size, CONSTRAINT ... UNIQUE statement in table defenition,
+FOREIGN KEY REFERENCES statement, supported 'max' as type size, CONSTRAINT ... UNIQUE statement in table definition,
 CONSTRAINT ... CHECK, CONSTRAINT ... FOREIGN KEY
-2. Added output_mode types: 'mysql', 'mssql' for SQL Server, 'oracle'. If chosed one of the above -
-added key 'constraints' in table defenition by default. 'constraints' contain dict with keys 'uniques', 'checks', 'references'
+2. Added output_mode types: 'mysql', 'mssql' for SQL Server, 'oracle'. If chose one of the above -
+added key 'constraints' in table definition by default. 'constraints' contain dict with keys 'uniques', 'checks', 'references'
 it this is a COSTRAINT .. CHECK 'checks' key will be still in data output, but it will be duplicated to 'constraints': {'checks': ...}
 3. Added support for ALTER ADD ... UNIQUE
 4. Added support for CREATE CLUSTERED INDEX, if output_mode = 'mssql' then index will have additional arg 'clustered'.
@@ -157,8 +157,8 @@ it this is a COSTRAINT .. CHECK 'checks' key will be still in data output, but i
 2. Added base support for statement CREATE TYPE:  AS ENUM, AS OBJECT, INTERNALLENGTH, INPUT, OUTPUT (not all properties & types supported yet.)
 3. Added argument 'group_by_type' in 'run' method that will group output by type of parsed entities like:
 'tables': [all_pasrsed_tables], 'sequences': [all_pasrsed_sequences], 'types': [all_pasrsed_types], 'domains': [all_pasrsed_domains]
-4. Type in column defenition also can be "schema"."YourCustomType"
-5. " now are not dissapeared if you use them in DDL.
+4. Type in column definition also can be "schema"."YourCustomType"
+5. " now are not disappeared if you use them in DDL.
 
 **v0.10.2**
 1. Fix regex that find '--' in table names (to avoid issue with -- comment lines near string defaults)
@@ -180,8 +180,8 @@ STRUCT < street_address: STRUCT <street_number: INT, street_name: STRING, street
 1. To DDLParser's run method was added 'output_mode' argument that expect valur 'hql' or 'sql' (by default).
 Mode change result output. For example, in hql exists statement EXTERNAL. If you want to see in table information 
 is it EXTERNAL table or not - you need to set 'hql' output_mode.
-2. Added suppport for hql EXTERNAL statement, STORED AS statement, LOCATION statement
-3. Added suppport for PARTITIONED BY statement (for both hql & sql)
+2. Added support for hql EXTERNAL statement, STORED AS statement, LOCATION statement
+3. Added support for PARTITIONED BY statement (for both hql & sql)
 4. Added support for HQL ROW FORMAT statement, FIELDS TERMINATED BY statement, COLLECTION ITEMS TERMINATED BY statement, MAP KEYS TERMINATED BY statement
 
 **v0.7.4**
@@ -214,11 +214,11 @@ is it EXTERNAL table or not - you need to set 'hql' output_mode.
 4. Added support for FOREIGN Constratint in ALTER TABLE
 
 **v0.4.0**
-1. Added support schema for table in REFERENCES statement in column defenition
-2. Added base support fot Alter table statements (added 'alters' key in table)
+1. Added support schema for table in REFERENCES statement in column definition
+2. Added base support for Alter table statements (added 'alters' key in table)
 3. Added command line arg to pass path to get the output results
 4. Fixed incorrect null fields parsing
 
 **v0.3.0**
-1. Added support for REFERENCES statement in column defenition
+1. Added support for REFERENCES statement in column definition
 2. Added command line

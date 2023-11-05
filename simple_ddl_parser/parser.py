@@ -67,8 +67,8 @@ class Parser:
         silent: if true - will not raise errors, just return empty output
         debug: if True - parser will produce huge tokens tree & parser.out file, normally you don't want this enable
         normalize_names: if flag is True (default 'False') then all identifiers will be returned without
-                        '[', '"' and other delimeters that used in different SQL dialects to separate custom names
-                        from reserverd words & statements.
+                        '[', '"' and other delimiters that used in different SQL dialects to separate custom names
+                        from reserved words & statements.
                             For example, if flag set 'True' and you pass this input:
 
                             CREATE TABLE [dbo].[TO_Requests](
@@ -271,6 +271,7 @@ class Parser:
         self.check_new_statement_start(self.line)
 
         final_line = self.line.endswith(";") and not self.set_was_in_line
+
         self.add_line_to_statement()
 
         if (final_line or self.new_statement) and self.statement:
