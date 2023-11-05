@@ -479,7 +479,7 @@ Snowflake Dialect statements
 * CONSTRAINT .. [NOT] ENFORCED 
 * COMMENT = in CREATE TABLE & CREATE SCHEMA statements
 * WITH MASKING POLICY
-* WITH TAG
+* WITH TAG, including multiple tags in the same statement.
 * DATA_RETENTION_TIME_IN_DAYS
 * MAX_DATA_EXTENSION_TIME_IN_DAYS
 * CHANGE_TRACKING
@@ -558,13 +558,26 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/ankitdata ,
 * https://github.com/kalyan939
 
-for contributions in parser:
+And most biggest 'Thanks' ever goes for contributions in parser:
 https://github.com/swiatek25
 https://github.com/slurpyb
-https://github.com/dmaresma 
+https://github.com/dmaresma
+https://github.com/PBalsdon
 
 Changelog
 ---------
+
+**v0.31.1**
+
+Improvements
+^^^^^^^^^^^^
+
+Snowflake update:
+~~~~~~~~~~~~~~~~~
+
+
+#. Support multiple tag definitions in a single ``WITH TAG`` statement.
+#. Added support for Snowflake double single quotes - https://github.com/xnuinside/simple-ddl-parser/issues/208
 
 **v0.31.0**
 

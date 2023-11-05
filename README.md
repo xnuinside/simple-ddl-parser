@@ -497,6 +497,12 @@ https://github.com/PBalsdon
 
 
 ## Changelog
+**v0.31.1**
+### Improvements
+#### Snowflake update:
+1. Support multiple tag definitions in a single `WITH TAG` statement.
+2. Added support for Snowflake double single quotes - https://github.com/xnuinside/simple-ddl-parser/issues/208
+
 **v0.31.0**
 ### Fixes:
 1. Move inline flag in regexp (issue with python 3.11) - https://github.com/xnuinside/simple-ddl-parser/pull/200
