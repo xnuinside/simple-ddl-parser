@@ -601,3 +601,42 @@ def test_table_with_change_tracking():
     ]
 
     assert result_change_tracking == expected_change_tracking
+
+
+def test_double_single_quotes():
+    # test for https://github.com/xnuinside/simple-ddl-parser/issues/208
+    ddl = """CREATE TABLE table (column_1 int comment 'This comment isn''t right')"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "comment": "'This comment isn''t right'",
+                        "default": None,
+                        "name": "column_1",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "table",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected

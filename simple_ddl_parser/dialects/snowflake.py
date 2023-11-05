@@ -29,7 +29,7 @@ class Snowflake:
         | id id_or_string
         """
         p_list = remove_par(list(p))
-        print(p_list)
+
         if p_list[-1].lower() == "true":
             p[0] = True
         else:

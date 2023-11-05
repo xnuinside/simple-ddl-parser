@@ -47,7 +47,7 @@ class HQL:
         p[0]["row_format"] = format
 
     def p_expression_with_serde(self, p):
-        """expr : expr WITH SERDEPROPERTIES multi_assigments"""
+        """expr : expr WITH SERDEPROPERTIES multi_assignments"""
         p[0] = p[1]
         p_list = list(p)
 
@@ -56,20 +56,20 @@ class HQL:
         p[0]["row_format"] = row_format
 
     def p_expression_tblproperties(self, p):
-        """expr : expr TBLPROPERTIES multi_assigments"""
+        """expr : expr TBLPROPERTIES multi_assignments"""
         p[0] = p[1]
         p[0]["tblproperties"] = list(p)[-1]
 
-    def p_multi_assigments(self, p):
-        """multi_assigments : LP assigment
-        | multi_assigments RP
-        | multi_assigments COMMA assigment"""
+    def p_multi_assignments(self, p):
+        """multi_assignments : LP assignment
+        | multi_assignments RP
+        | multi_assignments COMMA assignment"""
         p_list = remove_par(list(p))
         p[0] = p_list[1]
         p[0].update(p_list[-1])
 
-    def p_assigment(self, p):
-        """assigment : id id id
+    def p_assignment(self, p):
+        """assignment : id id id
         |  STRING id STRING
         |  id id STRING
         |  STRING id id

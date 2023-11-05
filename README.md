@@ -37,7 +37,7 @@ Pay attentions that I'm adding functional tests for all supported statement, so 
 
 **If you need some statement, that not supported by parser yet**: please provide DDL example & information about that is it SQL dialect or DB.
 
-Types that are used in your DB does not matter, so parser must also work successfuly to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
+Types that are used in your DB does not matter, so parser must also work successfully to any DDL for SQL DB. Parser is NOT case sensitive, it did not expect that all queries will be in upper case or lower case. So you can write statements like this:
 
 ```sql
 
@@ -63,7 +63,7 @@ A lot of statements and output result you can find in tests on the github - http
 
 ### Extract additional information from HQL (& other dialects)
 
-In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This propertie will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'.
+In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This property will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'.
 Also some fields hidden in HQL, because they are simple not exists in HIVE, for example 'deferrable_initially'
 To get this 'hql' specific details about table in output please use 'output_mode' argument in run() method.
 
@@ -214,7 +214,7 @@ Output will be:
 `DDLParser(ddl).run()`
 .run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
 
-Also in .run() method exists argument `group_by_type` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entitiy from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
+Also in .run() method exists argument `group_by_type` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entity from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 
 To make work little bit easy you can set group_by_type=True and you will get output already sorted by types, like:
 
@@ -285,7 +285,7 @@ For example:
 
 Right now added support only for ALTER statements with FOREIGEIN key
 
-For example, if in your ddl after table defenitions (create table statements) you have ALTER table statements like this:
+For example, if in your ddl after table definitions (create table statements) you have ALTER table statements like this:
 
 ```sql
 
@@ -319,7 +319,7 @@ To change this behavior you can pass 'silent=False' argumen to main parser class
 ### Normalize names
 
 Use DDLParser(.., normalize_names=True)flag that change output of parser:
-If flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimeters that used in different SQL dialects to separate custom names from reserverd words & statements.
+If flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimiters that used in different SQL dialects to separate custom names from reserved words & statements.
 For example, if flag set 'True' and you pass this input: 
 
 CREATE TABLE [dbo].[TO_Requests](
@@ -331,9 +331,9 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 
 ## Supported Statements
 
-- CREATE [OR REPLACE] TABLE [ IF NOT EXISTS ] + columns defenition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED, COLLATE
+- CREATE [OR REPLACE] TABLE [ IF NOT EXISTS ] + columns definition, columns attributes: column name + type + type size(for example, varchar(255)), UNIQUE, PRIMARY KEY, DEFAULT, CHECK, NULL/NOT NULL, REFERENCES, ON DELETE, ON UPDATE,  NOT DEFERRABLE, DEFERRABLE INITIALLY, GENERATED ALWAYS, STORED, COLLATE
 
-- STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table defenitions (in create table();)
+- STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table definitions (in create table();)
 
 - ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS; ALTER .. PRIMARY KEY; ALTER .. USING INDEX TABLESPACE
 
@@ -434,7 +434,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 
 - OPTION in CREATE SCHEMA statement
 - OPTION in CREATE TABLE statement
-- OPTION in column defenition statement
+- OPTION in column definition statement
 
 ### Parser settings
 
@@ -489,10 +489,11 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/ankitdata ,
 * https://github.com/kalyan939
 
-for contributions in parser:
+And most biggest 'Thanks' ever goes for contributions in parser:
 https://github.com/swiatek25
 https://github.com/slurpyb
-https://github.com/dmaresma 
+https://github.com/dmaresma
+https://github.com/PBalsdon
 
 
 ## Changelog
@@ -528,7 +529,7 @@ Added support for ORGANIZE BY statement
 ### Fixes
 1. Fix for https://github.com/xnuinside/simple-ddl-parser/issues/177
 
-### Imporvements
+### Improvements
 1. Added support for Oracle 2 component size for types, like '30 CHAR'. From https://github.com/xnuinside/simple-ddl-parser/issues/176
 
 
@@ -546,8 +547,8 @@ It shows in column attribute 'type_parameters'.
 
 
 **v0.28.1**
-Imporvements:
-1. Lines started with INSERT INTO statement now successfully ignored by parser (so you can keep them in ddl - they will be just skiped)
+Improvements:
+1. Lines started with INSERT INTO statement now successfully ignored by parser (so you can keep them in ddl - they will be just skipped)
 
 Fixes:
 1. Important fix for multiline comments
@@ -567,7 +568,7 @@ Thanks for the sample in the issue: https://github.com/xnuinside/simple-ddl-pars
 Improvements:
 MariaDB:
 1. Added support for MariaDB AUTO_INCREMENT (from ddl here - https://github.com/xnuinside/simple-ddl-parser/issues/144)
-If column is Auto Incremented - it indicated as 'autoincrement': True in column defenition
+If column is Auto Incremented - it indicated as 'autoincrement': True in column definition
 
 Common:
 1. Added parsing for multiline comments in DDL with `/* */` syntax.
@@ -580,7 +581,7 @@ parse_from_file('path_to_file', parser_settings={'log_level': logging.WARNING}).
 
 Fixes:
 1. Fixed parsing CHECKS with IN statement - https://github.com/xnuinside/simple-ddl-parser/issues/150
-2. @# symbols added to ID token - (partialy) https://github.com/xnuinside/simple-ddl-parser/issues/146
+2. @# symbols added to ID token - (partially) https://github.com/xnuinside/simple-ddl-parser/issues/146
 
 
 Improvements:
@@ -648,7 +649,7 @@ Fixes:
 1. Added support for PARTITION BY one column without type
 2. Alter table add constraint PRIMARY KEY - https://github.com/xnuinside/simple-ddl-parser/issues/119
 3. Fix for paring SET statement - https://github.com/xnuinside/simple-ddl-parser/pull/122
-4. Fix for disappeared colums without properties - https://github.com/xnuinside/simple-ddl-parser/issues/123
+4. Fix for disappeared columns without properties - https://github.com/xnuinside/simple-ddl-parser/issues/123
 
 **v0.25.0**
 ## Fixes:
@@ -659,7 +660,7 @@ Fixes:
 
 1. Added flag to raise errors if parser cannot parse statement DDLParser(.., silent=False) - https://github.com/xnuinside/simple-ddl-parser/issues/109
 2. Added flag to DDLParser(.., normalize_names=True) that change output of parser:
-if flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimeters that used in different SQL dialects to separate custom names from reserverd words & statements.
+if flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimiters that used in different SQL dialects to separate custom names from reserved words & statements.
 For example, if flag set 'True' and you pass this input: 
 
 CREATE TABLE [dbo].[TO_Requests](
@@ -695,7 +696,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 ### Common:
 
 2. 'set' in lower case now also parsed validly.
-3. Now names like 'schema', 'database', 'table' can be used as names in CREATE DABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT. 
+3. Now names like 'schema', 'database', 'table' can be used as names in CREATE DATABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT. 
 4. Creation of empty tables also parsed correctly (like CREATE Table table;).
 
 ## New Statements Support: 
@@ -770,7 +771,7 @@ I started to add partial support for BigQuery
 ## MSSQL:
 
 1. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'. 
-I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beutiful and logically output structure.
+I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beautiful and logically output structure.
 https://github.com/xnuinside/simple-ddl-parser/issues/91
 
 Pay attention: previously they parsed somehow, but in incorrect structure.

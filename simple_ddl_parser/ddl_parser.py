@@ -58,7 +58,7 @@ class DDLParser(Parser, Dialects):
         if t.type != "ID":
             self.lexer.after_columns = True
         elif self.lexer.columns_def:
-            t.type = tok.columns_defenition.get(t.value.upper(), t.type)
+            t.type = tok.columns_definition.get(t.value.upper(), t.type)
         return t
 
     def process_body_tokens(self, t: LexToken) -> LexToken:
@@ -67,7 +67,7 @@ class DDLParser(Parser, Dialects):
         ) or self.lexer.after_columns:
             t = self.after_columns_tokens(t)
         elif self.lexer.columns_def:
-            t.type = tok.columns_defenition.get(t.value.upper(), t.type)
+            t.type = tok.columns_definition.get(t.value.upper(), t.type)
         elif self.lexer.sequence:
             t.type = tok.sequence_reserved.get(t.value.upper(), "ID")
         return t
@@ -92,7 +92,7 @@ class DDLParser(Parser, Dialects):
         elif not self.lexer.is_table:
             # if is_table mean wi already met INDEX or TABLE statement and
             # the definition already done and this is a string
-            t.type = tok.defenition_statements.get(
+            t.type = tok.definition_statements.get(
                 t.value.upper(), t.type
             )  # Check for reserved word
         elif self.lexer.last_token != "COMMA":
@@ -118,9 +118,9 @@ class DDLParser(Parser, Dialects):
         t.type = "DOT"
         return self.set_last_token(t)
 
-    def t_STRING(self, t: LexToken) -> LexToken:
+    def t_STRING_BASE(self, t: LexToken) -> LexToken:
         r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
-        t.type = "STRING"
+        t.type = "STRING_BASE"
         return self.set_last_token(t)
 
     def t_DQ_STRING(self, t: LexToken) -> LexToken:
@@ -229,19 +229,25 @@ class DDLParser(Parser, Dialects):
     def p_id(self, p):
         """id : ID
         | DQ_STRING"""
-        delimeters_to_start = ["`", '"', "["]
-        delimeters_to_end = ["`", '"', "]"]
+        delimiters_to_start = ["`", '"', "["]
+        delimiters_to_end = ["`", '"', "]"]
         p[0] = p[1]
 
         if self.normalize_names:
-            for num, symbol in enumerate(delimeters_to_start):
-                if p[0].startswith(symbol) and p[0].endswith(delimeters_to_end[num]):
+            for num, symbol in enumerate(delimiters_to_start):
+                if p[0].startswith(symbol) and p[0].endswith(delimiters_to_end[num]):
                     p[0] = p[0][1:-1]
 
     def p_id_or_string(self, p):
         """id_or_string : id
         | STRING"""
         p[0] = p[1]
+
+    def p_string(self, p):
+        """STRING : STRING_BASE
+        | STRING STRING_BASE
+        """
+        p[0] = "".join(list(p[1:]))
 
     def t_error(self, t: LexToken):
         raise DDLParserError("Unknown symbol %r" % (t.value[0],))
