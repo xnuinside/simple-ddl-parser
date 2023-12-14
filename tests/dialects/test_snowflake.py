@@ -640,3 +640,131 @@ def test_double_single_quotes():
         "types": [],
     }
     assert result == expected
+
+
+def test_autoincrement_order():
+    # test for https://github.com/xnuinside/simple-ddl-parser/issues/208
+    ddl = """CREATE TABLE table (surrogatekey_SK NUMBER(38,0) NOT NULL autoincrement start 1 increment 1 ORDER COMMENT 'Record Identification Number Ordered')"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "comment": "'Record Identification Number Ordered'",
+                        "default": None,
+                        "name": "surrogatekey_SK",
+                        "nullable": False,
+                        "references": None,
+                        "size": (38, 0),
+                        "type": "NUMBER",
+                        "unique": False,
+                        "autoincrement": True,
+                        "start" : '1',
+                        "increment": '1',
+                        "increment_order": True
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "table",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    print(result)
+    assert result == expected
+    
+def test_autoincrement_noorder():
+    # test for https://github.com/xnuinside/simple-ddl-parser/issues/208
+    ddl = """CREATE TABLE table (surrogatekey_SK NUMBER(38,0) NOT NULL autoincrement start 1 increment 1 NOORDER COMMENT 'Record Identification Number NoOrdered')"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "comment": "'Record Identification Number NoOrdered'",
+                        "default": None,
+                        "name": "surrogatekey_SK",
+                        "nullable": False,
+                        "references": None,
+                        "size": (38, 0),
+                        "type": "NUMBER",
+                        "unique": False,
+                        "autoincrement": True,
+                        "start" : '1',
+                        "increment": '1',
+                        "increment_order": False
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "table",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    print(result)
+    assert result == expected
+
+def test_order_sequence():
+    parse_results = DDLParser(
+        """
+    CREATE SEQUENCE dev.incremental_ids_order
+    START 1
+    INCREMENT 1
+    ORDER;
+    """
+    ).run()
+    expected = [
+        {
+            "schema": "dev",
+            "sequence_name": "incremental_ids",
+            "increment": 1,
+            "start": 1,
+            "order": True,
+        }
+    ]
+    assert expected == parse_results
+    
+def test_order_sequence():
+    parse_results = DDLParser(
+        """
+
+    CREATE SEQUENCE dev.incremental_ids_order
+    START WITH 1
+    INCREMENT BY 1
+    NOORDER;
+    """
+    ).run()
+    expected = [
+        {
+            "schema": "dev",
+            "sequence_name": "incremental_ids_order",
+            "increment_by": 1,
+            "start_with": 1,
+            "noorder": True,
+        }
+    ]
+    assert expected == parse_results
