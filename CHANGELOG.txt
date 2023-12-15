@@ -1,3 +1,9 @@
+
+**v0.31.2**
+### Improvements
+#### Snowflake update:
+1. Added support for Snowflake AUTOINCREMENT | IDENTITY column definitions with optional parameter `ORDER|NOORDER` statement - https://github.com/xnuinside/simple-ddl-parser/issues/213
+
 **v0.31.1**
 ### Improvements
 #### Snowflake update:

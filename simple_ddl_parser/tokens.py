@@ -53,6 +53,8 @@ columns_definition = {
     "MASKING": "MASKING",
     "MASKED": "MASKED",
     "WITH": "WITH",
+    "ORDER": "ORDER",
+    "NOORDER": "NOORDER"
 }
 first_liners = {
     "LIKE": "LIKE",
@@ -102,10 +104,14 @@ after_columns_tokens = {
 sequence_reserved = {
     "INCREMENT": "INCREMENT",
     "START": "START",
+    "WITH": "WITH",
     "MINVALUE": "MINVALUE",
     "MAXVALUE": "MAXVALUE",
     "CACHE": "CACHE",
     "NO": "NO",
+    "BY": "BY",
+    "NOORDER": "NOORDER",
+    "ORDER": "ORDER"
 }
 
 

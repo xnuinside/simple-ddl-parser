@@ -96,6 +96,13 @@ class Snowflake:
             p[1].extend(p[3])
         p[0] = p[1]
 
+    def p_option_order_noorder(self, p):
+        """option_order_noorder : ORDER
+        | NOORDER
+        """
+        p_list = remove_par(list(p))
+        p[0] = {"increment_order": True if p_list[1] == "ORDER" else False}
+
     def p_option_with_tag(self, p):
         """option_with_tag : TAG LP id RP
         | TAG LP id DOT id DOT id RP

@@ -398,6 +398,7 @@ class Column:
         | defcolumn on_update
         | defcolumn options
         | defcolumn autoincrement
+        | defcolumn option_order_noorder
         | defcolumn option_with_tag
         | defcolumn option_with_masking_policy
         """
@@ -996,8 +997,10 @@ class BaseSQL(
     def p_expression_seq(self, p: List) -> None:
         """expr : seq_name
         | expr INCREMENT id
+        | expr INCREMENT BY id
         | expr INCREMENT id id
         | expr START id
+        | expr START WITH id
         | expr START id id
         | expr MINVALUE id
         | expr NO MINVALUE
@@ -1005,6 +1008,8 @@ class BaseSQL(
         | expr MAXVALUE id
         | expr CACHE id
         | expr CACHE
+        | expr NOORDER
+        | expr ORDER
         """
         # get schema & table name
         p_list = list(p)
