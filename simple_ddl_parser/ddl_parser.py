@@ -258,10 +258,13 @@ class DDLParser(Parser, Dialects):
 
 
 def parse_from_file(
-    file_path: str, parser_settings: Optional[dict] = None, **kwargs
+    file_path: str,
+    encoding: Optional[str] = "utf-8",
+    parser_settings: Optional[dict] = None,
+    **kwargs,
 ) -> List[Dict]:
     """get useful data from ddl"""
-    with open(file_path, "r") as df:
+    with open(file_path, "r", encoding=encoding) as df:
         return DDLParser(df.read(), **(parser_settings or {})).run(
             file_path=file_path, **kwargs
         )

@@ -567,6 +567,24 @@ https://github.com/PBalsdon
 Changelog
 ---------
 
+**v0.31.2**
+
+Improvements
+^^^^^^^^^^^^
+
+Snowflake update:
+~~~~~~~~~~~~~~~~~
+
+
+#. Added support for Snowflake AUTOINCREMENT | IDENTITY column definitions with optional parameter ``ORDER|NOORDER`` statement - https://github.com/xnuinside/simple-ddl-parser/issues/213
+
+Common
+~~~~~~
+
+
+#. Added param 'encoding' to parse_from_file function - https://github.com/xnuinside/simple-ddl-parser/issues/142.
+   Default encoding is utf-8.
+
 **v0.31.1**
 
 Improvements
