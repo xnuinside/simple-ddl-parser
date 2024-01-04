@@ -1,4 +1,9 @@
 
+**v0.31.3**
+### Improvements
+#### Snowflake update:
+1. Added support for Snowflake Virtual Column definition in External Column  `AS ()` statement - https://github.com/xnuinside/simple-ddl-parser/issues/218
+
 **v0.31.2**
 ### Improvements
 #### Snowflake update:

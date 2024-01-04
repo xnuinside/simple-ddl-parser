@@ -54,7 +54,7 @@ columns_definition = {
     "MASKED": "MASKED",
     "WITH": "WITH",
     "ORDER": "ORDER",
-    "NOORDER": "NOORDER"
+    "NOORDER": "NOORDER",
 }
 first_liners = {
     "LIKE": "LIKE",
@@ -100,6 +100,12 @@ after_columns_tokens = {
     "DATA_RETENTION_TIME_IN_DAYS": "DATA_RETENTION_TIME_IN_DAYS",
     "MAX_DATA_EXTENSION_TIME_IN_DAYS": "MAX_DATA_EXTENSION_TIME_IN_DAYS",
     "CHANGE_TRACKING": "CHANGE_TRACKING",
+    "LOCATION" : "LOCATION",
+    "AUTO_REFRESH" : "AUTO_REFRESH",
+    "FILE_FORMAT" : "FILE_FORMAT",
+    "TABLE_FORMAT" : "TABLE_FORMAT",
+    "STAGE_FILE_FORMAT" : "STAGE_FILE_FORMAT",
+    "CATALOG" : "CATALOG"
 }
 sequence_reserved = {
     "INCREMENT": "INCREMENT",

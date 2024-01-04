@@ -20,6 +20,17 @@ class Snowflake:
     def p_table_property_equals(self, p: List) -> None:
         """table_property_equals : id id id_or_string
         | id id_or_string
+        | LP id id id_or_string RP
+        | LP id_or_string RP
+        """
+        p_list = remove_par(list(p))
+        p[0] = str(p_list[-1])
+
+    def p_table_property_equals_int(self, p: List) -> None:
+        """table_property_equals_int : id id id_or_string
+        | id id_or_string
+        | LP id id id_or_string RP
+        | LP id_or_string RP
         """
         p_list = remove_par(list(p))
         p[0] = int(p_list[-1])
@@ -36,7 +47,7 @@ class Snowflake:
             p[0] = False
 
     def p_expression_data_retention_time_in_days(self, p):
-        """expr : expr DATA_RETENTION_TIME_IN_DAYS table_property_equals"""
+        """expr : expr DATA_RETENTION_TIME_IN_DAYS table_property_equals_int"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["data_retention_time_in_days"] = p_list[-1]
@@ -119,3 +130,56 @@ class Snowflake:
         """
         p_list = remove_par(list(p))
         p[0] = {"with_masking_policy": f"{p_list[-5]}.{p_list[-3]}.{p_list[-1]}"}
+
+    def p_expression_catalog(self, p):
+        """expr : expr CATALOG table_property_equals"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["catalog"] = p_list[-1]
+
+    def p_expression_file_format(self, p):
+        """expr : expr FILE_FORMAT table_property_equals"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["file_format"] = p_list[-1]
+
+    def p_expression_stage_file_format(self, p):
+        """expr : expr STAGE_FILE_FORMAT table_property_equals"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["stage_file_format"] = p_list[-1]
+
+    def p_expression_table_format(self, p):
+        """expr : expr TABLE_FORMAT table_property_equals"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["table_format"] = p_list[-1]
+
+    def p_expression_location(self, p):
+        """expr : expr LOCATION table_property_equals
+        | WITH LOCATION table_property_equals"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["location"] = p_list[-1]
+
+    def p_expression_auto_refresh(self, p):
+        """expr : expr AUTO_REFRESH table_property_equals_bool"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["auto_refresh"] = p_list[-1]
+
+    def p_as_virtual(self, p: List):
+        """as_virtual : AS LP id LP id LP pid RP COMMA pid RP RP
+        | AS LP id LP pid RP RP
+        | AS LP multi_id RP"""
+        _as = ""
+        # Simple function else Nested function call
+        if len(p) == 5:
+            _as = p[3]
+        else:
+            #_as = p[3]+p[4]+p[5]+p[6]+",".join(p[7])+p[8]+p[9]+",".join(p[10])+p[11]
+            for i in p[3:len(p)-1]:
+                _as += i if isinstance(i, str) else ",".join(i)
+     
+        p[0] = {"generated": {"as": _as}}
+
