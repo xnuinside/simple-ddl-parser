@@ -155,13 +155,6 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0]["table_format"] = p_list[-1]
 
-    def p_expression_location(self, p):
-        """expr : expr LOCATION table_property_equals
-        | WITH LOCATION table_property_equals"""
-        p[0] = p[1]
-        p_list = remove_par(list(p))
-        p[0]["location"] = p_list[-1]
-
     def p_expression_auto_refresh(self, p):
         """expr : expr AUTO_REFRESH table_property_equals_bool"""
         p[0] = p[1]
