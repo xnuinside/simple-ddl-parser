@@ -177,9 +177,7 @@ class Snowflake:
         if len(p) == 5:
             _as = p[3]
         else:
-            #_as = p[3]+p[4]+p[5]+p[6]+",".join(p[7])+p[8]+p[9]+",".join(p[10])+p[11]
-            for i in p[3:len(p)-1]:
+            # _as = p[3]+p[4]+p[5]+p[6]+",".join(p[7])+p[8]+p[9]+",".join(p[10])+p[11]
+            for i in p[3:len(p) - 1]:
                 _as += i if isinstance(i, str) else ",".join(i)
-     
         p[0] = {"generated": {"as": _as}}
-
