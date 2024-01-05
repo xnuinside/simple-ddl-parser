@@ -130,7 +130,7 @@ class Table:
         | CREATE OR REPLACE id TABLE
 
         """
-        # id - for EXTERNAL, TRANSIENT, TEMPORARY, GLOBAL, LOCAL, TEMP, VOLATILE
+        # id - for EXTERNAL, TRANSIENT, TEMPORARY, GLOBAL, LOCAL, TEMP, VOLATILE, ICEBERG
         # get schema & table name
         p[0] = {}
         p_list = list(p)
@@ -401,6 +401,7 @@ class Column:
         | defcolumn option_order_noorder
         | defcolumn option_with_tag
         | defcolumn option_with_masking_policy
+        | defcolumn as_virtual
         """
         p[0] = p[1]
         p_list = list(p)

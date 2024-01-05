@@ -768,3 +768,160 @@ def test_order_sequence():
         }
     ]
     assert expected == parse_results
+
+def test_virtual_column_ext_table():
+    ddl = """
+    create or replace external table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
+       "type" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 1), '=', 2 )),
+       "year" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 2), '=', 2)),
+       "month" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 3), '=', 2)),
+       "day" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 4), '=', 2)),
+       "path" VARCHAR(255) AS (METADATA$FILENAME)
+       )
+    partition by ("type", "year", "month", "day", "path")
+    location = @ADL_Azure_Storage_Account_Container_Name/
+    auto_refresh = false
+    ;
+    """
+    result_ext_table = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
+
+    expected_ext_table = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "type",
+                    "type": "VARCHAR",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated" : {"as" : "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)" }
+                } ,
+                {
+                    "name": "year",
+                    "type": "VARCHAR",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated" : {"as" : "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',2),'=',2)" }
+                },
+                {
+                    "name": "month",
+                    "type": "VARCHAR",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated" : {"as" : "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',3),'=',2)"}
+                },
+                {
+                    "name": "day",
+                    "type": "VARCHAR",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated" : {"as" : "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',4),'=',2)"}
+                },
+                {
+                    "name": "path",
+                    "type": "VARCHAR",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated" : {"as" : "METADATA$FILENAME" }
+                }
+            ],
+            "index": [],
+            "partition_by": { "columns" :["type", "year", "month", "day", "path"], "type" : None},
+            "partitioned_by" : [],
+            "primary_key": [],
+            "primary_key_enforced": None,
+            "auto_refresh" : False,
+            "schema": "TABLE_DATA_SRC",
+            "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
+            "tablespace": None,
+            "replace" : True,
+            "if_not_exists": True,
+            "location" : "@ADL_Azure_Storage_Account_Container_Name/",
+        }
+    ]
+
+    assert result_ext_table == expected_ext_table
+
+def test_virtual_column_table():
+    ddl = """
+    create or replace table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
+       id bigint,
+       derived bigint as (id * 10)
+       )
+    partition by ("type", "year", "month", "day", "path")
+    location = @ADL_Azure_Storage_Account_Container_Name/
+    auto_refresh = false
+    ;
+    """
+    result_ext_table = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
+
+    expected_ext_table = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "bigint",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "derived",
+                    "type": "bigint",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated" : {"as" : "id * 10" }
+                }
+            ],
+            "index": [],
+            "partition_by": { "columns" :["type", "year", "month", "day", "path"], "type" : None},
+            "partitioned_by" : [],
+            "primary_key": [],
+            "primary_key_enforced": None,
+            "auto_refresh" : False,
+            "schema": "TABLE_DATA_SRC",
+            "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
+            "tablespace": None,
+            "replace" : True,
+            "if_not_exists": True,
+            "location" : "@ADL_Azure_Storage_Account_Container_Name/",
+        }
+    ]
+
+    assert result_ext_table == expected_ext_table
