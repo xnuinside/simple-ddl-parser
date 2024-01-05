@@ -1,3 +1,6 @@
+**v0.31.3**
+### Improvements
+1. Support for KEY statement in CREATE TABLE statements. KEY statements will now create INDEX entries in the DDL parser.
 
 **v0.31.2**
 ### Improvements
@@ -21,7 +24,7 @@ Default encoding is utf-8.
 Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/199
 
 ### Improvements:
-1. Added `Snowflake Table DDL support of WITH MASKING POLICY column definition` - https://github.com/xnuinside/simple-ddl-parser/issues/201 
+1. Added `Snowflake Table DDL support of WITH MASKING POLICY column definition` - https://github.com/xnuinside/simple-ddl-parser/issues/201
 
 
 ### Updates:
@@ -56,11 +59,11 @@ Added support for ORGANIZE BY statement
 ### Fixes
 1.  AUTOINCREMENT statement now parsed validly same way as AUTO_INCREMENT and showed up in output as 'autoincrement' property of the column
 Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/170
-2. Fix issue ' TypeError argument of type 'NoneType' is not iterable' on some foreigen keys https://github.com/xnuinside/simple-ddl-parser/issues/148 
+2. Fix issue ' TypeError argument of type 'NoneType' is not iterable' on some foreigen keys https://github.com/xnuinside/simple-ddl-parser/issues/148
 
 ### New Features
 
-1. Support for non-numeric column type parameters https://github.com/xnuinside/simple-ddl-parser/issues/171 
+1. Support for non-numeric column type parameters https://github.com/xnuinside/simple-ddl-parser/issues/171
 It shows in column attribute 'type_parameters'.
 
 
@@ -75,8 +78,8 @@ Fixes:
 **v0.28.0**
 
 Important Changes (Pay attention):
-1. Because of parsing now AUTO_INCREMENT as a separate property of column previous output changed. 
-Previously it was parsed as a part of type like:  'INT AUTO_INCREMENT'. 
+1. Because of parsing now AUTO_INCREMENT as a separate property of column previous output changed.
+Previously it was parsed as a part of type like:  'INT AUTO_INCREMENT'.
 Now type will be only 'INT', but in column property you will see 'autoincrement': True.
 
 Amazing innovation:
@@ -105,10 +108,10 @@ Fixes:
 Improvements:
 
 1. Added support for '*' in size column (ORACLE dialect) - https://github.com/xnuinside/simple-ddl-parser/issues/151
-2. Added arg 'debug' to parser, works same way as 'silent' - to get more clear error output. 
+2. Added arg 'debug' to parser, works same way as 'silent' - to get more clear error output.
 
 New features:
-1. Added support for ORACLE 'ORGANIZATION INDEX' 
+1. Added support for ORACLE 'ORGANIZATION INDEX'
 2. Added support for SparkSQL Partition by with procedure call - https://github.com/xnuinside/simple-ddl-parser/issues/154
 3. Added support for DEFAULT CHARSET statement MySQL - https://github.com/xnuinside/simple-ddl-parser/issues/153
 
@@ -160,7 +163,7 @@ Improvements:
 New features:
 1. Support SparkSQL USING - https://github.com/xnuinside/simple-ddl-parser/issues/117
 Updates initiated by ticket https://github.com/xnuinside/simple-ddl-parser/issues/120:
-2. In Parser you can use argument json_dump=True in method .run() if you want get result in JSON format. 
+2. In Parser you can use argument json_dump=True in method .run() if you want get result in JSON format.
 - README updated
 
 Fixes:
@@ -179,7 +182,7 @@ Fixes:
 1. Added flag to raise errors if parser cannot parse statement DDLParser(.., silent=False) - https://github.com/xnuinside/simple-ddl-parser/issues/109
 2. Added flag to DDLParser(.., normalize_names=True) that change output of parser:
 if flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimiters that used in different SQL dialects to separate custom names from reserved words & statements.
-For example, if flag set 'True' and you pass this input: 
+For example, if flag set 'True' and you pass this input:
 
 CREATE TABLE [dbo].[TO_Requests](
     [Request_ID] [int] IDENTITY(1,1) NOT NULL,
@@ -196,30 +199,30 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 **v0.24.1**
 
 ## Fixes:
-### HQL: 
+### HQL:
 1. fields_terminated_by now parses , as "','", not as '' previously
 
 ### Common:
-1. To output added 'if_not_exists' field in result to get availability 1-to-1 re-create ddl by metadata. 
+1. To output added 'if_not_exists' field in result to get availability 1-to-1 re-create ddl by metadata.
 
 **v0.24.0**
 
 ## Fixes:
 
-### HQL: 
+### HQL:
 
-1. More then 2 tblproperties now are parsed correctly https://github.com/xnuinside/simple-ddl-parser/pull/104 
+1. More then 2 tblproperties now are parsed correctly https://github.com/xnuinside/simple-ddl-parser/pull/104
 
 
 ### Common:
 
 2. 'set' in lower case now also parsed validly.
-3. Now names like 'schema', 'database', 'table' can be used as names in CREATE DATABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT. 
+3. Now names like 'schema', 'database', 'table' can be used as names in CREATE DATABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT.
 4. Creation of empty tables also parsed correctly (like CREATE Table table;).
 
-## New Statements Support: 
+## New Statements Support:
 
-### HQL: 
+### HQL:
 1. Added support for CLUSTERED BY - https://github.com/xnuinside/simple-ddl-parser/issues/103
 2. Added support for  INTO ... BUCKETS
 3. CREATE REMOTE DATABASE | SCHEMA
@@ -230,7 +233,7 @@ Big refactoring: less code complexity & increase code coverage. Radon added to p
 
 ### Fixes:
 
-1. Fix for issue with ALTER UNIQUE - https://github.com/xnuinside/simple-ddl-parser/issues/101 
+1. Fix for issue with ALTER UNIQUE - https://github.com/xnuinside/simple-ddl-parser/issues/101
 
 ### New Features
 
@@ -257,8 +260,8 @@ PostgreSQL:
 ### Fixes:
 
 ### BigQuery:
-1. CREATE TABLE statement with 'project_id' in format like project.dataset.table_name now is parsed validly. 
-'project' added to output. 
+1. CREATE TABLE statement with 'project_id' in format like project.dataset.table_name now is parsed validly.
+'project' added to output.
 Also added support project.dataset.name format in CREATE SCHEMA and ALTER statement
 
 
@@ -288,7 +291,7 @@ I started to add partial support for BigQuery
 
 ## MSSQL:
 
-1. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'. 
+1. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'.
 I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beautiful and logically output structure.
 https://github.com/xnuinside/simple-ddl-parser/issues/91
 
@@ -297,11 +300,11 @@ Pay attention: previously they parsed somehow, but in incorrect structure.
 ### Improvements:
 
 1. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
-2. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90 
+2. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90
 
 ### Fixes:
 
-1. Now open strings is not valid in checks (previously the was parsed.) Open string sample 'some string (exist open quote, but there is no close quote) 
+1. Now open strings is not valid in checks (previously the was parsed.) Open string sample 'some string (exist open quote, but there is no close quote)
 2. Order like ASC, DESK in primary keys now parsed valid (not as previously as column name)
 
 **v0.21.2**
@@ -318,13 +321,13 @@ Fixies:
 
     ## MSSQL:
 
-    1. Added support for statements: 
+    1. Added support for statements:
         1. PERIOD FOR SYSTEM_TIME in CREATE TABLE statement
         2. ON [PRIMARY] after CREATE TABLE statement (sample in test files test_mssql_specific.py)
         3. WITH statement for TABLE properties
         4. TEXTIMAGE_ON statement
         5. DEFAULT NEXT VALUE FOR in COLUMN DEFAULT
-    
+
     2. Added support for separating tables DDL by 'GO' statement as in output of MSSQL
     3. Added support for CREATE TYPE as TABLE
 
