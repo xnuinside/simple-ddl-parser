@@ -1,4 +1,9 @@
 
+**v0.31.4**
+### Improvements
+#### Snowflake update:
+1. enforce support for Snowflake _FILE_FORMAT options in External Column ddl statement - https://github.com/xnuinside/simple-ddl-parser/issues/221
+
 **v0.31.3**
 ### Improvements
 #### Snowflake update:
