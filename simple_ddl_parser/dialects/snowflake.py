@@ -17,11 +17,28 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0]["cluster_by"] = p_list[-1]
 
+    def p_multiple_format_equals(self0, p: List) -> None:
+        """multiple_format_equals : fmt_equals
+        | multiple_format_equals fmt_equals
+        """
+        # Handles multiple format in the same format statement
+        p[0] = p[1]
+
+    def p_fmt_equals(self, p: List) -> None:
+        """fmt_equals :  id LP RP
+        | id LP fmt_equals RP
+        | id LP multi_id RP
+        """
+        p_list = list(p)
+        p[0] = p_list[2:][1].split(" ")
+
     def p_table_property_equals(self, p: List) -> None:
         """table_property_equals : id id id_or_string
         | id id_or_string
         | LP id id id_or_string RP
         | LP id_or_string RP
+        | id table_property_equals
+        | id_equals
         """
         p_list = remove_par(list(p))
         p[0] = str(p_list[-1])
@@ -138,16 +155,16 @@ class Snowflake:
         p[0]["catalog"] = p_list[-1]
 
     def p_expression_file_format(self, p):
-        """expr : expr FILE_FORMAT table_property_equals"""
+        """expr : expr FILE_FORMAT multiple_format_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["file_format"] = p_list[-1]
 
     def p_expression_stage_file_format(self, p):
-        """expr : expr STAGE_FILE_FORMAT table_property_equals"""
+        """expr : expr STAGE_FILE_FORMAT multiple_format_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
-        p[0]["stage_file_format"] = p_list[-1]
+        p[0]["stage_file_format"] = p_list[-1] if len(p_list[-1]) > 1 else p_list[-1][0]
 
     def p_expression_table_format(self, p):
         """expr : expr TABLE_FORMAT table_property_equals"""
@@ -170,7 +187,6 @@ class Snowflake:
         if len(p) == 5:
             _as = p[3]
         else:
-            # _as = p[3]+p[4]+p[5]+p[6]+",".join(p[7])+p[8]+p[9]+",".join(p[10])+p[11]
             for i in p[3:len(p) - 1]:
                 _as += i if isinstance(i, str) else ",".join(i)
         p[0] = {"generated": {"as": _as}}
