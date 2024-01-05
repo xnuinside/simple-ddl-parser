@@ -925,3 +925,76 @@ def test_indexes_in_table():
         }
     ]
     assert expected == parse_results
+
+def test_index_as_key():
+    """
+    Tests that CREATE TABLE with KEY statements properly create the index
+    for that table.
+    """
+    ddl = """
+    /*!50503 SET character_set_client = utf8mb4 */;
+    CREATE TABLE "test_with_key" (
+    "criteria_id" int unsigned NOT NULL,
+    "super_category" tinyint unsigned NOT NULL COMMENT 'Da category',
+    "currency_id" int unsigned DEFAULT '1',
+
+    PRIMARY KEY ("criteria_id","super_category"),
+    KEY "currency_ibfk" ("currency_id"),
+    CONSTRAINT "currency_ibfk" FOREIGN KEY ("currency_id") REFERENCES "currency" ("id"),
+    CONSTRAINT "criteria_ibfk" FOREIGN KEY ("criteria_id") REFERENCES "criteria" ("id")
+);
+    /*!40101 SET character_set_client = @saved_cs_client */;
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mysql")
+    expected = {
+        'tables':  [
+            {'columns': [
+                {'name': '"criteria_id"', 'type': 'int unsigned', 'size': None,
+                 'references': None, 'unique': False, 'nullable': False,
+                 'default': None, 'check': None},
+                {'name': '"super_category"', 'type': 'tinyint unsigned',
+                 'size': None, 'references': None, 'unique': False,
+                 'nullable': False, 'default': None, 'check': None,
+                 'comment': "'Da category'"},
+                {'name': '"currency_id"', 'type': 'int unsigned', 'size': None,
+                 'references': None, 'unique': False, 'nullable': True,
+                 'default': "'1'", 'check': None},
+            ],
+             'primary_key': ['"criteria_id"', '"super_category"'],
+             'alter': {},
+             'checks': [],
+             'index': [
+                 {
+                     "clustered": False,
+                     "columns": ['"currency_id"'],
+                     "detailed_columns": [
+                         {"name": '"currency_id"', "nulls": "LAST", "order": "ASC"}
+                     ],
+                     "index_name": '"currency_ibfk"',
+                     "unique": False,
+                 },
+             ],
+             'partitioned_by': [],
+             'tablespace': None,
+             'constraints': {'references': [
+                 {'table': '"currency"', 'columns': ['"id"'], 'schema': None,
+                  'on_delete': None, 'on_update': None,
+                  'deferrable_initially': None,
+                  'constraint_name': '"currency_ibfk"'},
+                 {'table': '"criteria"', 'columns': ['"id"'], 'schema': None,
+                  'on_delete': None, 'on_update': None,
+                  'deferrable_initially': None,
+                  'constraint_name': '"criteria_ibfk"'}]},
+             'schema': None,
+             'table_name': '"test_with_key"'}
+        ],
+        'types': [],
+        'sequences': [],
+        'domains': [],
+        'schemas': [],
+        'ddl_properties': [],
+        'comments': [
+            '!50503 SET character_set_client = utf8mb4 */;',
+            '!40101 SET character_set_client = @saved_cs_client */;'],
+    }
+    assert result == expected
