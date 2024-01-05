@@ -130,7 +130,7 @@ class Table:
         | CREATE OR REPLACE id TABLE
 
         """
-        # id - for EXTERNAL, TRANSIENT, TEMPORARY, GLOBAL, LOCAL, TEMP, VOLATILE
+        # id - for EXTERNAL, TRANSIENT, TEMPORARY, GLOBAL, LOCAL, TEMP, VOLATILE, ICEBERG
         # get schema & table name
         p[0] = {}
         p_list = list(p)
@@ -315,9 +315,9 @@ class Column:
         | column LP id COMMA id RP
         | column LP id COMMA id RP c_type
         """
-        if p[1] == 'KEY':
+        if p[1] == "KEY":
             # This is an index
-            p[0] = {'index_stmt': True, 'name': p[2]["type"], 'columns': ''}
+            p[0] = {"index_stmt": True, "name": p[2]["type"], "columns": ""}
             return
         if p[1] and isinstance(p[1], dict) and p[1].get("index_stmt") is True:
             p[1]["columns"] = remove_par(list(p))[2]
@@ -410,6 +410,7 @@ class Column:
         | defcolumn option_order_noorder
         | defcolumn option_with_tag
         | defcolumn option_with_masking_policy
+        | defcolumn as_virtual
         """
         p[0] = p[1]
         p_list = list(p)
@@ -865,15 +866,21 @@ class BaseSQL(
                 if not p[0].get("index"):
                     p[0]["index"] = []
                 index_data = p_list[-1]
-                p[0]["index"].append({
-                    "clustered": False,
-                    "columns": [index_data["columns"]],
-                    "detailed_columns": [
-                        {"name": index_data["columns"], "nulls": "LAST", "order": "ASC"}
-                    ],
-                    "index_name": index_data["name"],
-                    "unique": False,
-                })
+                p[0]["index"].append(
+                    {
+                        "clustered": False,
+                        "columns": [index_data["columns"]],
+                        "detailed_columns": [
+                            {
+                                "name": index_data["columns"],
+                                "nulls": "LAST",
+                                "order": "ASC",
+                            }
+                        ],
+                        "index_name": index_data["name"],
+                        "unique": False,
+                    }
+                )
             elif "check" in p_list[-1]:
                 p[0] = self.extract_check_data(p, p_list)
             elif "enforced" in p_list[-1]:
