@@ -319,7 +319,7 @@ class Column:
             # This is an index
             p[0] = {'index_stmt': True, 'name': p[2]["type"], 'columns': ''}
             return
-        if p[1] and isinstance(p[1], dict) and p[1].get("index_stmt") == True:
+        if p[1] and isinstance(p[1], dict) and p[1].get("index_stmt") is True:
             p[1]["columns"] = remove_par(list(p))[2]
             p[0] = p[1]
             return
@@ -867,7 +867,7 @@ class BaseSQL(
                 index_data = p_list[-1]
                 p[0]["index"].append({
                     "clustered": False,
-                    "columns": [ index_data["columns"]],
+                    "columns": [index_data["columns"]],
                     "detailed_columns": [
                         {"name": index_data["columns"], "nulls": "LAST", "order": "ASC"}
                     ],
