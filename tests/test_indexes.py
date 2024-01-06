@@ -270,6 +270,7 @@ def test_several_indexes_types():
                             "columns": ["PersonID"],
                             "constraint_name": "FK_Person_Age_under",
                             "deferrable_initially": None,
+                            "name": "id",
                             "on_delete": None,
                             "on_update": None,
                             "schema": None,
@@ -612,6 +613,7 @@ def test_clustered_index():
                             "columns": ["PersonID"],
                             "constraint_name": "FK_Person_Age_under",
                             "deferrable_initially": None,
+                            "name": "id",
                             "on_delete": None,
                             "on_update": None,
                             "schema": None,
@@ -926,6 +928,7 @@ def test_indexes_in_table():
     ]
     assert expected == parse_results
 
+
 def test_index_as_key():
     """
     Tests that CREATE TABLE with KEY statements properly create the index
@@ -947,54 +950,93 @@ def test_index_as_key():
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mysql")
     expected = {
-        'tables':  [
-            {'columns': [
-                {'name': '"criteria_id"', 'type': 'int unsigned', 'size': None,
-                 'references': None, 'unique': False, 'nullable': False,
-                 'default': None, 'check': None},
-                {'name': '"super_category"', 'type': 'tinyint unsigned',
-                 'size': None, 'references': None, 'unique': False,
-                 'nullable': False, 'default': None, 'check': None,
-                 'comment': "'Da category'"},
-                {'name': '"currency_id"', 'type': 'int unsigned', 'size': None,
-                 'references': None, 'unique': False, 'nullable': True,
-                 'default': "'1'", 'check': None},
-            ],
-             'primary_key': ['"criteria_id"', '"super_category"'],
-             'alter': {},
-             'checks': [],
-             'index': [
-                 {
-                     "clustered": False,
-                     "columns": ['"currency_id"'],
-                     "detailed_columns": [
-                         {"name": '"currency_id"', "nulls": "LAST", "order": "ASC"}
-                     ],
-                     "index_name": '"currency_ibfk"',
-                     "unique": False,
-                 },
-             ],
-             'partitioned_by': [],
-             'tablespace': None,
-             'constraints': {'references': [
-                 {'table': '"currency"', 'columns': ['"id"'], 'schema': None,
-                  'on_delete': None, 'on_update': None,
-                  'deferrable_initially': None,
-                  'constraint_name': '"currency_ibfk"'},
-                 {'table': '"criteria"', 'columns': ['"id"'], 'schema': None,
-                  'on_delete': None, 'on_update': None,
-                  'deferrable_initially': None,
-                  'constraint_name': '"criteria_ibfk"'}]},
-             'schema': None,
-             'table_name': '"test_with_key"'}
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": '"criteria_id"',
+                        "type": "int unsigned",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": '"super_category"',
+                        "type": "tinyint unsigned",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                        "comment": "'Da category'",
+                    },
+                    {
+                        "name": '"currency_id"',
+                        "type": "int unsigned",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": "'1'",
+                        "check": None,
+                    },
+                ],
+                "primary_key": ['"criteria_id"', '"super_category"'],
+                "alter": {},
+                "checks": [],
+                "index": [
+                    {
+                        "clustered": False,
+                        "columns": ['"currency_id"'],
+                        "detailed_columns": [
+                            {"name": '"currency_id"', "nulls": "LAST", "order": "ASC"}
+                        ],
+                        "index_name": '"currency_ibfk"',
+                        "unique": False,
+                    },
+                ],
+                "partitioned_by": [],
+                "tablespace": None,
+                "constraints": {
+                    "references": [
+                        {
+                            "table": '"currency"',
+                            "columns": ['"id"'],
+                            "schema": None,
+                            "name": '"currency_id"',
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "constraint_name": '"currency_ibfk"',
+                        },
+                        {
+                            "table": '"criteria"',
+                            "columns": ['"id"'],
+                            "schema": None,
+                            "name": '"criteria_id"',
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "constraint_name": '"criteria_ibfk"',
+                        },
+                    ]
+                },
+                "schema": None,
+                "table_name": '"test_with_key"',
+            }
         ],
-        'types': [],
-        'sequences': [],
-        'domains': [],
-        'schemas': [],
-        'ddl_properties': [],
-        'comments': [
-            '!50503 SET character_set_client = utf8mb4 */;',
-            '!40101 SET character_set_client = @saved_cs_client */;'],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "ddl_properties": [],
+        "comments": [
+            "!50503 SET character_set_client = utf8mb4 */;",
+            "!40101 SET character_set_client = @saved_cs_client */;",
+        ],
     }
     assert result == expected
