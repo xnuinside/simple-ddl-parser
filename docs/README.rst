@@ -567,6 +567,24 @@ https://github.com/PBalsdon
 Changelog
 ---------
 
+**v0.31.3**
+
+Improvements
+^^^^^^^^^^^^
+
+Snowflake update:
+~~~~~~~~~~~~~~~~~
+
+
+#. Added support for Snowflake Virtual Column definition in External Column  ``AS ()`` statement - https://github.com/xnuinside/simple-ddl-parser/issues/218
+#. enforce support for Snowflake _FILE_FORMAT options in External Column ddl statement - https://github.com/xnuinside/simple-ddl-parser/issues/221
+
+Others
+~~~~~~
+
+
+#. Support for KEY statement in CREATE TABLE statements. KEY statements will now create INDEX entries in the DDL parser.
+
 **v0.31.2**
 
 Improvements
@@ -610,7 +628,7 @@ Improvements:
 ^^^^^^^^^^^^^
 
 
-#. Added ``Snowflake Table DDL support of WITH MASKING POLICY column definition`` - https://github.com/xnuinside/simple-ddl-parser/issues/201 
+#. Added ``Snowflake Table DDL support of WITH MASKING POLICY column definition`` - https://github.com/xnuinside/simple-ddl-parser/issues/201
 
 Updates:
 ^^^^^^^^
@@ -666,13 +684,13 @@ Fixes
 
 #. AUTOINCREMENT statement now parsed validly same way as AUTO_INCREMENT and showed up in output as 'autoincrement' property of the column
    Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/170
-#. Fix issue ' TypeError argument of type 'NoneType' is not iterable' on some foreigen keys https://github.com/xnuinside/simple-ddl-parser/issues/148 
+#. Fix issue ' TypeError argument of type 'NoneType' is not iterable' on some foreigen keys https://github.com/xnuinside/simple-ddl-parser/issues/148
 
 New Features
 ^^^^^^^^^^^^
 
 
-#. Support for non-numeric column type parameters https://github.com/xnuinside/simple-ddl-parser/issues/171 
+#. Support for non-numeric column type parameters https://github.com/xnuinside/simple-ddl-parser/issues/171
    It shows in column attribute 'type_parameters'.
 
 **v0.28.1**
@@ -691,8 +709,8 @@ Fixes:
 Important Changes (Pay attention):
 
 
-#. Because of parsing now AUTO_INCREMENT as a separate property of column previous output changed. 
-   Previously it was parsed as a part of type like:  'INT AUTO_INCREMENT'. 
+#. Because of parsing now AUTO_INCREMENT as a separate property of column previous output changed.
+   Previously it was parsed as a part of type like:  'INT AUTO_INCREMENT'.
    Now type will be only 'INT', but in column property you will see 'autoincrement': True.
 
 Amazing innovation:
@@ -729,12 +747,12 @@ Improvements:
 
 
 #. Added support for '*' in size column (ORACLE dialect) - https://github.com/xnuinside/simple-ddl-parser/issues/151
-#. Added arg 'debug' to parser, works same way as 'silent' - to get more clear error output. 
+#. Added arg 'debug' to parser, works same way as 'silent' - to get more clear error output.
 
 New features:
 
 
-#. Added support for ORACLE 'ORGANIZATION INDEX' 
+#. Added support for ORACLE 'ORGANIZATION INDEX'
 #. Added support for SparkSQL Partition by with procedure call - https://github.com/xnuinside/simple-ddl-parser/issues/154
 #. Added support for DEFAULT CHARSET statement MySQL - https://github.com/xnuinside/simple-ddl-parser/issues/153
 
@@ -795,7 +813,7 @@ New features:
 
 #. Support SparkSQL USING - https://github.com/xnuinside/simple-ddl-parser/issues/117
    Updates initiated by ticket https://github.com/xnuinside/simple-ddl-parser/issues/120:
-#. In Parser you can use argument json_dump=True in method .run() if you want get result in JSON format. 
+#. In Parser you can use argument json_dump=True in method .run() if you want get result in JSON format.
 
 
 * README updated
@@ -823,7 +841,7 @@ New features:
 #. Added flag to raise errors if parser cannot parse statement DDLParser(.., silent=False) - https://github.com/xnuinside/simple-ddl-parser/issues/109
 #. Added flag to DDLParser(.., normalize_names=True) that change output of parser:
    if flag is True (default 'False') then all identifiers will be returned without '[', '"' and other delimiters that used in different SQL dialects to separate custom names from reserved words & statements.
-   For example, if flag set 'True' and you pass this input: 
+   For example, if flag set 'True' and you pass this input:
 
 CREATE TABLE [dbo].\ `TO_Requests <[Request_ID] [int] IDENTITY(1,1>`_ NOT NULL,
     [user_id] [int]
@@ -853,7 +871,7 @@ Common:
 ^^^^^^^
 
 
-#. To output added 'if_not_exists' field in result to get availability 1-to-1 re-create ddl by metadata. 
+#. To output added 'if_not_exists' field in result to get availability 1-to-1 re-create ddl by metadata.
 
 **v0.24.0**
 
@@ -864,14 +882,14 @@ HQL:
 ^^^^
 
 
-#. More then 2 tblproperties now are parsed correctly https://github.com/xnuinside/simple-ddl-parser/pull/104 
+#. More then 2 tblproperties now are parsed correctly https://github.com/xnuinside/simple-ddl-parser/pull/104
 
 Common:
 ^^^^^^^
 
 
 #. 'set' in lower case now also parsed validly.
-#. Now names like 'schema', 'database', 'table' can be used as names in CREATE DATABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT. 
+#. Now names like 'schema', 'database', 'table' can be used as names in CREATE DATABASE | SCHEMA | TABLESPACE | DOMAIN | TYPE statements and after INDEX and CONSTRAINT.
 #. Creation of empty tables also parsed correctly (like CREATE Table table;).
 
 New Statements Support:
@@ -893,7 +911,7 @@ Fixes:
 ^^^^^^
 
 
-#. Fix for issue with ALTER UNIQUE - https://github.com/xnuinside/simple-ddl-parser/issues/101 
+#. Fix for issue with ALTER UNIQUE - https://github.com/xnuinside/simple-ddl-parser/issues/101
 
 New Features
 ^^^^^^^^^^^^
@@ -935,8 +953,8 @@ BigQuery:
 ^^^^^^^^^
 
 
-#. CREATE TABLE statement with 'project_id' in format like project.dataset.table_name now is parsed validly. 
-   'project' added to output. 
+#. CREATE TABLE statement with 'project_id' in format like project.dataset.table_name now is parsed validly.
+   'project' added to output.
    Also added support project.dataset.name format in CREATE SCHEMA and ALTER statement
 
 **v0.22.2**
@@ -981,7 +999,7 @@ MSSQL:
 ------
 
 
-#. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'. 
+#. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'.
    I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beautiful and logically output structure.
    https://github.com/xnuinside/simple-ddl-parser/issues/91
 
@@ -992,13 +1010,13 @@ Improvements:
 
 
 #. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
-#. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90 
+#. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90
 
 Fixes:
 ^^^^^^
 
 
-#. Now open strings is not valid in checks (previously the was parsed.) Open string sample 'some string (exist open quote, but there is no close quote) 
+#. Now open strings is not valid in checks (previously the was parsed.) Open string sample 'some string (exist open quote, but there is no close quote)
 #. Order like ASC, DESK in primary keys now parsed valid (not as previously as column name)
 
 **v0.21.2**
@@ -1022,7 +1040,7 @@ New Features:
 
    ## MSSQL:
 
-   1. Added support for statements: 
+   1. Added support for statements:
        1. PERIOD FOR SYSTEM_TIME in CREATE TABLE statement
        2. ON [PRIMARY] after CREATE TABLE statement (sample in test files test_mssql_specific.py)
        3. WITH statement for TABLE properties

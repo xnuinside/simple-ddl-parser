@@ -871,9 +871,10 @@ def test_virtual_column_table():
        id bigint,
        derived bigint as (id * 10)
        )
-    partition by ("type", "year", "month", "day", "path")
     location = @ADL_Azure_Storage_Account_Container_Name/
     auto_refresh = false
+    file_format = (TYPE=JSON NULL_IF=('field') DATE_FORMAT=AUTO TRIM_SPACE=TRUE)
+    stage_file_format = (TYPE=JSON NULL_IF=())
     ;
     """
     result_ext_table = DDLParser(ddl, normalize_names=True, debug=True).run(
@@ -909,10 +910,6 @@ def test_virtual_column_table():
                 },
             ],
             "index": [],
-            "partition_by": {
-                "columns": ["type", "year", "month", "day", "path"],
-                "type": None,
-            },
             "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,
@@ -923,6 +920,13 @@ def test_virtual_column_table():
             "replace": True,
             "if_not_exists": True,
             "location": "@ADL_Azure_Storage_Account_Container_Name/",
+            "file_format": [
+                "TYPE=JSON",
+                "NULL_IF=('field')",
+                "DATE_FORMAT=AUTO",
+                "TRIM_SPACE=TRUE",
+            ],
+            "stage_file_format": ["TYPE=JSON", "NULL_IF=()"],
         }
     ]
 
