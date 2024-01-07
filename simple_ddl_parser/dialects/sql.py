@@ -934,10 +934,17 @@ class BaseSQL(
 
     def add_ref_information_to_table(self, data, p_list):
         if len(p_list) > 4 and "constraint" in p_list[3]:
+            # This is a reference, add the name of the column being referenced
+            ref_data = p_list[-1]["references"]
+            ref_col_names = p_list[-2]
+            if isinstance(ref_col_names, list) and len(ref_col_names) == 1:
+                ref_col_names = ref_col_names[0]
+            ref_data["name"] = ref_col_names
+
             data = self.set_constraint(
                 data,
                 "references",
-                p_list[-1]["references"],
+                ref_data,
                 p_list[3]["constraint"]["name"],
             )
         elif isinstance(p_list[-2], list):
@@ -960,8 +967,6 @@ class BaseSQL(
             target_dict["constraints"] = {}
         if not target_dict["constraints"].get(_type):
             target_dict["constraints"][_type] = []
-        if "name" in constraint:
-            del constraint["name"]
         constraint.update({"constraint_name": constraint_name})
         target_dict["constraints"][_type].append(constraint)
         return target_dict

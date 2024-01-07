@@ -1,3 +1,7 @@
+**v0.31.4**
+### Fixes
+1. Include source column names in FOREIGN KEY references. Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/196
+
 **v0.31.3**
 ### Improvements
 #### Snowflake update:

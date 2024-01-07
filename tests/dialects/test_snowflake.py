@@ -644,7 +644,9 @@ def test_double_single_quotes():
 
 def test_autoincrement_order():
     # test for https://github.com/xnuinside/simple-ddl-parser/issues/208
-    ddl = """CREATE TABLE table (surrogatekey_SK NUMBER(38,0) NOT NULL autoincrement start 1 increment 1 ORDER COMMENT 'Record Identification Number Ordered')"""
+    ddl = """CREATE TABLE table (
+        surrogatekey_SK NUMBER(38,0) NOT NULL autoincrement start 1 increment 1
+        ORDER COMMENT 'Record Identification Number Ordered')"""
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "ddl_properties": [],
@@ -667,9 +669,9 @@ def test_autoincrement_order():
                         "type": "NUMBER",
                         "unique": False,
                         "autoincrement": True,
-                        "start" : '1',
-                        "increment": '1',
-                        "increment_order": True
+                        "start": "1",
+                        "increment": "1",
+                        "increment_order": True,
                     }
                 ],
                 "index": [],
@@ -684,10 +686,13 @@ def test_autoincrement_order():
     }
     print(result)
     assert result == expected
-    
+
+
 def test_autoincrement_noorder():
     # test for https://github.com/xnuinside/simple-ddl-parser/issues/208
-    ddl = """CREATE TABLE table (surrogatekey_SK NUMBER(38,0) NOT NULL autoincrement start 1 increment 1 NOORDER COMMENT 'Record Identification Number NoOrdered')"""
+    ddl = """CREATE TABLE table (
+        surrogatekey_SK NUMBER(38,0) NOT NULL autoincrement start 1 increment 1
+        NOORDER COMMENT 'Record Identification Number NoOrdered')"""
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "ddl_properties": [],
@@ -710,9 +715,9 @@ def test_autoincrement_noorder():
                         "type": "NUMBER",
                         "unique": False,
                         "autoincrement": True,
-                        "start" : '1',
-                        "increment": '1',
-                        "increment_order": False
+                        "start": "1",
+                        "increment": "1",
+                        "increment_order": False,
                     }
                 ],
                 "index": [],
@@ -728,26 +733,7 @@ def test_autoincrement_noorder():
     print(result)
     assert result == expected
 
-def test_order_sequence():
-    parse_results = DDLParser(
-        """
-    CREATE SEQUENCE dev.incremental_ids_order
-    START 1
-    INCREMENT 1
-    ORDER;
-    """
-    ).run()
-    expected = [
-        {
-            "schema": "dev",
-            "sequence_name": "incremental_ids",
-            "increment": 1,
-            "start": 1,
-            "order": True,
-        }
-    ]
-    assert expected == parse_results
-    
+
 def test_order_sequence():
     parse_results = DDLParser(
         """
@@ -768,6 +754,7 @@ def test_order_sequence():
         }
     ]
     assert expected == parse_results
+
 
 def test_virtual_column_ext_table():
     ddl = """
@@ -802,8 +789,10 @@ def test_virtual_column_ext_table():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                    "generated" : {"as" : "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)" }
-                } ,
+                    "generated": {
+                        "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)"
+                    },
+                },
                 {
                     "name": "year",
                     "type": "VARCHAR",
@@ -813,7 +802,9 @@ def test_virtual_column_ext_table():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                    "generated" : {"as" : "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',2),'=',2)" }
+                    "generated": {
+                        "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',2),'=',2)"
+                    },
                 },
                 {
                     "name": "month",
@@ -824,7 +815,9 @@ def test_virtual_column_ext_table():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                    "generated" : {"as" : "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',3),'=',2)"}
+                    "generated": {
+                        "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',3),'=',2)"
+                    },
                 },
                 {
                     "name": "day",
@@ -835,7 +828,9 @@ def test_virtual_column_ext_table():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                    "generated" : {"as" : "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',4),'=',2)"}
+                    "generated": {
+                        "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',4),'=',2)"
+                    },
                 },
                 {
                     "name": "path",
@@ -846,25 +841,29 @@ def test_virtual_column_ext_table():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                    "generated" : {"as" : "METADATA$FILENAME" }
-                }
+                    "generated": {"as": "METADATA$FILENAME"},
+                },
             ],
             "index": [],
-            "partition_by": { "columns" :["type", "year", "month", "day", "path"], "type" : None},
-            "partitioned_by" : [],
+            "partition_by": {
+                "columns": ["type", "year", "month", "day", "path"],
+                "type": None,
+            },
+            "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,
-            "auto_refresh" : False,
+            "auto_refresh": False,
             "schema": "TABLE_DATA_SRC",
             "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
             "tablespace": None,
-            "replace" : True,
+            "replace": True,
             "if_not_exists": True,
-            "location" : "@ADL_Azure_Storage_Account_Container_Name/",
+            "location": "@ADL_Azure_Storage_Account_Container_Name/",
         }
     ]
 
     assert result_ext_table == expected_ext_table
+
 
 def test_virtual_column_table():
     ddl = """
@@ -907,23 +906,28 @@ def test_virtual_column_table():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                    "generated" : {"as" : "id * 10" }
-                }
+                    "generated": {"as": "id * 10"},
+                },
             ],
             "index": [],
-            "partitioned_by" : [],
+            "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,
-            "auto_refresh" : False,
+            "auto_refresh": False,
             "schema": "TABLE_DATA_SRC",
             "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
             "tablespace": None,
-            "replace" : True,
+            "replace": True,
             "if_not_exists": True,
-            "location" : "@ADL_Azure_Storage_Account_Container_Name/",
-            "file_format": ['TYPE=JSON', "NULL_IF=('field')",'DATE_FORMAT=AUTO','TRIM_SPACE=TRUE'],
-            'stage_file_format': ['TYPE=JSON','NULL_IF=()']
-            }
+            "location": "@ADL_Azure_Storage_Account_Container_Name/",
+            "file_format": [
+                "TYPE=JSON",
+                "NULL_IF=('field')",
+                "DATE_FORMAT=AUTO",
+                "TRIM_SPACE=TRUE",
+            ],
+            "stage_file_format": ["TYPE=JSON", "NULL_IF=()"],
+        }
     ]
 
     assert result_ext_table == expected_ext_table
