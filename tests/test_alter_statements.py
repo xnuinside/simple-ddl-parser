@@ -1959,3 +1959,199 @@ def test_drop_column():
         "types": [],
     }
     assert result == expected
+
+
+def test_modify_column_sql_server():
+    # (SQL Server)
+    ddl = """CREATE TABLE MY_TABLE (
+            DATETIME datetime,
+            REGIONID varchar
+        )  ;
+        ALTER TABLE MY_TABLE ALTER COLUMN REGIONID integer;
+        """
+    result = DDLParser(ddl).run(group_by_type=True)
+
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "modified_columns": {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar",
+                        "unique": False,
+                    }
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "DATETIME",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "datetime",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "primary_key": False,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "MY_TABLE",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected
+
+
+def test_modify_alter():
+    ddl = """CREATE TABLE MY_TABLE (
+            DATETIME datetime,
+            REGIONID varchar
+        )  ;
+        ALTER TABLE MY_TABLE MODIFY COLUMN REGIONID integer;
+        """
+    result = DDLParser(ddl).run(group_by_type=True)
+
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "modified_columns": {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar",
+                        "unique": False,
+                    }
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "DATETIME",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "datetime",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "primary_key": False,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "MY_TABLE",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected
+
+
+def test_modify_oracle():
+    ddl = """CREATE TABLE MY_TABLE (
+            DATETIME datetime,
+            REGIONID varchar
+        )  ;
+        ALTER TABLE MY_TABLE MODIFY REGIONID integer;
+        """
+    result = DDLParser(ddl).run(group_by_type=True)
+
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "modified_columns": {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar",
+                        "unique": False,
+                    }
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "DATETIME",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "datetime",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "primary_key": False,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "MY_TABLE",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected

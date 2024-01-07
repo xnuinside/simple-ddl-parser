@@ -1,8 +1,8 @@
-import simple_ddl_parser  # noqa: F401 weird issue with failed tests
+from typing import List
 
 
 class MySQL:
-    def p_on_update(self, p):
+    def p_on_update(self, p: List) -> None:
         """on_update : ON UPDATE id
         | ON UPDATE STRING
         | ON UPDATE f_call

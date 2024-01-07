@@ -79,7 +79,7 @@ first_liners = {value: value for value in first_liners}
 common_statements.update(first_liners)
 definition_statements.update(common_statements)
 
-alter_tokens = {"COLUMN", "RENAME", "TO", "PRIMARY", "KEY"}
+alter_tokens = {"COLUMN", "RENAME", "TO", "PRIMARY", "KEY", "MODIFY"}
 alter_tokens = {value: value for value in alter_tokens}
 
 after_columns_tokens = {

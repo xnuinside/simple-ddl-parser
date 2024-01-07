@@ -713,12 +713,21 @@ class AlterTable:
         | alter_default
         | alter_primary_key
         | alter_primary_key using_tablespace
-        | alter_column
+        | alter_column_add
         | alter_rename_column
+        | alter_column_sql_server
+        | alter_column_modify
+        | alter_column_modify_oracle
         """
         p[0] = p[1]
         if len(p) == 3:
             p[0].update(p[2])
+
+    def p_alter_column_modify(self, p: List) -> None:
+        """alter_column_modify : alt_table MODIFY COLUMN defcolumn"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]["columns_to_modify"] = [p_list[-1]]
 
     def p_alter_drop_column(self, p: List) -> None:
         """alter_drop_column : alt_table DROP COLUMN id"""
@@ -732,8 +741,8 @@ class AlterTable:
         p_list = list(p)
         p[0]["columns_to_rename"] = [{"from": p_list[-3], "to": p_list[-1]}]
 
-    def p_alter_column(self, p: List) -> None:
-        """alter_column : alt_table ADD defcolumn"""
+    def p_alter_column_add(self, p: List) -> None:
+        """alter_column_add : alt_table ADD defcolumn"""
         p[0] = p[1]
         p_list = list(p)
         p[0]["columns"] = [p_list[-1]]

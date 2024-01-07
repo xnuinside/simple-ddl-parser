@@ -74,6 +74,8 @@ class Output:
             alter_rename_columns(target_table, statement)
         elif "columns_to_drop" in statement:
             alter_drop_columns(target_table, statement)
+        elif "columns_to_modify" in statement:
+            alter_modify_columns(target_table, statement)
         elif "check" in statement:
             if not target_table["alter"].get("checks"):
                 target_table["alter"]["checks"] = []
@@ -253,6 +255,23 @@ def set_unique_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
             if column["name"] == column_name:
                 column["unique"] = True
     return target_table
+
+
+def alter_modify_columns(target_table, statement) -> None:
+    if not target_table["alter"].get("modified_columns"):
+        target_table["alter"]["modified_columns"] = []
+
+    for modified_column in statement["columns_to_modify"]:
+        index = None
+        for num, column in enumerate(target_table["columns"]):
+            if normalize_name(modified_column["name"]) == normalize_name(
+                column["name"]
+            ):
+                index = num
+                break
+        if index is not None:
+            target_table["alter"]["modified_columns"] = target_table["columns"][index]
+            target_table["columns"][index] = modified_column
 
 
 def alter_drop_columns(target_table, statement) -> None:

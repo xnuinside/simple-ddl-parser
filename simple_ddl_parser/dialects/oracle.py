@@ -1,8 +1,16 @@
+from typing import List
+
 from simple_ddl_parser.utils import remove_par
 
 
 class Oracle:
-    def p_encrypt(self, p):
+    def p_alter_column_modify_oracle(self, p: List) -> None:
+        """alter_column_modify_oracle : alt_table MODIFY defcolumn"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]["columns_to_modify"] = [p_list[-1]]
+
+    def p_encrypt(self, p: List) -> None:
         """encrypt : ENCRYPT
         | encrypt NO SALT
         | encrypt SALT
@@ -28,7 +36,7 @@ class Oracle:
                 }
             }
 
-    def p_storage(self, p):
+    def p_storage(self, p: List) -> None:
         """storage : STORAGE LP
         | storage id id
         | storage id id RP
@@ -44,13 +52,13 @@ class Oracle:
             p[0] = {}
         p[0].update(param)
 
-    def p_expr_storage(self, p):
+    def p_expr_storage(self, p: List) -> None:
         """expr : expr storage"""
         p_list = list(p)
         p[0] = p[1]
         p[0]["storage"] = p_list[-1]
 
-    def p_expr_index(self, p):
+    def p_expr_index(self, p: List) -> None:
         """expr : expr ID INDEX"""
         p[0] = p[1]
         p[0][f"{p[2].lower()}_index"] = True

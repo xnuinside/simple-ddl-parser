@@ -4,12 +4,12 @@ from simple_ddl_parser.utils import remove_par
 
 
 class Snowflake:
-    def p_clone(self, p):
+    def p_clone(self, p: List) -> None:
         """clone : CLONE id"""
         p_list = list(p)
         p[0] = {"clone": {"from": p_list[-1]}}
 
-    def p_expression_cluster_by(self, p):
+    def p_expression_cluster_by(self, p: List) -> None:
         """expr : expr CLUSTER BY LP pid RP
         | expr CLUSTER BY pid
         """
@@ -63,37 +63,37 @@ class Snowflake:
         else:
             p[0] = False
 
-    def p_expression_data_retention_time_in_days(self, p):
+    def p_expression_data_retention_time_in_days(self, p: List) -> None:
         """expr : expr DATA_RETENTION_TIME_IN_DAYS table_property_equals_int"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["data_retention_time_in_days"] = p_list[-1]
 
-    def p_expression_max_data_extension_time_in_days(self, p):
+    def p_expression_max_data_extension_time_in_days(self, p: List) -> None:
         """expr : expr MAX_DATA_EXTENSION_TIME_IN_DAYS table_property_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["max_data_extension_time_in_days"] = p_list[-1]
 
-    def p_expression_change_tracking(self, p):
+    def p_expression_change_tracking(self, p: List) -> None:
         """expr : expr CHANGE_TRACKING table_property_equals_bool"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["change_tracking"] = p_list[-1]
 
-    def p_table_comment(self, p):
+    def p_table_comment(self, p: List) -> None:
         """expr : expr option_comment"""
         p[0] = p[1]
         if p[2]:
             p[0].update(p[2])
 
-    def p_table_tag(self, p):
+    def p_table_tag(self, p: List) -> None:
         """expr : expr option_with_tag"""
         p[0] = p[1]
         if p[2]:
             p[0].update(p[2])
 
-    def p_option_comment(self, p):
+    def p_option_comment(self, p: List) -> None:
         """option_comment : ID STRING
         | ID DQ_STRING
         | COMMENT ID STRING
@@ -115,7 +115,7 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0] = ["".join(p_list[1:])]
 
-    def p_multiple_tag_equals(self, p):
+    def p_multiple_tag_equals(self, p: List) -> None:
         """multiple_tag_equals : tag_equals
         | multiple_tag_equals COMMA tag_equals
         """
@@ -124,14 +124,14 @@ class Snowflake:
             p[1].extend(p[3])
         p[0] = p[1]
 
-    def p_option_order_noorder(self, p):
+    def p_option_order_noorder(self, p: List) -> None:
         """option_order_noorder : ORDER
         | NOORDER
         """
         p_list = remove_par(list(p))
         p[0] = {"increment_order": True if p_list[1] == "ORDER" else False}
 
-    def p_option_with_tag(self, p):
+    def p_option_with_tag(self, p: List) -> None:
         """option_with_tag : TAG LP id RP
         | TAG LP id DOT id DOT id RP
         | TAG LP multiple_tag_equals RP
@@ -141,38 +141,38 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0] = {"with_tag": p_list[-1] if len(p_list[-1]) > 1 else p_list[-1][0]}
 
-    def p_option_with_masking_policy(self, p):
+    def p_option_with_masking_policy(self, p: List) -> None:
         """option_with_masking_policy : MASKING POLICY id DOT id DOT id
         | WITH MASKING POLICY id DOT id DOT id
         """
         p_list = remove_par(list(p))
         p[0] = {"with_masking_policy": f"{p_list[-5]}.{p_list[-3]}.{p_list[-1]}"}
 
-    def p_expression_catalog(self, p):
+    def p_expression_catalog(self, p: List) -> None:
         """expr : expr CATALOG table_property_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["catalog"] = p_list[-1]
 
-    def p_expression_file_format(self, p):
+    def p_expression_file_format(self, p: List) -> None:
         """expr : expr FILE_FORMAT multiple_format_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["file_format"] = p_list[-1]
 
-    def p_expression_stage_file_format(self, p):
+    def p_expression_stage_file_format(self, p: List) -> None:
         """expr : expr STAGE_FILE_FORMAT multiple_format_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["stage_file_format"] = p_list[-1] if len(p_list[-1]) > 1 else p_list[-1][0]
 
-    def p_expression_table_format(self, p):
+    def p_expression_table_format(self, p: List) -> None:
         """expr : expr TABLE_FORMAT table_property_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["table_format"] = p_list[-1]
 
-    def p_expression_auto_refresh(self, p):
+    def p_expression_auto_refresh(self, p: List) -> None:
         """expr : expr AUTO_REFRESH table_property_equals_bool"""
         p[0] = p[1]
         p_list = remove_par(list(p))
@@ -187,6 +187,6 @@ class Snowflake:
         if len(p) == 5:
             _as = p[3]
         else:
-            for i in p[3:len(p) - 1]:
+            for i in p[3 : len(p) - 1]:  # noqa: E203
                 _as += i if isinstance(i, str) else ",".join(i)
         p[0] = {"generated": {"as": _as}}

@@ -1,8 +1,10 @@
+from typing import List
+
 from simple_ddl_parser.utils import remove_par
 
 
 class PSQL:
-    def p_expr_inherits(self, p):
+    def p_expr_inherits(self, p: List) -> None:
         """expr : expr INHERITS LP t_name RP"""
         p_list = remove_par(list(p))
         p[0] = p[1]
