@@ -2,9 +2,10 @@ import json
 import logging
 import os
 from copy import deepcopy
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from simple_ddl_parser.output import dialects as d
+from simple_ddl_parser.utils import get_table_id
 
 output_modes = [
     "mssql",
@@ -21,30 +22,173 @@ output_modes = [
 logger = logging.getLogger("simple_ddl_parser")
 
 
-def get_table_from_tables_data(tables_dict: Dict, table_id: Tuple[str, str]) -> Dict:
-    """get table by name and schema or rise exception"""
-    target_table = tables_dict.get(table_id)
-    if target_table is None:
-        raise ValueError(
-            f"Found ALTER statement to not existed TABLE {table_id[0]} with SCHEMA {table_id[1]}"
+class Output:
+    """class implements logic to format final output after parser"""
+
+    def __init__(
+        self, parser_output: List[Dict], output_mode: str, group_by_type: bool
+    ) -> None:
+        self.output_mode = output_mode
+        self.group_by_type = group_by_type
+        self.parser_output = parser_output
+
+        self.final_result = []
+        self.tables_dict = {}
+
+    def get_table_from_tables_data(self, schema: str, table_name: str) -> Dict:
+        """get table by name and schema or rise exception"""
+
+        table_id = get_table_id(schema, table_name)
+        target_table = self.tables_dict.get(table_id)
+        if target_table is None:
+            raise ValueError(
+                f"TABLE {table_id[0]} with SCHEMA {table_id[1]} does not exists in tables data"
+            )
+        return target_table
+
+    def clean_up_index_statement(self, statement: Dict) -> None:
+        del statement["schema"]
+        del statement["table_name"]
+
+        if self.output_mode != "mssql":
+            del statement["clustered"]
+
+    def add_index_to_table(self, statement: Dict) -> None:
+        """populate 'index' key in output data"""
+        target_table = self.get_table_from_tables_data(
+            statement["schema"], statement["table_name"]
         )
-    return target_table
+        self.clean_up_index_statement(statement)
+        target_table["index"].append(statement)
 
+    def add_alter_to_table(self, statement: Dict) -> None:
+        """add 'alter' statement to the table"""
 
-def add_index_to_table(tables_dict: Dict, statement: Dict, output_mode: str) -> Dict:
-    """populate 'index' key in output data"""
-    table_id = (statement["table_name"], statement["schema"])
-    target_table = get_table_from_tables_data(tables_dict, table_id)
+        target_table = self.get_table_from_tables_data(
+            statement["schema"], statement["alter_table_name"]
+        )
 
-    del statement["schema"]
-    del statement["table_name"]
+        if "columns" in statement:
+            prepare_alter_columns(target_table, statement)
+        elif "check" in statement:
+            if not target_table["alter"].get("checks"):
+                target_table["alter"]["checks"] = []
+            statement["check"]["statement"] = " ".join(statement["check"]["statement"])
+            target_table["alter"]["checks"].append(statement["check"])
+        elif "unique" in statement:
+            target_table = set_alter_to_table_data("unique", statement, target_table)
+            target_table = set_unique_columns_from_alter(statement, target_table)
+        elif "default" in statement:
+            target_table = set_alter_to_table_data("default", statement, target_table)
+            target_table = set_default_columns_from_alter(statement, target_table)
+        elif "primary_key" in statement:
+            target_table = set_alter_to_table_data(
+                "primary_key", statement, target_table
+            )
 
-    if output_mode != "mssql":
-        del statement["clustered"]
+    def process_entities(self, table: Dict) -> Dict:
+        """process tables, types, sequence and etc. data"""
+        is_it_table = True
 
-    target_table["index"].append(statement)
+        if table.get("table_name"):
+            table_data = init_table_data()
+            table_data = d.populate_dialects_table_data(self.output_mode, table_data)
+            table_data.update(table)
+            table_data = set_unique_columns(table_data)
+        else:
+            table_data = table
+            is_it_table = False
 
-    return tables_dict
+        if is_it_table:
+            table_data = self.process_is_it_table_item(table_data)
+
+        table_data = normalize_ref_columns_in_final_output(table_data)
+
+        d.dialects_clean_up(self.output_mode, table_data)
+        return table_data
+
+    def process_alter_and_index_result(self, table: Dict):
+        if table.get("index_name"):
+            self.add_index_to_table(table)
+
+        elif table.get("alter_table_name"):
+            self.add_alter_to_table(table)
+
+    def group_by_type_result(self) -> None:
+        result_as_dict = {
+            "tables": [],
+            "types": [],
+            "sequences": [],
+            "domains": [],
+            "schemas": [],
+            "ddl_properties": [],
+            "comments": [],
+        }
+        keys_map = {
+            "table_name": "tables",
+            "sequence_name": "sequences",
+            "type_name": "types",
+            "domain_name": "domains",
+            "schema_name": "schemas",
+            "tablespace_name": "tablespaces",
+            "database_name": "databases",
+            "value": "ddl_properties",
+            "comments": "comments",
+        }
+        for item in self.final_result:
+            for key in keys_map:
+                if key in item:
+                    _type = result_as_dict.get(keys_map.get(key))
+                    if _type is None:
+                        result_as_dict[keys_map.get(key)] = []
+                        _type = result_as_dict[keys_map.get(key)]
+                    if key != "comments":
+                        _type.append(item)
+                    else:
+                        _type.extend(item["comments"])
+                    break
+        if result_as_dict["comments"] == []:
+            del result_as_dict["comments"]
+
+        self.final_result = result_as_dict
+
+    def process_is_it_table_item(self, table_data: Dict) -> Dict:
+        if table_data.get("table_name"):
+            self.tables_dict[
+                get_table_id(
+                    schema_name=table_data["schema"],
+                    table_name=table_data["table_name"],
+                )
+            ] = table_data
+        else:
+            logger.error(
+                "\n Something goes wrong. Possible you try to parse unsupported statement \n "
+            )
+        if not table_data.get("primary_key"):
+            table_data = check_pk_in_columns_and_constraints(table_data)
+        else:
+            table_data = remove_pk_from_columns(table_data)
+
+        if table_data.get("unique"):
+            table_data = add_unique_columns(table_data)
+
+        for column in table_data["columns"]:
+            if column["name"] in table_data["primary_key"]:
+                column["nullable"] = False
+        return table_data
+
+    def format(self) -> List[Dict]:
+        for table in self.parser_output:
+            # process each item in parser output
+            if "index_name" in table or "alter_table_name" in table:
+                self.process_alter_and_index_result(table)
+            else:
+                # process tables, types, sequence and etc. data
+                table_data = self.process_entities(table)
+                self.final_result.append(table_data)
+        if self.group_by_type:
+            self.group_by_type_result()
+        return self.final_result
 
 
 def create_alter_column(index: int, column: Dict, ref_statement: Dict) -> Dict:
@@ -70,30 +214,6 @@ def prepare_alter_columns(target_table: Dict, statement: Dict) -> Dict:
     else:
         target_table["alter"]["columns"].extend(alter_columns)
     return target_table
-
-
-def add_alter_to_table(tables_dict: Dict, statement: Dict) -> Dict:
-    """add 'alter' statement to the table"""
-    table_id = (statement["alter_table_name"], statement["schema"])
-
-    target_table = get_table_from_tables_data(tables_dict, table_id)
-
-    if "columns" in statement:
-        prepare_alter_columns(target_table, statement)
-    elif "check" in statement:
-        if not target_table["alter"].get("checks"):
-            target_table["alter"]["checks"] = []
-        statement["check"]["statement"] = " ".join(statement["check"]["statement"])
-        target_table["alter"]["checks"].append(statement["check"])
-    elif "unique" in statement:
-        target_table = set_alter_to_table_data("unique", statement, target_table)
-        target_table = set_unique_columns_from_alter(statement, target_table)
-    elif "default" in statement:
-        target_table = set_alter_to_table_data("default", statement, target_table)
-        target_table = set_default_columns_from_alter(statement, target_table)
-    elif "primary_key" in statement:
-        target_table = set_alter_to_table_data("primary_key", statement, target_table)
-    return tables_dict
 
 
 def set_default_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
@@ -132,82 +252,6 @@ def init_table_data() -> Dict:
         "partitioned_by": [],
         "tablespace": None,
     }
-
-
-def process_alter_and_index_result(
-    tables_dict: Dict, table: Dict, output_mode: str
-) -> Dict:
-    if table.get("index_name"):
-        tables_dict = add_index_to_table(tables_dict, table, output_mode)
-
-    elif table.get("alter_table_name"):
-        tables_dict = add_alter_to_table(tables_dict, table)
-
-    return tables_dict
-
-
-def process_entities(tables_dict: Dict, table: Dict, output_mode: str) -> Dict:
-    """process tables, types, sequence and etc. data"""
-    is_it_table = True
-
-    if table.get("table_name"):
-        table_data = init_table_data()
-        table_data = d.populate_dialects_table_data(output_mode, table_data)
-        table_data.update(table)
-        table_data = set_unique_columns(table_data)
-    else:
-        table_data = table
-        is_it_table = False
-
-    if is_it_table:
-        table_data = process_is_it_table_item(table_data, tables_dict)
-
-    table_data = normalize_ref_columns_in_final_output(table_data)
-
-    d.dialects_clean_up(output_mode, table_data)
-    return table_data
-
-
-def result_format(
-    result: List[Dict], output_mode: str, group_by_type: bool
-) -> List[Dict]:
-    """method to format final output after parser"""
-    final_result = []
-    tables_dict = {}
-    for table in result:
-        # process each item in parser output
-        if "index_name" in table or "alter_table_name" in table:
-            tables_dict = process_alter_and_index_result(
-                tables_dict, table, output_mode
-            )
-        else:
-            # process tables, types, sequence and etc. data
-            table_data = process_entities(tables_dict, table, output_mode)
-            final_result.append(table_data)
-    if group_by_type:
-        final_result = group_by_type_result(final_result)
-    return final_result
-
-
-def process_is_it_table_item(table_data: Dict, tables_dict: Dict) -> Dict:
-    if table_data.get("table_name"):
-        tables_dict[(table_data["table_name"], table_data["schema"])] = table_data
-    else:
-        logger.error(
-            "\n Something goes wrong. Possible you try to parse unsupported statement \n "
-        )
-    if not table_data.get("primary_key"):
-        table_data = check_pk_in_columns_and_constraints(table_data)
-    else:
-        table_data = remove_pk_from_columns(table_data)
-
-    if table_data.get("unique"):
-        table_data = add_unique_columns(table_data)
-
-    for column in table_data["columns"]:
-        if column["name"] in table_data["primary_key"]:
-            column["nullable"] = False
-    return table_data
 
 
 def normalize_ref_columns_in_final_output(table_data: Dict) -> Dict:
@@ -250,44 +294,6 @@ def set_unique_columns(table_data: Dict) -> Dict:
     if "unique_statement" in table_data:
         del table_data["unique_statement"]
     return table_data
-
-
-def group_by_type_result(final_result: List[Dict]) -> Dict[str, List]:
-    result_as_dict = {
-        "tables": [],
-        "types": [],
-        "sequences": [],
-        "domains": [],
-        "schemas": [],
-        "ddl_properties": [],
-        "comments": [],
-    }
-    keys_map = {
-        "table_name": "tables",
-        "sequence_name": "sequences",
-        "type_name": "types",
-        "domain_name": "domains",
-        "schema_name": "schemas",
-        "tablespace_name": "tablespaces",
-        "database_name": "databases",
-        "value": "ddl_properties",
-        "comments": "comments",
-    }
-    for item in final_result:
-        for key in keys_map:
-            if key in item:
-                _type = result_as_dict.get(keys_map.get(key))
-                if _type is None:
-                    result_as_dict[keys_map.get(key)] = []
-                    _type = result_as_dict[keys_map.get(key)]
-                if key != "comments":
-                    _type.append(item)
-                else:
-                    _type.extend(item["comments"])
-                break
-    if result_as_dict["comments"] == []:
-        del result_as_dict["comments"]
-    return result_as_dict
 
 
 def add_unique_columns(table_data: Dict) -> Dict:

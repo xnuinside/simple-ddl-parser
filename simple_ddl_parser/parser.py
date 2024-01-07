@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from ply import lex, yacc
 
-from simple_ddl_parser.output.common import dump_data_to_file, result_format
+from simple_ddl_parser.output.common import Output, dump_data_to_file
 from simple_ddl_parser.utils import find_first_unpair_closed_par
 
 # open comment
@@ -340,7 +340,11 @@ class Parser:
             Dict == one entity from ddl - one table or sequence or type.
         """
         self.tables = self.parse_data()
-        self.tables = result_format(self.tables, output_mode, group_by_type)
+        self.tables = Output(
+            parser_output=self.tables,
+            group_by_type=group_by_type,
+            output_mode=output_mode,
+        ).format()
         if dump:
             if file_path:
                 # if we run parse from one file - save same way to one file
