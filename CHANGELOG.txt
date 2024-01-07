@@ -1,6 +1,16 @@
-**v0.31.4**
+**v0.32.0**
+
+### Improvements
+1. Added support for several ALTER statements (ADD, DROP, RENAME, etc) - https://github.com/xnuinside/simple-ddl-parser/issues/215
+In 'alter' output added several keys:
+    1. 'dropped_columns' - to store information about columns that was in table, but after dropped by alter
+    2. 'renamed_columns' - to store information about columns that was renamed
+    3. 'modified_columns' - to track alter column changes for defaults, datetype, etc. Argument stores previous columns states.
+
 ### Fixes
 1. Include source column names in FOREIGN KEY references. Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/196
+2. ALTER statement now will be parsed correctly if names & schemas written differently in `create table` statement and alter. 
+For example, if in create table you use quotes like "schema_name"."table_name", but in alter was schema_name.table_name - previously it didn't work, but now parser understand that it is the same table.
 
 **v0.31.3**
 ### Improvements

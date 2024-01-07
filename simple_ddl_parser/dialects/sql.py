@@ -704,8 +704,178 @@ class Domain:
         p[0]["domain_name"] = p_list[-2]
 
 
+class AlterTable:
+    def p_expression_alter(self, p: List) -> None:
+        """expr : alter_foreign ref
+        | alter_drop_column
+        | alter_check
+        | alter_unique
+        | alter_default
+        | alter_primary_key
+        | alter_primary_key using_tablespace
+        | alter_column_add
+        | alter_rename_column
+        | alter_column_sql_server
+        | alter_column_modify
+        | alter_column_modify_oracle
+        """
+        p[0] = p[1]
+        if len(p) == 3:
+            p[0].update(p[2])
+
+    def p_alter_column_modify(self, p: List) -> None:
+        """alter_column_modify : alt_table MODIFY COLUMN defcolumn"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]["columns_to_modify"] = [p_list[-1]]
+
+    def p_alter_drop_column(self, p: List) -> None:
+        """alter_drop_column : alt_table DROP COLUMN id"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]["columns_to_drop"] = [p_list[-1]]
+
+    def p_alter_rename_column(self, p: List) -> None:
+        """alter_rename_column : alt_table RENAME COLUMN id id id"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]["columns_to_rename"] = [{"from": p_list[-3], "to": p_list[-1]}]
+
+    def p_alter_column_add(self, p: List) -> None:
+        """alter_column_add : alt_table ADD defcolumn"""
+        p[0] = p[1]
+        p_list = list(p)
+        p[0]["columns"] = [p_list[-1]]
+
+    def p_alter_primary_key(self, p: List) -> None:
+        """alter_primary_key : alt_table ADD PRIMARY KEY LP pid RP
+        | alt_table ADD constraint PRIMARY KEY LP pid RP
+        """
+
+        p_list = remove_par(list(p))
+        p[0] = p[1]
+        p[0]["primary_key"] = {"constraint_name": None, "columns": p_list[-1]}
+        if "constraint" in p[3]:
+            p[0]["primary_key"]["constraint_name"] = p[3]["constraint"]["name"]
+
+    def p_alter_unique(self, p: List) -> None:
+        """alter_unique : alt_table ADD UNIQUE LP pid RP
+        | alt_table ADD constraint UNIQUE LP pid RP
+        """
+
+        p_list = remove_par(list(p))
+        p[0] = p[1]
+        p[0]["unique"] = {"constraint_name": None, "columns": p_list[-1]}
+        if "constraint" in p[3]:
+            p[0]["unique"]["constraint_name"] = p[3]["constraint"]["name"]
+
+    @staticmethod
+    def get_column_and_value_from_alter(p: List) -> Tuple:
+        p_list = remove_par(list(p))
+
+        column = None
+        value = None
+
+        if isinstance(p_list[2], str) and "FOR" == p_list[2].upper():
+            column = p_list[-1]
+        elif p[0].get("default") and p[0]["default"].get("value"):
+            value = p[0]["default"]["value"] + " " + p_list[-1]
+        else:
+            value = p_list[-1]
+        return column, value
+
+    def p_alter_default(self, p: List) -> None:
+        """alter_default : alt_table id id
+        | alt_table ADD constraint id id
+        | alt_table ADD id STRING
+        | alt_table ADD constraint id STRING
+        | alter_default id
+        | alter_default FOR pid
+        """
+
+        p[0] = p[1]
+        column, value = self.get_column_and_value_from_alter(p)
+
+        if "default" not in p[0]:
+            p[0]["default"] = {
+                "constraint_name": None,
+                "columns": column,
+                "value": value,
+            }
+        else:
+            p[0]["default"].update(
+                {
+                    "columns": p[0]["default"].get("column") or column,
+                    "value": value or p[0]["default"].get("value"),
+                }
+            )
+        if "constraint" in p[3]:
+            p[0]["default"]["constraint_name"] = p[3]["constraint"]["name"]
+
+    def p_alter_check(self, p: List) -> None:
+        """alter_check : alt_table ADD check_st
+        | alt_table ADD constraint check_st
+        """
+        p_list = remove_par(list(p))
+        p[0] = p[1]
+        if isinstance(p[1], dict):
+            p[0] = p[1]
+        if not p[0].get("check"):
+            p[0]["check"] = {"constraint_name": None, "statement": []}
+        if isinstance(p[3], dict) and "constraint" in p[3]:
+            p[0]["check"]["constraint_name"] = p[3]["constraint"]["name"]
+        p[0]["check"]["statement"] = p_list[-1]["check"]
+
+    def p_alter_foreign(self, p: List) -> None:
+        """alter_foreign : alt_table ADD foreign
+        | alt_table ADD constraint foreign
+        """
+
+        p_list = list(p)
+
+        p[0] = p[1]
+        if isinstance(p_list[-1], list):
+            p[0]["columns"] = [{"name": i} for i in p_list[-1]]
+        else:
+            column = p_list[-1]
+
+            if not p[0].get("columns"):
+                p[0]["columns"] = []
+            p[0]["columns"].append(column)
+
+        for column in p[0]["columns"]:
+            if isinstance(p_list[3], dict) and "constraint" in p_list[3]:
+                column.update({"constraint_name": p_list[3]["constraint"]["name"]})
+
+    def p_alt_table_name(self, p: List) -> None:
+        """alt_table : ALTER TABLE t_name
+        | ALTER TABLE IF EXISTS t_name
+        | ALTER TABLE ID t_name"""
+        p_list = list(p)
+        table_data = p_list[-1]
+        p[0] = {
+            "alter_table_name": table_data["table_name"],
+            "schema": table_data["schema"],
+        }
+        if "IF" in p_list:
+            p[0]["if_exists"] = True
+        if len(p_list) == 6:
+            p[0]["only"] = True
+        if table_data.get("project"):
+            p[0]["project"] = table_data["project"]
+
+
 class BaseSQL(
-    Database, Table, Drop, Domain, Column, AfterColumns, Type, Schema, TableSpaces
+    Database,
+    Table,
+    Drop,
+    Domain,
+    Column,
+    AfterColumns,
+    AlterTable,
+    Type,
+    Schema,
+    TableSpaces,
 ):
     def clean_up_id_list_in_equal(self, p_list: List) -> List:  # noqa R701
         if isinstance(p_list[1], str) and p_list[1].endswith("="):
@@ -1328,83 +1498,6 @@ class BaseSQL(
         p_list = list(p)
         p[0] = {"using": {"tablespace": p_list[-1], "index": True}}
 
-    def p_expression_alter(self, p: List) -> None:
-        """expr : alter_foreign ref
-        | alter_check
-        | alter_unique
-        | alter_default
-        | alter_primary_key
-        | alter_primary_key using_tablespace
-        """
-        p[0] = p[1]
-        if len(p) == 3:
-            p[0].update(p[2])
-
-    def p_alter_primary_key(self, p: List) -> None:
-        """alter_primary_key : alt_table PRIMARY KEY LP pid RP
-        | alt_table constraint PRIMARY KEY LP pid RP
-        """
-
-        p_list = remove_par(list(p))
-        p[0] = p[1]
-        p[0]["primary_key"] = {"constraint_name": None, "columns": p_list[-1]}
-        if "constraint" in p[2]:
-            p[0]["primary_key"]["constraint_name"] = p[2]["constraint"]["name"]
-
-    def p_alter_unique(self, p: List) -> None:
-        """alter_unique : alt_table UNIQUE LP pid RP
-        | alt_table constraint UNIQUE LP pid RP
-        """
-
-        p_list = remove_par(list(p))
-        p[0] = p[1]
-        p[0]["unique"] = {"constraint_name": None, "columns": p_list[-1]}
-        if "constraint" in p[2]:
-            p[0]["unique"]["constraint_name"] = p[2]["constraint"]["name"]
-
-    @staticmethod
-    def get_column_and_value_from_alter(p: List) -> Tuple:
-        p_list = remove_par(list(p))
-
-        column = None
-        value = None
-
-        if isinstance(p_list[2], str) and "FOR" == p_list[2].upper():
-            column = p_list[-1]
-        elif p[0].get("default") and p[0]["default"].get("value"):
-            value = p[0]["default"]["value"] + " " + p_list[-1]
-        else:
-            value = p_list[-1]
-        return column, value
-
-    def p_alter_default(self, p: List) -> None:
-        """alter_default : alt_table id id
-        | alt_table constraint id id
-        | alt_table id STRING
-        | alt_table constraint id STRING
-        | alter_default id
-        | alter_default FOR pid
-        """
-
-        p[0] = p[1]
-        column, value = self.get_column_and_value_from_alter(p)
-
-        if "default" not in p[0]:
-            p[0]["default"] = {
-                "constraint_name": None,
-                "columns": column,
-                "value": value,
-            }
-        else:
-            p[0]["default"].update(
-                {
-                    "columns": p[0]["default"].get("column") or column,
-                    "value": value or p[0]["default"].get("value"),
-                }
-            )
-        if "constraint" in p[2]:
-            p[0]["default"]["constraint_name"] = p[2]["constraint"]["name"]
-
     def p_pid(self, p: List) -> None:
         """pid :  id
         | STRING
@@ -1424,20 +1517,6 @@ class BaseSQL(
         else:
             p[0] = p_list[1]
             p[0].append(p_list[-1])
-
-    def p_alter_check(self, p: List) -> None:
-        """alter_check : alt_table check_st
-        | alt_table constraint check_st
-        """
-        p_list = remove_par(list(p))
-        p[0] = p[1]
-        if isinstance(p[1], dict):
-            p[0] = p[1]
-        if not p[0].get("check"):
-            p[0]["check"] = {"constraint_name": None, "statement": []}
-        if isinstance(p[2], dict) and "constraint" in p[2]:
-            p[0]["check"]["constraint_name"] = p[2]["constraint"]["name"]
-        p[0]["check"]["statement"] = p_list[-1]["check"]
 
     def p_index_pid(self, p: List) -> None:
         """index_pid :  id
@@ -1463,44 +1542,6 @@ class BaseSQL(
                     p[0]["columns"].append(i)
                 for i in p_list[-1]["detailed_columns"]:
                     p[0]["detailed_columns"].append(i)
-
-    def p_alter_foreign(self, p: List) -> None:
-        """alter_foreign : alt_table foreign
-        | alt_table constraint foreign
-        """
-
-        p_list = list(p)
-
-        p[0] = p[1]
-        if isinstance(p_list[-1], list):
-            p[0]["columns"] = [{"name": i} for i in p_list[-1]]
-        else:
-            column = p_list[-1]
-
-            if not p[0].get("columns"):
-                p[0]["columns"] = []
-            p[0]["columns"].append(column)
-
-        for column in p[0]["columns"]:
-            if isinstance(p_list[2], dict) and "constraint" in p_list[2]:
-                column.update({"constraint_name": p_list[2]["constraint"]["name"]})
-
-    def p_alt_table_name(self, p: List) -> None:
-        """alt_table : ALTER TABLE t_name ADD
-        | ALTER TABLE IF EXISTS t_name ADD
-        | ALTER TABLE ID t_name ADD"""
-        p_list = list(p)
-        table_data = p_list[-2]
-        p[0] = {
-            "alter_table_name": table_data["table_name"],
-            "schema": table_data["schema"],
-        }
-        if "IF" in p_list:
-            p[0]["if_exists"] = True
-        if len(p_list) == 6:
-            p[0]["only"] = True
-        if table_data.get("project"):
-            p[0]["project"] = table_data["project"]
 
     def p_foreign(self, p):
         # todo: need to redone id lists

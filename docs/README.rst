@@ -361,7 +361,7 @@ Supported Statements
   STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table definitions (in create table();)
 
 * 
-  ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS; ALTER .. PRIMARY KEY; ALTER .. USING INDEX TABLESPACE
+  ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS; ALTER .. PRIMARY KEY; ALTER .. USING INDEX TABLESPACE; ALTER .. ADD; ALTER .. MODIFY; ALTER .. ALTER COLUMN; etc
 
 * 
   PARTITION BY statement
@@ -518,32 +518,15 @@ To set logging level you should provide argument 'log_level'
 
        DDLParser(ddl, log_level=logging.INFO).run(group_by_type=True)
 
-TODO in next Releases (if you don't see feature that you need - open the issue)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-
-
-#. Add support for ALTER TABLE ... ADD COLUMN
-#. Add more support for CREATE type IS TABLE (example: CREATE OR REPLACE TYPE budget_tbl_typ IS TABLE OF NUMBER(8,2);
-#. Add support (ignore correctly) ALTER TABLE ... DROP CONSTRAINT ..., ALTER TABLE ... DROP INDEX ...
-#. Change output for CHECKS -> 'checks': [{"column_name": str, "operator": =
-   ..
-
-      =|<|>|<=..., "value": value}]
-
-
-#. Add support for ALTER TABLE ... ADD INDEX 
-
-non-feature todo
-----------------
-
-
-#. Provide API to get result as Python Object
-#. Add online demo (UI) to parse ddl
-
 Thanks for involving & contributions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Most biggest 'Thanks' ever goes for contributions in parser:
+https://github.com/dmaresma
+https://github.com/cfhowes
+https://github.com/swiatek25
+https://github.com/slurpyb
+https://github.com/PBalsdon
 
 Big thanks for the involving & contribution with test cases with DDL samples & opening issues goes to:
 
@@ -558,14 +541,29 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/ankitdata ,
 * https://github.com/kalyan939
 
-And most biggest 'Thanks' ever goes for contributions in parser:
-https://github.com/swiatek25
-https://github.com/slurpyb
-https://github.com/dmaresma
-https://github.com/PBalsdon
-
 Changelog
 ---------
+
+**v0.32.0**
+
+Improvements
+^^^^^^^^^^^^
+
+
+#. Added support for several ALTER statements (ADD, DROP, RENAME, etc) - https://github.com/xnuinside/simple-ddl-parser/issues/215
+   In 'alter' output added several keys:
+
+   #. 'dropped_columns' - to store information about columns that was in table, but after dropped by alter
+   #. 'renamed_columns' - to store information about columns that was renamed
+   #. 'modified_columns' - to track alter column changes for defaults, datetype, etc. Argument stores previous columns states.
+
+Fixes
+^^^^^
+
+
+#. Include source column names in FOREIGN KEY references. Fix for: https://github.com/xnuinside/simple-ddl-parser/issues/196
+#. ALTER statement now will be parsed correctly if names & schemas written differently in ``create table`` statement and alter. 
+   For example, if in create table you use quotes like "schema_name"."table_name", but in alter was schema_name.table_name - previously it didn't work, but now parser understand that it is the same table.
 
 **v0.31.3**
 

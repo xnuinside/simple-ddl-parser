@@ -1,5 +1,8 @@
+from typing import List
+
+
 class IBMDb2:
-    def p_expr_index_in(self, p):
+    def p_expr_index_in(self, p: List) -> None:
         """expr : expr INDEX id id"""
         p_list = list(p)
         if p_list[-2].upper() == "IN":

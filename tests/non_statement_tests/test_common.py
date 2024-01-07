@@ -1,6 +1,7 @@
 import pytest
 
 from simple_ddl_parser import DDLParser, DDLParserError
+from simple_ddl_parser.output.common import get_table_id
 
 
 def test_no_unexpected_logs(capsys):
@@ -248,3 +249,16 @@ def test_parsing_go_and_use_correctly():
         }
     ]
     assert expected == result
+
+
+@pytest.mark.parametrize(
+    "schema_name,table_name,result",
+    [
+        ("[schema]", "table", ("table", "schema")),
+        ("[schema]", "[table]", ("table", "schema")),
+        ('"schema"', "[table]", ("table", "schema")),
+        ('"schema"', '"table"', ("table", "schema")),
+    ],
+)
+def test_get_table_id(schema_name, table_name, result):
+    assert get_table_id(schema_name, table_name) == result

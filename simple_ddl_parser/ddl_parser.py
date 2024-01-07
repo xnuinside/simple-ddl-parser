@@ -189,6 +189,11 @@ class DDLParser(Parser, Dialects):
         else:
             t = self.tokens_not_columns_names(t)
 
+        if self.lexer.is_alter:
+            _type = tok.alter_tokens.get(t.value)
+            if _type:
+                t.type = _type
+
         self.capitalize_tokens(t)
         self.commat_type(t)
 
