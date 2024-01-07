@@ -544,6 +544,14 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v0.32.1**
+
+Minor Fixes
+^^^^^^^^^^^
+
+
+#. Removed debug print
+
 **v0.32.0**
 
 Improvements
