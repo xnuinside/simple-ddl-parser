@@ -1340,6 +1340,15 @@ class BaseSQL(
         if len(p) == 3:
             p[0].update(p[2])
 
+    def p_alter_column(self, p: List) -> None:
+        """alter_primary_key : alt_table COLUMN"""
+        p_list = remove_par(list(p))
+        print(p_list)
+        p[0] = p[1]
+        p[0]["primary_key"] = {"constraint_name": None, "columns": p_list[-1]}
+        if "constraint" in p[2]:
+            p[0]["primary_key"]["constraint_name"] = p[2]["constraint"]["name"]
+
     def p_alter_primary_key(self, p: List) -> None:
         """alter_primary_key : alt_table PRIMARY KEY LP pid RP
         | alt_table constraint PRIMARY KEY LP pid RP
