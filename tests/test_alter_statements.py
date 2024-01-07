@@ -1773,3 +1773,189 @@ def test_alter_using():
         "types": [],
     }
     assert expected == result
+
+
+def test_alter_add_column():
+    ddl = """
+            CREATE TABLE "jamaica"."material_attachments" (
+            "material_id" int NOT NULL,
+            "attachment_id" int NOT NULL
+            );
+            ALTER TABLE jamaica.material_attachments ADD column_name datatype;
+        """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "columns": [
+                        {
+                            "check": None,
+                            "default": None,
+                            "name": "column_name",
+                            "nullable": True,
+                            "primary_key": False,
+                            "references": None,
+                            "size": None,
+                            "type": "datatype",
+                            "unique": False,
+                        }
+                    ]
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"material_id"',
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"attachment_id"',
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "column_name",
+                        "nullable": True,
+                        "primary_key": False,
+                        "references": None,
+                        "size": None,
+                        "type": "datatype",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": '"jamaica"',
+                "table_name": '"material_attachments"',
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_renamed_columns():
+    ddl = """
+            CREATE TABLE "jamaica"."material_attachments" (
+            "material_id" int NOT NULL,
+            "attachment_id" int NOT NULL
+            );
+    ALTER TABLE "jamaica"."material_attachments" RENAME COLUMN material_id to material_uuid;
+        """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "renamed_columns": [{"from": "material_id", "to": "material_uuid"}]
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "material_uuid",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": '"attachment_id"',
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": '"jamaica"',
+                "table_name": '"material_attachments"',
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
+def test_drop_column():
+    ddl = """CREATE TABLE MY_TABLE (
+            DATETIME datetime,
+            REGIONID varchar
+        )  ;
+        ALTER TABLE MY_TABLE DROP COLUMN DATETIME;
+        """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {
+                    "dropped_columns": {
+                        "check": None,
+                        "default": None,
+                        "name": "DATETIME",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "datetime",
+                        "unique": False,
+                    }
+                },
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "REGIONID",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "varchar",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "MY_TABLE",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected

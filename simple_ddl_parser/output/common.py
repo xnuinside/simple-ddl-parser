@@ -5,7 +5,7 @@ from copy import deepcopy
 from typing import Dict, List
 
 from simple_ddl_parser.output import dialects as d
-from simple_ddl_parser.utils import get_table_id
+from simple_ddl_parser.utils import get_table_id, normalize_name
 
 output_modes = [
     "mssql",
@@ -63,13 +63,17 @@ class Output:
 
     def add_alter_to_table(self, statement: Dict) -> None:
         """add 'alter' statement to the table"""
-
+        print(statement)
         target_table = self.get_table_from_tables_data(
             statement["schema"], statement["alter_table_name"]
         )
 
         if "columns" in statement:
             prepare_alter_columns(target_table, statement)
+        elif "columns_to_rename" in statement:
+            alter_rename_columns(target_table, statement)
+        elif "columns_to_drop" in statement:
+            alter_drop_columns(target_table, statement)
         elif "check" in statement:
             if not target_table["alter"].get("checks"):
                 target_table["alter"]["checks"] = []
@@ -191,7 +195,9 @@ class Output:
         return self.final_result
 
 
-def create_alter_column(index: int, column: Dict, ref_statement: Dict) -> Dict:
+def create_alter_column_references(
+    index: int, column: Dict, ref_statement: Dict
+) -> Dict:
     """create alter column metadata"""
     column_reference = ref_statement["columns"][index]
     alter_column = {
@@ -204,15 +210,31 @@ def create_alter_column(index: int, column: Dict, ref_statement: Dict) -> Dict:
     return alter_column
 
 
+def get_normalized_table_columns_names(target_table: dict) -> List[str]:
+    return [normalize_name(column["name"]) for column in target_table["columns"]]
+
+
 def prepare_alter_columns(target_table: Dict, statement: Dict) -> Dict:
     """prepare alters column metadata"""
     alter_columns = []
     for num, column in enumerate(statement["columns"]):
-        alter_columns.append(create_alter_column(num, column, statement["references"]))
+        if statement.get("references"):
+            alter_columns.append(
+                create_alter_column_references(num, column, statement["references"])
+            )
+        else:
+            # mean we need to add
+            alter_columns.append(column)
     if not target_table["alter"].get("columns"):
         target_table["alter"]["columns"] = alter_columns
     else:
         target_table["alter"]["columns"].extend(alter_columns)
+
+    table_columns = get_normalized_table_columns_names(target_table)
+    # add columns from 'alter add'
+    for column in target_table["alter"]["columns"]:
+        if normalize_name(column["name"]) not in table_columns:
+            target_table["columns"].append(column)
     return target_table
 
 
@@ -231,6 +253,33 @@ def set_unique_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
             if column["name"] == column_name:
                 column["unique"] = True
     return target_table
+
+
+def alter_drop_columns(target_table, statement) -> None:
+    if not target_table["alter"].get("dropped_columns"):
+        target_table["alter"]["dropped_columns"] = []
+    for column_to_drop in statement["columns_to_drop"]:
+        index = None
+        for num, column in enumerate(target_table["columns"]):
+            if normalize_name(column_to_drop) == normalize_name(column["name"]):
+                index = num
+                break
+        if index is not None:
+            target_table["alter"]["dropped_columns"] = target_table["columns"][index]
+            del target_table["columns"][index]
+
+
+def alter_rename_columns(target_table, statement) -> None:
+    for renamed_column in statement["columns_to_rename"]:
+        for column in target_table["columns"]:
+            if normalize_name(renamed_column["from"]) == normalize_name(column["name"]):
+                column["name"] = renamed_column["to"]
+                break
+
+    if not target_table["alter"].get("renamed_columns"):
+        target_table["alter"]["renamed_columns"] = []
+
+    target_table["alter"]["renamed_columns"].extend(statement["columns_to_rename"])
 
 
 def set_alter_to_table_data(key: str, statement: Dict, target_table: Dict) -> Dict:

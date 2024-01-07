@@ -684,7 +684,6 @@ def test_autoincrement_order():
         ],
         "types": [],
     }
-    print(result)
     assert result == expected
 
 
@@ -730,7 +729,6 @@ def test_autoincrement_noorder():
         ],
         "types": [],
     }
-    print(result)
     assert result == expected
 
 

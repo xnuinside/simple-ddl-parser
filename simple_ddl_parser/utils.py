@@ -44,10 +44,14 @@ def find_first_unpair_closed_par(str_: str) -> int:
             stack.append(i)
 
 
-def get_table_id(schema_name: str, table_name: str):
+def normalize_name(name: str) -> str:
     # clean up [] and " symbols from names
     clean_up_re = r'[\[\]"]'
-    table_name = re.sub(clean_up_re, "", table_name)
+    return re.sub(clean_up_re, "", name).lower()
+
+
+def get_table_id(schema_name: str, table_name: str):
+    table_name = normalize_name(table_name)
     if schema_name:
-        schema_name = re.sub(clean_up_re, "", schema_name)
+        schema_name = normalize_name(schema_name)
     return (table_name, schema_name)
