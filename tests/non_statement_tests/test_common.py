@@ -232,7 +232,6 @@ def test_parsing_go_and_use_correctly():
                     "unique": False,
                 }
             ],
-            "comment": None,
             "external": False,
             "fields_terminated_by": None,
             "index": [],
@@ -248,6 +247,7 @@ def test_parsing_go_and_use_correctly():
             "tablespace": None,
         }
     ]
+    print(result)
     assert expected == result
 
 

@@ -22,4 +22,5 @@ def test_json_dump_arg():
     )
     expected = json.loads(expected)
     print(json.loads(parse_results))
+    print(expected)
     assert json.loads(parse_results) == expected

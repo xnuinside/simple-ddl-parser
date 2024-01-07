@@ -55,3 +55,7 @@ def get_table_id(schema_name: str, table_name: str):
     if schema_name:
         schema_name = normalize_name(schema_name)
     return (table_name, schema_name)
+
+
+class SimpleDDLParserException(Exception):
+    pass

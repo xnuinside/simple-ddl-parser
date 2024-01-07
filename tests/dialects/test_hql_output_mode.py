@@ -144,7 +144,6 @@ def test_partitioned_by_hql_output_mode_hql():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
-            "comment": None,
         },
         {
             "if_not_exists": True,
@@ -256,7 +255,6 @@ def test_partitioned_by_hql_output_mode_hql():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
-            "comment": None,
         },
     ]
 
@@ -392,7 +390,6 @@ def test_stored_as_hql_showed():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
-            "comment": None,
         }
     ]
     assert expected == result
@@ -527,7 +524,6 @@ def test_location_showed():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
-            "comment": None,
         }
     ]
     assert expected == result
@@ -665,7 +661,6 @@ def partitioned_by_multiple_tables_hql():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
-            "comment": None,
         }
     ]
     assert expected == result
@@ -745,7 +740,6 @@ def test_hql_row_format():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
-            "comment": None,
         }
     ]
     assert expected == result
@@ -826,7 +820,6 @@ def test_fields_terminated_by_hql():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
-            "comment": None,
         }
     ]
     assert expected == result
@@ -908,7 +901,6 @@ def test_collection_items_terminated_by_hql():
             "collection_items_terminated_by": "'\\002'",
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
-            "comment": None,
         }
     ]
     assert expected == result
@@ -992,7 +984,6 @@ def test_map_keys_terminated_by_hql():
             "collection_items_terminated_by": "'\\002'",
             "map_keys_terminated_by": "'\\003'",
             "lines_terminated_by": None,
-            "comment": None,
         }
     ]
 
@@ -1038,7 +1029,6 @@ def simple_structure_type_support():
             "table_name": "salesorderdetail",
             "tablespace": None,
             "lines_terminated_by": None,
-            "comment": None,
         }
     ]
 
@@ -1144,7 +1134,6 @@ def test_complex_structure_test_hql():
                 "tablespace": None,
                 "stored_as": None,
                 "location": None,
-                "comment": None,
                 "row_format": None,
                 "fields_terminated_by": None,
                 "lines_terminated_by": None,
@@ -1370,7 +1359,6 @@ def test_simple_serde():
                         "unique": False,
                     },
                 ],
-                "comment": None,
                 "external": False,
                 "fields_terminated_by": None,
                 "index": [],
@@ -1515,7 +1503,6 @@ def test_with_serde_properties():
                         "unique": False,
                     },
                 ],
-                "comment": None,
                 "external": False,
                 "fields_terminated_by": None,
                 "index": [],
@@ -1585,7 +1572,6 @@ def test_comment_without_null_statement():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": True,
                 "fields_terminated_by": None,
                 "index": [],
@@ -1629,7 +1615,6 @@ def test_special_characters_in_comment():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": True,
                 "fields_terminated_by": None,
                 "index": [],
@@ -1689,7 +1674,6 @@ def test_partitioned_by_multiple_columns():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": True,
                 "fields_terminated_by": None,
                 "index": [],
@@ -1750,7 +1734,6 @@ def test_table_properties():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": True,
                 "fields_terminated_by": None,
                 "index": [],
@@ -1818,7 +1801,6 @@ def test_output_input_format():
                 "inputformat": "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'",
             },
             "location": "'hdfs://xxxx'",
-            "comment": None,
             "row_format": {
                 "serde": True,
                 "java_class": "'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'",
@@ -1873,7 +1855,6 @@ def test_skewed_by():
             "tablespace": None,
             "stored_as": "DIRECTORIES",
             "location": None,
-            "comment": None,
             "row_format": None,
             "fields_terminated_by": None,
             "lines_terminated_by": None,
@@ -2208,7 +2189,6 @@ WITH SERDEPROPERTIES ( 'key1'='value1', 'key2'='value2' , 'key3'='value3' , 'key
                     "unique": False,
                 }
             ],
-            "comment": None,
             "external": False,
             "fields_terminated_by": None,
             "index": [],
@@ -2249,7 +2229,6 @@ def test_location_with_table_properties_in_like():
             "checks": [],
             "collection_items_terminated_by": None,
             "columns": [],
-            "comment": None,
             "external": True,
             "fields_terminated_by": None,
             "if_not_exists": True,

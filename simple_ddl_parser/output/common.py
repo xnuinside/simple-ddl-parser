@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import Field, dataclass, field
 from typing import Any, Dict, Hashable, List, Optional
 
 from simple_ddl_parser.output import dialects as d
@@ -17,25 +17,143 @@ output_modes = [
     "snowflake",
     "redshift",
     "bigquery",
+    "spark_sql",
 ]
 
 
 logger = logging.getLogger("simple_ddl_parser")
 
 
+def dialect(name: str):
+    output_modes = {"output_modes": [name]}
+
+    def wrapper(cls):
+        cls.__dialect_name__ = name
+        for key, value in cls.__dict__.items():
+            if isinstance(value, Field):
+                metadata = value.metadata.copy()
+                metadata.update(output_modes)
+                value.metadata = metadata
+                setattr(cls, key, value)
+        return cls
+
+    return wrapper
+
+
 @dataclass
-class TableData:
+@dialect(name="redshift")
+class RedshiftFields:
+    temp: Optional[bool] = field(default=False, metadata={"output": "modes"})
+    sortkey: Optional[dict] = field(
+        default_factory=lambda: {"type": None, "keys": []},
+    )
+    diststyle: Optional[str] = field(
+        default=None,
+    )
+    distkey: Optional[str] = field(
+        default=None,
+    )
+    encode: Optional[str] = field(
+        default=None,
+    )
+
+    def add_additional_keys_in_column_redshift(self, column_data: Dict) -> Dict:
+        column_data["encode"] = column_data.get("encode", None)
+        if column_data.get("distkey"):
+            self.distkey = column_data["name"]
+            del column_data["distkey"]
+        return column_data
+
+    def post_process_dialect_redshift(self) -> None:
+        for column in self.columns:
+            column = self.add_additional_keys_in_column_redshift(column)
+            if self.encode:
+                column["encode"] = column["encode"] or self.encode
+
+
+""" if self.output_mode == "oracle":
+            for column in table_data.get("columns", []):
+                column = d.add_additional_oracle_keys_in_column(column)
+        elif self.output_mode == "snowflake":
+            # can be no columns if it is a create database or create schema
+            for column in table_data.get("columns", []):
+                column = d.add_additional_snowflake_keys_in_column(column)
+        elif self.output_mode == "redshift":
+            table_data = d.process_redshift_dialect(table_data)"""
+
+
+@dataclass
+@dialect(name="hql")
+class HQLFields:
+    external: Optional[bool] = field(default=False, metadata={"output": "modes"})
+    skewed_by: Optional[dict] = field(
+        default_factory=dict,
+        metadata={"exclude_if_not_provided": True},
+    )
+    stored_as: Optional[str] = field(default=None, metadata={"output": "modes"})
+
+
+@dataclass
+@dialect(name="snowflake")
+class SnowflakeFields:
+    primary_key_enforced: Optional[bool] = field(
+        default=None,
+    )
+    clone: Optional[dict] = field(
+        default=None,
+    )
+    cluster_by: Optional[list] = field(
+        default_factory=list,
+        metadata={"exclude_if_not_provided": True},
+    )
+    with_tag: Optional[list] = field(
+        default_factory=list,
+        metadata={"exclude_if_not_provided": True},
+    )
+    replace: Optional[bool] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+
+
+@dataclass
+class DialectsFields(HQLFields, SnowflakeFields, RedshiftFields):
+    comment: Optional[str] = field(
+        default=None,
+        metadata={
+            "output_modes": ["hql", "spark_sql", "snowflake"],
+            "exclude_if_not_provided": True,
+        },
+    )
+    # snowflake
+    tblproperties: Optional[dict] = field(
+        default_factory=dict, metadata={"exclude_if_not_provided": True}
+    )
+    location: Optional[str] = field(
+        default=None,
+        metadata={
+            "output_modes": ["hql", "spark_sql", "snowflake"],
+            "exclude_if_not_provided": True,
+        },
+    )
+    like: Optional[dict] = field(
+        default_factory=dict,
+        metadata={"output_modes": ["hql", "redshift"], "exclude_if_not_provided": True},
+    )
+
+
+@dataclass
+class TableData(DialectsFields):
     """representation of table data
 
     exclude_if_not_provided - mean, exclude in output, if was not in data from parser
     """
 
-    # mandatory fields
-    table_name: str
+    # mandatory fields, should have defaults for inheritance
+    table_name: str = None
     # final output field set - dialect
-    init_data: dict = field(metadata={"exclude_always": True})
+    init_data: dict = field(default=None, metadata={"exclude_always": True})
     # final output field set - dialect
-    output_mode: str = field(metadata={"exclude_always": True})
+    output_mode: str = field(default=None, metadata={"exclude_always": True})
     # optional fields
     schema: Optional[str] = None
     primary_key: Optional[List[str]] = None
@@ -57,45 +175,14 @@ class TableData:
     references: Optional[List[Dict]] = field(
         default_factory=list, metadata={"exclude_always": True}
     )
-    comment: Optional[str] = field(
-        default=None, metadata={"exclude_if_not_provided": True}
-    )
     if_not_exists: Optional[bool] = field(
         default=False, metadata={"exclude_if_not_provided": True}
     )
     partition_by: Optional[dict] = field(
         default_factory=dict, metadata={"exclude_if_not_provided": True}
     )
-    # dialects
     table_properties: Optional[dict] = field(
         default_factory=dict, metadata={"exclude_if_empty": True}
-    )
-    external: Optional[bool] = field(
-        default=False, metadata={"exclude_if_not_provided": True}
-    )
-    skewed_by: Optional[dict] = field(
-        default_factory=dict,
-        metadata={"exclude_if_not_provided": True, "output_mode": "hql"},
-    )
-    stored_as: Optional[str] = field(default=None, metadata={"output_mode": "hql"})
-    # snowflake
-    tblproperties: Optional[dict] = field(
-        default_factory=dict, metadata={"exclude_if_not_provided": True}
-    )
-    replace: Optional[bool] = field(
-        default=None, metadata={"exclude_if_not_provided": True}
-    )
-    primary_key_enforced: Optional[bool] = field(
-        default=None, metadata={"output_mode": "snowflake"}
-    )
-    clone: Optional[dict] = field(default=None, metadata={"output_mode": "snowflake"})
-    cluster_by: Optional[list] = field(
-        default_factory=list,
-        metadata={"output_mode": "snowflake", "exclude_if_not_provided": True},
-    )
-    with_tag: Optional[list] = field(
-        default_factory=list,
-        metadata={"output_mode": "snowflake", "exclude_if_not_provided": True},
     )
 
     def get(self, value: Hashable, default: Any = None) -> Any:
@@ -114,10 +201,14 @@ class TableData:
             yield x
 
     def __post_init__(self):
-        self.populate_dialects_table_data()
         self.set_unique_columns()
         self.populate_keys()
         self.normalize_ref_columns_in_final_output()
+        post_process_dialect = getattr(
+            self, f"post_process_dialect_{self.output_mode}", None
+        )
+        if post_process_dialect:
+            post_process_dialect()
 
     @classmethod
     def init(cls, **kwargs):
@@ -152,21 +243,6 @@ class TableData:
                 check_in = getattr(self, key, {})
             if column["name"] in check_in:
                 column["unique"] = True
-
-    def populate_dialects_table_data(self) -> None:
-        mehtod_mapper = {
-            "hql": d.add_additional_hql_keys,
-            "mssql": d.add_additional_mssql_keys,
-            "mysql": d.add_additional_mssql_keys,
-            "oracle": d.add_additional_oracle_keys,
-            "redshift": d.add_additional_redshift_keys,
-            "snowflake": d.add_additional_snowflake_keys,
-        }
-
-        method = mehtod_mapper.get(self.output_mode)
-
-        if method:
-            self = method(self)
 
     def normalize_ref_columns_in_final_output(self):
         for col_ref in self.ref_columns:
@@ -227,11 +303,11 @@ class TableData:
                     exclude_if_not_provided.add(key)
                 if value.metadata.get("exclude_if_empty") is True:
                     exclude_if_empty.add(key)
-                if (
-                    isinstance(value.metadata.get("output_mode"), str)
-                    and value.metadata.get("output_mode") != self.output_mode
-                ):
+                if isinstance(
+                    value.metadata.get("output_modes"), list
+                ) and self.output_mode not in value.metadata.get("output_modes"):
                     exclude_by_dialect_filter.add(key)
+
         if field in exclude_always_keys:
             return False
         if field in exclude_if_not_provided and field not in self.init_data:
@@ -247,7 +323,9 @@ class TableData:
         for key, value in self.__dict__.items():
             if self.filter_out_output(key) is True:
                 output[key] = value
-        return d.key_cleaning(output, self.output_mode)
+        output = d.key_cleaning(output, self.output_mode)
+        print(output)
+        return output
 
 
 class Output:
@@ -322,8 +400,6 @@ class Output:
     def process_statement_data(self, statement_data: Dict) -> Dict:
         """process tables, types, sequence and etc. data"""
 
-        data = statement_data
-
         if statement_data.get("table_name"):
             # mean we have table
             print(statement_data, "statement_data")
@@ -336,6 +412,9 @@ class Output:
                 )
             ] = table_data
             data = table_data.to_dict()
+        else:
+            data = statement_data
+            d.dialects_clean_up(self.output_mode, data)
         return data
 
     def process_alter_and_index_result(self, table: Dict):

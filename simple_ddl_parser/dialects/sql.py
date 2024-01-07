@@ -1163,7 +1163,7 @@ class BaseSQL(
             table_name = p_list[-1]
             schema = None
         p[0] = p[1]
-        p[0].update({p[2]: {"schema": schema, "table_name": table_name}})
+        p[0].update({p_list[-2]: {"schema": schema, "table_name": table_name}})
 
     def p_t_name(self, p: List) -> None:
         """t_name : id DOT id

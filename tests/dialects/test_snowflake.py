@@ -733,6 +733,7 @@ def test_autoincrement_noorder():
         ],
         "types": [],
     }
+    print(result, "resultresult")
     assert result == expected
 
 
@@ -859,9 +860,9 @@ def test_virtual_column_ext_table():
             "tablespace": None,
             "replace": True,
             "if_not_exists": True,
+            "location": "@ADL_Azure_Storage_Account_Container_Name/",
             "table_properties": {
                 "auto_refresh": False,
-                "location": "@ADL_Azure_Storage_Account_Container_Name/",
             },
         }
     ]
@@ -922,6 +923,7 @@ def test_virtual_column_table():
             "tablespace": None,
             "replace": True,
             "if_not_exists": True,
+            "location": "@ADL_Azure_Storage_Account_Container_Name/",
             "table_properties": {
                 "auto_refresh": False,
                 "file_format": [
@@ -930,7 +932,6 @@ def test_virtual_column_table():
                     "DATE_FORMAT=AUTO",
                     "TRIM_SPACE=TRUE",
                 ],
-                "location": "@ADL_Azure_Storage_Account_Container_Name/",
                 "stage_file_format": ["TYPE=JSON", "NULL_IF=()"],
             },
         }

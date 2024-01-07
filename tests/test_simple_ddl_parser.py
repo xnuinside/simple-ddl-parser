@@ -1935,7 +1935,6 @@ def test_quotes():
             "tablespace": None,
             "stored_as": None,
             "location": None,
-            "comment": None,
             "row_format": None,
             "fields_terminated_by": None,
             "lines_terminated_by": None,
@@ -1981,7 +1980,6 @@ def test_escaping_symbols_normal_str():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": True,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2033,7 +2031,6 @@ def test_escaping_symbols_raw_string():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": True,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2348,7 +2345,6 @@ def test_create_empty_table():
                 "checks": [],
                 "collection_items_terminated_by": None,
                 "columns": [],
-                "comment": None,
                 "external": False,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2399,7 +2395,6 @@ def test_table_name_reserved_word_after_dot():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": False,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2430,7 +2425,6 @@ def test_table_name_reserved_word_after_dot():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": False,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2461,7 +2455,6 @@ def test_table_name_reserved_word_after_dot():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": False,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2734,7 +2727,6 @@ def test_replace_with_id():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": False,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2767,7 +2759,6 @@ def test_replace_with_id():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": False,
                 "fields_terminated_by": None,
                 "index": [],

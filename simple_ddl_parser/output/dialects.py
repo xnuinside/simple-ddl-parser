@@ -19,8 +19,6 @@ def add_additional_hql_keys(table_data) -> Dict:
     table_data.if_not_exist_update(
         {
             "stored_as": None,
-            "location": None,
-            "comment": None,
             "row_format": None,
             "fields_terminated_by": None,
             "lines_terminated_by": None,
@@ -44,22 +42,9 @@ def add_additional_oracle_keys(table_data: Dict) -> Dict:
 
 
 def update_bigquery_output(table_data: Dict) -> Dict:
-    if table_data.get("schema"):
+    if table_data.get("schema") or table_data.get("sequences"):
         table_data["dataset"] = table_data["schema"]
         del table_data["schema"]
-    return table_data
-
-
-def add_additional_redshift_keys(table_data: Dict) -> Dict:
-    table_data.if_not_exist_update(
-        {
-            "diststyle": None,
-            "distkey": None,
-            "sortkey": {"type": None, "keys": []},
-            "encode": None,
-            "temp": False,
-        }
-    )
     return table_data
 
 
@@ -75,14 +60,6 @@ def add_additional_oracle_keys_in_column(column_data: Dict) -> Dict:
 
 def add_additional_snowflake_keys_in_column(column_data: Dict) -> Dict:
     return column_data
-
-
-def add_additional_redshift_keys_in_column(column_data: Dict, table_data: Dict) -> Dict:
-    column_data["encode"] = column_data.get("encode", None)
-    if column_data.get("distkey"):
-        table_data["distkey"] = column_data["name"]
-        del column_data["distkey"]
-    return column_data, table_data
 
 
 def add_additional_mssql_keys(table_data: Dict) -> Dict:
@@ -112,29 +89,11 @@ def key_cleaning(table_data: Dict, output_mode: str) -> Dict:
     return table_data
 
 
-def process_redshift_dialect(table_data: List[Dict]) -> List[Dict]:
-    for column in table_data.get("columns", []):
-        column, table_data = add_additional_redshift_keys_in_column(column, table_data)
-        if table_data.get("encode"):
-            column["encode"] = column["encode"] or table_data.get("encode")
-    return table_data
-
-
-def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
+def dialects_clean_up(output_mode: str, table_data) -> Dict:
     key_cleaning(table_data, output_mode)
     update_mappers_for_table_properties = {"bigquery": update_bigquery_output}
     update_table_prop = update_mappers_for_table_properties.get(output_mode)
     if update_table_prop:
         table_data = update_table_prop(table_data)
 
-    if output_mode == "oracle":
-        for column in table_data.get("columns", []):
-            column = add_additional_oracle_keys_in_column(column)
-    elif output_mode == "snowflake":
-        # can be no columns if it is a create database or create schema
-        for column in table_data.get("columns", []):
-            column = add_additional_snowflake_keys_in_column(column)
-
-    elif output_mode == "redshift":
-        table_data = process_redshift_dialect(table_data)
     return table_data
