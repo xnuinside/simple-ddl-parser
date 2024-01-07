@@ -818,7 +818,7 @@ def test_like_statement():
             "checks": [],
             "columns": [],
             "index": [],
-            "like": {"schema": None, "table_name": "Old_Users"},
+            "clone": {"schema": None, "table_name": "Old_Users"},
             "partitioned_by": [],
             "primary_key": [],
             "schema": None,

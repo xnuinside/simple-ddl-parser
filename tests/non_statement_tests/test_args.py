@@ -1,3 +1,5 @@
+import json
+
 from simple_ddl_parser import DDLParser
 
 
@@ -18,4 +20,6 @@ def test_json_dump_arg():
         ' "schema": null, "table_name": "list_bucket_single", '
         '"skewed_by": {"key": "key", "on": ["1", "5", "6"]}}]'
     )
-    assert parse_results == expected
+    expected = json.loads(expected)
+    print(json.loads(parse_results))
+    assert json.loads(parse_results) == expected

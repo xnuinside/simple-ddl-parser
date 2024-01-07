@@ -2,7 +2,8 @@ import json
 import logging
 import os
 from copy import deepcopy
-from typing import Dict, List
+from dataclasses import dataclass, field
+from typing import Any, Dict, Hashable, List, Optional
 
 from simple_ddl_parser.output import dialects as d
 from simple_ddl_parser.utils import get_table_id, normalize_name
@@ -20,6 +21,233 @@ output_modes = [
 
 
 logger = logging.getLogger("simple_ddl_parser")
+
+
+@dataclass
+class TableData:
+    """representation of table data
+
+    exclude_if_not_provided - mean, exclude in output, if was not in data from parser
+    """
+
+    # mandatory fields
+    table_name: str
+    # final output field set - dialect
+    init_data: dict = field(metadata={"exclude_always": True})
+    # final output field set - dialect
+    output_mode: str = field(metadata={"exclude_always": True})
+    # optional fields
+    schema: Optional[str] = None
+    primary_key: Optional[List[str]] = None
+    columns: Optional[List[dict]] = field(default_factory=list)
+    alter: Optional[Dict] = field(default_factory=dict)
+    checks: Optional[List] = field(default_factory=list)
+    index: Optional[List] = field(default_factory=list)
+    partitioned_by: Optional[List] = field(default_factory=list)
+    constraints: Optional[Dict] = field(
+        default_factory=dict, metadata={"exclude_if_not_provided": True}
+    )
+    tablespace: Optional[str] = None
+    unique: Optional[list] = field(
+        default_factory=list, metadata={"exclude_always": True}
+    )
+    ref_columns: Optional[List[Dict]] = field(
+        default_factory=list, metadata={"exclude_always": True}
+    )
+    references: Optional[List[Dict]] = field(
+        default_factory=list, metadata={"exclude_always": True}
+    )
+    comment: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    if_not_exists: Optional[bool] = field(
+        default=False, metadata={"exclude_if_not_provided": True}
+    )
+    partition_by: Optional[dict] = field(
+        default_factory=dict, metadata={"exclude_if_not_provided": True}
+    )
+    # dialects
+    table_properties: Optional[dict] = field(
+        default_factory=dict, metadata={"exclude_if_empty": True}
+    )
+    external: Optional[bool] = field(
+        default=False, metadata={"exclude_if_not_provided": True}
+    )
+    skewed_by: Optional[dict] = field(
+        default_factory=dict,
+        metadata={"exclude_if_not_provided": True, "output_mode": "hql"},
+    )
+    stored_as: Optional[str] = field(default=None, metadata={"output_mode": "hql"})
+    # snowflake
+    tblproperties: Optional[dict] = field(
+        default_factory=dict, metadata={"exclude_if_not_provided": True}
+    )
+    replace: Optional[bool] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    primary_key_enforced: Optional[bool] = field(
+        default=None, metadata={"output_mode": "snowflake"}
+    )
+    clone: Optional[dict] = field(default=None, metadata={"output_mode": "snowflake"})
+    cluster_by: Optional[list] = field(
+        default_factory=list,
+        metadata={"output_mode": "snowflake", "exclude_if_not_provided": True},
+    )
+    with_tag: Optional[list] = field(
+        default_factory=list,
+        metadata={"output_mode": "snowflake", "exclude_if_not_provided": True},
+    )
+
+    def get(self, value: Hashable, default: Any = None) -> Any:
+        return self.__dict__.get(value, default)
+
+    def update(self, input_dict: dict) -> None:
+        self.__dict__.update(input_dict)
+
+    def if_not_exist_update(self, input_dict: dict) -> None:
+        for key, value in input_dict.items():
+            if key not in self.__dict__:
+                self.__dict__[key] = value
+
+    def __iter__(self):
+        for x in self.__dict__:
+            yield x
+
+    def __post_init__(self):
+        self.populate_dialects_table_data()
+        self.set_unique_columns()
+        self.populate_keys()
+        self.normalize_ref_columns_in_final_output()
+
+    @classmethod
+    def init(cls, **kwargs):
+        cls_fields = {field for field in cls.__dataclass_fields__}
+        table_main_args = {k: v for k, v in kwargs.items() if k in cls_fields}
+        table_properties = {k: v for k, v in kwargs.items() if k not in table_main_args}
+        init_data = {}
+        init_data.update(table_main_args)
+        init_data.update(table_properties)
+        ret = cls(
+            **table_main_args, table_properties=table_properties, init_data=init_data
+        )
+        return ret
+
+    def set_unique_columns(self) -> None:
+        unique_keys = ["unique_statement", "constraints"]
+
+        for key in unique_keys:
+            if getattr(self, key, None):
+                # get column names from unique constraints & statements
+                self.set_column_unique_param(key)
+
+    def set_column_unique_param(self, key: str) -> None:
+        for column in self.columns:
+            if key == "constraints":
+                unique = getattr(self, key, {}).get("unique", [])
+                if unique:
+                    check_in = unique["columns"]
+                else:
+                    check_in = []
+            else:
+                check_in = getattr(self, key, {})
+            if column["name"] in check_in:
+                column["unique"] = True
+
+    def populate_dialects_table_data(self) -> None:
+        mehtod_mapper = {
+            "hql": d.add_additional_hql_keys,
+            "mssql": d.add_additional_mssql_keys,
+            "mysql": d.add_additional_mssql_keys,
+            "oracle": d.add_additional_oracle_keys,
+            "redshift": d.add_additional_redshift_keys,
+            "snowflake": d.add_additional_snowflake_keys,
+        }
+
+        method = mehtod_mapper.get(self.output_mode)
+
+        if method:
+            self = method(self)
+
+    def normalize_ref_columns_in_final_output(self):
+        for col_ref in self.ref_columns:
+            name = col_ref["name"]
+            for column in self.columns:
+                if name == column["name"]:
+                    del col_ref["name"]
+                    column["references"] = col_ref
+
+    def populate_keys(self) -> None:
+        """primary_key - list of column names, example: "primary_key": ["data_sync_id", "sync_start"],"""
+
+        if not self.primary_key:
+            self.get_pk_from_columns_and_constraints()
+        else:
+            self.remove_pk_from_columns()
+
+        if self.unique:
+            self.add_unique_columns()
+
+        for column in self.columns:
+            if column["name"] in self.primary_key:
+                column["nullable"] = False
+
+    def remove_pk_from_columns(self) -> None:
+        for column in self.columns:
+            del column["primary_key"]
+
+    def get_pk_from_columns_and_constraints(self) -> None:
+        pk = []
+        for column in self.columns:
+            if column["primary_key"]:
+                pk.append(column["name"])
+            del column["primary_key"]
+        if self.constraints.get("primary_keys"):
+            for key_constraints in self.constraints["primary_keys"]:
+                pk.extend(key_constraints["columns"])
+
+        self.primary_key = pk
+
+    def add_unique_columns(self) -> None:
+        for column in self.columns:
+            if column["name"] in self.unique:
+                column["unique"] = True
+
+    def filter_out_output(self, field: str) -> bool:
+        cls_fields = self.__dataclass_fields__.items()
+        exclude_always_keys = set()
+        exclude_if_not_provided = set()
+        exclude_if_empty = set()
+        exclude_by_dialect_filter = set()
+
+        for key, value in cls_fields:
+            if value.metadata.get("exclude_always") is True:
+                exclude_always_keys.add(key)
+            else:
+                if value.metadata.get("exclude_if_not_provided") is True:
+                    exclude_if_not_provided.add(key)
+                if value.metadata.get("exclude_if_empty") is True:
+                    exclude_if_empty.add(key)
+                if (
+                    isinstance(value.metadata.get("output_mode"), str)
+                    and value.metadata.get("output_mode") != self.output_mode
+                ):
+                    exclude_by_dialect_filter.add(key)
+        if field in exclude_always_keys:
+            return False
+        if field in exclude_if_not_provided and field not in self.init_data:
+            return False
+        if field in exclude_if_empty and not self.get(field):
+            return False
+        if field in exclude_by_dialect_filter:
+            return False
+        return True
+
+    def to_dict(self):
+        output = {}
+        for key, value in self.__dict__.items():
+            if self.filter_out_output(key) is True:
+                output[key] = value
+        return d.key_cleaning(output, self.output_mode)
 
 
 class Output:
@@ -59,7 +287,7 @@ class Output:
             statement["schema"], statement["table_name"]
         )
         self.clean_up_index_statement(statement)
-        target_table["index"].append(statement)
+        target_table.index.append(statement)
 
     def add_alter_to_table(self, statement: Dict) -> None:
         """add 'alter' statement to the table"""
@@ -76,10 +304,10 @@ class Output:
         elif "columns_to_modify" in statement:
             alter_modify_columns(target_table, statement)
         elif "check" in statement:
-            if not target_table["alter"].get("checks"):
-                target_table["alter"]["checks"] = []
+            if not target_table.alter.get("checks"):
+                target_table.alter["checks"] = []
             statement["check"]["statement"] = " ".join(statement["check"]["statement"])
-            target_table["alter"]["checks"].append(statement["check"])
+            target_table.alter["checks"].append(statement["check"])
         elif "unique" in statement:
             target_table = set_alter_to_table_data("unique", statement, target_table)
             target_table = set_unique_columns_from_alter(statement, target_table)
@@ -91,26 +319,24 @@ class Output:
                 "primary_key", statement, target_table
             )
 
-    def process_entities(self, table: Dict) -> Dict:
+    def process_statement_data(self, statement_data: Dict) -> Dict:
         """process tables, types, sequence and etc. data"""
-        is_it_table = True
 
-        if table.get("table_name"):
-            table_data = init_table_data()
-            table_data = d.populate_dialects_table_data(self.output_mode, table_data)
-            table_data.update(table)
-            table_data = set_unique_columns(table_data)
-        else:
-            table_data = table
-            is_it_table = False
+        data = statement_data
 
-        if is_it_table:
-            table_data = self.process_is_it_table_item(table_data)
-
-        table_data = normalize_ref_columns_in_final_output(table_data)
-
-        d.dialects_clean_up(self.output_mode, table_data)
-        return table_data
+        if statement_data.get("table_name"):
+            # mean we have table
+            print(statement_data, "statement_data")
+            statement_data["output_mode"] = self.output_mode
+            table_data = TableData.init(**statement_data)
+            self.tables_dict[
+                get_table_id(
+                    schema_name=table_data.schema,
+                    table_name=table_data.table_name,
+                )
+            ] = table_data
+            data = table_data.to_dict()
+        return data
 
     def process_alter_and_index_result(self, table: Dict):
         if table.get("index_name"):
@@ -157,40 +383,15 @@ class Output:
 
         self.final_result = result_as_dict
 
-    def process_is_it_table_item(self, table_data: Dict) -> Dict:
-        if table_data.get("table_name"):
-            self.tables_dict[
-                get_table_id(
-                    schema_name=table_data["schema"],
-                    table_name=table_data["table_name"],
-                )
-            ] = table_data
-        else:
-            logger.error(
-                "\n Something goes wrong. Possible you try to parse unsupported statement \n "
-            )
-        if not table_data.get("primary_key"):
-            table_data = check_pk_in_columns_and_constraints(table_data)
-        else:
-            table_data = remove_pk_from_columns(table_data)
-
-        if table_data.get("unique"):
-            table_data = add_unique_columns(table_data)
-
-        for column in table_data["columns"]:
-            if column["name"] in table_data["primary_key"]:
-                column["nullable"] = False
-        return table_data
-
     def format(self) -> List[Dict]:
-        for table in self.parser_output:
+        for statement in self.parser_output:
             # process each item in parser output
-            if "index_name" in table or "alter_table_name" in table:
-                self.process_alter_and_index_result(table)
+            if "index_name" in statement or "alter_table_name" in statement:
+                self.process_alter_and_index_result(statement)
             else:
                 # process tables, types, sequence and etc. data
-                table_data = self.process_entities(table)
-                self.final_result.append(table_data)
+                statement_data = self.process_statement_data(statement)
+                self.final_result.append(statement_data)
         if self.group_by_type:
             self.group_by_type_result()
         return self.final_result
@@ -212,7 +413,7 @@ def create_alter_column_references(
 
 
 def get_normalized_table_columns_names(target_table: dict) -> List[str]:
-    return [normalize_name(column["name"]) for column in target_table["columns"]]
+    return [normalize_name(column["name"]) for column in target_table.columns]
 
 
 def prepare_alter_columns(target_table: Dict, statement: Dict) -> Dict:
@@ -226,21 +427,21 @@ def prepare_alter_columns(target_table: Dict, statement: Dict) -> Dict:
         else:
             # mean we need to add
             alter_columns.append(column)
-    if not target_table["alter"].get("columns"):
-        target_table["alter"]["columns"] = alter_columns
+    if not target_table.alter.get("columns"):
+        target_table.alter["columns"] = alter_columns
     else:
-        target_table["alter"]["columns"].extend(alter_columns)
+        target_table.alter["columns"].extend(alter_columns)
 
     table_columns = get_normalized_table_columns_names(target_table)
     # add columns from 'alter add'
-    for column in target_table["alter"]["columns"]:
+    for column in target_table.alter["columns"]:
         if normalize_name(column["name"]) not in table_columns:
-            target_table["columns"].append(column)
+            target_table.columns.append(column)
     return target_table
 
 
 def set_default_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
-    for column in target_table["columns"]:
+    for column in target_table.columns:
         if statement["default"]["columns"]:
             for column_name in statement["default"]["columns"]:
                 if column["name"] == column_name:
@@ -249,7 +450,7 @@ def set_default_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
 
 
 def set_unique_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
-    for column in target_table["columns"]:
+    for column in target_table.columns:
         for column_name in statement["unique"]["columns"]:
             if column["name"] == column_name:
                 column["unique"] = True
@@ -257,137 +458,56 @@ def set_unique_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
 
 
 def alter_modify_columns(target_table, statement) -> None:
-    if not target_table["alter"].get("modified_columns"):
-        target_table["alter"]["modified_columns"] = []
+    if not target_table.alter.get("modified_columns"):
+        target_table.alter["modified_columns"] = []
 
     for modified_column in statement["columns_to_modify"]:
         index = None
-        for num, column in enumerate(target_table["columns"]):
+        for num, column in enumerate(target_table.columns):
             if normalize_name(modified_column["name"]) == normalize_name(
                 column["name"]
             ):
                 index = num
                 break
         if index is not None:
-            target_table["alter"]["modified_columns"] = target_table["columns"][index]
-            target_table["columns"][index] = modified_column
+            target_table.alter["modified_columns"] = target_table.columns[index]
+            target_table.columns[index] = modified_column
 
 
 def alter_drop_columns(target_table, statement) -> None:
-    if not target_table["alter"].get("dropped_columns"):
-        target_table["alter"]["dropped_columns"] = []
+    if not target_table.alter.get("dropped_columns"):
+        target_table.alter["dropped_columns"] = []
     for column_to_drop in statement["columns_to_drop"]:
         index = None
-        for num, column in enumerate(target_table["columns"]):
+        for num, column in enumerate(target_table.columns):
             if normalize_name(column_to_drop) == normalize_name(column["name"]):
                 index = num
                 break
         if index is not None:
-            target_table["alter"]["dropped_columns"] = target_table["columns"][index]
-            del target_table["columns"][index]
+            target_table.alter["dropped_columns"] = target_table.columns[index]
+            del target_table.columns[index]
 
 
 def alter_rename_columns(target_table, statement) -> None:
     for renamed_column in statement["columns_to_rename"]:
-        for column in target_table["columns"]:
+        for column in target_table.columns:
             if normalize_name(renamed_column["from"]) == normalize_name(column["name"]):
                 column["name"] = renamed_column["to"]
                 break
 
-    if not target_table["alter"].get("renamed_columns"):
-        target_table["alter"]["renamed_columns"] = []
+    if not target_table.alter.get("renamed_columns"):
+        target_table.alter["renamed_columns"] = []
 
-    target_table["alter"]["renamed_columns"].extend(statement["columns_to_rename"])
+    target_table.alter["renamed_columns"].extend(statement["columns_to_rename"])
 
 
 def set_alter_to_table_data(key: str, statement: Dict, target_table: Dict) -> Dict:
-    if not target_table["alter"].get(key + "s"):
-        target_table["alter"][key + "s"] = []
+    if not target_table.alter.get(key + "s"):
+        target_table.alter[key + "s"] = []
     if "using" in statement:
         statement[key]["using"] = statement["using"]
-    target_table["alter"][key + "s"].append(statement[key])
+    target_table.alter[key + "s"].append(statement[key])
     return target_table
-
-
-def init_table_data() -> Dict:
-    return {
-        "columns": [],
-        "primary_key": None,
-        "alter": {},
-        "checks": [],
-        "index": [],
-        "partitioned_by": [],
-        "tablespace": None,
-    }
-
-
-def normalize_ref_columns_in_final_output(table_data: Dict) -> Dict:
-    # todo: this is hack, need to remove it
-    if "references" in table_data:
-        del table_data["references"]
-    if "ref_columns" in table_data:
-        for col_ref in table_data["ref_columns"]:
-            name = col_ref["name"]
-            for column in table_data["columns"]:
-                if name == column["name"]:
-                    del col_ref["name"]
-                    column["references"] = col_ref
-        del table_data["ref_columns"]
-    return table_data
-
-
-def set_column_unique_param(table_data: Dict, key: str) -> Dict:
-    for column in table_data["columns"]:
-        if key == "constraints":
-            unique = table_data[key].get("unique", [])
-            if unique:
-                check_in = unique["columns"]
-            else:
-                check_in = []
-        else:
-            check_in = table_data[key]
-        if column["name"] in check_in:
-            column["unique"] = True
-    return table_data
-
-
-def set_unique_columns(table_data: Dict) -> Dict:
-    unique_keys = ["unique_statement", "constraints"]
-
-    for key in unique_keys:
-        if table_data.get(key, None):
-            # get column names from unique constraints & statements
-            table_data = set_column_unique_param(table_data, key)
-    if "unique_statement" in table_data:
-        del table_data["unique_statement"]
-    return table_data
-
-
-def add_unique_columns(table_data: Dict) -> Dict:
-    for column in table_data["columns"]:
-        if column["name"] in table_data["unique"]:
-            column["unique"] = True
-    del table_data["unique"]
-    return table_data
-
-
-def remove_pk_from_columns(table_data: Dict) -> Dict:
-    for column in table_data["columns"]:
-        del column["primary_key"]
-    return table_data
-
-
-def check_pk_in_columns_and_constraints(table_data: Dict) -> Dict:
-    pk = []
-    for column in table_data["columns"]:
-        if column["primary_key"]:
-            pk.append(column["name"])
-        del column["primary_key"]
-    if table_data.get("constraints") and table_data["constraints"].get("primary_keys"):
-        for key_constraints in table_data["constraints"]["primary_keys"]:
-            pk.extend(key_constraints["columns"])
-    table_data["primary_key"] = pk
-    return table_data
 
 
 def dump_data_to_file(table_name: str, dump_path: str, data: List[Dict]) -> None:

@@ -15,8 +15,8 @@ sql_clean_up_list = [
 ]
 
 
-def add_additional_hql_keys(table_data: Dict) -> Dict:
-    table_data.update(
+def add_additional_hql_keys(table_data) -> Dict:
+    table_data.if_not_exist_update(
         {
             "stored_as": None,
             "location": None,
@@ -34,7 +34,7 @@ def add_additional_hql_keys(table_data: Dict) -> Dict:
 
 
 def add_additional_oracle_keys(table_data: Dict) -> Dict:
-    table_data.update(
+    table_data.if_not_exist_update(
         {
             "constraints": {"uniques": None, "checks": None, "references": None},
             "storage": None,
@@ -51,7 +51,7 @@ def update_bigquery_output(table_data: Dict) -> Dict:
 
 
 def add_additional_redshift_keys(table_data: Dict) -> Dict:
-    table_data.update(
+    table_data.if_not_exist_update(
         {
             "diststyle": None,
             "distkey": None,
@@ -64,12 +64,12 @@ def add_additional_redshift_keys(table_data: Dict) -> Dict:
 
 
 def add_additional_snowflake_keys(table_data: Dict) -> Dict:
-    table_data.update({"clone": None, "primary_key_enforced": None})
+    table_data.if_not_exist_update({"clone": None, "primary_key_enforced": None})
     return table_data
 
 
 def add_additional_oracle_keys_in_column(column_data: Dict) -> Dict:
-    column_data.update({"encrypt": None})
+    column_data.if_not_exist_update({"encrypt": None})
     return column_data
 
 
@@ -86,7 +86,7 @@ def add_additional_redshift_keys_in_column(column_data: Dict, table_data: Dict) 
 
 
 def add_additional_mssql_keys(table_data: Dict) -> Dict:
-    table_data.update(
+    table_data.if_not_exist_update(
         {
             "constraints": {"uniques": None, "checks": None, "references": None},
         }
@@ -98,24 +98,6 @@ def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
     for key in key_list:
         if key in table_data:
             del table_data[key]
-    return table_data
-
-
-def populate_dialects_table_data(output_mode: str, table_data: Dict) -> Dict:
-    mehtod_mapper = {
-        "hql": add_additional_hql_keys,
-        "mssql": add_additional_mssql_keys,
-        "mysql": add_additional_mssql_keys,
-        "oracle": add_additional_oracle_keys,
-        "redshift": add_additional_redshift_keys,
-        "snowflake": add_additional_snowflake_keys,
-    }
-
-    method = mehtod_mapper.get(output_mode)
-
-    if method:
-        table_data = method(table_data)
-
     return table_data
 
 

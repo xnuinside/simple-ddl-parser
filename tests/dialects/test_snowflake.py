@@ -31,9 +31,10 @@ def test_clone_table():
                 "checks": [],
                 "columns": [],
                 "index": [],
-                "like": {"schema": None, "table_name": "orders"},
+                "clone": {"schema": None, "table_name": "orders"},
                 "partitioned_by": [],
                 "primary_key": [],
+                "primary_key_enforced": None,
                 "schema": None,
                 "table_name": "orders_clone",
                 "tablespace": None,
@@ -46,7 +47,7 @@ def test_clone_table():
     ddl = """
     create table orders_clone clone orders;
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="snowflake")
     assert expected == result
 
 
@@ -73,7 +74,7 @@ def test_cluster_by():
     ddl = """
     create table mytable (date timestamp_ntz, id number, content variant) cluster by (date, id);
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="snowflake")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -84,6 +85,7 @@ def test_cluster_by():
                 "alter": {},
                 "checks": [],
                 "cluster_by": ["date", "id"],
+                "clone": None,
                 "columns": [
                     {
                         "check": None,
@@ -119,6 +121,7 @@ def test_cluster_by():
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": [],
+                "primary_key_enforced": None,
                 "schema": None,
                 "table_name": "mytable",
                 "tablespace": None,
@@ -137,7 +140,7 @@ def test_enforced():
         constraint pkey_1 primary key (col1, col2) not enforced
         );
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="snowflake")
     expected = {
         "domains": [],
         "ddl_properties": [],
@@ -147,6 +150,7 @@ def test_enforced():
             {
                 "alter": {},
                 "checks": [],
+                "clone": None,
                 "columns": [
                     {
                         "check": None,
@@ -536,7 +540,7 @@ def test_table_with_retention():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
-            "data_retention_time_in_days": 15,
+            "table_properties": {"data_retention_time_in_days": 15},
         }
     ]
 
@@ -596,7 +600,7 @@ def test_table_with_change_tracking():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
-            "change_tracking": False,
+            "table_properties": {"change_tracking": False},
         }
     ]
 
@@ -850,13 +854,15 @@ def test_virtual_column_ext_table():
             "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,
-            "auto_refresh": False,
             "schema": "TABLE_DATA_SRC",
             "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
             "tablespace": None,
             "replace": True,
             "if_not_exists": True,
-            "location": "@ADL_Azure_Storage_Account_Container_Name/",
+            "table_properties": {
+                "auto_refresh": False,
+                "location": "@ADL_Azure_Storage_Account_Container_Name/",
+            },
         }
     ]
 
@@ -911,20 +917,22 @@ def test_virtual_column_table():
             "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,
-            "auto_refresh": False,
             "schema": "TABLE_DATA_SRC",
             "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
             "tablespace": None,
             "replace": True,
             "if_not_exists": True,
-            "location": "@ADL_Azure_Storage_Account_Container_Name/",
-            "file_format": [
-                "TYPE=JSON",
-                "NULL_IF=('field')",
-                "DATE_FORMAT=AUTO",
-                "TRIM_SPACE=TRUE",
-            ],
-            "stage_file_format": ["TYPE=JSON", "NULL_IF=()"],
+            "table_properties": {
+                "auto_refresh": False,
+                "file_format": [
+                    "TYPE=JSON",
+                    "NULL_IF=('field')",
+                    "DATE_FORMAT=AUTO",
+                    "TRIM_SPACE=TRUE",
+                ],
+                "location": "@ADL_Azure_Storage_Account_Container_Name/",
+                "stage_file_format": ["TYPE=JSON", "NULL_IF=()"],
+            },
         }
     ]
 

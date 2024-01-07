@@ -6,11 +6,15 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
 ### Is it Stable?
 
-Yes, library already has about 7000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
+Yes, library already has about 9000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
 
-As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. But! Pay attention that sometimes output in keywords can be changed in minor version because of fixing wrong behaviour in past. For example, previously 'auto_increment' was a part of column type, but later it became a separate column property. So, please read for minor versions changedlog. 
+As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. But! Pay attention that sometimes output in keywords can be changed in minor version because of fixing wrong behaviour in past.
 
-However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version `1.0.*` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version `0.26.0` :)
+### Updates in version 1.x
+
+The full list of updates can be found in the Changelog below (at the end of README).
+
+Version 1.0.0 was released due to significant changes in the output structure and a stricter approach regarding the scope of the produced output. Now, you must provide the argument 'output_mode=name_of_your_dialect' if you wish to see arguments/properties specific to a particular dialect
 
 
 ### How does it work?

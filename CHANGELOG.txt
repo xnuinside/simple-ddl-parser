@@ -1,3 +1,26 @@
+**v1.0.0**
+In output structure was done important changes that can in theory breaks code.
+
+
+### Important changes
+1. Important change: 
+
+all custom table properties that are defined after column definition in 'CREATE TABLE' statement and relative to only one dialect (only for SparkSQL, or HQL,etc), for example, like here:
+https://github.com/xnuinside/simple-ddl-parser/blob/main/tests/dialects/test_snowflake.py#L767  or https://github.com/xnuinside/simple-ddl-parser/blob/main/tests/dialects/test_spark_sql.py#L133 will be saved now in property `table_properties` as dict.
+Previously they was placed on same level of table output as `columns`, `alter`, etc. Now, they grouped and moved to key `table_properties`.
+
+2. Formatting parser result now represented by 2 classes - Output & TableData, that makes it more strict and readable.
+
+3. The output mode now functions more strictly. If you want to obtain output fields specific to a certain dialect, 
+use output_mode='snowflake' for Snowflake or output_mode='hql' for HQL, etc. 
+Previously, some keys appeared in the result without being filtered by dialect. 
+For example, if 'CLUSTER BY' was in the DDL, it would show up in the 'cluster_by' field regardless of the output mode. 
+However, now all fields that only work in certain dialects and are not part of the basic SQL notation will only be shown 
+if you choose the correct output_mode.
+
+### Snowflake updates:
+4. For some reasons, 'CLONE' statement in SNOWFLAKE was parsed into 'like' key in output. Now it was changed to 'clone' - inner structure of output stay the same as previously.
+
 **v0.32.1**
 ### Minor Fixes
 1. Removed debug print
@@ -302,69 +325,3 @@ Also added support project.dataset.name format in CREATE SCHEMA and ALTER statem
 
 ## Improvements:
 1. CLUSTED BY can be used without ()
-
-
-**v0.22.0**
-### New Features:
-
-## BigQuery:
-
-I started to add partial support for BigQuery
-
-1. Added support for OPTIONS in CREATE SCHEMA statement
-
-## MSSQL:
-
-1. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'.
-I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beautiful and logically output structure.
-https://github.com/xnuinside/simple-ddl-parser/issues/91
-
-Pay attention: previously they parsed somehow, but in incorrect structure.
-
-### Improvements:
-
-1. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
-2. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90
-
-### Fixes:
-
-1. Now open strings is not valid in checks (previously the was parsed.) Open string sample 'some string (exist open quote, but there is no close quote)
-2. Order like ASC, DESK in primary keys now parsed valid (not as previously as column name)
-
-**v0.21.2**
-Fixies:
-1. remove 'PERIOD' from tokens
-
-**v0.21.1**
-Fixies:
-1. START WITH, INCREMENT BY and CACHE (without value) in sequences now is parsed correctly.
-
-
-**v0.21.0**
-### New Features:
-
-    ## MSSQL:
-
-    1. Added support for statements:
-        1. PERIOD FOR SYSTEM_TIME in CREATE TABLE statement
-        2. ON [PRIMARY] after CREATE TABLE statement (sample in test files test_mssql_specific.py)
-        3. WITH statement for TABLE properties
-        4. TEXTIMAGE_ON statement
-        5. DEFAULT NEXT VALUE FOR in COLUMN DEFAULT
-
-    2. Added support for separating tables DDL by 'GO' statement as in output of MSSQL
-    3. Added support for CREATE TYPE as TABLE
-
-**v0.20.0**
-### New Features:
-
-    #### Common
-    1. SET statements from DDL scripts now collected as type 'ddl_properties' (if you use group_by_type=True) and parsed as
-    dicts with 2 keys inside {'name': 'property name', 'value': 'property value'}
-
-    #### MySQL
-    2. Added support for MySQL ON UPDATE statements in column (without REFERENCE)
-
-    #### MSSQL
-    3. Added support for CONSTRAINT [CLUSTERED]... PRIMARY KEY for Table definition
-    4. Added support for WITH statement in CONSTRAINT (Table definition)
