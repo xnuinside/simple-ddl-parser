@@ -63,7 +63,6 @@ class Output:
 
     def add_alter_to_table(self, statement: Dict) -> None:
         """add 'alter' statement to the table"""
-        print(statement)
         target_table = self.get_table_from_tables_data(
             statement["schema"], statement["alter_table_name"]
         )
