@@ -159,14 +159,17 @@ class BaseData:
             if column["name"] in self.unique:
                 column["unique"] = True
 
+    def iter_class_fields(self):
+        for key, value in self.__dataclass_fields__.items():
+            yield key, value
+
     def filter_out_output(self, field: str) -> bool:
-        cls_fields = self.__dataclass_fields__.items()
         exclude_always_keys = set()
         exclude_if_not_provided = set()
         exclude_if_empty = set()
         exclude_by_dialect_filter = set()
 
-        for key, value in cls_fields:
+        for key, value in self.iter_class_fields():
             if value.metadata.get("exclude_always") is True:
                 exclude_always_keys.add(key)
             else:
@@ -188,11 +191,20 @@ class BaseData:
             return False
         return True
 
+    def get_alias_if_exists(self, key: str) -> str:
+        for class_field, value in self.iter_class_fields():
+            if key == class_field:
+                if value.metadata and "alias" in value.metadata:
+                    return value.metadata["alias"]
+                break
+        return key
+
     def to_dict(self):
         output = {}
         for key, value in self.__dict__.items():
             if self.filter_out_output(key) is True:
-                output[key] = value
+                name = self.get_alias_if_exists(key)
+                output[name] = value
         return output
 
 

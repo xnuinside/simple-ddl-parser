@@ -95,7 +95,12 @@ class SparkSQL(Dialect):
 @dataclass
 @dialect(name="mysql")
 class MySSQL(Dialect):
-    pass
+    engine: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    default_charset: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
 
 
 @dataclass
@@ -107,7 +112,19 @@ class BigQuery(Dialect):
 @dataclass
 @dialect(name="mssql")
 class MSSQL(Dialect):
-    pass
+    _with: Optional[dict] = field(
+        default=None, metadata={"exclude_if_not_provided": True, "alias": "with"}
+    )
+    clustered_primary_key: Optional[list] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    on: Optional[str] = field(default=None, metadata={"exclude_if_not_provided": True})
+    textimage_on: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    period_for_system_time: Optional[List[str]] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
 
 
 @dataclass

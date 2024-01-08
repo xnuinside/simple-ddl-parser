@@ -118,7 +118,7 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
-Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'ibm_db2', 'oracle', 'hql', 'snowflake', 'sql']
+Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 ### From python code
 
@@ -216,7 +216,7 @@ Output will be:
 ### More details
 
 `DDLParser(ddl).run()`
-.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'ibm_db2', 'oracle', 'hql', 'snowflake', 'sql']
+.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 Also in .run() method exists argument `group_by_type` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entity from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 

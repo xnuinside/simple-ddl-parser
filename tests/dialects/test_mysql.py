@@ -5,7 +5,7 @@ def test_simple_on_update():
     ddl = """CREATE TABLE t1 (
     ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     dt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mysql")
     expected = {
         "tables": [
             {
@@ -57,8 +57,8 @@ def test_on_update_with_fcall():
     `id` bigint not null,
     `updated_at` timestamp(3) not null default current_timestamp(3) on update current_timestamp(3),
     primary key (id));"""
-    result = DDLParser(ddl).run(group_by_type=True)
-    expcted = {
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mysql")
+    expected = {
         "domains": [],
         "schemas": [],
         "sequences": [],
@@ -100,7 +100,7 @@ def test_on_update_with_fcall():
         "ddl_properties": [],
         "types": [],
     }
-    assert expcted == result
+    assert expected == result
 
 
 def test_default_charset():
@@ -125,7 +125,7 @@ def test_default_charset():
     PRIMARY KEY (id)
     ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COMMENT = '导入元数据管理';
     """
-    ).run(group_by_type=True)
+    ).run(group_by_type=True, output_mode="mysql")
 
     expected = {
         "ddl_properties": [],
@@ -134,9 +134,8 @@ def test_default_charset():
         "sequences": [],
         "tables": [
             {
-                "ENGINE": "=",
+                "engine": "INNODB",
                 "alter": {},
-                "authorization": "INNODB",
                 "checks": [],
                 "columns": [
                     {
@@ -310,11 +309,10 @@ def test_identity_with_properties():
 CREATE TABLE IF NOT EXISTS database.table_name
     (
         [cifno] [numeric](10, 0) IDENTITY(1,1) NOT NULL,
-        puts (1,1) in the size field
     )
 """
 
-    result = DDLParser(ddl).run()
+    result = DDLParser(ddl).run(output_mode="mysql")
     expected = [
         {
             "alter": {},
@@ -333,12 +331,10 @@ CREATE TABLE IF NOT EXISTS database.table_name
                 }
             ],
             "if_not_exists": True,
-            "in": "the",
             "index": [],
             "partitioned_by": [],
             "primary_key": [],
             "schema": "database",
-            "size": "field",
             "table_name": "table_name",
             "tablespace": None,
         }

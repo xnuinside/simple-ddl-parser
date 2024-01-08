@@ -30,10 +30,28 @@ class TableData:
         if main_cls.__d_name__ == "bigquery":
             if kwargs.get("schema"):
                 kwargs["dataset"] = kwargs["schema"]
+        cls_fields = {
+            field: value for field, value in main_cls.__dataclass_fields__.items()
+        }
+        # aliases needed if statement words are reserved in python and cannot me used as argument name,
+        # for example - like 'with' word
+        aliased_fields = {
+            value.metadata["alias"]: name
+            for name, value in cls_fields.items()
+            if value.metadata and "alias" in value.metadata
+        }
+        for alias, field_name in aliased_fields.items():
+            if alias in kwargs:
+                kwargs[field_name] = kwargs[alias]
+                del kwargs[alias]
+        table_main_args = {
+            k.lower(): v for k, v in kwargs.items() if k.lower() in cls_fields
+        }
 
-        cls_fields = {field for field in main_cls.__dataclass_fields__}
-        table_main_args = {k: v for k, v in kwargs.items() if k in cls_fields}
-        table_properties = {k: v for k, v in kwargs.items() if k not in table_main_args}
+        table_properties = {
+            k.lower(): v for k, v in kwargs.items() if k.lower() not in table_main_args
+        }
+
         init_data = {}
         init_data.update(table_main_args)
         init_data.update(table_properties)
