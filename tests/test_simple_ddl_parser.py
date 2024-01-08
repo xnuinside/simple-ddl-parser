@@ -1193,6 +1193,11 @@ def test_comments_in_columns():
         "tables": [
             {
                 "if_not_exists": True,
+                "table_properties": {
+                    "fields_terminated_by": "_ddl_parser_comma_only_str",
+                    "row_format": "DELIMITED",
+                    "stored_as": "TEXTFILE",
+                },
                 "columns": [
                     {
                         "name": "col1",
@@ -2690,9 +2695,18 @@ def test_replace_with_id():
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": [],
+                "row_format": None,
+                "stored_as": None,
+                "temp": False,
+                "transient": True,
                 "replace": True,
+                "external": False,
                 "schema": None,
                 "table_name": "someTable",
+                "lines_terminated_by": None,
+                "map_keys_terminated_by": None,
+                "fields_terminated_by": None,
+                "collection_items_terminated_by": None,
                 "tablespace": None,
             },
             {
@@ -2714,9 +2728,17 @@ def test_replace_with_id():
                 "partitioned_by": [],
                 "primary_key": [],
                 "replace": True,
+                "row_format": None,
+                "lines_terminated_by": None,
+                "map_keys_terminated_by": None,
+                "fields_terminated_by": None,
+                "collection_items_terminated_by": None,
                 "schema": None,
+                "stored_as": None,
+                "external": False,
                 "table_name": "someTable",
                 "tablespace": None,
+                "temp": True,
             },
         ],
         "types": [],
@@ -2730,7 +2752,7 @@ def test_replace_with_id():
     );
     """
 
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
 
     assert expected == result
 

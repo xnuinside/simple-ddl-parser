@@ -1,7 +1,7 @@
 import pytest
 
 from simple_ddl_parser import DDLParser, DDLParserError
-from simple_ddl_parser.output.common import get_table_id
+from simple_ddl_parser.output.core import get_table_id
 
 
 def test_no_unexpected_logs(capsys):

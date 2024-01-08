@@ -9,7 +9,7 @@ def test_inherits():
     INHERITS (public.identifier);
     """
 
-    result = DDLParser(ddl).run()
+    result = DDLParser(ddl).run(output_mode="postgres")
 
     expected = [
         {

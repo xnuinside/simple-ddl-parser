@@ -31,6 +31,7 @@ def test_clone_table():
                 "checks": [],
                 "columns": [],
                 "index": [],
+                "external": False,
                 "clone": {"schema": None, "table_name": "orders"},
                 "partitioned_by": [],
                 "primary_key": [],
@@ -125,6 +126,7 @@ def test_cluster_by():
                 "schema": None,
                 "table_name": "mytable",
                 "tablespace": None,
+                "external": False,
             }
         ],
         "types": [],
@@ -180,6 +182,7 @@ def test_enforced():
                 "schema": None,
                 "table_name": "table2",
                 "tablespace": None,
+                "external": False,
             }
         ],
         "types": [],
@@ -248,6 +251,7 @@ def test_table_comment_parsed_validly():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
+            "external": False,
         }
     ]
 
@@ -328,6 +332,7 @@ def test_table_with_tag():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
+            "external": False,
         }
     ]
     f = open("payload.json", "a")
@@ -373,6 +378,7 @@ def test_column_with_multiple_tag():
             "schema": None,
             "table_name": "TABLE_NAME",
             "tablespace": None,
+            "external": False,
         }
     ]
     f = open("payload.json", "a")
@@ -418,6 +424,7 @@ def test_table_with_multiple_tag():
             "table_name": "TABLE_NAME",
             "tablespace": None,
             "with_tag": ["b.c='tag1'", "b.d='tag2'"],
+            "external": False,
         }
     ]
     f = open("payload.json", "a")
@@ -481,6 +488,7 @@ def test_table_with_mask():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
+            "external": False,
         }
     ]
 
@@ -540,6 +548,7 @@ def test_table_with_retention():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
+            "external": False,
             "table_properties": {"data_retention_time_in_days": 15},
         }
     ]
@@ -600,6 +609,7 @@ def test_table_with_change_tracking():
             "schema": "ASIN",
             "table_name": "EXCLUSION",
             "tablespace": None,
+            "external": False,
             "table_properties": {"change_tracking": False},
         }
     ]
@@ -859,6 +869,7 @@ def test_virtual_column_ext_table():
             "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
             "tablespace": None,
             "replace": True,
+            "external": True,
             "if_not_exists": True,
             "location": "@ADL_Azure_Storage_Account_Container_Name/",
             "table_properties": {
@@ -915,6 +926,7 @@ def test_virtual_column_table():
                 },
             ],
             "index": [],
+            "external": False,
             "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,

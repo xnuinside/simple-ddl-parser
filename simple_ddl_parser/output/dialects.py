@@ -1,26 +1,15 @@
 from dataclasses import Field, dataclass, field
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
+
+from simple_ddl_parser.output.base_data import BaseData
 
 
 def update_bigquery_output(statement: dict) -> dict:
     if statement.get("schema") or statement.get("sequences"):
         statement["dataset"] = statement["schema"]
+        print("AAAAAAA")
         del statement["schema"]
     return statement
-
-
-def add_additional_snowflake_keys(table_data: Dict) -> Dict:
-    table_data.if_not_exist_update({"clone": None, "primary_key_enforced": None})
-    return table_data
-
-
-def add_additional_mssql_keys(table_data: Dict) -> Dict:
-    table_data.if_not_exist_update(
-        {
-            "constraints": {"uniques": None, "checks": None, "references": None},
-        }
-    )
-    return table_data
 
 
 def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
@@ -31,7 +20,6 @@ def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
 
 
 def dialects_clean_up(output_mode: str, table_data) -> Dict:
-    print(output_mode)
     update_mappers_for_table_properties = {"bigquery": update_bigquery_output}
     update_table_prop = update_mappers_for_table_properties.get(output_mode)
     if update_table_prop:
@@ -40,12 +28,8 @@ def dialects_clean_up(output_mode: str, table_data) -> Dict:
     return table_data
 
 
-def dialect(name: Optional[str] = None, names: Optional[List] = None):
-    output_modes = {"output_modes": []}
-    if name:
-        output_modes["output_modes"].append(name)
-    if names:
-        output_modes["output_modes"].extend(names)
+def dialect(name: str) -> Callable:
+    new_metadata = {"output_modes": [name]}
 
     def wrapper(cls):
         cls.__d_name__ = name
@@ -53,9 +37,9 @@ def dialect(name: Optional[str] = None, names: Optional[List] = None):
             if isinstance(value, Field):
                 metadata = value.metadata.copy()
                 if "output_modes" in metadata:
-                    metadata["output_modes"].extend(output_modes["output_modes"])
+                    metadata["output_modes"].extend(new_metadata["output_modes"])
                 else:
-                    metadata.update(output_modes)
+                    metadata.update(new_metadata)
                 value.metadata = metadata
                 setattr(cls, key, value)
         return cls
@@ -63,14 +47,7 @@ def dialect(name: Optional[str] = None, names: Optional[List] = None):
     return wrapper
 
 
-class DialectMeta(type):
-    def __call__(cls, *args, **kwargs):
-        output_mode = kwargs.get("output_mode")
-        kwargs["dialect"] = dialect_by_name.get(output_mode)
-        return super().__call__(*args, **kwargs)
-
-
-class Dialect(metaclass=DialectMeta):
+class Dialect(BaseData):
 
     """abstract class to implement Dialect"""
 
@@ -81,6 +58,7 @@ class Dialect(metaclass=DialectMeta):
 @dataclass
 @dialect(name="redshift")
 class Redshift(Dialect):
+    # create external https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     sortkey: Optional[dict] = field(
         default_factory=lambda: {"type": None, "keys": []},
     )
@@ -125,11 +103,6 @@ class MySSQL(Dialect):
 class BigQuery(Dialect):
     dataset: Optional[str] = field(default=False)
 
-    def post_process(self) -> None:
-        self.dataset = self.schema
-        self.__dataclass_fields__["schema"].metadata = {"exclude_always": True}
-        return super().post_process()
-
 
 @dataclass
 @dialect(name="mssql")
@@ -168,27 +141,36 @@ class PostgreSQL(Dialect):
     partition_by: Optional[str] = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    inherits: Optional[str] = field(
-        default=None, metadata={"exclude_if_not_provided": True}
+    inherits: Optional[dict] = field(
+        default_factory=dict, metadata={"exclude_if_not_provided": True}
     )
 
 
 @dataclass
 @dialect(name="oracle")
 class Oracle(Dialect):
+    # https://oracle-base.com/articles/8i/index-organized-tables
+
+    organization_index: Optional[bool] = field(
+        default=False, metadata={"exclude_if_not_provided": True}
+    )
+    storage: Optional[dict] = field(
+        default_factory=dict, metadata={"exclude_if_not_provided": True}
+    )
+
     def post_process(self) -> None:
         for column in self.get("columns", []):
             column = self.add_additional_oracle_keys_in_column(column)
 
+    @staticmethod
     def add_additional_oracle_keys_in_column(column_data: Dict) -> Dict:
-        column_data.if_not_exist_update({"encrypt": None})
+        column_data.update({"encrypt": None})
         return column_data
 
 
 @dataclass
 @dialect(name="hql")
 class HQL(Dialect):
-    external: Optional[bool] = field(default=False)
     skewed_by: Optional[dict] = field(
         default_factory=dict,
         metadata={"exclude_if_not_provided": True},
@@ -199,20 +181,9 @@ class HQL(Dialect):
 
 
 @dataclass
-@dialect(names=["hql", "databrics"])
-class HQLDatabrics(Dialect):
-    fields_terminated_by: Optional[str] = field(default=None)
-    lines_terminated_by: Optional[str] = field(default=None)
-    map_keys_terminated_by: Optional[str] = field(default=None)
-    collection_items_terminated_by: Optional[str] = field(default=None)
-    transient: Optional[bool] = field(
-        default=False, metadata={"exclude_if_not_provided": True}
-    )
-
-
-@dataclass
 @dialect(name="snowflake")
 class Snowflake(Dialect):
+    # create external https://docs.snowflake.com/en/sql-reference/sql/create-external-table
     primary_key_enforced: Optional[bool] = field(
         default=None,
     )
@@ -232,17 +203,16 @@ class Snowflake(Dialect):
 dialect_by_name = {
     obj.__d_name__: obj
     for obj in list(globals().values())
-    if isinstance(obj, DialectMeta) and obj != Dialect
+    if isinstance(obj, type) and issubclass(obj, Dialect) and obj != Dialect
 }
 
 
 def add_dialects(dialects: list[Dialect]) -> list[str]:
-    print([dialect.__d_name__ for dialect in dialects])
     return [dialect.__d_name__ for dialect in dialects]
 
 
 @dataclass
-class Dialects(*dialect_by_name.values()):
+class CommonDialectsFieldsMixin(Dialect):
     """base fields & mixed between dialects"""
 
     temp: Optional[bool] = field(
@@ -271,10 +241,29 @@ class Dialects(*dialect_by_name.values()):
             "exclude_if_not_provided": True,
         },
     )
-
-    def post_process(self) -> None:
-        # to override dialects post process
-        pass
+    fields_terminated_by: Optional[str] = field(
+        default=None,
+        metadata={"output_modes": add_dialects([HQL, Databrics])},
+    )
+    lines_terminated_by: Optional[str] = field(
+        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+    )
+    map_keys_terminated_by: Optional[str] = field(
+        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+    )
+    collection_items_terminated_by: Optional[str] = field(
+        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+    )
+    transient: Optional[bool] = field(
+        default=False,
+        metadata={
+            "output_modes": add_dialects([HQL, Databrics]),
+            "exclude_if_not_provided": True,
+        },
+    )
+    external: Optional[bool] = field(
+        default=False, metadata={"output_modes": add_dialects([HQL, Snowflake])}
+    )
 
 
 dialect_by_name["sql"] = None

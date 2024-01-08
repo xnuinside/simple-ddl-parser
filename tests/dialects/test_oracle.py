@@ -249,12 +249,10 @@ def test_oracle_output_mode():
                         "unique": False,
                     },
                 ],
-                "constraints": {"checks": None, "references": None, "uniques": None},
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": [],
                 "schema": None,
-                "storage": None,
                 "table_name": "employee",
                 "tablespace": None,
             },
@@ -307,12 +305,10 @@ def test_oracle_output_mode():
                         "unique": False,
                     },
                 ],
-                "constraints": {"checks": None, "references": None, "uniques": None},
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": [],
                 "schema": None,
-                "storage": None,
                 "table_name": "employee_2",
                 "tablespace": None,
             },
@@ -378,7 +374,6 @@ def test_storage():
                         "unique": False,
                     },
                 ],
-                "constraints": {"checks": None, "references": None, "uniques": None},
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": [],
@@ -419,7 +414,7 @@ CREATE TABLE order_items
     )
     PARTITION BY REFERENCE(order_items_fk);
 """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="oracle")
     expected = {
         "domains": [],
         "ddl_properties": [],
@@ -436,6 +431,7 @@ CREATE TABLE order_items
                         "name": "order_id",
                         "nullable": False,
                         "references": None,
+                        "encrypt": None,
                         "size": 12,
                         "type": "NUMBER",
                         "unique": False,
@@ -446,6 +442,7 @@ CREATE TABLE order_items
                         "name": "line_item_id",
                         "nullable": False,
                         "references": None,
+                        "encrypt": None,
                         "size": 3,
                         "type": "NUMBER",
                         "unique": False,
@@ -456,6 +453,7 @@ CREATE TABLE order_items
                         "name": "product_id",
                         "nullable": False,
                         "references": None,
+                        "encrypt": None,
                         "size": 6,
                         "type": "NUMBER",
                         "unique": False,
@@ -466,6 +464,7 @@ CREATE TABLE order_items
                         "name": "unit_price",
                         "nullable": True,
                         "references": None,
+                        "encrypt": None,
                         "size": (8, 2),
                         "type": "NUMBER",
                         "unique": False,
@@ -476,6 +475,7 @@ CREATE TABLE order_items
                         "name": "quantity",
                         "nullable": True,
                         "references": None,
+                        "encrypt": None,
                         "size": 8,
                         "type": "NUMBER",
                         "unique": False,
@@ -527,7 +527,7 @@ def test_star_in_columns_siize():
         primary key (ID_)
     );
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="oracle")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -547,6 +547,7 @@ def test_star_in_columns_siize():
                         "size": 64,
                         "type": "NVARCHAR2",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -557,6 +558,7 @@ def test_star_in_columns_siize():
                         "size": None,
                         "type": "INTEGER",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -564,6 +566,7 @@ def test_star_in_columns_siize():
                         "name": "TYPE_",
                         "nullable": False,
                         "references": None,
+                        "encrypt": None,
                         "size": 255,
                         "type": "NVARCHAR2",
                         "unique": False,
@@ -577,6 +580,7 @@ def test_star_in_columns_siize():
                         "size": 255,
                         "type": "NVARCHAR2",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -587,6 +591,7 @@ def test_star_in_columns_siize():
                         "size": 64,
                         "type": "NVARCHAR2",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -597,6 +602,7 @@ def test_star_in_columns_siize():
                         "size": 64,
                         "type": "NVARCHAR2",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -607,6 +613,7 @@ def test_star_in_columns_siize():
                         "size": 64,
                         "type": "NVARCHAR2",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -617,6 +624,7 @@ def test_star_in_columns_siize():
                         "size": 64,
                         "type": "NVARCHAR2",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -627,6 +635,7 @@ def test_star_in_columns_siize():
                         "size": ("*", 10),
                         "type": "NUMBER",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -637,6 +646,7 @@ def test_star_in_columns_siize():
                         "size": (19, 0),
                         "type": "NUMBER",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -647,6 +657,7 @@ def test_star_in_columns_siize():
                         "size": 2000,
                         "type": "NVARCHAR2",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -657,6 +668,7 @@ def test_star_in_columns_siize():
                         "size": 2000,
                         "type": "NVARCHAR2",
                         "unique": False,
+                        "encrypt": None,
                     },
                 ],
                 "index": [],
@@ -692,6 +704,7 @@ def test_organization_index():
                         "size": 3,
                         "type": "NUMBER",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": None,
@@ -702,6 +715,7 @@ def test_organization_index():
                         "size": 3,
                         "type": "NUMBER",
                         "unique": False,
+                        "encrypt": None,
                     },
                     {
                         "check": "constraint_name statement",
@@ -711,6 +725,7 @@ def test_organization_index():
                         "references": None,
                         "size": 1,
                         "type": "CHAR",
+                        "encrypt": None,
                         "unique": False,
                     },
                 ],
@@ -769,7 +784,7 @@ CREATE TABLE meta_criteria_combo
 
 GRANT SELECT ON meta_criteria_combo TO PUBLIC;
 """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="oracle")
 
     assert result == expected
 
@@ -782,7 +797,7 @@ create table test (
 );
 """,
         normalize_names=True,
-    ).run(group_by_type=True)
+    ).run(group_by_type=True, output_mode="oracle")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -797,6 +812,7 @@ create table test (
                         "check": None,
                         "default": "user",
                         "name": "col",
+                        "encrypt": None,
                         "nullable": False,
                         "references": None,
                         "size": "30 char",
