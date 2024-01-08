@@ -5,7 +5,7 @@ import pprint
 import sys
 
 from simple_ddl_parser import parse_from_file
-from simple_ddl_parser.output.common import output_modes
+from simple_ddl_parser.output.dialects import dialect_by_name
 
 logger = logging.getLogger("simple_ddl_parser")
 
@@ -37,7 +37,7 @@ def cli():
         "-o",
         "--output-mode",
         default="sql",
-        help=f"Output mode that will be used to format result. Possible variants: {output_modes}",
+        help=f"Output mode that will be used to format result. Possible variants: {dialect_by_name.keys()}",
     )
     return sdp_cli
 

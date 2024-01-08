@@ -18,8 +18,22 @@ For example, if 'CLUSTER BY' was in the DDL, it would show up in the 'cluster_by
 However, now all fields that only work in certain dialects and are not part of the basic SQL notation will only be shown 
 if you choose the correct output_mode.
 
+
+### New Dialects support
+1. Added as possible output_modes new Dialects: 
+- Databrics SQL like 'databricks', 
+- Vertica as 'vertica', 
+- SqliteFields as 'sqlite',
+- PostgreSQL as 'postgres'
+
+Full list of supported dialects you can find in dict - `supported_dialects`:
+
+`from simple_ddl_parser import supported_dialects`
+
+If you don't see dialect that you want to use - open issue with description and links to Database docs or use one of existed dialects.
+
 ### Snowflake updates:
-4. For some reasons, 'CLONE' statement in SNOWFLAKE was parsed into 'like' key in output. Now it was changed to 'clone' - inner structure of output stay the same as previously.
+1. For some reasons, 'CLONE' statement in SNOWFLAKE was parsed into 'like' key in output. Now it was changed to 'clone' - inner structure of output stay the same as previously.
 
 **v0.32.1**
 ### Minor Fixes

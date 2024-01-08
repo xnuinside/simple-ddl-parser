@@ -219,6 +219,7 @@ def test_parsing_go_and_use_correctly():
         {
             "alter": {},
             "checks": [],
+            "temp": False,
             "collection_items_terminated_by": None,
             "columns": [
                 {
@@ -236,7 +237,6 @@ def test_parsing_go_and_use_correctly():
             "fields_terminated_by": None,
             "index": [],
             "lines_terminated_by": None,
-            "location": None,
             "map_keys_terminated_by": None,
             "partitioned_by": [],
             "primary_key": [],

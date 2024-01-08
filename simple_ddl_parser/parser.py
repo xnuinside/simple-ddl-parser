@@ -6,7 +6,8 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from ply import lex, yacc
 
-from simple_ddl_parser.output.common import Output, dump_data_to_file, output_modes
+from simple_ddl_parser.output.core import Output, dump_data_to_file
+from simple_ddl_parser.output.dialects import dialect_by_name
 from simple_ddl_parser.utils import (
     SimpleDDLParserException,
     find_first_unpair_closed_par,
@@ -342,9 +343,9 @@ class Parser:
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each
             Dict == one entity from ddl - one table or sequence or type.
         """
-        if output_mode not in output_modes:
+        if output_mode not in dialect_by_name:
             raise SimpleDDLParserException(
-                f"Output mode can be one of possible variants: {output_modes}"
+                f"Output mode can be one of possible variants: {dialect_by_name.keys()}"
             )
         self.tables = self.parse_data()
         self.tables = Output(
