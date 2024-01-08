@@ -254,6 +254,7 @@ def test_partitioned_by_hql_output_mode_hql():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
+            "temp": False,
         },
     ]
 
@@ -388,6 +389,7 @@ def test_stored_as_hql_showed():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
+            "temp": False,
         }
     ]
     assert expected == result
@@ -522,6 +524,7 @@ def test_location_showed():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
+            "temp": False,
         }
     ]
     assert expected == result
@@ -737,6 +740,7 @@ def test_hql_row_format():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
+            "temp": False,
         }
     ]
     assert expected == result
@@ -816,6 +820,7 @@ def test_fields_terminated_by_hql():
             "collection_items_terminated_by": None,
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
+            "temp": False,
         }
     ]
     assert expected == result
@@ -896,6 +901,7 @@ def test_collection_items_terminated_by_hql():
             "collection_items_terminated_by": "'\\002'",
             "map_keys_terminated_by": None,
             "lines_terminated_by": None,
+            "temp": False,
         }
     ]
     assert expected == result
@@ -978,6 +984,7 @@ def test_map_keys_terminated_by_hql():
             "collection_items_terminated_by": "'\\002'",
             "map_keys_terminated_by": "'\\003'",
             "lines_terminated_by": None,
+            "temp": False,
         }
     ]
 
@@ -1126,7 +1133,6 @@ def test_complex_structure_test_hql():
                 "partitioned_by": [],
                 "tablespace": None,
                 "stored_as": None,
-                "location": None,
                 "row_format": None,
                 "fields_terminated_by": None,
                 "lines_terminated_by": None,
@@ -1135,6 +1141,7 @@ def test_complex_structure_test_hql():
                 "external": False,
                 "schema": "default",
                 "table_name": "salesorderdetail",
+                "temp": False,
             }
         ],
         "types": [],
@@ -1216,7 +1223,6 @@ def test_comment_and_lines():
                 "fields_terminated_by": "'\t'",
                 "index": [],
                 "lines_terminated_by": "'\n'",
-                "location": None,
                 "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
@@ -1225,6 +1231,7 @@ def test_comment_and_lines():
                 "stored_as": "TEXTFILE",
                 "table_name": "employee",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -1356,7 +1363,6 @@ def test_simple_serde():
                 "fields_terminated_by": None,
                 "index": [],
                 "lines_terminated_by": None,
-                "location": None,
                 "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
@@ -1368,6 +1374,7 @@ def test_simple_serde():
                 "stored_as": "TEXTFILE",
                 "table_name": "apachelog",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -1500,7 +1507,6 @@ def test_with_serde_properties():
                 "fields_terminated_by": None,
                 "index": [],
                 "lines_terminated_by": None,
-                "location": None,
                 "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
@@ -1526,6 +1532,7 @@ def test_with_serde_properties():
                 "stored_as": "TEXTFILE",
                 "table_name": "apachelog",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -1578,6 +1585,7 @@ def test_comment_without_null_statement():
                 "stored_as": "PARQUET",
                 "table_name": "test",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -1621,6 +1629,7 @@ def test_special_characters_in_comment():
                 "stored_as": "PARQUET",
                 "table_name": "test",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -1671,7 +1680,6 @@ def test_partitioned_by_multiple_columns():
                 "fields_terminated_by": None,
                 "index": [],
                 "lines_terminated_by": None,
-                "location": None,
                 "map_keys_terminated_by": None,
                 "partitioned_by": [
                     {"name": "snapshot", "size": None, "type": "STRING"},
@@ -1683,6 +1691,7 @@ def test_partitioned_by_multiple_columns():
                 "stored_as": None,
                 "table_name": "test",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -1746,6 +1755,7 @@ def test_table_properties():
                     "'parquet.compression3'": "'SNAPPY3'",
                     "'parquet.compression4'": "'SNAPPY4'",
                 },
+                "temp": False,
             }
         ],
         "types": [],
@@ -1805,6 +1815,7 @@ def test_output_input_format():
             "external": True,
             "schema": None,
             "table_name": "test",
+            "temp": False,
         }
     ]
     assert expected == parse_results
@@ -1853,6 +1864,7 @@ def test_skewed_by():
             "map_keys_terminated_by": None,
             "collection_items_terminated_by": None,
             "external": False,
+            "temp": False,
             "schema": None,
             "table_name": "list_bucket_single",
             "skewed_by": {"key": "key", "on": ["1", "5", "6"]},
@@ -1866,7 +1878,7 @@ def test_allow_use_tags_in_column_names():
         CREATE TABLE IF NOT EXISTS default.salesorderdetail(
                 something<2% ARRAY<structcolx:string,coly:string>
                 )"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -1892,9 +1904,17 @@ def test_allow_use_tags_in_column_names():
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": [],
+                "stored_as": None,
+                "row_format": None,
+                "lines_terminated_by": None,
+                "map_keys_terminated_by": None,
+                "collection_items_terminated_by": None,
+                "external": False,
+                "fields_terminated_by": None,
                 "schema": "default",
                 "table_name": "salesorderdetail",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -1960,7 +1980,6 @@ def test_clustered():
                 "fields_terminated_by": None,
                 "index": [],
                 "lines_terminated_by": None,
-                "location": None,
                 "map_keys_terminated_by": None,
                 "partitioned_by": [{"name": "ds", "size": None, "type": "STRING"}],
                 "primary_key": [],
@@ -1969,6 +1988,7 @@ def test_clustered():
                 "stored_as": None,
                 "table_name": "user_info_bucketed",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -2033,7 +2053,6 @@ def test_into_buckets():
                 "index": [],
                 "into_buckets": "256",
                 "lines_terminated_by": None,
-                "location": None,
                 "map_keys_terminated_by": None,
                 "partitioned_by": [{"name": "ds", "size": None, "type": "STRING"}],
                 "primary_key": [],
@@ -2042,6 +2061,7 @@ def test_into_buckets():
                 "stored_as": None,
                 "table_name": "user_info_bucketed",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -2108,7 +2128,6 @@ def test_clustered_by_multiple_columns():
                 "index": [],
                 "into_buckets": "256",
                 "lines_terminated_by": None,
-                "location": None,
                 "map_keys_terminated_by": None,
                 "partitioned_by": [{"name": "ds", "size": None, "type": "STRING"}],
                 "primary_key": [],
@@ -2117,6 +2136,7 @@ def test_clustered_by_multiple_columns():
                 "stored_as": None,
                 "table_name": "user_info_bucketed",
                 "tablespace": None,
+                "temp": False,
             }
         ],
         "types": [],
@@ -2202,6 +2222,7 @@ WITH SERDEPROPERTIES ( 'key1'='value1', 'key2'='value2' , 'key3'='value3' , 'key
             "stored_as": None,
             "table_name": "x",
             "tablespace": None,
+            "temp": False,
         }
     ]
     assert result == expected
@@ -2236,6 +2257,7 @@ def test_location_with_table_properties_in_like():
             "table_name": "specific_table",
             "tablespace": None,
             "tblproperties": {"external.table.purge": "true"},
+            "temp": False,
         }
     ]
     assert expected == result

@@ -25,6 +25,20 @@ class TableData:
 
         return cls
 
+    @staticmethod
+    def pre_process_kwargs(kwargs: dict, aliased_fields: dict) -> dict:
+        for alias, field_name in aliased_fields.items():
+            if alias in kwargs:
+                kwargs[field_name] = kwargs[alias]
+                del kwargs[alias]
+
+        # todo: need to figure out how workaround it normally
+        if (
+            "fields_terminated_by" in kwargs
+            and "_ddl_parser_comma_only_str" == kwargs["fields_terminated_by"]
+        ):
+            kwargs["fields_terminated_by"] = "','"
+
     @classmethod
     def pre_load_mods(cls, main_cls, kwargs):
         if main_cls.__d_name__ == "bigquery":
@@ -40,10 +54,7 @@ class TableData:
             for name, value in cls_fields.items()
             if value.metadata and "alias" in value.metadata
         }
-        for alias, field_name in aliased_fields.items():
-            if alias in kwargs:
-                kwargs[field_name] = kwargs[alias]
-                del kwargs[alias]
+        cls.pre_process_kwargs(kwargs, aliased_fields)
         table_main_args = {
             k.lower(): v for k, v in kwargs.items() if k.lower() in cls_fields
         }

@@ -148,7 +148,12 @@ class Vertica(Dialect):
 @dataclass
 @dialect(name="ibm_db2")
 class IbmDB2(Dialect):
-    pass
+    organize_by: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    index_in: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
 
 
 @dataclass
@@ -195,6 +200,12 @@ class HQL(Dialect):
     transient: Optional[bool] = field(
         default=False, metadata={"exclude_if_not_provided": True}
     )
+    into_buckets: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    clustered_on: Optional[list] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
 
 
 @dataclass
@@ -239,7 +250,7 @@ class CommonDialectsFieldsMixin(Dialect):
         default_factory=dict,
         metadata={
             "exclude_if_not_provided": True,
-            "output_modes": add_dialects([SparkSQL, Redshift]),
+            "output_modes": add_dialects([SparkSQL, HQL, Redshift]),
         },
     )
     stored_as: Optional[str] = field(
@@ -270,6 +281,13 @@ class CommonDialectsFieldsMixin(Dialect):
     )
     collection_items_terminated_by: Optional[str] = field(
         default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+    )
+    clustered_by: Optional[list] = field(
+        default=None,
+        metadata={
+            "exclude_if_not_provided": True,
+            "output_modes": add_dialects([HQL, SparkSQL]),
+        },
     )
     transient: Optional[bool] = field(
         default=False,
