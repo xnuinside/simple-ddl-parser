@@ -1194,7 +1194,7 @@ def test_comments_in_columns():
             {
                 "if_not_exists": True,
                 "table_properties": {
-                    "fields_terminated_by": "_ddl_parser_comma_only_str",
+                    "fields_terminated_by": "','",
                     "row_format": "DELIMITED",
                     "stored_as": "TEXTFILE",
                 },

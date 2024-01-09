@@ -7,7 +7,6 @@ from simple_ddl_parser.output.base_data import BaseData
 def update_bigquery_output(statement: dict) -> dict:
     if statement.get("schema") or statement.get("sequences"):
         statement["dataset"] = statement["schema"]
-        print("AAAAAAA")
         del statement["schema"]
     return statement
 

@@ -30,8 +30,6 @@ class Output:
     def get_table_from_tables_data(self, schema: str, table_name: str) -> Dict:
         """get table by name and schema or rise exception"""
         table_id = get_table_id(schema, table_name)
-        print(self.tables_dict)
-        print(table_id)
         target_table = self.tables_dict.get(table_id)
         if target_table is None:
             raise ValueError(
@@ -56,7 +54,6 @@ class Output:
 
     def add_alter_to_table(self, statement: Dict) -> None:
         """add 'alter' statement to the table"""
-        print(statement)
         target_table = self.get_table_from_tables_data(
             statement["schema"], statement["alter_table_name"]
         )

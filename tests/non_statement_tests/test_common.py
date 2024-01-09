@@ -247,7 +247,6 @@ def test_parsing_go_and_use_correctly():
             "tablespace": None,
         }
     ]
-    print(result)
     assert expected == result
 
 

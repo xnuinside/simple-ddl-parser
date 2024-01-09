@@ -743,7 +743,6 @@ def test_autoincrement_noorder():
         ],
         "types": [],
     }
-    print(result, "resultresult")
     assert result == expected
 
 
