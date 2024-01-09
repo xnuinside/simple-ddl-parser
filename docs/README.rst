@@ -25,11 +25,16 @@ Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 Is it Stable?
 ^^^^^^^^^^^^^
 
-Yes, library already has about 7000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
+Yes, library already has about 9000+ downloads per day  - https://pypistats.org/packages/simple-ddl-parser..
 
-As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. But! Pay attention that sometimes output in keywords can be changed in minor version because of fixing wrong behaviour in past. For example, previously 'auto_increment' was a part of column type, but later it became a separate column property. So, please read for minor versions changedlog. 
+As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. But! Pay attention that sometimes output in keywords can be changed in minor version because of fixing wrong behaviour in past.
 
-However, in process of adding support for new statements & features I see that output can be structured more optimal way and I hope to release version ``1.0.*`` with more struct output result. But, it will not be soon, first of all, I want to add support for so much statements as I can. So I don't think make sense to expect version 1.0.* before, for example, version ``0.26.0`` :)
+Updates in version 1.x
+^^^^^^^^^^^^^^^^^^^^^^
+
+The full list of updates can be found in the Changelog below (at the end of README).
+
+Version 1.0.0 was released due to significant changes in the output structure and a stricter approach regarding the scope of the produced output. Now, you must provide the argument 'output_mode=name_of_your_dialect' if you wish to see arguments/properties specific to a particular dialect
 
 How does it work?
 ^^^^^^^^^^^^^^^^^
@@ -135,7 +140,7 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
-Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql", "redshift", "snowflake"]
+Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 From python code
 ^^^^^^^^^^^^^^^^
@@ -232,7 +237,7 @@ More details
 ^^^^^^^^^^^^
 
 ``DDLParser(ddl).run()``
-.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument ``output_mode`` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
+.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument ``output_mode`` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 Also in .run() method exists argument ``group_by_type`` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entity from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 
@@ -543,6 +548,69 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 Changelog
 ---------
+
+**v1.0.0**
+In output structure was done important changes that can in theory breaks code.
+
+Important changes
+^^^^^^^^^^^^^^^^^
+
+
+#. Important change: 
+
+all custom table properties that are defined after column definition in 'CREATE TABLE' statement and relative to only one dialect (only for SparkSQL, or HQL,etc), for example, like here:
+https://github.com/xnuinside/simple-ddl-parser/blob/main/tests/dialects/test_snowflake.py#L767  or https://github.com/xnuinside/simple-ddl-parser/blob/main/tests/dialects/test_spark_sql.py#L133 will be saved now in property ``table_properties`` as dict.
+Previously they was placed on same level of table output as ``columns``\ , ``alter``\ , etc. Now, they grouped and moved to key ``table_properties``.
+
+
+#. 
+   Formatting parser result now represented by 2 classes - Output & TableData, that makes it more strict and readable.
+
+#. 
+   The output mode now functions more strictly. If you want to obtain output fields specific to a certain dialect, 
+   use output_mode='snowflake' for Snowflake or output_mode='hql' for HQL, etc. 
+   Previously, some keys appeared in the result without being filtered by dialect. 
+   For example, if 'CLUSTER BY' was in the DDL, it would show up in the 'cluster_by' field regardless of the output mode. 
+   However, now all fields that only work in certain dialects and are not part of the basic SQL notation will only be shown 
+   if you choose the correct output_mode.
+
+New Dialects support
+^^^^^^^^^^^^^^^^^^^^
+
+
+#. Added as possible output_modes new Dialects: 
+
+
+* Databrics SQL like 'databricks', 
+* Vertica as 'vertica', 
+* SqliteFields as 'sqlite',
+* PostgreSQL as 'postgres'
+
+Full list of supported dialects you can find in dict - ``supported_dialects``\ :
+
+``from simple_ddl_parser import supported_dialects``
+
+Currently supported: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
+
+If you don't see dialect that you want to use - open issue with description and links to Database docs or use one of existed dialects.
+
+Snowflake updates:
+^^^^^^^^^^^^^^^^^^
+
+
+#. For some reasons, 'CLONE' statement in SNOWFLAKE was parsed into 'like' key in output. Now it was changed to 'clone' - inner structure of output stay the same as previously.
+
+MySQL updates:
+^^^^^^^^^^^^^^
+
+
+#. Engine statement now parsed correctly. Previously, output was always '='.
+
+BigQuery updates:
+^^^^^^^^^^^^^^^^^
+
+
+#. Word 'schema' totally removed from output. ``Dataset`` used instead of ``schema`` in BigQuery dialect.
 
 **v0.32.1**
 
@@ -987,90 +1055,3 @@ Improvements:
 
 
 #. CLUSTED BY can be used without ()
-
-**v0.22.0**
-
-New Features:
-^^^^^^^^^^^^^
-
-BigQuery:
----------
-
-I started to add partial support for BigQuery
-
-
-#. Added support for OPTIONS in CREATE SCHEMA statement
-
-MSSQL:
-------
-
-
-#. Added support for PRIMARY KEY CLUSTERED - full details about clusterisation are parsed now in separate key 'clustered_primary_key'.
-   I don't like that but when I started I did not thought about all those details, so in version 1.0.* I will work on more beautiful and logically output structure.
-   https://github.com/xnuinside/simple-ddl-parser/issues/91
-
-Pay attention: previously they parsed somehow, but in incorrect structure.
-
-Improvements:
-^^^^^^^^^^^^^
-
-
-#. Strings in double quotes moved as separate token from ID to fix a lot of issues with strings with spaces inside
-#. Now parser can parse statements separated by new line also (without GO or ; at the end of statement) - https://github.com/xnuinside/simple-ddl-parser/issues/90
-
-Fixes:
-^^^^^^
-
-
-#. Now open strings is not valid in checks (previously the was parsed.) Open string sample 'some string (exist open quote, but there is no close quote)
-#. Order like ASC, DESK in primary keys now parsed valid (not as previously as column name)
-
-**v0.21.2**
-Fixies:
-
-
-#. remove 'PERIOD' from tokens
-
-**v0.21.1**
-Fixies:
-
-
-#. START WITH, INCREMENT BY and CACHE (without value) in sequences now is parsed correctly.
-
-**v0.21.0**
-
-New Features:
-^^^^^^^^^^^^^
-
-.. code-block::
-
-   ## MSSQL:
-
-   1. Added support for statements:
-       1. PERIOD FOR SYSTEM_TIME in CREATE TABLE statement
-       2. ON [PRIMARY] after CREATE TABLE statement (sample in test files test_mssql_specific.py)
-       3. WITH statement for TABLE properties
-       4. TEXTIMAGE_ON statement
-       5. DEFAULT NEXT VALUE FOR in COLUMN DEFAULT
-
-   2. Added support for separating tables DDL by 'GO' statement as in output of MSSQL
-   3. Added support for CREATE TYPE as TABLE
-
-
-**v0.20.0**
-
-New Features:
-^^^^^^^^^^^^^
-
-.. code-block::
-
-   #### Common
-   1. SET statements from DDL scripts now collected as type 'ddl_properties' (if you use group_by_type=True) and parsed as
-   dicts with 2 keys inside {'name': 'property name', 'value': 'property value'}
-
-   #### MySQL
-   2. Added support for MySQL ON UPDATE statements in column (without REFERENCE)
-
-   #### MSSQL
-   3. Added support for CONSTRAINT [CLUSTERED]... PRIMARY KEY for Table definition
-   4. Added support for WITH statement in CONSTRAINT (Table definition)

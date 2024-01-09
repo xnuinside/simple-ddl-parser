@@ -1193,6 +1193,11 @@ def test_comments_in_columns():
         "tables": [
             {
                 "if_not_exists": True,
+                "table_properties": {
+                    "fields_terminated_by": "','",
+                    "row_format": "DELIMITED",
+                    "stored_as": "TEXTFILE",
+                },
                 "columns": [
                     {
                         "name": "col1",
@@ -1902,7 +1907,7 @@ def test_quotes():
         `partition`   STRING,
     );
     """
-    parse_result = DDLParser(ddl).run(output_mode="hql")
+    parse_result = DDLParser(ddl).run()
     expected = [
         {
             "columns": [
@@ -1933,15 +1938,6 @@ def test_quotes():
             "index": [],
             "partitioned_by": [],
             "tablespace": None,
-            "stored_as": None,
-            "location": None,
-            "comment": None,
-            "row_format": None,
-            "fields_terminated_by": None,
-            "lines_terminated_by": None,
-            "map_keys_terminated_by": None,
-            "collection_items_terminated_by": None,
-            "external": False,
             "schema": "`shema`",
             "table_name": "table",
             "if_not_exists": True,
@@ -1967,6 +1963,7 @@ def test_escaping_symbols_normal_str():
             {
                 "alter": {},
                 "checks": [],
+                "temp": False,
                 "collection_items_terminated_by": None,
                 "columns": [
                     {
@@ -1981,7 +1978,6 @@ def test_escaping_symbols_normal_str():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": True,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2019,6 +2015,7 @@ def test_escaping_symbols_raw_string():
             {
                 "alter": {},
                 "checks": [],
+                "temp": False,
                 "collection_items_terminated_by": None,
                 "columns": [
                     {
@@ -2033,7 +2030,6 @@ def test_escaping_symbols_raw_string():
                         "unique": False,
                     }
                 ],
-                "comment": None,
                 "external": True,
                 "fields_terminated_by": None,
                 "index": [],
@@ -2335,7 +2331,7 @@ def test_create_empty_table():
 
             CREATE TABLE "material_attachments"
     """
-    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    result = DDLParser(ddl).run(group_by_type=True)
 
     expected = {
         "ddl_properties": [],
@@ -2346,20 +2342,11 @@ def test_create_empty_table():
             {
                 "alter": {},
                 "checks": [],
-                "collection_items_terminated_by": None,
                 "columns": [],
-                "comment": None,
-                "external": False,
-                "fields_terminated_by": None,
                 "index": [],
-                "lines_terminated_by": None,
-                "location": None,
-                "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
-                "row_format": None,
                 "schema": None,
-                "stored_as": None,
                 "table_name": '"material_attachments"',
                 "tablespace": None,
             }
@@ -2376,7 +2363,7 @@ def test_table_name_reserved_word_after_dot():
 
     create table foo.index (col1 int);
         """
-    result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
+    result = DDLParser(ddl).run(group_by_type=True)
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -2386,7 +2373,6 @@ def test_table_name_reserved_word_after_dot():
             {
                 "alter": {},
                 "checks": [],
-                "collection_items_terminated_by": None,
                 "columns": [
                     {
                         "check": None,
@@ -2399,25 +2385,16 @@ def test_table_name_reserved_word_after_dot():
                         "unique": False,
                     }
                 ],
-                "comment": None,
-                "external": False,
-                "fields_terminated_by": None,
                 "index": [],
-                "lines_terminated_by": None,
-                "location": None,
-                "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
-                "row_format": None,
                 "schema": None,
-                "stored_as": None,
                 "table_name": "index",
                 "tablespace": None,
             },
             {
                 "alter": {},
                 "checks": [],
-                "collection_items_terminated_by": None,
                 "columns": [
                     {
                         "check": None,
@@ -2430,25 +2407,16 @@ def test_table_name_reserved_word_after_dot():
                         "unique": False,
                     }
                 ],
-                "comment": None,
-                "external": False,
-                "fields_terminated_by": None,
                 "index": [],
-                "lines_terminated_by": None,
-                "location": None,
-                "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
-                "row_format": None,
                 "schema": "foo",
-                "stored_as": None,
                 "table_name": "[index]",
                 "tablespace": None,
             },
             {
                 "alter": {},
                 "checks": [],
-                "collection_items_terminated_by": None,
                 "columns": [
                     {
                         "check": None,
@@ -2461,18 +2429,10 @@ def test_table_name_reserved_word_after_dot():
                         "unique": False,
                     }
                 ],
-                "comment": None,
-                "external": False,
-                "fields_terminated_by": None,
                 "index": [],
-                "lines_terminated_by": None,
-                "location": None,
-                "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
-                "row_format": None,
                 "schema": "foo",
-                "stored_as": None,
                 "table_name": "index",
                 "tablespace": None,
             },
@@ -2686,7 +2646,6 @@ def test_increment_column():
                     "unique": False,
                 },
             ],
-            "constraints": {"checks": None, "references": None, "uniques": None},
             "index": [],
             "partitioned_by": [],
             "primary_key": ["user_id"],
@@ -2706,7 +2665,7 @@ def test_increment_column():
     );
     """
 
-    result = DDLParser(ddl).run(output_mode="mysql")
+    result = DDLParser(ddl).run()
 
     assert expected == result
 
@@ -2721,7 +2680,6 @@ def test_replace_with_id():
             {
                 "alter": {},
                 "checks": [],
-                "collection_items_terminated_by": None,
                 "columns": [
                     {
                         "check": None,
@@ -2734,27 +2692,26 @@ def test_replace_with_id():
                         "unique": False,
                     }
                 ],
-                "comment": None,
-                "external": False,
-                "fields_terminated_by": None,
                 "index": [],
-                "lines_terminated_by": None,
-                "location": None,
-                "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
-                "replace": True,
                 "row_format": None,
-                "schema": None,
                 "stored_as": None,
-                "table_name": "someTable",
-                "tablespace": None,
+                "temp": False,
                 "transient": True,
+                "replace": True,
+                "external": False,
+                "schema": None,
+                "table_name": "someTable",
+                "lines_terminated_by": None,
+                "map_keys_terminated_by": None,
+                "fields_terminated_by": None,
+                "collection_items_terminated_by": None,
+                "tablespace": None,
             },
             {
                 "alter": {},
                 "checks": [],
-                "collection_items_terminated_by": None,
                 "columns": [
                     {
                         "check": None,
@@ -2767,19 +2724,18 @@ def test_replace_with_id():
                         "unique": False,
                     }
                 ],
-                "comment": None,
-                "external": False,
-                "fields_terminated_by": None,
                 "index": [],
-                "lines_terminated_by": None,
-                "location": None,
-                "map_keys_terminated_by": None,
                 "partitioned_by": [],
                 "primary_key": [],
                 "replace": True,
                 "row_format": None,
+                "lines_terminated_by": None,
+                "map_keys_terminated_by": None,
+                "fields_terminated_by": None,
+                "collection_items_terminated_by": None,
                 "schema": None,
                 "stored_as": None,
+                "external": False,
                 "table_name": "someTable",
                 "tablespace": None,
                 "temp": True,

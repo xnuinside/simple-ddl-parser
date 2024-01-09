@@ -1145,7 +1145,7 @@ class BaseSQL(
         """likke : LIKE
         | CLONE
         """
-        p[0] = None
+        p[0] = p[1].lower()
 
     def p_expression_like_table(self, p: List) -> None:
         """expr : table_name likke id
@@ -1159,11 +1159,13 @@ class BaseSQL(
             if "." in p:
                 schema = p_list[-3]
                 table_name = p_list[-1]
+            key = p_list[-4]
         else:
             table_name = p_list[-1]
             schema = None
+            key = p_list[-2]
         p[0] = p[1]
-        p[0].update({"like": {"schema": schema, "table_name": table_name}})
+        p[0].update({key: {"schema": schema, "table_name": table_name}})
 
     def p_t_name(self, p: List) -> None:
         """t_name : id DOT id

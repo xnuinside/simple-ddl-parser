@@ -5,7 +5,9 @@ def test_spark_sql_using():
     ddl = """CREATE TABLE student (id INT, name STRING, age INT) USING CSV
         COMMENT 'this is a comment'
         TBLPROPERTIES ('foo'='bar');"""
-    result = DDLParser(ddl, silent=False, normalize_names=True).run(group_by_type=True)
+    result = DDLParser(ddl, silent=False, normalize_names=True).run(
+        group_by_type=True, output_mode="spark_sql"
+    )
 
     expected = {
         "ddl_properties": [],
@@ -50,12 +52,14 @@ def test_spark_sql_using():
                 ],
                 "index": [],
                 "partitioned_by": [],
+                "row_format": None,
+                "stored_as": None,
                 "primary_key": [],
                 "schema": None,
                 "table_name": "student",
                 "tablespace": None,
                 "tblproperties": {"'foo'": "'bar'"},
-                "using": "CSV",
+                "table_properties": {"using": "CSV"},
                 "comment": "'this is a comment'",
             }
         ],
@@ -116,7 +120,7 @@ def test_partition_by():
                 "schema": None,
                 "table_name": "student",
                 "tablespace": None,
-                "using": "CSV",
+                "table_properties": {"using": "CSV"},
             }
         ],
         "types": [],
@@ -132,7 +136,7 @@ def test_spark_sql_partitioned_by_function():
     partitioned by (months(b))
     location 's3://tables/a'
     """
-    ).run(group_by_type=True)
+    ).run(group_by_type=True, output_mode="spark_sql")
 
     expected = {
         "ddl_properties": [],
@@ -166,13 +170,15 @@ def test_spark_sql_partitioned_by_function():
                     },
                 ],
                 "index": [],
-                "location": "'s3://tables/a'",
                 "partitioned_by": [{"args": "(b)", "func_name": "months"}],
                 "primary_key": [],
+                "row_format": None,
                 "schema": None,
+                "stored_as": None,
                 "table_name": "a",
                 "tablespace": None,
-                "using": "iceberg",
+                "location": "'s3://tables/a'",
+                "table_properties": {"using": "iceberg"},
             }
         ],
         "types": [],

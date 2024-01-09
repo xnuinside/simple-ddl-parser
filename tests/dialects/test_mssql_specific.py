@@ -10,7 +10,7 @@ def test_int_identity_type():
     )
     """
 
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [" NOTE"],
         "ddl_properties": [],
@@ -67,7 +67,7 @@ def test_mssql_foreign_ref_in_column():
     )
     """
 
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [" NOTE", " ADD THIS COLUMN FOR THE FOREIGN KEY"],
         "ddl_properties": [],
@@ -139,7 +139,7 @@ def test_max_supported_as_column_size():
     user_first_name VARCHAR(max) NOT NULL,
     )
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "sequences": [],
         "ddl_properties": [],
@@ -195,7 +195,7 @@ def test_constraint_unique():
     )
     """
 
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [" NOTE"],
         "sequences": [],
@@ -321,7 +321,6 @@ def test_constraint_unique_none():
                 "schema": None,
                 "table_name": "sqlserverlist",
                 "tablespace": None,
-                "constraints": {"uniques": None, "checks": None, "references": None},
             }
         ],
         "types": [],
@@ -370,7 +369,7 @@ def test_two_unique_constructs():
     )
     """
 
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
             " NOTE",
@@ -763,7 +762,7 @@ def test_foreign_keys():
    );
    """
 
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
             " NOTE",
@@ -1120,7 +1119,7 @@ def test_alter_unique():
    ALTER TABLE sqlserverlist ADD CONSTRAINT UC_Person_ening_funds UNIQUE (current_funds,create_date);
    """
 
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
             " NOTE",
@@ -1744,7 +1743,7 @@ def test_mysql_constraint_pk():
     );
     """
 
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "sequences": [],
         "ddl_properties": [],
@@ -1884,7 +1883,7 @@ def test_constraint_primary_key():
         [id] ASC
     )
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     assert result == expected
 
 
@@ -1912,7 +1911,7 @@ def test_constraint_with_with():
         IGNORE_DUP_KEY = OFF,
         ALLOW_ROW_LOCKS = ON,
         ALLOW_PAGE_LOCKS = ON))"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
             "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
@@ -2137,7 +2136,7 @@ def test_with_on():
             ALLOW_PAGE_LOCKS = ON
         )  ON [PRIMARY]
     )"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     assert expected == result
 
 
@@ -2162,7 +2161,7 @@ def test_period_for_system_time():
         PERIOD FOR SYSTEM_TIME ([StartHistory], [EndHistory])
     )
   """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -2286,7 +2285,7 @@ def test_on_primary_on_table_level():
         PERIOD FOR SYSTEM_TIME ([StartHistory], [EndHistory])
     )) ON [PRIMARY]
   """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -2411,7 +2410,7 @@ def test_with_on_table_level():
     (
     SYSTEM_VERSIONING = ON
     )"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
             "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
@@ -2502,7 +2501,7 @@ WITH
 (
 SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[users_WorkScheduleHistory] )
 )"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
             "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
@@ -2649,7 +2648,7 @@ CREATE TABLE [dbo].[ToDoComments](
 ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
             "***** Object:  Table [dbo].[TO_Requests]    Script Date: "
@@ -2972,7 +2971,7 @@ def test_next_value_for():
     ddl = """CREATE TABLE [dbo].[SLIPEVENTO] (
     [cdSLIP] [bigint] NOT NULL
     DEFAULT NEXT VALUE FOR [dbo].[sqCdSLIPEvt] )"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -3028,7 +3027,7 @@ def test_primary_key_clustered():
     IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 80) ON [PRIMARY]
     ) ON [PRIMARY]
     GO"""
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
             "***** Object:  Table [aud].[tcal_tgt]    Script Date: "

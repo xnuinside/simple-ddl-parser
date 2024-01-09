@@ -411,8 +411,6 @@ def test_foreigen_keys():
         "sequences": [],
         "tables": [
             {
-                "ENGINE=InnoDB": "CHARACTER",
-                "SET": "utf8",
                 "alter": {},
                 "checks": [],
                 "columns": [
@@ -465,6 +463,7 @@ def test_foreigen_keys():
                         "unique": False,
                     },
                 ],
+                "table_properties": {"engine=innodb": "CHARACTER", "set": "utf8"},
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": ["exception_id"],

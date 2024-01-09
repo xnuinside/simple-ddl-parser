@@ -1,158 +1,324 @@
-from typing import Dict, List
+from dataclasses import Field, dataclass, field
+from typing import Callable, Dict, List, Optional
 
-hql_clean_up_list = ["deferrable_initially"]
-
-
-sql_clean_up_list = [
-    "external",
-    "external",
-    "stored_as",
-    "row_format",
-    "lines_terminated_by",
-    "fields_terminated_by",
-    "collection_items_terminated_by",
-    "map_keys_terminated_by",
-]
+from simple_ddl_parser.output.base_data import BaseData
 
 
-def add_additional_hql_keys(table_data: Dict) -> Dict:
-    table_data.update(
-        {
-            "stored_as": None,
-            "location": None,
-            "comment": None,
-            "row_format": None,
-            "fields_terminated_by": None,
-            "lines_terminated_by": None,
-            "fields_terminated_by": None,
-            "map_keys_terminated_by": None,
-            "collection_items_terminated_by": None,
-            "external": table_data.get("external", False),
-        }
-    )
-    return table_data
+def update_bigquery_output(statement: dict) -> dict:
+    if statement.get("schema") or statement.get("sequences"):
+        statement["dataset"] = statement["schema"]
+        del statement["schema"]
+    return statement
 
 
-def add_additional_oracle_keys(table_data: Dict) -> Dict:
-    table_data.update(
-        {
-            "constraints": {"uniques": None, "checks": None, "references": None},
-            "storage": None,
-        }
-    )
-    return table_data
-
-
-def update_bigquery_output(table_data: Dict) -> Dict:
-    if table_data.get("schema"):
-        table_data["dataset"] = table_data["schema"]
-        del table_data["schema"]
-    return table_data
-
-
-def add_additional_redshift_keys(table_data: Dict) -> Dict:
-    table_data.update(
-        {
-            "diststyle": None,
-            "distkey": None,
-            "sortkey": {"type": None, "keys": []},
-            "encode": None,
-            "temp": False,
-        }
-    )
-    return table_data
-
-
-def add_additional_snowflake_keys(table_data: Dict) -> Dict:
-    table_data.update({"clone": None, "primary_key_enforced": None})
-    return table_data
-
-
-def add_additional_oracle_keys_in_column(column_data: Dict) -> Dict:
-    column_data.update({"encrypt": None})
-    return column_data
-
-
-def add_additional_snowflake_keys_in_column(column_data: Dict) -> Dict:
-    return column_data
-
-
-def add_additional_redshift_keys_in_column(column_data: Dict, table_data: Dict) -> Dict:
-    column_data["encode"] = column_data.get("encode", None)
-    if column_data.get("distkey"):
-        table_data["distkey"] = column_data["name"]
-        del column_data["distkey"]
-    return column_data, table_data
-
-
-def add_additional_mssql_keys(table_data: Dict) -> Dict:
-    table_data.update(
-        {
-            "constraints": {"uniques": None, "checks": None, "references": None},
-        }
-    )
-    return table_data
-
-
-def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
-    for key in key_list:
-        if key in table_data:
-            del table_data[key]
-    return table_data
-
-
-def populate_dialects_table_data(output_mode: str, table_data: Dict) -> Dict:
-    mehtod_mapper = {
-        "hql": add_additional_hql_keys,
-        "mssql": add_additional_mssql_keys,
-        "mysql": add_additional_mssql_keys,
-        "oracle": add_additional_oracle_keys,
-        "redshift": add_additional_redshift_keys,
-        "snowflake": add_additional_snowflake_keys,
-    }
-
-    method = mehtod_mapper.get(output_mode)
-
-    if method:
-        table_data = method(table_data)
-
-    return table_data
-
-
-def key_cleaning(table_data: Dict, output_mode: str) -> Dict:
-    if output_mode != "hql":
-        table_data = clean_up_output(table_data, sql_clean_up_list)
-    else:
-        table_data = clean_up_output(table_data, hql_clean_up_list)
-        # todo: need to figure out how workaround it normally
-        if "_ddl_parser_comma_only_str" == table_data.get("fields_terminated_by"):
-            table_data["fields_terminated_by"] = "','"
-    return table_data
-
-
-def process_redshift_dialect(table_data: List[Dict]) -> List[Dict]:
-    for column in table_data.get("columns", []):
-        column, table_data = add_additional_redshift_keys_in_column(column, table_data)
-        if table_data.get("encode"):
-            column["encode"] = column["encode"] or table_data.get("encode")
-    return table_data
-
-
-def dialects_clean_up(output_mode: str, table_data: Dict) -> Dict:
-    key_cleaning(table_data, output_mode)
+def dialects_clean_up(output_mode: str, table_data) -> Dict:
     update_mappers_for_table_properties = {"bigquery": update_bigquery_output}
     update_table_prop = update_mappers_for_table_properties.get(output_mode)
     if update_table_prop:
         table_data = update_table_prop(table_data)
 
-    if output_mode == "oracle":
-        for column in table_data.get("columns", []):
-            column = add_additional_oracle_keys_in_column(column)
-    elif output_mode == "snowflake":
-        # can be no columns if it is a create database or create schema
-        for column in table_data.get("columns", []):
-            column = add_additional_snowflake_keys_in_column(column)
-
-    elif output_mode == "redshift":
-        table_data = process_redshift_dialect(table_data)
     return table_data
+
+
+def dialect(name: str) -> Callable:
+    new_metadata = {"output_modes": [name]}
+
+    def wrapper(cls):
+        cls.__d_name__ = name
+        for key, value in cls.__dict__.items():
+            if isinstance(value, Field):
+                metadata = value.metadata.copy()
+                if "output_modes" in metadata:
+                    metadata["output_modes"].extend(new_metadata["output_modes"])
+                else:
+                    metadata.update(new_metadata)
+                value.metadata = metadata
+                setattr(cls, key, value)
+        return cls
+
+    return wrapper
+
+
+class Dialect(BaseData):
+
+    """abstract class to implement Dialect"""
+
+    def post_process(self) -> None:
+        pass
+
+
+@dataclass
+@dialect(name="redshift")
+class Redshift(Dialect):
+    # create external https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    sortkey: Optional[dict] = field(
+        default_factory=lambda: {"type": None, "keys": []},
+    )
+    diststyle: Optional[str] = field(
+        default=None,
+    )
+    distkey: Optional[str] = field(
+        default=None,
+    )
+    encode: Optional[str] = field(
+        default=None,
+    )
+
+    def add_additional_keys_in_column_redshift(self, column_data: Dict) -> Dict:
+        column_data["encode"] = column_data.get("encode", None)
+        if column_data.get("distkey"):
+            self.distkey = column_data["name"]
+            del column_data["distkey"]
+        return column_data
+
+    def post_process(self) -> None:
+        for column in self.columns:
+            column = self.add_additional_keys_in_column_redshift(column)
+            if self.encode:
+                column["encode"] = column["encode"] or self.encode
+
+
+@dataclass
+@dialect(name="spark_sql")
+class SparkSQL(Dialect):
+    pass
+
+
+@dataclass
+@dialect(name="mysql")
+class MySSQL(Dialect):
+    engine: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    default_charset: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+
+
+@dataclass
+@dialect(name="bigquery")
+class BigQuery(Dialect):
+    dataset: Optional[str] = field(default=False)
+    project: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+
+    @staticmethod
+    def prepare_ref_statement(ref_statement: Dict):
+        ref_statement["dataset"] = ref_statement["schema"]
+        del ref_statement["schema"]
+
+    def to_dict(self):
+        output = {}
+        for key, value in self.__dict__.items():
+            if key == "schema":
+                continue
+            if self.filter_out_output(key) is True:
+                name = self.get_alias_if_exists(key)
+                output[name] = value
+        return output
+
+
+@dataclass
+@dialect(name="mssql")
+class MSSQL(Dialect):
+    _with: Optional[dict] = field(
+        default=None, metadata={"exclude_if_not_provided": True, "alias": "with"}
+    )
+    clustered_primary_key: Optional[list] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    on: Optional[str] = field(default=None, metadata={"exclude_if_not_provided": True})
+    textimage_on: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    period_for_system_time: Optional[List[str]] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+
+
+@dataclass
+@dialect(name="databrics")
+class Databrics(Dialect):
+    property_key: Optional[str] = field(default=None)
+
+
+@dataclass
+@dialect(name="sqlite")
+class Sqlite(Dialect):
+    pass
+
+
+@dataclass
+@dialect(name="vertics")
+class Vertica(Dialect):
+    pass
+
+
+@dataclass
+@dialect(name="ibm_db2")
+class IbmDB2(Dialect):
+    organize_by: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    index_in: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+
+
+@dataclass
+@dialect(name="postgres")
+class PostgreSQL(Dialect):
+    # todo: https://www.postgresql.org/docs/current/sql-createtable.html
+    partition_by: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    inherits: Optional[dict] = field(
+        default_factory=dict, metadata={"exclude_if_not_provided": True}
+    )
+
+
+@dataclass
+@dialect(name="oracle")
+class Oracle(Dialect):
+    # https://oracle-base.com/articles/8i/index-organized-tables
+
+    organization_index: Optional[bool] = field(
+        default=False, metadata={"exclude_if_not_provided": True}
+    )
+    storage: Optional[dict] = field(
+        default_factory=dict, metadata={"exclude_if_not_provided": True}
+    )
+
+    def post_process(self) -> None:
+        for column in self.get("columns", []):
+            column = self.add_additional_oracle_keys_in_column(column)
+
+    @staticmethod
+    def add_additional_oracle_keys_in_column(column_data: Dict) -> Dict:
+        column_data.update({"encrypt": None})
+        return column_data
+
+
+@dataclass
+@dialect(name="hql")
+class HQL(Dialect):
+    skewed_by: Optional[dict] = field(
+        default_factory=dict,
+        metadata={"exclude_if_not_provided": True},
+    )
+    transient: Optional[bool] = field(
+        default=False, metadata={"exclude_if_not_provided": True}
+    )
+    into_buckets: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+    clustered_on: Optional[list] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+
+
+@dataclass
+@dialect(name="snowflake")
+class Snowflake(Dialect):
+    # create external https://docs.snowflake.com/en/sql-reference/sql/create-external-table
+    primary_key_enforced: Optional[bool] = field(
+        default=None,
+    )
+    clone: Optional[dict] = field(
+        default=None,
+    )
+    with_tag: Optional[list] = field(
+        default_factory=list,
+        metadata={"exclude_if_not_provided": True},
+    )
+
+
+dialect_by_name = {
+    obj.__d_name__: obj
+    for obj in list(globals().values())
+    if isinstance(obj, type) and issubclass(obj, Dialect) and obj != Dialect
+}
+
+
+def add_dialects(dialects: List[Dialect]) -> List[str]:
+    return [dialect.__d_name__ for dialect in dialects]
+
+
+@dataclass
+class CommonDialectsFieldsMixin(Dialect):
+    """base fields & mixed between dialects"""
+
+    temp: Optional[bool] = field(
+        default=False, metadata={"output_modes": add_dialects([HQL, Redshift])}
+    )
+    tblproperties: Optional[dict] = field(
+        default_factory=dict,
+        metadata={
+            "exclude_if_not_provided": True,
+            "output_modes": add_dialects([SparkSQL, HQL, Redshift]),
+        },
+    )
+    stored_as: Optional[str] = field(
+        default=None,
+        metadata={"output_modes": add_dialects([SparkSQL, HQL, Databrics, Redshift])},
+    )
+
+    row_format: Optional[dict] = field(
+        default=None,
+        metadata={"output_modes": add_dialects([SparkSQL, HQL, Databrics, Redshift])},
+    )
+    location: Optional[str] = field(
+        default=None,
+        metadata={
+            "output_modes": add_dialects([HQL, SparkSQL, Snowflake, Databrics]),
+            "exclude_if_not_provided": True,
+        },
+    )
+    fields_terminated_by: Optional[str] = field(
+        default=None,
+        metadata={"output_modes": add_dialects([HQL, Databrics])},
+    )
+    lines_terminated_by: Optional[str] = field(
+        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+    )
+    map_keys_terminated_by: Optional[str] = field(
+        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+    )
+    collection_items_terminated_by: Optional[str] = field(
+        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+    )
+    clustered_by: Optional[list] = field(
+        default=None,
+        metadata={
+            "exclude_if_not_provided": True,
+            "output_modes": add_dialects([HQL, SparkSQL]),
+        },
+    )
+    options: Optional[list] = field(
+        default=None,
+        metadata={
+            "exclude_if_not_provided": True,
+            "output_modes": add_dialects([BigQuery, SparkSQL]),
+        },
+    )
+    transient: Optional[bool] = field(
+        default=False,
+        metadata={
+            "output_modes": add_dialects([HQL, Databrics]),
+            "exclude_if_not_provided": True,
+        },
+    )
+    external: Optional[bool] = field(
+        default=False, metadata={"output_modes": add_dialects([HQL, Snowflake])}
+    )
+    cluster_by: Optional[list] = field(
+        default_factory=list,
+        metadata={
+            "exclude_if_not_provided": True,
+            "output_modes": add_dialects([BigQuery, Snowflake]),
+        },
+    )
+
+
+dialect_by_name["sql"] = None

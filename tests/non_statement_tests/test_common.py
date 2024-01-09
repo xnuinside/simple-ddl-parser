@@ -1,7 +1,7 @@
 import pytest
 
 from simple_ddl_parser import DDLParser, DDLParserError
-from simple_ddl_parser.output.common import get_table_id
+from simple_ddl_parser.output.core import get_table_id
 
 
 def test_no_unexpected_logs(capsys):
@@ -219,6 +219,7 @@ def test_parsing_go_and_use_correctly():
         {
             "alter": {},
             "checks": [],
+            "temp": False,
             "collection_items_terminated_by": None,
             "columns": [
                 {
@@ -232,12 +233,10 @@ def test_parsing_go_and_use_correctly():
                     "unique": False,
                 }
             ],
-            "comment": None,
             "external": False,
             "fields_terminated_by": None,
             "index": [],
             "lines_terminated_by": None,
-            "location": None,
             "map_keys_terminated_by": None,
             "partitioned_by": [],
             "primary_key": [],

@@ -123,6 +123,7 @@ def test_partitioned_by_hql():
             "table_name": "table_name",
             "tablespace": None,
             "partitioned_by": [{"name": "batch_id", "type": "int", "size": None}],
+            "table_properties": {"external": True},
         }
     ]
 
@@ -329,6 +330,7 @@ def test_stored_as_parsed_but_not_showed():
             "schema": "database",
             "table_name": "table_name",
             "tablespace": None,
+            "table_properties": {"external": True, "stored_as": "PARQUET"},
         }
     ]
     assert expected == result
@@ -528,6 +530,7 @@ def test_row_format_is_not_showed():
             "schema": "default",
             "table_name": "salesorderdetail",
             "tablespace": None,
+            "table_properties": {"row_format": "DELIMITED", "stored_as": "TEXTFILE"},
         }
     ]
     assert expected == result
@@ -600,6 +603,11 @@ def test_fields_terminated_by_not_showed():
             "schema": "default",
             "table_name": "salesorderdetail",
             "tablespace": None,
+            "table_properties": {
+                "fields_terminated_by": "','",
+                "row_format": "DELIMITED",
+                "stored_as": "TEXTFILE",
+            },
         }
     ]
     assert expected == result
@@ -673,6 +681,12 @@ def test_collection_items_terminated_by_not_showed():
             "schema": "default",
             "table_name": "salesorderdetail",
             "tablespace": None,
+            "table_properties": {
+                "collection_items_terminated_by": "'\\002'",
+                "fields_terminated_by": "'\\002'",
+                "row_format": "DELIMITED",
+                "stored_as": "TEXTFILE",
+            },
         }
     ]
 
@@ -699,6 +713,13 @@ def test_map_keys_terminated_not_showed():
     expected = [
         {
             "if_not_exists": True,
+            "table_properties": {
+                "collection_items_terminated_by": "'\\002'",
+                "fields_terminated_by": "','",
+                "map_keys_terminated_by": "'\\003'",
+                "row_format": "DELIMITED",
+                "stored_as": "TEXTFILE",
+            },
             "columns": [
                 {
                     "name": "SalesOrderID",

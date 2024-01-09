@@ -14,7 +14,7 @@ def test_in_tablespace():
 
     """
 
-    result = DDLParser(ddl).run()
+    result = DDLParser(ddl).run(output_mode="ibm_db2")
     expected = [
         {
             "alter": {},
@@ -85,7 +85,7 @@ def test_index_in():
 
     """
 
-    result = DDLParser(ddl).run()
+    result = DDLParser(ddl).run(output_mode="ibm_db2")
     expected = [
         {
             "alter": {},
@@ -155,7 +155,7 @@ def test_organize_by_row():
     ORGANIZE BY ROw
     """
 
-    result = DDLParser(ddl).run()
+    result = DDLParser(ddl).run(output_mode="ibm_db2")
     expected = [
         {
             "alter": {},
