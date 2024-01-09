@@ -140,7 +140,7 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
-Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql", "redshift", "snowflake"]
+Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 From python code
 ^^^^^^^^^^^^^^^^
@@ -237,7 +237,7 @@ More details
 ^^^^^^^^^^^^
 
 ``DDLParser(ddl).run()``
-.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument ``output_mode`` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ["mssql", "mysql", "oracle", "hql", "sql"]
+.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument ``output_mode`` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 Also in .run() method exists argument ``group_by_type`` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entity from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 
@@ -574,11 +574,43 @@ Previously they was placed on same level of table output as ``columns``\ , ``alt
    However, now all fields that only work in certain dialects and are not part of the basic SQL notation will only be shown 
    if you choose the correct output_mode.
 
+New Dialects support
+^^^^^^^^^^^^^^^^^^^^
+
+
+#. Added as possible output_modes new Dialects: 
+
+
+* Databrics SQL like 'databricks', 
+* Vertica as 'vertica', 
+* SqliteFields as 'sqlite',
+* PostgreSQL as 'postgres'
+
+Full list of supported dialects you can find in dict - ``supported_dialects``\ :
+
+``from simple_ddl_parser import supported_dialects``
+
+Currently supported: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
+
+If you don't see dialect that you want to use - open issue with description and links to Database docs or use one of existed dialects.
+
 Snowflake updates:
 ^^^^^^^^^^^^^^^^^^
 
 
 #. For some reasons, 'CLONE' statement in SNOWFLAKE was parsed into 'like' key in output. Now it was changed to 'clone' - inner structure of output stay the same as previously.
+
+MySQL updates:
+^^^^^^^^^^^^^^
+
+
+#. Engine statement now parsed correctly. Previously, output was always '='.
+
+BigQuery updates:
+^^^^^^^^^^^^^^^^^
+
+
+#. Word 'schema' totally removed from output. ``Dataset`` used instead of ``schema`` in BigQuery dialect.
 
 **v0.32.1**
 

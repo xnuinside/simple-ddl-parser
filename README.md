@@ -489,7 +489,6 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 **v1.0.0**
 In output structure was done important changes that can in theory breaks code.
 
-
 ### Important changes
 1. Important change: 
 
@@ -506,8 +505,30 @@ For example, if 'CLUSTER BY' was in the DDL, it would show up in the 'cluster_by
 However, now all fields that only work in certain dialects and are not part of the basic SQL notation will only be shown 
 if you choose the correct output_mode.
 
+
+### New Dialects support
+1. Added as possible output_modes new Dialects: 
+- Databrics SQL like 'databricks', 
+- Vertica as 'vertica', 
+- SqliteFields as 'sqlite',
+- PostgreSQL as 'postgres'
+
+Full list of supported dialects you can find in dict - `supported_dialects`:
+
+`from simple_ddl_parser import supported_dialects`
+
+Currently supported: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
+
+If you don't see dialect that you want to use - open issue with description and links to Database docs or use one of existed dialects.
+
 ### Snowflake updates:
-4. For some reasons, 'CLONE' statement in SNOWFLAKE was parsed into 'like' key in output. Now it was changed to 'clone' - inner structure of output stay the same as previously.
+1. For some reasons, 'CLONE' statement in SNOWFLAKE was parsed into 'like' key in output. Now it was changed to 'clone' - inner structure of output stay the same as previously.
+
+### MySQL updates:
+1. Engine statement now parsed correctly. Previously, output was always '='.
+
+### BigQuery updates:
+1. Word 'schema' totally removed from output. `Dataset` used instead of `schema` in BigQuery dialect.
 
 **v0.32.1**
 ### Minor Fixes
