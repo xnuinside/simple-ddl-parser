@@ -39,6 +39,8 @@ If you don't see dialect that you want to use - open issue with description and 
 ### MySQL updates:
 1. Engine statement now parsed correctly. Previously, output was always '='.
 
+### BigQuery updates:
+1. Word 'schema' totally removed from output. `Dataset` used instead of `schema` in BigQuery dialect.
 
 **v0.32.1**
 ### Minor Fixes

@@ -162,7 +162,7 @@ def test_long_string_in_option():
     description="Calendar table records reference list of calendar dates and related attributes used for reporting."
     );
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -200,7 +200,7 @@ def test_option_in_create_table():
     description="Calendar table records reference list of calendar dates and related attributes used for reporting."
     );
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -232,7 +232,7 @@ def test_option_in_create_table():
                 ],
                 "partitioned_by": [],
                 "primary_key": [],
-                "schema": "hub",
+                "dataset": "hub",
                 "project": "name",
                 "table_name": "REF_CALENDAR",
                 "tablespace": None,
@@ -252,7 +252,7 @@ def test_options_in_column():
     description="Calendar table records reference list of calendar dates and related attributes used for reporting."
     );
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -286,7 +286,7 @@ def test_options_in_column():
                 "partitioned_by": [],
                 "primary_key": [],
                 "project": "name",
-                "schema": "hub",
+                "dataset": "hub",
                 "table_name": "REF_CALENDAR",
                 "tablespace": None,
             }
@@ -307,7 +307,7 @@ def test_cluster_by_without_brackets():
     );
 
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -342,7 +342,7 @@ def test_cluster_by_without_brackets():
                 "partitioned_by": [],
                 "primary_key": [],
                 "project": "name",
-                "schema": "hub",
+                "dataset": "hub",
                 "table_name": "REF_CALENDAR",
                 "tablespace": None,
             }
@@ -364,7 +364,7 @@ def test_two_options_in_create_table():
     )
 
     """
-    result = DDLParser(ddl).run(group_by_type=True)
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
     expected = {
         "ddl_properties": [],
         "domains": [],
@@ -394,7 +394,7 @@ def test_two_options_in_create_table():
                 ],
                 "partitioned_by": [],
                 "primary_key": [],
-                "schema": "mydataset",
+                "dataset": "mydataset",
                 "table_name": "newtable",
                 "tablespace": None,
             }
@@ -406,11 +406,11 @@ def test_two_options_in_create_table():
 
 def test_table_name_with_project_id():
     ddl = """
-    CREATE SCHEMA IF NOT EXISTS project.calender
+    CREATE SCHEMA IF NOT EXISTS project.calendar
     OPTIONS (
     location="project-location"
     );
-    CREATE TABLE project_id.calender.REF_CALENDAR (
+    CREATE TABLE project_id.calendar.REF_CALENDAR (
     calendar_dt DATE,
     calendar_dt_id INT,
     fiscal_half_year_reporting_week_no INT
@@ -431,7 +431,7 @@ def test_table_name_with_project_id():
         "schemas": [
             {
                 "properties": {"options": [{"location": '"project-location"'}]},
-                "schema_name": "calender",
+                "schema_name": "calendar",
                 "project": "project",
                 "if_not_exists": True,
             }
@@ -474,7 +474,7 @@ def test_table_name_with_project_id():
                         "unique": False,
                     },
                 ],
-                "dataset": "calender",
+                "dataset": "calendar",
                 "index": [],
                 "options": [
                     {
@@ -530,7 +530,7 @@ def test_project_id_in_alter_and_references():
                                 "on_delete": "CASCADE",
                                 "on_update": "CASCADE",
                                 "project": "project_id",
-                                "schema": "schema",
+                                "dataset": "schema",
                                 "table": "ChildTableName2",
                             },
                         }
@@ -565,11 +565,11 @@ def test_project_id_in_alter_and_references():
 
 def test_multiple_options():
     ddl = """
-    CREATE SCHEMA IF NOT EXISTS project.calender
+    CREATE SCHEMA IF NOT EXISTS project.calendar
     OPTIONS (
     location="project-location"
     );
-    CREATE TABLE project_id.calender.REF_CALENDAR (
+    CREATE TABLE project_id.calendar.REF_CALENDAR (
     calendar_dt DATE,
     calendar_dt_id INT,
     fiscal_half_year_reporting_week_no INT
@@ -590,7 +590,7 @@ def test_multiple_options():
         "schemas": [
             {
                 "properties": {"options": [{"location": '"project-location"'}]},
-                "schema_name": "calender",
+                "schema_name": "calendar",
                 "project": "project",
                 "if_not_exists": True,
             }
@@ -633,7 +633,7 @@ def test_multiple_options():
                         "unique": False,
                     },
                 ],
-                "dataset": "calender",
+                "dataset": "calendar",
                 "index": [],
                 "options": [
                     {
@@ -663,7 +663,7 @@ def test_multiple_options():
 
 def test_ars_in_arrays_in_option():
     ddl = """
-CREATE TABLE project_id.calender.REF_CALENDAR (
+CREATE TABLE project_id.calendar.REF_CALENDAR (
     calendar_dt DATE,
     calendar_dt_id INT,
     fiscal_half_year_reporting_week_no INT
@@ -714,7 +714,7 @@ CREATE TABLE project_id.calender.REF_CALENDAR (
                         "unique": False,
                     },
                 ],
-                "dataset": "calender",
+                "dataset": "calendar",
                 "index": [],
                 "options": [
                     {"value_1": '"some value"'},
@@ -833,7 +833,7 @@ def test_bigquery_options_string():
 
     """,
         normalize_names=True,
-    ).run(group_by_type=True)
+    ).run(group_by_type=True, output_mode="bigquery")
 
     expected = {
         "ddl_properties": [],
@@ -861,7 +861,7 @@ def test_bigquery_options_string():
                 "options": [{"description": "'test'"}],
                 "partitioned_by": [],
                 "primary_key": [],
-                "schema": "data",
+                "dataset": "data",
                 "table_name": "test",
                 "tablespace": None,
             }

@@ -17,6 +17,10 @@ class Output:
         self, parser_output: List[Dict], output_mode: str, group_by_type: bool
     ) -> None:
         self.output_mode = output_mode
+        if output_mode == "bigquery":
+            self.schema_key = "dataset"
+        else:
+            self.schema_key = "schema"
         self.group_by_type = group_by_type
         self.parser_output = parser_output
 
@@ -25,8 +29,9 @@ class Output:
 
     def get_table_from_tables_data(self, schema: str, table_name: str) -> Dict:
         """get table by name and schema or rise exception"""
-
         table_id = get_table_id(schema, table_name)
+        print(self.tables_dict)
+        print(table_id)
         target_table = self.tables_dict.get(table_id)
         if target_table is None:
             raise ValueError(
@@ -35,7 +40,7 @@ class Output:
         return target_table
 
     def clean_up_index_statement(self, statement: Dict) -> None:
-        del statement["schema"]
+        del statement[self.schema_key]
         del statement["table_name"]
 
         if self.output_mode != "mssql":
@@ -44,13 +49,14 @@ class Output:
     def add_index_to_table(self, statement: Dict) -> None:
         """populate 'index' key in output data"""
         target_table = self.get_table_from_tables_data(
-            statement["schema"], statement["table_name"]
+            statement[self.schema_key], statement["table_name"]
         )
         self.clean_up_index_statement(statement)
         target_table.index.append(statement)
 
     def add_alter_to_table(self, statement: Dict) -> None:
         """add 'alter' statement to the table"""
+        print(statement)
         target_table = self.get_table_from_tables_data(
             statement["schema"], statement["alter_table_name"]
         )
@@ -88,7 +94,7 @@ class Output:
             table_data = TableData.init(**statement_data)
             self.tables_dict[
                 get_table_id(
-                    schema_name=table_data.schema,
+                    schema_name=getattr(table_data, self.schema_key),
                     table_name=table_data.table_name,
                 )
             ] = table_data

@@ -107,6 +107,24 @@ class MySSQL(Dialect):
 @dialect(name="bigquery")
 class BigQuery(Dialect):
     dataset: Optional[str] = field(default=False)
+    project: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+
+    @staticmethod
+    def prepare_ref_statement(ref_statement: Dict):
+        ref_statement["dataset"] = ref_statement["schema"]
+        del ref_statement["schema"]
+
+    def to_dict(self):
+        output = {}
+        for key, value in self.__dict__.items():
+            if key == "schema":
+                continue
+            if self.filter_out_output(key) is True:
+                name = self.get_alias_if_exists(key)
+                output[name] = value
+        return output
 
 
 @dataclass
@@ -218,10 +236,6 @@ class Snowflake(Dialect):
     clone: Optional[dict] = field(
         default=None,
     )
-    cluster_by: Optional[list] = field(
-        default_factory=list,
-        metadata={"exclude_if_not_provided": True},
-    )
     with_tag: Optional[list] = field(
         default_factory=list,
         metadata={"exclude_if_not_provided": True},
@@ -289,6 +303,13 @@ class CommonDialectsFieldsMixin(Dialect):
             "output_modes": add_dialects([HQL, SparkSQL]),
         },
     )
+    options: Optional[list] = field(
+        default=None,
+        metadata={
+            "exclude_if_not_provided": True,
+            "output_modes": add_dialects([BigQuery, SparkSQL]),
+        },
+    )
     transient: Optional[bool] = field(
         default=False,
         metadata={
@@ -298,6 +319,13 @@ class CommonDialectsFieldsMixin(Dialect):
     )
     external: Optional[bool] = field(
         default=False, metadata={"output_modes": add_dialects([HQL, Snowflake])}
+    )
+    cluster_by: Optional[list] = field(
+        default_factory=list,
+        metadata={
+            "exclude_if_not_provided": True,
+            "output_modes": add_dialects([BigQuery, Snowflake]),
+        },
     )
 
 

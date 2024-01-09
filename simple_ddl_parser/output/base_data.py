@@ -207,37 +207,39 @@ class BaseData:
                 output[name] = value
         return output
 
-
-def prepare_alter_columns(self, statement: Dict) -> None:
-    """prepare alters column metadata"""
-    alter_columns = []
-    for num, column in enumerate(statement["columns"]):
-        if statement.get("references"):
-            alter_columns.append(
-                self.create_alter_column_references(
-                    num, column, statement["references"]
+    def prepare_alter_columns(self, statement: Dict) -> None:
+        """prepare alters column metadata"""
+        alter_columns = []
+        for num, column in enumerate(statement["columns"]):
+            if statement.get("references"):
+                alter_columns.append(
+                    self.create_alter_column_references(
+                        num, column, statement["references"]
+                    )
                 )
-            )
+            else:
+                # mean we need to add
+                alter_columns.append(column)
+        if not self.alter.get("columns"):
+            self.alter["columns"] = alter_columns
         else:
-            # mean we need to add
-            alter_columns.append(column)
-    if not self.alter.get("columns"):
-        self.alter["columns"] = alter_columns
-    else:
-        self.alter["columns"].extend(alter_columns)
+            self.alter["columns"].extend(alter_columns)
 
-    table_columns = self.get_normalized_table_columns_names()
-    # add columns from 'alter add'
-    for column in self.alter["columns"]:
-        if normalize_name(column["name"]) not in table_columns:
-            self.columns.append(column)
+        table_columns = self.get_normalized_table_columns_names()
+        # add columns from 'alter add'
+        for column in self.alter["columns"]:
+            if normalize_name(column["name"]) not in table_columns:
+                self.columns.append(column)
 
     def get_normalized_table_columns_names(self) -> List[str]:
         return [normalize_name(column["name"]) for column in self.columns]
 
     @staticmethod
+    def prepare_ref_statement(ref_statement: Dict):
+        pass
+
     def create_alter_column_references(
-        index: int, column: Dict, ref_statement: Dict
+        self, index: int, column: Dict, ref_statement: Dict
     ) -> Dict:
         """create alter column metadata"""
         column_reference = ref_statement["columns"][index]
@@ -245,6 +247,7 @@ def prepare_alter_columns(self, statement: Dict) -> None:
             "name": column["name"],
             "constraint_name": column.get("constraint_name"),
         }
+        self.prepare_ref_statement(ref_statement)
         alter_column["references"] = deepcopy(ref_statement)
         alter_column["references"]["column"] = column_reference
         del alter_column["references"]["columns"]
