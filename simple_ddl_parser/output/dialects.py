@@ -248,7 +248,7 @@ dialect_by_name = {
 }
 
 
-def add_dialects(dialects: list[Dialect]) -> list[str]:
+def add_dialects(dialects: List[Dialect]) -> List[str]:
     return [dialect.__d_name__ for dialect in dialects]
 
 
