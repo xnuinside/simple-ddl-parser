@@ -252,3 +252,98 @@ class BaseData:
         alter_column["references"]["column"] = column_reference
         del alter_column["references"]["columns"]
         return alter_column
+
+    def append_statement_information_to_table(self, statement: Dict) -> None:
+        if "columns" in statement:
+            self.prepare_alter_columns(statement)
+        elif "columns_to_rename" in statement:
+            self.alter_rename_columns(statement)
+        elif "columns_to_drop" in statement:
+            self.alter_drop_columns(statement)
+        elif "columns_to_modify" in statement:
+            self.alter_modify_columns(statement)
+        elif "check" in statement:
+            if not self.alter.get("checks"):
+                self.alter["checks"] = []
+            statement["check"]["statement"] = " ".join(statement["check"]["statement"])
+            self.alter["checks"].append(statement["check"])
+        elif "unique" in statement:
+            self.set_alter_to_table_data("unique", statement)
+            self.set_unique_columns_from_alter(statement)
+        elif "default" in statement:
+            self.set_alter_to_table_data("default", statement)
+            self.set_default_columns_from_alter(statement)
+        elif "primary_key" in statement:
+            self.set_alter_to_table_data("primary_key", statement)
+
+    def set_default_columns_from_alter(self, statement: Dict) -> None:
+        for column in self.columns:
+            if statement["default"]["columns"]:
+                for column_name in statement["default"]["columns"]:
+                    if column["name"] == column_name:
+                        column["default"] = statement["default"]["value"]
+
+    def set_unique_columns_from_alter(self, statement: Dict) -> None:
+        for column in self.columns:
+            for column_name in statement["unique"]["columns"]:
+                if column["name"] == column_name:
+                    column["unique"] = True
+
+    def alter_modify_columns(self, statement) -> None:
+        alter_key = "columns_to_modify"
+        table_alter_key = "modified_columns"
+
+        if not self.alter.get(table_alter_key):
+            self.alter[table_alter_key] = []
+
+        for modified_column in statement[alter_key]:
+            index = None
+            for num, column in enumerate(self.columns):
+                if normalize_name(modified_column["name"]) == normalize_name(
+                    column["name"]
+                ):
+                    index = num
+                    break
+            if index is not None:
+                self.alter[table_alter_key] = self.columns[index]
+                self.columns[index] = modified_column
+
+    def alter_drop_columns(self, statement) -> None:
+        alter_key = "columns_to_drop"
+        table_alter_key = "dropped_columns"
+
+        if not self.alter.get(table_alter_key):
+            self.alter[table_alter_key] = []
+        for column_to_drop in statement[alter_key]:
+            col_index = None
+            for num, column in enumerate(self.columns):
+                if normalize_name(column_to_drop) == normalize_name(column["name"]):
+                    col_index = num
+                    break
+            if col_index is not None:
+                self.alter[table_alter_key] = self.columns[col_index]
+                del self.columns[col_index]
+
+    def alter_rename_columns(self, statement) -> None:
+        alter_key = "columns_to_rename"
+        table_alter_key = "renamed_columns"
+
+        for renamed_column in statement[alter_key]:
+            for column in self.columns:
+                if normalize_name(renamed_column["from"]) == normalize_name(
+                    column["name"]
+                ):
+                    column["name"] = renamed_column["to"]
+                    break
+
+        if not self.alter.get(table_alter_key):
+            self.alter[table_alter_key] = []
+
+        self.alter[table_alter_key].extend(statement[alter_key])
+
+    def set_alter_to_table_data(self, key: str, statement: Dict) -> None:
+        if not self.alter.get(key + "s"):
+            self.alter[key + "s"] = []
+        if "using" in statement:
+            statement[key]["using"] = statement["using"]
+        self.alter[key + "s"].append(statement[key])

@@ -11,13 +11,6 @@ def update_bigquery_output(statement: dict) -> dict:
     return statement
 
 
-def clean_up_output(table_data: Dict, key_list: List[str]) -> Dict:
-    for key in key_list:
-        if key in table_data:
-            del table_data[key]
-    return table_data
-
-
 def dialects_clean_up(output_mode: str, table_data) -> Dict:
     update_mappers_for_table_properties = {"bigquery": update_bigquery_output}
     update_table_prop = update_mappers_for_table_properties.get(output_mode)

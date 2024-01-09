@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from simple_ddl_parser.output.dialects import dialects_clean_up
 from simple_ddl_parser.output.table_data import TableData
-from simple_ddl_parser.utils import get_table_id, normalize_name
+from simple_ddl_parser.utils import get_table_id
 
 logger = logging.getLogger("simple_ddl_parser")
 
@@ -57,30 +57,7 @@ class Output:
         target_table = self.get_table_from_tables_data(
             statement["schema"], statement["alter_table_name"]
         )
-
-        if "columns" in statement:
-            target_table.prepare_alter_columns(statement)
-        elif "columns_to_rename" in statement:
-            alter_rename_columns(target_table, statement)
-        elif "columns_to_drop" in statement:
-            alter_drop_columns(target_table, statement)
-        elif "columns_to_modify" in statement:
-            alter_modify_columns(target_table, statement)
-        elif "check" in statement:
-            if not target_table.alter.get("checks"):
-                target_table.alter["checks"] = []
-            statement["check"]["statement"] = " ".join(statement["check"]["statement"])
-            target_table.alter["checks"].append(statement["check"])
-        elif "unique" in statement:
-            target_table = set_alter_to_table_data("unique", statement, target_table)
-            target_table = set_unique_columns_from_alter(statement, target_table)
-        elif "default" in statement:
-            target_table = set_alter_to_table_data("default", statement, target_table)
-            target_table = set_default_columns_from_alter(statement, target_table)
-        elif "primary_key" in statement:
-            target_table = set_alter_to_table_data(
-                "primary_key", statement, target_table
-            )
+        target_table.append_statement_information_to_table(statement)
 
     def process_statement_data(self, statement_data: Dict) -> Dict:
         """process tables, types, sequence and etc. data"""
@@ -158,76 +135,6 @@ class Output:
         if self.group_by_type:
             self.group_by_type_result()
         return self.final_result
-
-
-def set_default_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
-    for column in target_table.columns:
-        if statement["default"]["columns"]:
-            for column_name in statement["default"]["columns"]:
-                if column["name"] == column_name:
-                    column["default"] = statement["default"]["value"]
-    return target_table
-
-
-def set_unique_columns_from_alter(statement: Dict, target_table: Dict) -> Dict:
-    for column in target_table.columns:
-        for column_name in statement["unique"]["columns"]:
-            if column["name"] == column_name:
-                column["unique"] = True
-    return target_table
-
-
-def alter_modify_columns(target_table, statement) -> None:
-    if not target_table.alter.get("modified_columns"):
-        target_table.alter["modified_columns"] = []
-
-    for modified_column in statement["columns_to_modify"]:
-        index = None
-        for num, column in enumerate(target_table.columns):
-            if normalize_name(modified_column["name"]) == normalize_name(
-                column["name"]
-            ):
-                index = num
-                break
-        if index is not None:
-            target_table.alter["modified_columns"] = target_table.columns[index]
-            target_table.columns[index] = modified_column
-
-
-def alter_drop_columns(target_table, statement) -> None:
-    if not target_table.alter.get("dropped_columns"):
-        target_table.alter["dropped_columns"] = []
-    for column_to_drop in statement["columns_to_drop"]:
-        index = None
-        for num, column in enumerate(target_table.columns):
-            if normalize_name(column_to_drop) == normalize_name(column["name"]):
-                index = num
-                break
-        if index is not None:
-            target_table.alter["dropped_columns"] = target_table.columns[index]
-            del target_table.columns[index]
-
-
-def alter_rename_columns(target_table, statement) -> None:
-    for renamed_column in statement["columns_to_rename"]:
-        for column in target_table.columns:
-            if normalize_name(renamed_column["from"]) == normalize_name(column["name"]):
-                column["name"] = renamed_column["to"]
-                break
-
-    if not target_table.alter.get("renamed_columns"):
-        target_table.alter["renamed_columns"] = []
-
-    target_table.alter["renamed_columns"].extend(statement["columns_to_rename"])
-
-
-def set_alter_to_table_data(key: str, statement: Dict, target_table: Dict) -> Dict:
-    if not target_table.alter.get(key + "s"):
-        target_table.alter[key + "s"] = []
-    if "using" in statement:
-        statement[key]["using"] = statement["using"]
-    target_table.alter[key + "s"].append(statement[key])
-    return target_table
 
 
 def dump_data_to_file(table_name: str, dump_path: str, data: List[Dict]) -> None:
