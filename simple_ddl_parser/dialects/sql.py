@@ -221,7 +221,7 @@ class Column:
             p[0] = {"property": {"distkey": True}}
             _type = _type.split("distkey")[0]
 
-        _type = _type.strip().replace('" . "', '"."')
+        _type = _type.strip().replace(" . ", ".")
 
         _type = self.process_array_types(_type, p_list)
         return _type

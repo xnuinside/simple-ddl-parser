@@ -804,6 +804,119 @@ def test_arrays():
     assert expected == parse_results
 
 
+def test_arrays_with_normalized_names():
+    parse_results = DDLParser(
+        """
+    CREATE table arrays_2 (
+        field_1                decimal(21)[] not null
+    ,field_2              integer(61) array not null
+    ,field_3              varchar array not null default '{"none"}'
+    ,squares   integer[3][3] not null default '{1}'
+    ,schedule        text[][]
+    ,pay_by_quarter  integer[]
+    ,pay_by_quarter_2  integer ARRAY[4]
+    ,pay_by_quarter_3  integer ARRAY
+    ) ;
+    """,
+        normalize_names=True,
+    ).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "field_1",
+                    "type": "decimal[]",
+                    "size": 21,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "field_2",
+                    "type": "integer[]",
+                    "size": 61,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "field_3",
+                    "type": "varchar[]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "'{\"none\"}'",
+                    "check": None,
+                },
+                {
+                    "name": "squares",
+                    "type": "integer[3][3]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": "'{1}'",
+                    "check": None,
+                },
+                {
+                    "name": "schedule",
+                    "type": "text[][]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "pay_by_quarter",
+                    "type": "integer[]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "pay_by_quarter_2",
+                    "type": "integer[4]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "pay_by_quarter_3",
+                    "type": "integer[]",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": [],
+            "index": [],
+            "alter": {},
+            "checks": [],
+            "table_name": "arrays_2",
+            "tablespace": None,
+            "schema": None,
+            "partitioned_by": [],
+        }
+    ]
+    assert expected == parse_results
+
+
 def test_like_statement():
     ddl = """
 
@@ -990,6 +1103,59 @@ CREATE TYPE "schema--notification"."ContentType" AS
 """
 
     result = DDLParser(ddl).run(group_by_type=True)
+
+    assert result == expected
+
+
+def test_enum_with_normalized_names():
+    expected = {
+        "domains": [],
+        "ddl_properties": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "content_type",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "schema--notification.ContentType",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": "schema--notification",
+                "table_name": "notification",
+                "tablespace": None,
+            }
+        ],
+        "types": [
+            {
+                "base_type": "ENUM",
+                "properties": {"values": ["'TEXT'", "'MARKDOWN'", "'HTML'"]},
+                "schema": "schema--notification",
+                "type_name": "ContentType",
+            }
+        ],
+    }
+
+    ddl = """
+CREATE TYPE "schema--notification"."ContentType" AS
+    ENUM ('TEXT','MARKDOWN','HTML');
+    CREATE TABLE "schema--notification"."notification" (
+        content_type "schema--notification"."ContentType"
+    );
+"""
+
+    result = DDLParser(ddl, normalize_names=True).run(group_by_type=True)
 
     assert result == expected
 

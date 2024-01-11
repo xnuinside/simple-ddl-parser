@@ -238,7 +238,7 @@ class DDLParser(Parser, Dialects):
         delimiters_to_end = ["`", '"', "]"]
         p[0] = p[1]
 
-        if self.normalize_names:
+        if self.normalize_names and len(p[0]) > 2:
             for num, symbol in enumerate(delimiters_to_start):
                 if p[0].startswith(symbol) and p[0].endswith(delimiters_to_end[num]):
                     p[0] = p[0][1:-1]
