@@ -475,3 +475,99 @@ def test_foreigen_keys():
         "types": [],
     }
     assert result == expected
+
+
+def test_compound_foreigen_keys():
+    """
+    Tests that a compound foreign key will be properly output.
+    """
+    result = DDLParser(
+        """
+    CREATE TABLE "linked_to" (
+    "id" int PRIMARY KEY,
+    "complexpk_complex_id" int,
+    "complexpk_date_part" int,
+    "comment" varchar,
+    CONSTRAINT "id_date_part_ibfk" FOREIGN KEY ("complexpk_complex_id", "complexpk_date_part")
+    REFERENCES "complexpk" ("complex_id", "date_part")
+    ) ENGINE=InnoDB CHARACTER SET utf8;
+    """,
+        normalize_names=True,
+    ).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "table_name": "linked_to",
+                "schema": None,
+                "primary_key": ["id"],
+                "columns": [
+                    {
+                        "name": "id",
+                        "type": "int",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "complexpk_complex_id",
+                        "type": "int",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "complexpk_date_part",
+                        "type": "int",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "comment",
+                        "type": "varchar",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": True,
+                        "default": None,
+                        "check": None,
+                    },
+                ],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "constraints": {
+                    "references": [
+                        {
+                            "table": "complexpk",
+                            "columns": ["complex_id", "date_part"],
+                            "schema": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "name": ["complexpk_complex_id", "complexpk_date_part"],
+                            "constraint_name": "id_date_part_ibfk",
+                        }
+                    ]
+                },
+                "tablespace": None,
+                "table_properties": {"engine=innodb": "CHARACTER", "set": "utf8"},
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected
