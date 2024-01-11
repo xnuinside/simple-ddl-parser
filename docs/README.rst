@@ -549,6 +549,15 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.0.1**
+
+Minor Fixes
+^^^^^^^^^^^
+
+
+#. When using ``normalize_names=True`` do not remove ``[]`` from types like ``decimal(21)[]``.
+#. When using ``normalize_names=True`` ensure that ``"complex"."type"`` style names convert to ``complex.type``.
+
 **v1.0.0**
 In output structure was done important changes that can in theory breaks code.
 
