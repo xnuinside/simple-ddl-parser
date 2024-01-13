@@ -81,14 +81,9 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0]["change_tracking"] = p_list[-1]
 
-    def p_table_comment(self, p: List) -> None:
-        """expr : expr option_comment"""
-        p[0] = p[1]
-        if p[2]:
-            p[0].update(p[2])
-
-    def p_table_tag(self, p: List) -> None:
-        """expr : expr option_with_tag"""
+    def p_comment_equals(self, p: List) -> None:
+        """expr : expr option_comment
+        """
         p[0] = p[1]
         if p[2]:
             p[0].update(p[2])
@@ -98,10 +93,23 @@ class Snowflake:
         | ID DQ_STRING
         | COMMENT ID STRING
         | COMMENT ID DQ_STRING
+        | option_comment_equals
         """
         p_list = remove_par(list(p))
-        if "comment" in p[1].lower():
-            p[0] = {"comment": p_list[-1]}
+        p[0] = {"comment": p_list[-1]}
+
+    def p_option_comment_equals(self, p: List) -> None:
+        """option_comment_equals : STRING
+        | option_comment_equals DQ_STRING
+        """
+        p_list = remove_par(list(p))
+        p[0] = str(p_list[-1])
+
+    def p_tag(self, p: List) -> None:
+        """expr : expr option_with_tag"""
+        p[0] = p[1]
+        if p[2]:
+            p[0].update(p[2])
 
     def p_tag_equals(self, p: List) -> None:
         """tag_equals : id id id_or_string
@@ -136,6 +144,7 @@ class Snowflake:
         | TAG LP id DOT id DOT id RP
         | TAG LP multiple_tag_equals RP
         | WITH TAG LP id RP
+        | WITH TAG LP id DOT id DOT id RP
         | WITH TAG LP multiple_tag_equals RP
         """
         p_list = remove_par(list(p))

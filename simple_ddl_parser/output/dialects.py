@@ -138,8 +138,8 @@ class MSSQL(Dialect):
 
 
 @dataclass
-@dialect(name="databrics")
-class Databrics(Dialect):
+@dialect(name="databricks")
+class Databricks(Dialect):
     property_key: Optional[str] = field(default=None)
 
 
@@ -261,32 +261,32 @@ class CommonDialectsFieldsMixin(Dialect):
     )
     stored_as: Optional[str] = field(
         default=None,
-        metadata={"output_modes": add_dialects([SparkSQL, HQL, Databrics, Redshift])},
+        metadata={"output_modes": add_dialects([SparkSQL, HQL, Databricks, Redshift])},
     )
 
     row_format: Optional[dict] = field(
         default=None,
-        metadata={"output_modes": add_dialects([SparkSQL, HQL, Databrics, Redshift])},
+        metadata={"output_modes": add_dialects([SparkSQL, HQL, Databricks, Redshift])},
     )
     location: Optional[str] = field(
         default=None,
         metadata={
-            "output_modes": add_dialects([HQL, SparkSQL, Snowflake, Databrics]),
+            "output_modes": add_dialects([HQL, SparkSQL, Snowflake, Databricks]),
             "exclude_if_not_provided": True,
         },
     )
     fields_terminated_by: Optional[str] = field(
         default=None,
-        metadata={"output_modes": add_dialects([HQL, Databrics])},
+        metadata={"output_modes": add_dialects([HQL, Databricks])},
     )
     lines_terminated_by: Optional[str] = field(
-        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+        default=None, metadata={"output_modes": add_dialects([HQL, Databricks])}
     )
     map_keys_terminated_by: Optional[str] = field(
-        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+        default=None, metadata={"output_modes": add_dialects([HQL, Databricks])}
     )
     collection_items_terminated_by: Optional[str] = field(
-        default=None, metadata={"output_modes": add_dialects([HQL, Databrics])}
+        default=None, metadata={"output_modes": add_dialects([HQL, Databricks])}
     )
     clustered_by: Optional[list] = field(
         default=None,
@@ -305,7 +305,7 @@ class CommonDialectsFieldsMixin(Dialect):
     transient: Optional[bool] = field(
         default=False,
         metadata={
-            "output_modes": add_dialects([HQL, Databrics]),
+            "output_modes": add_dialects([HQL, Databricks]),
             "exclude_if_not_provided": True,
         },
     )

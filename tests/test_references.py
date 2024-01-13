@@ -463,7 +463,7 @@ def test_foreigen_keys():
                         "unique": False,
                     },
                 ],
-                "table_properties": {"engine=innodb": "CHARACTER", "set": "utf8"},
+                "table_properties": {"engine":"InnoDB", "character": "SET","authorization":"utf8"},
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": ["exception_id"],
@@ -565,7 +565,7 @@ def test_compound_foreigen_keys():
                     ]
                 },
                 "tablespace": None,
-                "table_properties": {"engine=innodb": "CHARACTER", "set": "utf8"},
+                "table_properties": {"engine":"InnoDB", "character": "SET","authorization":"utf8"},
             }
         ],
         "types": [],
