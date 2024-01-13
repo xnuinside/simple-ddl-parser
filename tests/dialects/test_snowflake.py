@@ -260,23 +260,53 @@ def test_table_comment_parsed_validly():
 
 def test_schema_parsed_normally():
     ddl = """
-    create schema my_schema;
+    create schema my_schema_simple;
     """
     result = DDLParser(ddl, normalize_names=True).run(output_mode="snowflake")
 
-    expected = [{"schema_name": "my_schema"}]
+    expected = [{"schema_name": "my_schema_simple"}]
 
     assert result == expected
 
+def test_create_schema_if_not_exists():
+    ddl = """
+    create schema if not exists my_schema_if_not_exists;
+    """
+    result = DDLParser(ddl, normalize_names=True).run(output_mode="snowflake")
+    expected = [{"if_not_exists": True,"schema_name": "my_schema_if_not_exists"}]
+    assert result == expected
+
+def test_comment_without_space_on_create_schema():
+    ddl = """
+    create schema my_schema_comment comment='this is my schema''s comment';
+    """
+    result = DDLParser(ddl, normalize_names=True).run(output_mode="snowflake")
+    expected = [{"comment": "'this is my schema''s comment'", "schema_name": "my_schema_comment"}]
+    assert result == expected
 
 def test_comment_on_create_schema():
     ddl = """
-    create schema my_schema comment='this is comment1';
+    create schema my_schema_comment comment = 'this is my schema''s comment with spaces';
     """
     result = DDLParser(ddl, normalize_names=True).run(output_mode="snowflake")
-    expected = [{"comment": "'this is comment1'", "schema_name": "my_schema"}]
+    expected = [{"comment": "'this is my schema''s comment with spaces'", "schema_name": "my_schema_comment"}]
     assert result == expected
 
+def test_with_tag_on_create_schema():
+    ddl = """
+    create schema my_schema_tag with tag(a.b.c='schema_tag1', a.b.d='schema_tag2');
+    """
+    result = DDLParser(ddl, normalize_names=True).run(output_mode="snowflake")
+    expected = [{"schema_name": "my_schema_tag", "with_tag" :["a.b.c='schema_tag1'", "a.b.d='schema_tag2'"] }]
+    assert result == expected
+
+def test_comment_with_tag_on_create_schema():
+    ddl = """
+    create schema my_schema_tag comment = 'my comment about tags' with tag(a.b.c='schema_tag1', a.b.d='schema_tag2');
+    """
+    result = DDLParser(ddl, normalize_names=True).run(output_mode="snowflake")
+    expected = [{"schema_name": "my_schema_tag","comment": "'my comment about tags'" ,"with_tag" :["a.b.c='schema_tag1'", "a.b.d='schema_tag2'"] }]
+    assert result == expected
 
 def test_table_with_tag():
     ddl = """
@@ -501,7 +531,7 @@ def test_table_with_retention():
         USER_COMMENT VARCHAR(100) COMMENT 'User input',
         PROCESS_SQN NUMBER(10,0) NOT NULL,
         constraint PK_EXCLUSION primary key (ASIN)
-    ) DATA_RETENTION_TIME_IN_DAYS = 15
+    ) DATA_RETENTION_TIME_IN_DAYS=15
     ;
     """
     result_retention = DDLParser(ddl, normalize_names=True, debug=True).run(
@@ -562,7 +592,7 @@ def test_table_with_change_tracking():
         USER_COMMENT VARCHAR(100) COMMENT 'User input',
         PROCESS_SQN NUMBER(10,0) NOT NULL,
         constraint PK_EXCLUSION primary key (ASIN)
-    ) change_tracking = False
+    ) change_tracking=False
     ;
     """
     result_change_tracking = DDLParser(ddl, normalize_names=True, debug=True).run(
@@ -778,8 +808,8 @@ def test_virtual_column_ext_table():
        "path" VARCHAR(255) AS (METADATA$FILENAME)
        )
     partition by ("type", "year", "month", "day", "path")
-    location = @ADL_Azure_Storage_Account_Container_Name/
-    auto_refresh = false
+    location=@ADL_Azure_Storage_Account_Container_Name/
+    auto_refresh=false
     ;
     """
     result_ext_table = DDLParser(ddl, normalize_names=True, debug=True).run(
@@ -938,12 +968,12 @@ def test_virtual_column_table():
             "table_properties": {
                 "auto_refresh": False,
                 "file_format": [
-                    "TYPE=JSON",
-                    "NULL_IF=('field')",
-                    "DATE_FORMAT=AUTO",
-                    "TRIM_SPACE=TRUE",
+                    "TYPE","=","JSON",
+                    "NULL_IF","=('field')",
+                    "DATE_FORMAT","=","AUTO",
+                    "TRIM_SPACE","=","TRUE",
                 ],
-                "stage_file_format": ["TYPE=JSON", "NULL_IF=()"],
+                "stage_file_format": ["TYPE","=","JSON", "NULL_IF","=()"],
             },
         }
     ]

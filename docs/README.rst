@@ -140,7 +140,7 @@ And you will get output with additional keys 'stored_as', 'location', 'external'
 
 If you run parser with command line add flag '-o=hql' or '--output-mode=hql' to get the same result.
 
-Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
+Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databricks', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 From python code
 ^^^^^^^^^^^^^^^^
@@ -237,7 +237,7 @@ More details
 ^^^^^^^^^^^^
 
 ``DDLParser(ddl).run()``
-.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument ``output_mode`` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
+.run() method contains several arguments, that impact changing output result. As you can saw upper exists argument ``output_mode`` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databricks', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 Also in .run() method exists argument ``group_by_type`` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entity from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 
@@ -590,7 +590,7 @@ New Dialects support
 #. Added as possible output_modes new Dialects: 
 
 
-* Databrics SQL like 'databricks', 
+* Databricks SQL like 'databricks', 
 * Vertica as 'vertica', 
 * SqliteFields as 'sqlite',
 * PostgreSQL as 'postgres'
@@ -599,7 +599,7 @@ Full list of supported dialects you can find in dict - ``supported_dialects``\ :
 
 ``from simple_ddl_parser import supported_dialects``
 
-Currently supported: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
+Currently supported: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databricks', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 If you don't see dialect that you want to use - open issue with description and links to Database docs or use one of existed dialects.
 

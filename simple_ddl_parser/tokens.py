@@ -38,6 +38,8 @@ common_statements = {
     "USING",
     # bigquery
     "OPTIONS",
+    # snoflake
+    "TAG",
 }
 common_statements = {value: value for value in common_statements}
 
@@ -53,7 +55,6 @@ columns_definition = {
     "ENCODE",
     "GENERATED",
     "COMMENT",
-    "TAG",
     "POLICY",
     "MASKING",
     "WITH",

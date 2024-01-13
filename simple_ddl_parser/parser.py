@@ -97,6 +97,12 @@ class Parser:
         self.block_comments = []
         self.comments = []
 
+        self.comma_only_str = re.compile(r"((\')|(' ))+(,)((\')|( '))+\B")
+        self.equal_without_space = re.compile(r"(\b)=")
+        self.in_comment = re.compile(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+")
+        self.set_statement = re.compile(r"SET ")
+        self.skip_regex = re.compile(r"^(GO|USE|INSERT)\b")
+
     def catch_comment_or_process_line(self, code_line: str) -> str:
         if self.multi_line_comment:
             self.comments.append(self.line)
@@ -113,8 +119,8 @@ class Parser:
 
     def pre_process_line(self) -> Tuple[str, List]:
         code_line = ""
-        comma_only_str = r"((\')|(' ))+(,)((\')|( '))+\B"
-        self.line = re.sub(comma_only_str, "_ddl_parser_comma_only_str", self.line)
+        self.line = self.comma_only_str.sub("_ddl_parser_comma_only_str", self.line)
+        self.line = self.equal_without_space.sub(" = ", self.line)
         code_line = self.catch_comment_or_process_line(code_line)
         if self.line.startswith(OP_COM) and CL_COM not in self.line:
             self.multi_line_comment = True
@@ -123,7 +129,7 @@ class Parser:
         self.line = code_line
 
     def process_in_comment(self, line: str) -> str:
-        if re.search(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+", line):
+        if self.in_comment.search(line):
             code_line = line
         else:
             splitted_line = line.split(IN_COM)
@@ -200,7 +206,7 @@ class Parser:
         self.tables.append({"name": name, "value": value})
 
     def parse_set_statement(self):
-        if re.match(r"SET ", self.line.upper()):
+        if self.set_statement.match(self.line.upper()):
             self.set_was_in_line = True
             if not self.set_line:
                 self.set_line = self.line
@@ -224,11 +230,9 @@ class Parser:
         return self.new_statement
 
     def check_line_on_skip_words(self) -> bool:
-        skip_regex = r"^(GO|USE|INSERT)\b"
-
         self.skip = False
 
-        if re.match(skip_regex, self.line.upper()):
+        if self.skip_regex.match(self.line.upper()):
             self.skip = True
         return self.skip
 

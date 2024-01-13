@@ -507,7 +507,6 @@ class Schema:
     def p_c_schema(self, p: List) -> None:
         """c_schema : CREATE SCHEMA
         | CREATE ID SCHEMA"""
-
         if len(p) == 4:
             p[0] = {"remote": True}
 
@@ -516,8 +515,6 @@ class Schema:
         | c_schema id id id
         | c_schema id
         | c_schema id DOT id
-        | c_schema id option_comment
-        | c_schema id DOT id option_comment
         | c_schema IF NOT EXISTS id
         | c_schema IF NOT EXISTS id DOT id
         | create_schema id id id
@@ -525,12 +522,10 @@ class Schema:
         | create_schema options
         """
         p_list = list(p)
-
         p[0] = {}
         auth_index = None
 
         if "comment" in p_list[-1]:
-            p[0].update(p_list[-1])
             del p_list[-1]
 
         self.add_if_not_exists(p[0], p_list)
@@ -547,7 +542,10 @@ class Schema:
                 if schema_name is None:
                     schema_name = p_list[auth_index + 1]
             else:
-                schema_name = p_list[-1]
+                if "=" in p_list:
+                    schema_name = p_list[2]
+                else:
+                    schema_name = p_list[-1]
             p[0]["schema_name"] = schema_name.replace("`", "")
 
         p[0] = self.set_project_in_schema(p[0], p_list, auth_index)

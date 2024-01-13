@@ -1,3 +1,10 @@
+**v1.0.2**
+### Minor Fixes
+1. typo on Databricks dialect
+2. improve equals symbols support within COMMENT statement.
+3. snowflake TAG now available on SCHEMA definitions.
+4. turn regexp into functions
+
 **v1.0.1**
 ### Minor Fixes
 1. When using `normalize_names=True` do not remove `[]` from types like `decimal(21)[]`.
@@ -25,7 +32,7 @@ if you choose the correct output_mode.
 
 ### New Dialects support
 1. Added as possible output_modes new Dialects: 
-- Databrics SQL like 'databricks', 
+- Databricks SQL like 'databricks', 
 - Vertica as 'vertica', 
 - SqliteFields as 'sqlite',
 - PostgreSQL as 'postgres'
@@ -34,7 +41,7 @@ Full list of supported dialects you can find in dict - `supported_dialects`:
 
 `from simple_ddl_parser import supported_dialects`
 
-Currently supported: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databrics', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
+Currently supported: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databricks', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 If you don't see dialect that you want to use - open issue with description and links to Database docs or use one of existed dialects.
 
