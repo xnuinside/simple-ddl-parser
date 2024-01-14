@@ -486,6 +486,20 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
+**v1.1.0**
+### Improvements
+1. Fixed bug with places first table property value in 'authorization' key. Now it is used real property name.
+2. Fixed typo on Databricks dialect
+3. improved equals symbols support within COMMENT statement.
+4. turn regexp into functions
+
+### MySQL Improvements
+1. UNSIGNED property after int parsed validly now
+
+### Snowflake
+1. Snowflake TAG now available on SCHEMA definitions.
+
+
 **v1.0.1**
 ### Minor Fixes
 1. When using `normalize_names=True` do not remove `[]` from types like `decimal(21)[]`.

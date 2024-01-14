@@ -213,7 +213,7 @@ def test_parse_from_file_encoding():
             "columns": [
                 {
                     "name": "`entry`",
-                    "type": "mediumintunsigned",
+                    "type": "mediumint unsigned",
                     "size": 8,
                     "references": None,
                     "unique": False,

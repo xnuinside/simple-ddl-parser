@@ -177,6 +177,7 @@ class Column:
         if isinstance(p_list[1], dict):
             _type = p_list[1]["type"]
             start_index = 2
+
         for elem in p_list[start_index:]:
             if isinstance(elem, list):
                 for _elem in elem:
@@ -202,7 +203,6 @@ class Column:
         p[0] = {}
         p_list = remove_par(list(p))
         _type = None
-
         if len(p_list) == 2:
             _type = p_list[-1]
         elif isinstance(p[1], str) and p[1].lower() == "encode":
@@ -302,7 +302,11 @@ class Column:
                     p[0][key] = value
         else:
             # for [] arrays
-            p[0]["type"] += p_list[-1]["type"]
+            if "[]" in p_list[-1]["type"]:
+                p[0]["type"] += p_list[-1]["type"]
+            else:
+                # types like int UNSIGNED
+                p[0]["type"] += f' {p_list[-1]["type"]}'
             del p_list[-1]
         return False
 
@@ -483,7 +487,13 @@ class Schema:
         if isinstance(p_list[-1], dict):
             p[0].update(p_list[-1])
         elif len(p) > 2:
-            p[0]["authorization"] = p[2]
+            if p[0].get("schema") is not None:
+                # then is is a authorization schema property
+                p[0]["authorization"] = p[2]
+            else:
+                if isinstance(p_list[-2], dict):
+                    last_key = list(p_list[-2].keys())[-1]
+                    p[0][last_key] = p_list[-1]
 
     def set_properties_for_schema_and_database(self, p: List, p_list: List) -> None:
         if not p[0].get("properties"):
