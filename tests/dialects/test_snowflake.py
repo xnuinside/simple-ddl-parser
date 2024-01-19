@@ -967,15 +967,170 @@ def test_virtual_column_table():
             "location": "@ADL_Azure_Storage_Account_Container_Name/",
             "table_properties": {
                 "auto_refresh": False,
-                "file_format": [
-                    "TYPE","=","JSON",
-                    "NULL_IF","=('field')",
-                    "DATE_FORMAT","=","AUTO",
-                    "TRIM_SPACE","=","TRUE",
-                ],
-                "stage_file_format": ["TYPE","=","JSON", "NULL_IF","=()"],
+                "file_format": {'TYPE' : 'JSON', 'NULL_IF' : "('field')", 'DATE_FORMAT' : 'AUTO', 'TRIM_SPACE' : 'TRUE'},
+                "stage_file_format": {'TYPE' : 'JSON', 'NULL_IF' :'()'},
             },
         }
     ]
 
     assert result_ext_table == expected_ext_table
+
+def test_schema_create():
+    ddl = """
+    create schema myschema;
+    """
+    result = DDLParser(ddl).run(output_mode="snowflake")
+    expected = [{"schema_name": 'myschema'}]
+
+    assert expected == result
+
+def test_schema_create_if_not_exists():
+    ddl = """
+    create schema if not exists myschema;
+    """
+    result = DDLParser(ddl).run(output_mode="snowflake")
+    expected = [{"schema_name": 'myschema', 'if_not_exists' : True}]
+
+    assert expected == result
+
+def test_schema_create_or_replace():
+    #https://docs.snowflake.com/en/sql-reference/sql/create-schema
+    ddl = """
+    create or replace schema myschema;
+    """
+    result = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    expected = [{"schema_name": 'myschema'}]
+
+    assert result == expected
+
+def test_external_table_with_nullif():
+    ddl = """create or replace external table if not exists ${database_name}.MySchemaName.MyTableName(
+            "Filename" VARCHAR(16777216) AS (METADATA$FILENAME))
+            partition by ("Filename")
+            location = @ADL_DH_DL_PTS/
+            auto_refresh = false
+            file_format = (TYPE=JSON NULLIF=())
+            ;"""
+    
+    result = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    expected = [{'table_name': 'MyTableName',
+                 'schema': 'MySchemaName',
+                 'primary_key': [],
+                 'columns': [{
+                              'name': 'Filename', 
+                              'type': 'VARCHAR', 
+                              'size': 16777216, 
+                              'references': None, 
+                              'unique': False, 
+                              'nullable': True, 
+                              'default': None, 
+                              'check': None, 
+                              'generated': {'as' : 'METADATA$FILENAME'}
+                              }], 
+                 'alter': {}, 
+                 'checks': [], 
+                 'index': [], 
+                 'partitioned_by': [],
+                 'partition_by': {'columns': ['Filename'], 'type': None},
+                 'tablespace': None,
+                 'if_not_exists': True,
+                 'table_properties': {'project': '${database_name}',
+                                      'auto_refresh': False,
+                                      'file_format': {'TYPE' : 'JSON', 'NULLIF':'()'},
+                                      },
+                 'replace': True, 
+                 'location': '@ADL_DH_DL_PTS/',
+                 'external' : True,
+                 'primary_key_enforced' : None,
+                 'clone' : None
+    }]
+
+    assert result == expected
+
+def test_external_table_with_field_delimiter():
+    ddl = """create or replace external table if not exists ${database_name}.MySchemaName.MyTableName(
+            "Filename" VARCHAR(16777216) AS (METADATA$FILENAME))
+            partition by ("Filename")
+            location = @ADL_DH_DL_PTS/
+            auto_refresh = false
+            file_format = (TYPE=CSV FIELD_DELIMITER='|' TRIM_SPACE=TRUE ERROR_ON_COLUMN_COUNT_MISMATCH=FALSE REPLACE_INVALID_CHARACTERS=TRUE)
+            ;"""
+    
+    result = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    expected = [{'table_name': 'MyTableName',
+                 'schema': 'MySchemaName',
+                 'primary_key': [],
+                 'columns': [{
+                              'name': 'Filename', 
+                              'type': 'VARCHAR', 
+                              'size': 16777216, 
+                              'references': None, 
+                              'unique': False, 
+                              'nullable': True, 
+                              'default': None, 
+                              'check': None, 
+                              'generated': {'as' : 'METADATA$FILENAME'}
+                              }], 
+                 'alter': {}, 
+                 'checks': [], 
+                 'index': [], 
+                 'partitioned_by': [],
+                 'partition_by': {'columns': ['Filename'], 'type': None},
+                 'tablespace': None,
+                 'if_not_exists': True,
+                 'table_properties': {'project': '${database_name}',
+                                      'auto_refresh': False,
+                                      'file_format': {'TYPE' : 'CSV', 
+                                                      'FIELD_DELIMITER' : "'|'",
+                                                      'TRIM_SPACE' : 'TRUE',
+                                                      'ERROR_ON_COLUMN_COUNT_MISMATCH' : 'FALSE',
+                                                      'REPLACE_INVALID_CHARACTERS' :'TRUE'}},
+                 'replace': True, 
+                 'location': '@ADL_DH_DL_PTS/',
+                 'external' : True,
+                 'primary_key_enforced' : None,
+                 'clone' : None
+    }]
+
+    assert result == expected
+
+def test_table_column_def_clusterby():
+    ddl = """CREATE TABLE ${database_name}.MySchemaName."MyTableName"  (ID NUMBER(38,0) NOT NULL, "DocProv" VARCHAR(2)) cluster by ("DocProv");"""
+
+    result = DDLParser(ddl, normalize_names=True, debug=True).run(output_mode="snowflake")
+    expected = [{'table_name': 'MyTableName',
+                 'schema': 'MySchemaName',
+                 'primary_key': [],
+                 'columns': [{
+                              'name': 'ID',
+                              'size' : (38,0),
+                              'type': 'NUMBER', 
+                              'references': None, 
+                              'unique': False, 
+                              'nullable': False, 
+                              'default': None, 
+                              'check': None,
+                              },
+                              {
+                              'name': 'DocProv',
+                              'size' : 2,
+                              'type': 'VARCHAR', 
+                              'references': None, 
+                              'unique': False, 
+                              'nullable': True, 
+                              'default': None, 
+                              'check': None,
+                              }], 
+                 'alter': {}, 
+                 'checks': [], 
+                 'index': [], 
+                 'partitioned_by': [],
+                 'cluster_by' : ['DocProv'],
+                 'tablespace': None,
+                 'external' : False,
+                 'primary_key_enforced' : None,
+                 'table_properties': {'project': '${database_name}'},
+                 'clone' : None
+    }]
+
+    assert result == expected
