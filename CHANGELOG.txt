@@ -1,9 +1,10 @@
 **v1.0.3**
 ### Improvements
 1. Fixed bug with `CREATE OR REPLACE SCHEMA`.
+2. Added support of create empty tables without columns CREATE TABLE tablename (); (valid syntax in SQL)
 
 ### Snowflake
-1. Fixed bug with snowflake (stage_)fileformat option value equal a single string as `FIELD_OPTIONALLY_ENCLOSED_BY = '\"'`, `FIELD_DELIMITER = '|'`
+1. Fixed bug with snowflake `stage_` fileformat option value equal a single string as `FIELD_OPTIONALLY_ENCLOSED_BY = '\"'`, `FIELD_DELIMITER = '|'`
 2. improve snowflake fileformat key equals value into dict. type.
 
 **v1.0.2**

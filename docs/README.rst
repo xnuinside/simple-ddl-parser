@@ -549,6 +549,22 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.0.3**
+
+Improvements
+^^^^^^^^^^^^
+
+
+#. Fixed bug with ``CREATE OR REPLACE SCHEMA``.
+#. Added support of create empty tables without columns CREATE TABLE tablename (); (valid syntax in SQL)
+
+Snowflake
+^^^^^^^^^
+
+
+#. Fixed bug with snowflake ``stage_`` fileformat option value equal a single string as ``FIELD_OPTIONALLY_ENCLOSED_BY = '\"'``\ , ``FIELD_DELIMITER = '|'``
+#. improve snowflake fileformat key equals value into dict. type.
+
 **v1.0.2**
 
 Improvements

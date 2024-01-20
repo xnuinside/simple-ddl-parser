@@ -3421,3 +3421,33 @@ def test_non_int_type_paramteter():
         "types": [],
     }
     assert results == expected
+
+
+def test_create_empty_table_with_parentheses():
+    ddl = """
+    CREATE TABLE tablename ();
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mysql")
+
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "tablename",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected

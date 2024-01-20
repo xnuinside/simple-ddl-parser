@@ -1016,6 +1016,7 @@ class BaseSQL(
         """expr : table_name defcolumn
         | table_name LP defcolumn
         | table_name
+        | table_name LP RP
         | expr COMMA defcolumn
         | expr COMMA
         | expr COMMA constraint
