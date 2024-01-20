@@ -1,9 +1,11 @@
 from typing import List
 
 from simple_ddl_parser.utils import remove_par
+import re
 
 
 class Snowflake:
+
     def p_clone(self, p: List) -> None:
         """clone : CLONE id"""
         p_list = list(p)
@@ -17,20 +19,26 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0]["cluster_by"] = p_list[-1]
 
-    def p_multiple_format_equals(self0, p: List) -> None:
-        """multiple_format_equals : fmt_equals
-        | multiple_format_equals fmt_equals
-        """
-        # Handles multiple format in the same format statement
-        p[0] = p[1]
-
-    def p_fmt_equals(self, p: List) -> None:
-        """fmt_equals :  id LP RP
-        | id LP fmt_equals RP
-        | id LP multi_id RP
+    def p_multi_id_or_string(self, p: List) -> None:
+        """multi_id_or_string : id_or_string
+        | multi_id_or_string id_or_string
+        | f_call
+        | multi_id_or_string f_call
         """
         p_list = list(p)
-        p[0] = p_list[2:][1].split(" ")
+        if isinstance(p[1], list):
+            p[0] = p[1]
+            p[0].append(p_list[-1])
+        else:
+            value = " ".join(p_list[1:])
+            p[0] = value
+
+    def p_fmt_equals(self, p: List) -> None:
+        """fmt_equals : id LP multi_id_or_string RP
+        """
+        fmt_split = re.compile(r"\w+\s*=\s*\w+|\w+\s*=\s*'.'|\w+\s*=\s*'..'|\w+\s*=\s*\('.+'\)|\w+\s*=\(\)")
+        p_list = list(p)
+        p[0] = {f.split('=')[0].strip(): f.split('=')[1].strip() for f in fmt_split.findall(p_list[3]) if '=' in f}
 
     def p_table_property_equals(self, p: List) -> None:
         """table_property_equals : id id id_or_string
@@ -164,13 +172,13 @@ class Snowflake:
         p[0]["catalog"] = p_list[-1]
 
     def p_expression_file_format(self, p: List) -> None:
-        """expr : expr FILE_FORMAT multiple_format_equals"""
+        """expr : expr FILE_FORMAT fmt_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["file_format"] = p_list[-1]
 
     def p_expression_stage_file_format(self, p: List) -> None:
-        """expr : expr STAGE_FILE_FORMAT multiple_format_equals"""
+        """expr : expr STAGE_FILE_FORMAT fmt_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["stage_file_format"] = p_list[-1] if len(p_list[-1]) > 1 else p_list[-1][0]

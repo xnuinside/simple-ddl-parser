@@ -1,3 +1,11 @@
+**v1.0.3**
+### Improvements
+1. Fixed bug with `CREATE OR REPLACE SCHEMA`.
+
+### Snowflake
+1. Fixed bug with snowflake (stage_)fileformat option value equal a single string as `FIELD_OPTIONALLY_ENCLOSED_BY = '\"'`, `FIELD_DELIMITER = '|'`
+2. improve snowflake fileformat key equals value into dict. type.
+
 **v1.0.2**
 ### Improvements
 1. Fixed bug with places first table property value in 'authorization' key. Now it is used real property name.

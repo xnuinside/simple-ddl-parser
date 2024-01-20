@@ -516,7 +516,8 @@ class Schema:
 
     def p_c_schema(self, p: List) -> None:
         """c_schema : CREATE SCHEMA
-        | CREATE ID SCHEMA"""
+        | CREATE ID SCHEMA
+        | CREATE OR REPLACE SCHEMA"""
         if len(p) == 4:
             p[0] = {"remote": True}
 
@@ -539,6 +540,7 @@ class Schema:
             del p_list[-1]
 
         self.add_if_not_exists(p[0], p_list)
+
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
             self.set_properties_for_schema_and_database(p, p_list)
