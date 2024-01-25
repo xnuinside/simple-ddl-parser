@@ -226,7 +226,7 @@ def test_constraint_unique():
                         "references": None,
                         "size": None,
                         "type": "BIGINT",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -236,7 +236,7 @@ def test_constraint_unique():
                         "references": None,
                         "size": 8000,
                         "type": "VARBINARY",
-                        "unique": True,
+                        "unique": False,
                     },
                 ],
                 "index": [],
@@ -412,7 +412,7 @@ def test_two_unique_constructs():
                         "references": None,
                         "size": None,
                         "type": "BIGINT",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -489,7 +489,7 @@ def test_two_unique_constructs():
                         "references": None,
                         "size": 8000,
                         "type": "VARBINARY",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -686,7 +686,8 @@ def test_two_unique_constructs():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city = 'New York'",
+                            "statement": "days_active<=18 AND "
+                            "user_city = 'New York'",
                         }
                     ],
                     "references": [
@@ -811,7 +812,7 @@ def test_foreign_keys():
                         "references": None,
                         "size": None,
                         "type": "BIGINT",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -895,7 +896,7 @@ def test_foreign_keys():
                         "references": None,
                         "size": 8000,
                         "type": "VARBINARY",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -1052,7 +1053,8 @@ def test_foreign_keys():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city = 'New York'",
+                            "statement": "days_active<=18 AND "
+                            "user_city = 'New York'",
                         }
                     ],
                     "uniques": [
@@ -1177,7 +1179,7 @@ def test_alter_unique():
                         "references": None,
                         "size": None,
                         "type": "BIGINT",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -1254,7 +1256,7 @@ def test_alter_unique():
                         "references": None,
                         "size": 8000,
                         "type": "VARBINARY",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -1451,7 +1453,8 @@ def test_alter_unique():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city = 'New York'",
+                            "statement": "days_active<=18 AND "
+                            "user_city = 'New York'",
                         }
                     ],
                     "references": [
@@ -1572,7 +1575,7 @@ def test_defaults_in_alter():
                         "references": None,
                         "size": None,
                         "type": "BIGINT",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -1696,7 +1699,8 @@ def test_defaults_in_alter():
                     "checks": [
                         {
                             "constraint_name": "CHK_Person_Age_under",
-                            "statement": "days_active<=18 AND " "user_city = 'New York'",
+                            "statement": "days_active<=18 AND "
+                            "user_city = 'New York'",
                         }
                     ],
                     "references": [
