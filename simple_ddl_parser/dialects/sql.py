@@ -324,6 +324,7 @@ class Column:
             p[0] = {"index_stmt": True, "name": p[2]["type"], "columns": ""}
             return
         if p[1] and isinstance(p[1], dict) and p[1].get("index_stmt") is True:
+            # @TODO: if we are normalizing columns, we need to normalize them here too.
             p[1]["columns"] = remove_par(list(p))[2]
             p[0] = p[1]
             return
@@ -425,6 +426,7 @@ class Column:
 
         p[0]["references"] = p[0].get("references", references)
         p[0]["unique"] = unique or p[0].get("unique", unique)
+        # @TODO: ensure column names are normalized if specified for pk and others.
         p[0]["primary_key"] = pk or p[0].get("primary_key", pk)
         p[0]["nullable"] = (
             nullable if nullable is not True else p[0].get("nullable", nullable)
@@ -1077,12 +1079,40 @@ class BaseSQL(
 
     def process_unique_and_primary_constraint(self, data: Dict, p_list: List) -> Dict:
         if p_list[-1].get("unique_statement"):
-            data = self.set_constraint(
-                data,
-                "uniques",
-                {"columns": p_list[-1]["unique_statement"]},
-                p_list[-2]["constraint"]["name"],
-            )
+            unique_statement = p_list[-1]["unique_statement"]
+            if not isinstance(p_list[-2], dict):
+                # This is a stand alone unique statement, not a CONSTRAINT with UNIQUE clause.
+                if (
+                    isinstance(unique_statement["columns"], list)
+                    and len(unique_statement["columns"]) > 1
+                ):
+                    # We have a list of column names, a compound unique index
+                    data = self.set_constraint(
+                        data,
+                        "uniques",
+                        {"columns": unique_statement["columns"]},
+                        unique_statement.get(
+                            "name", "UC_" + "_".join(unique_statement["columns"])
+                        ),
+                    )
+                else:
+                    # We have a single column name.
+                    col_name = (
+                        unique_statement["columns"][0]
+                        if isinstance(unique_statement["columns"], list)
+                        else unique_statement["columns"]
+                    )
+                    for col in data["columns"]:
+                        if col["name"] == col_name:
+                            col["unique"] = True
+            else:
+                # We have a constraint specified unique statement.
+                data = self.set_constraint(
+                    data,
+                    "uniques",
+                    {"columns": p_list[-1]["unique_statement"]["columns"]},
+                    p_list[-2]["constraint"]["name"],
+                )
         else:
             data = self.set_constraint(
                 data,
@@ -1093,7 +1123,9 @@ class BaseSQL(
         return data
 
     def process_constraints_and_refs(self, data: Dict, p_list: List) -> Dict:
-        if "constraint" in p_list[-2]:
+        if "constraint" in p_list[-2] or (
+            isinstance(p_list[-1], dict) and p_list[-1].keys() == {"unique_statement"}
+        ):
             data = self.process_unique_and_primary_constraint(data, p_list)
         elif (
             len(p_list) >= 4
@@ -1606,9 +1638,22 @@ class BaseSQL(
         p[0] = p[1]
 
     def p_uniq(self, p: List) -> None:
-        """uniq : UNIQUE LP pid RP"""
+        """uniq : UNIQUE LP pid RP
+        | UNIQUE KEY id LP pid RP
+        """
         p_list = remove_par(list(p))
-        p[0] = {"unique_statement": p_list[-1]}
+        key_name = None
+        if isinstance(p_list[1], str) and p_list[1].upper() == "UNIQUE":
+            del p_list[1]
+        if isinstance(p_list[1], str) and p_list[1].upper() == "KEY":
+            del p_list[1]
+        if len(p_list) > 2:
+            # We have name and columns
+            key_name = p_list[1]
+
+        p[0] = {"unique_statement": {"columns": p_list[-1]}}
+        if key_name is not None:
+            p[0]["unique_statement"]["name"] = key_name
 
     def p_statem_by_id(self, p: List) -> None:
         """statem_by_id : id LP pid RP
@@ -1627,7 +1672,6 @@ class BaseSQL(
         | pkey_statement ID LP pid RP
         """
         p_list = remove_par(list(p))
-
         columns = []
 
         p[0] = {}
