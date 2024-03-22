@@ -916,7 +916,7 @@ def test_virtual_column_table():
        id bigint,
        derived bigint as (id * 10)
        )
-    location = @ADL_Azure_Storage_Account_Container_Name/
+    location = @Database.Schema.ADL_Azure_Storage_Account_Container_Name/entity
     auto_refresh = false
     file_format = (TYPE=JSON NULL_IF=('field') DATE_FORMAT=AUTO TRIM_SPACE=TRUE)
     stage_file_format = (TYPE=JSON NULL_IF=())
@@ -964,7 +964,7 @@ def test_virtual_column_table():
             "tablespace": None,
             "replace": True,
             "if_not_exists": True,
-            "location": "@ADL_Azure_Storage_Account_Container_Name/",
+            "location": "ADL_Azure_Storage_Account_Container_Name/entity",
             "table_properties": {
                 "auto_refresh": False,
                 "file_format": {'TYPE' : 'JSON', 'NULL_IF' : "('field')", 'DATE_FORMAT' : 'AUTO', 'TRIM_SPACE' : 'TRUE'},
