@@ -1,3 +1,7 @@
+**v1.0.4**
+### Improvements
+1. Support functions with schema prefix in `DEFAULT` and `CHECK` statements.
+
 **v1.0.3**
 ### Improvements
 1. Fixed bug with `CREATE OR REPLACE SCHEMA`.

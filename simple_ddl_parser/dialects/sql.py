@@ -1429,6 +1429,7 @@ class BaseSQL(
         | DEFAULT LP pid RP
         | DEFAULT LP funct_expr pid RP
         | default id
+        | DEFAULT id DOT funct_expr
         | default LP RP
         """
         p_list = remove_par(list(p))
@@ -1448,8 +1449,11 @@ class BaseSQL(
 
     @staticmethod
     def pre_process_default(p_list: List) -> Any:
-        if len(p_list) == 5 and isinstance(p_list[3], list):
-            default = p_list[3][0]
+        if len(p_list) == 5:
+            if isinstance(p_list[3], list):
+                default = p_list[3][0]
+            else:
+                default = f"{''.join(p_list[2:5])}"
         elif "DEFAULT" in p_list and len(p_list) == 4:
             default = f"{p_list[2]} {p_list[3]}"
         else:
@@ -1523,6 +1527,7 @@ class BaseSQL(
         | check_st id RP
         | check_st STRING RP
         | check_st funct_args
+        | CHECK LP id DOT id
         | check_st LP pid RP
         """
         p_list = remove_par(list(p))
@@ -1530,13 +1535,25 @@ class BaseSQL(
             p[0] = p[1]
         else:
             p[0] = {"check": []}
-        for item in p_list[2:]:
+
+        i = 0
+        items = p_list[2:]
+        items_num = len(items)
+
+        while i < items_num:
+            item = items[i]
+            # handle <schema>.<function>
+            if i + 1 < items_num and items[i + 1] == ".":
+                p[0]["check"].append(f"{''.join(items[i:i + 3])}")
+                i += 3
+                continue
             if isinstance(p_list[-1], dict) and p_list[-1].get("args"):
                 p[0]["check"][-1] += p_list[-1]["args"]
             elif isinstance(item, list):
                 p[0]["check"].append(f"({','.join(item)})")
             else:
                 p[0]["check"].append(item)
+            i += 1
 
     def p_using_tablespace(self, p: List) -> None:
         """using_tablespace : USING INDEX tablespace"""
