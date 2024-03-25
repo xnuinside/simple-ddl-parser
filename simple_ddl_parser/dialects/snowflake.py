@@ -43,6 +43,8 @@ class Snowflake:
     def p_table_property_equals(self, p: List) -> None:
         """table_property_equals : id id id_or_string
         | id id_or_string
+        | id DOT id_or_string
+        | id DOT id DOT id_or_string
         | LP id id id_or_string RP
         | LP id_or_string RP
         | id table_property_equals
