@@ -1184,6 +1184,48 @@ def test_default_expression():
     }
     assert expected == result
 
+def test_default_function_with_schema():
+    ddl = """
+    CREATE TABLE foo
+    (
+        entity_id        UUID PRIMARY KEY DEFAULT public.getId()
+    );
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "columns": [
+                    {
+                        "name": "entity_id",
+                        "type": "UUID",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": "public.getId()",
+                        "check": None,
+                    }
+                ],
+                "primary_key": ["entity_id"],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+                "schema": None,
+                "table_name": "foo",
+            }
+        ],
+        "types": [],
+        "ddl_properties": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+    }
+    assert result == expected
+
 
 def test_comments_in_columns():
     ddl = """
