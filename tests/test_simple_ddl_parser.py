@@ -3335,3 +3335,72 @@ def test_create_empty_table_with_parentheses():
         "types": [],
     }
     assert result == expected
+
+
+def test_reference_not_null():
+          
+    ddl =   """CREATE TABLE a
+    (
+        id UUID PRIMARY KEY
+    );
+
+    CREATE TABLE b
+    (
+        id UUID PRIMARY KEY,
+        a_id UUID REFERENCES a(id) NOT NULL
+    );
+
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {'ddl_properties': [],
+ 'domains': [],
+ 'schemas': [],
+ 'sequences': [],
+ 'tables': [{'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': 'id',
+                          'nullable': False,
+                          'references': None,
+                          'size': None,
+                          'type': 'UUID',
+                          'unique': False}],
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': ['id'],
+             'schema': None,
+             'table_name': 'a',
+             'tablespace': None},
+            {'alter': {},
+             'checks': [],
+             'columns': [{'check': None,
+                          'default': None,
+                          'name': 'id',
+                          'nullable': False,
+                          'references': None,
+                          'size': None,
+                          'type': 'UUID',
+                          'unique': False},
+                         {'check': None,
+                          'default': None,
+                          'name': 'a_id',
+                          'nullable': False,
+                          'references': {'columns': ['id'],
+                                         'deferrable_initially': None,
+                                         'on_delete': None,
+                                         'on_update': None,
+                                         'schema': None,
+                                         'table': 'a'},
+                          'size': None,
+                          'type': 'UUID',
+                          'unique': False}],
+             'index': [],
+             'partitioned_by': [],
+             'primary_key': ['id'],
+             'schema': None,
+             'table_name': 'b',
+             'tablespace': None}],
+ 'types': []}
+    
+    assert expected == result

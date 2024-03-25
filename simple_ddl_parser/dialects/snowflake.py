@@ -5,7 +5,6 @@ import re
 
 
 class Snowflake:
-
     def p_clone(self, p: List) -> None:
         """clone : CLONE id"""
         p_list = list(p)
@@ -34,11 +33,16 @@ class Snowflake:
             p[0] = value
 
     def p_fmt_equals(self, p: List) -> None:
-        """fmt_equals : id LP multi_id_or_string RP
-        """
-        fmt_split = re.compile(r"\w+\s*=\s*\w+|\w+\s*=\s*'.'|\w+\s*=\s*'..'|\w+\s*=\s*\('.+'\)|\w+\s*=\(\)")
+        """fmt_equals : id LP multi_id_or_string RP"""
+        fmt_split = re.compile(
+            r"\w+\s*=\s*\w+|\w+\s*=\s*'.'|\w+\s*=\s*'..'|\w+\s*=\s*\('.+'\)|\w+\s*=\(\)"
+        )
         p_list = list(p)
-        p[0] = {f.split('=')[0].strip(): f.split('=')[1].strip() for f in fmt_split.findall(p_list[3]) if '=' in f}
+        p[0] = {
+            f.split("=")[0].strip(): f.split("=")[1].strip()
+            for f in fmt_split.findall(p_list[3])
+            if "=" in f
+        }
 
     def p_table_property_equals(self, p: List) -> None:
         """table_property_equals : id id id_or_string
@@ -92,8 +96,7 @@ class Snowflake:
         p[0]["change_tracking"] = p_list[-1]
 
     def p_comment_equals(self, p: List) -> None:
-        """expr : expr option_comment
-        """
+        """expr : expr option_comment"""
         p[0] = p[1]
         if p[2]:
             p[0].update(p[2])

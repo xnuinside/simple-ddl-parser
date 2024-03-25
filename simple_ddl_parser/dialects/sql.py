@@ -395,7 +395,6 @@ class Column:
     def p_defcolumn(self, p: List) -> None:
         """defcolumn : column
         | defcolumn comment
-        | defcolumn null
         | defcolumn encode
         | defcolumn PRIMARY KEY
         | defcolumn UNIQUE KEY
@@ -405,6 +404,8 @@ class Column:
         | defcolumn collate
         | defcolumn enforced
         | defcolumn ref
+        | defcolumn null
+        | defcolumn ref null
         | defcolumn foreign ref
         | defcolumn encrypt
         | defcolumn generated

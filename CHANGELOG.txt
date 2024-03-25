@@ -1,6 +1,7 @@
 **v1.0.4**
 ### Improvements
-1. Support functions with schema prefix in `DEFAULT` and `CHECK` statements.
+1. Support functions with schema prefix in `DEFAULT` and `CHECK` statements. https://github.com/xnuinside/simple-ddl-parser/issues/240
+2. Fix for REFERENCES NOT NULL - https://github.com/xnuinside/simple-ddl-parser/issues/239
 
 **v1.0.3**
 ### Improvements
