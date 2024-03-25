@@ -549,6 +549,17 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.0.4**
+
+Improvements
+^^^^^^^^^^^^
+
+
+#. Support functions with schema prefix in ``DEFAULT`` and ``CHECK`` statements. https://github.com/xnuinside/simple-ddl-parser/issues/240
+   ### Fixes
+#. Fix for REFERENCES NOT NULL - https://github.com/xnuinside/simple-ddl-parser/issues/239
+#. Fix for snowflake stage name location format bug fix - https://github.com/xnuinside/simple-ddl-parser/pull/241
+
 **v1.0.3**
 
 Improvements
