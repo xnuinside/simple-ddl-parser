@@ -405,78 +405,98 @@ def test_foreigen_keys():
         normalize_names=True,
     ).run(group_by_type=True)
     expected = {
-        "ddl_properties": [],
-        "domains": [],
-        "schemas": [],
-        "sequences": [],
         "tables": [
             {
-                "alter": {},
-                "checks": [],
+                "table_name": "timeperiod_exceptions",
+                "schema": None,
+                "primary_key": ["exception_id"],
                 "columns": [
                     {
-                        "autoincrement": True,
-                        "check": None,
-                        "default": None,
                         "name": "exception_id",
-                        "nullable": False,
-                        "references": None,
-                        "size": None,
                         "type": "int",
+                        "size": None,
+                        "references": None,
                         "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                        "autoincrement": True,
                     },
                     {
-                        "check": None,
-                        "default": None,
                         "name": "timeperiod_id",
-                        "nullable": False,
+                        "type": "int",
+                        "size": None,
                         "references": {
-                            "column": "tp_id",
-                            "deferrable_initially": None,
+                            "table": "timeperiod",
+                            "schema": None,
                             "on_delete": "CASCADE",
                             "on_update": None,
-                            "schema": None,
-                            "table": "timeperiod",
+                            "deferrable_initially": None,
+                            "column": "tp_id",
                         },
-                        "size": None,
-                        "type": "int",
                         "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
                     },
                     {
-                        "check": None,
-                        "default": None,
                         "name": "days",
-                        "nullable": False,
-                        "references": None,
-                        "size": 255,
                         "type": "varchar",
+                        "size": 255,
+                        "references": None,
                         "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
                     },
                     {
-                        "check": None,
-                        "default": None,
                         "name": "timerange",
-                        "nullable": False,
-                        "references": None,
-                        "size": 255,
                         "type": "varchar",
+                        "size": 255,
+                        "references": None,
                         "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
                     },
                 ],
-                "table_properties": {
-                    "engine": "InnoDB",
-                    "character": "utf8",
-                },
-                "index": [],
+                "alter": {},
+                "checks": [],
+                "index": [
+                    {
+                        "clustered": False,
+                        "columns": [
+                            [{"name": "timeperiod_id", "order": "ASC", "nulls": "LAST"}]
+                        ],
+                        "detailed_columns": [
+                            {
+                                "name": [
+                                    {
+                                        "name": "timeperiod_id",
+                                        "order": "ASC",
+                                        "nulls": "LAST",
+                                    }
+                                ],
+                                "nulls": "LAST",
+                                "order": "ASC",
+                            }
+                        ],
+                        "index_name": None,
+                        "unique": False,
+                    }
+                ],
                 "partitioned_by": [],
-                "primary_key": ["exception_id"],
-                "schema": None,
-                "table_name": "timeperiod_exceptions",
                 "tablespace": None,
+                "table_properties": {"engine": "InnoDB", "character": "utf8"},
             }
         ],
         "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "ddl_properties": [],
     }
+
     assert result == expected
 
 

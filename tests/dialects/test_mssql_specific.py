@@ -1876,7 +1876,7 @@ def test_constraint_primary_key():
 
     ddl = """CREATE TABLE [dbo].[users_WorkSchedule](
         [id] [int] IDENTITY(1,1) NOT NULL,
-        [user_id] [int] NULL),
+        [user_id] [int] NULL,
         CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY CLUSTERED
     (
         [id] ASC
@@ -1885,7 +1885,7 @@ def test_constraint_primary_key():
         CONSTRAINT [PK_users_WorkSchedule_id] PRIMARY KEY
     (
         [id] ASC
-    )
+    ))
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     assert result == expected

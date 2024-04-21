@@ -486,6 +486,16 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
+**v1.1.0**
+### Improvements
+MySQL:
+1. Added support for INDEX statement inside table definition
+2. Added support for MySQL INVISIBLE/VISIBLE statement - https://github.com/xnuinside/simple-ddl-parser/issues/243
+
+Snowflake:
+1. Added support for cluster by statement before columns definition - https://github.com/xnuinside/simple-ddl-parser/issues/234
+
+
 **v1.0.4**
 ### Improvements
 1. Support functions with schema prefix in `DEFAULT` and `CHECK` statements. https://github.com/xnuinside/simple-ddl-parser/issues/240

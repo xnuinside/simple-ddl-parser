@@ -60,6 +60,8 @@ columns_definition = {
     "WITH",
     "ORDER",
     "NOORDER",
+    "VISIBLE",
+    "INVISIBLE",
 }
 columns_definition = {value: value for value in columns_definition}
 columns_definition[","] = "COMMA"
@@ -70,9 +72,12 @@ first_liners = {
     "CONSTRAINT",
     "FOREIGN",
     "PRIMARY",
+    "INDEX",
     "UNIQUE",
     "CHECK",
     "WITH",
+    "CLUSTER",
+    "BY",
 }
 first_liners = {value: value for value in first_liners}
 
