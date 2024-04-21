@@ -1,7 +1,7 @@
+import re
 from typing import List
 
 from simple_ddl_parser.utils import remove_par
-import re
 
 
 class Snowflake:
@@ -11,12 +11,17 @@ class Snowflake:
         p[0] = {"clone": {"from": p_list[-1]}}
 
     def p_expression_cluster_by(self, p: List) -> None:
-        """expr : expr CLUSTER BY LP pid RP
-        | expr CLUSTER BY pid
-        """
+        """expr : expr cluster_by"""
+        p_list = list(p)
         p[0] = p[1]
+        p[0].update(p_list[-1])
+
+    def p_cluster_by(self, p: List) -> None:
+        """cluster_by : CLUSTER BY LP pid RP
+        | CLUSTER BY pid
+        """
         p_list = remove_par(list(p))
-        p[0]["cluster_by"] = p_list[-1]
+        p[0] = {"cluster_by": p_list[-1]}
 
     def p_multi_id_or_string(self, p: List) -> None:
         """multi_id_or_string : id_or_string

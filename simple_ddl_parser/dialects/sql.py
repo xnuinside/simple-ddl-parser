@@ -981,6 +981,26 @@ class BaseSQL(
             table_name = p_list[-1]
         p[0].update({"schema": schema, "table_name": table_name})
 
+    def p_c_index(self, p: List) -> None:
+        """c_index : INDEX LP index_pid RP
+        | INDEX id LP index_pid RP
+        | c_index INVISIBLE
+        | c_index VISIBLE"""
+        p_list = remove_par(p_list=list(p))
+        if isinstance(p_list[1], dict):
+            p[0] = p_list[1]
+            p[0]["details"] = {p_list[-1].lower(): True}
+        else:
+            if len(p_list) == 3:
+                name = None
+            else:
+                name = p_list[2]
+            p[0] = {
+                "index_stmt": True,
+                "name": name,
+                "columns": p_list[-1]["detailed_columns"],
+            }
+
     def p_create_index(self, p: List) -> None:
         """create_index : CREATE INDEX id
         | CREATE UNIQUE INDEX id
@@ -1020,7 +1040,9 @@ class BaseSQL(
         | table_name LP defcolumn
         | table_name
         | table_name LP RP
+        | table_name cluster_by LP defcolumn
         | expr COMMA defcolumn
+        | expr COMMA c_index
         | expr COMMA
         | expr COMMA constraint
         | expr COMMA check_ex
@@ -1041,30 +1063,33 @@ class BaseSQL(
         """
         p[0] = p[1] or defaultdict(list)
         p_list = remove_par(list(p))
+        if len(p_list) > 2 and "cluster_by" in p_list[2]:
+            p[0].update(p_list[2])
         if p_list[-1] != "," and p_list[-1] is not None:
             if "type" in p_list[-1] and "name" in p_list[-1]:
                 if not p[0].get("columns"):
                     p[0]["columns"] = []
                 p[0]["columns"].append(p_list[-1])
             elif "index_stmt" in p_list[-1]:
+                del p_list[-1]["index_stmt"]
                 if not p[0].get("index"):
                     p[0]["index"] = []
                 index_data = p_list[-1]
-                p[0]["index"].append(
-                    {
-                        "clustered": False,
-                        "columns": [index_data["columns"]],
-                        "detailed_columns": [
-                            {
-                                "name": index_data["columns"],
-                                "nulls": "LAST",
-                                "order": "ASC",
-                            }
-                        ],
-                        "index_name": index_data["name"],
-                        "unique": False,
-                    }
-                )
+                _index = {
+                    "clustered": False,
+                    "columns": [index_data["columns"]],
+                    "detailed_columns": [
+                        {
+                            "name": index_data["columns"],
+                            "nulls": "LAST",
+                            "order": "ASC",
+                        }
+                    ],
+                    "index_name": index_data["name"],
+                    "unique": False,
+                }
+                _index.update(index_data.get("details", {}))
+                p[0]["index"].append(_index)
             elif "check" in p_list[-1]:
                 p[0] = self.extract_check_data(p, p_list)
             elif "enforced" in p_list[-1]:

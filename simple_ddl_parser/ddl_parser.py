@@ -62,9 +62,9 @@ class DDLParser(Parser, Dialects):
         return t
 
     def process_body_tokens(self, t: LexToken) -> LexToken:
-        if (
-            self.lexer.last_par == "RP" and not self.lexer.lp_open
-        ) or self.lexer.after_columns:
+        if (self.lexer.last_par == "RP" and not self.lexer.lp_open) or (
+            self.lexer.after_columns and not self.lexer.columns_def
+        ):
             t = self.after_columns_tokens(t)
         elif self.lexer.columns_def:
             t.type = tok.columns_definition.get(t.value.upper(), t.type)
@@ -83,7 +83,6 @@ class DDLParser(Parser, Dialects):
         t_tag = self.parse_tags_symbols(t)
         if t_tag:
             return t_tag
-
         if "ARRAY" in t.value:
             t.type = "ARRAY"
             return t
@@ -98,7 +97,8 @@ class DDLParser(Parser, Dialects):
         elif self.lexer.last_token != "COMMA":
             t.type = tok.common_statements.get(t.value.upper(), t.type)
         else:
-            t.type = tok.first_liners.get(t.value.upper(), t.type)
+            if not (self.lexer.columns_def and self.lexer.after_columns):
+                t.type = tok.first_liners.get(t.value.upper(), t.type)
 
         # get tokens from other token dicts
         t = self.process_body_tokens(t)
@@ -198,7 +198,6 @@ class DDLParser(Parser, Dialects):
         self.commat_type(t)
 
         self.set_lexx_tags(t)
-
         return self.set_last_token(t)
 
     def commat_type(self, t: LexToken):
@@ -209,14 +208,16 @@ class DDLParser(Parser, Dialects):
         if t.type != "ID" and t.type not in ["LT", "RT"]:
             t.value = t.value.upper()
 
-    def set_parathesis_tokens(self, t: LexToken):
+    def set_parenthesis_tokens(self, t: LexToken):
         if t.type in ["RP", "LP"]:
             if t.type == "RP" and self.lexer.lp_open:
                 self.lexer.lp_open -= 1
+                if not self.lexer.lp_open:
+                    self.lexer.after_columns = True
             self.lexer.last_par = t.type
 
     def set_lexx_tags(self, t: LexToken):
-        self.set_parathesis_tokens(t)
+        self.set_parenthesis_tokens(t)
 
         if t.type == "ALTER":
             self.lexer.is_alter = True

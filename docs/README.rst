@@ -537,7 +537,7 @@ Big thanks for the involving & contribution with test cases with DDL samples & o
 
 
 * https://github.com/kukigai , 
-* https://github.com/Awalkman90 ,
+* https://github.com/kliushnichenko ,
 * https://github.com/geob3d
 
 for help with debugging & testing support for BigQuery dialect DDLs:
@@ -548,6 +548,22 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 Changelog
 ---------
+
+**v1.1.0**
+
+Improvements
+^^^^^^^^^^^^
+
+MySQL:
+
+
+#. Added support for INDEX statement inside table definition
+#. Added support for MySQL INVISIBLE/VISIBLE statement - https://github.com/xnuinside/simple-ddl-parser/issues/243
+
+Snowflake:
+
+
+#. Added support for cluster by statement before columns definition - https://github.com/xnuinside/simple-ddl-parser/issues/234
 
 **v1.0.4**
 

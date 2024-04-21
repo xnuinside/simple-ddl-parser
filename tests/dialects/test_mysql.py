@@ -340,3 +340,147 @@ CREATE TABLE IF NOT EXISTS database.table_name
         }
     ]
     assert expected == result
+
+
+def test_visible():
+    ddl = """CREATE TABLE IF NOT EXISTS `ohs`.`authorized_users` (
+      `id` INT(6) UNSIGNED NOT NULL AUTO_INCREMENT,
+      `signum` VARCHAR(256) NOT NULL,
+      `role` INT(2) UNSIGNED NOT NULL,
+      `first_name` VARCHAR(64) NOT NULL,
+      `last_name` VARCHAR(64) NOT NULL,
+      `created_at` DATETIME NULL DEFAULT NULL,
+      `created_by` VARCHAR(128) NOT NULL,
+      `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      `updated_by` VARCHAR(128) NULL DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      INDEX `id` (`id` ASC) VISIBLE)
+    ENGINE = InnoDB"""
+
+    result = DDLParser(ddl).run(output_mode="snowflake")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "autoincrement": True,
+                    "check": None,
+                    "default": None,
+                    "name": "`id`",
+                    "nullable": False,
+                    "references": None,
+                    "size": 6,
+                    "type": "INT UNSIGNED",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "`signum`",
+                    "nullable": False,
+                    "references": None,
+                    "size": 256,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "`role`",
+                    "nullable": False,
+                    "references": None,
+                    "size": 2,
+                    "type": "INT UNSIGNED",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "`first_name`",
+                    "nullable": False,
+                    "references": None,
+                    "size": 64,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "`last_name`",
+                    "nullable": False,
+                    "references": None,
+                    "size": 64,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": "NULL",
+                    "name": "`created_at`",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "DATETIME",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "`created_by`",
+                    "nullable": False,
+                    "references": None,
+                    "size": 128,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": "CURRENT_TIMESTAMP",
+                    "name": "`updated_at`",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "TIMESTAMP",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": "NULL",
+                    "name": "`updated_by`",
+                    "nullable": True,
+                    "references": None,
+                    "size": 128,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+            ],
+            "external": False,
+            "if_not_exists": True,
+            "index": [
+                {
+                    "clustered": False,
+                    "columns": [[{"name": "`id`", "nulls": "LAST", "order": "ASC"}]],
+                    "detailed_columns": [
+                        {
+                            "name": [{"name": "`id`", "nulls": "LAST", "order": "ASC"}],
+                            "nulls": "LAST",
+                            "order": "ASC",
+                        }
+                    ],
+                    "index_name": "`id`",
+                    "unique": False,
+                    "visible": True,
+                }
+            ],
+            "partitioned_by": [],
+            "primary_key": ["`id`"],
+            "primary_key_enforced": None,
+            "schema": "`ohs`",
+            "table_name": "`authorized_users`",
+            "table_properties": {"engine": "InnoDB"},
+            "tablespace": None,
+        }
+    ]
+    assert result == expected
