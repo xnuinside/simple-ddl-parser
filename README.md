@@ -486,6 +486,24 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
+**v1.2.0**
+### Fixes
+MySQL:
+1. Fixed issue relative to auto_increment that caused empty output if auto_increment defined in table properties -
+https://github.com/xnuinside/simple-ddl-parser/issues/206
+
+### Improvements
+MySQL:
+1. auto_increment added as property to mysql output
+
+Oracle:
+1. Added support for  constraint name in column definition - https://github.com/xnuinside/simple-ddl-parser/issues/203
+2. Added support for GENERATED (ALWAYS | (BY DEFAULT [ON NULL])) AS IDENTITY in column definition
+
+PostgreSQL:
+1. Added support for CAST statement in column GENERATE ALWAYS expression - https://github.com/xnuinside/simple-ddl-parser/issues/198
+
+
 **v1.1.0**
 ### Improvements
 MySQL:

@@ -484,3 +484,76 @@ def test_visible():
         }
     ]
     assert result == expected
+
+
+def test_auto_increment_table_property():
+    expected = [
+        {
+            "alter": {},
+            "auto_increment": "10",
+            "checks": [],
+            "columns": [
+                {
+                    "autoincrement": True,
+                    "check": None,
+                    "default": None,
+                    "name": "`user_id`",
+                    "nullable": False,
+                    "references": None,
+                    "size": 11,
+                    "type": "int",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "`user_name`",
+                    "nullable": False,
+                    "references": None,
+                    "size": 50,
+                    "type": "varchar",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "comment": "'user auth'",
+                    "default": "'1'",
+                    "name": "`authority`",
+                    "nullable": True,
+                    "references": None,
+                    "size": 11,
+                    "type": "int",
+                    "unique": False,
+                },
+            ],
+            "default_charset": "utf8",
+            "engine": "InnoDB",
+            "index": [
+                {
+                    "clustered": False,
+                    "columns": ["`user_id`"],
+                    "detailed_columns": [
+                        {"name": "`user_id`", "nulls": "LAST", "order": "ASC"}
+                    ],
+                    "index_name": "`FK_authority`",
+                    "unique": False,
+                }
+            ],
+            "partitioned_by": [],
+            "primary_key": ["`user_id`"],
+            "schema": None,
+            "table_name": "`employee`",
+            "tablespace": None,
+        }
+    ]
+
+    ddl = """CREATE TABLE `employee` (
+      `user_id` int(11) NOT NULL AUTO_INCREMENT,
+      `user_name` varchar(50) NOT NULL,
+      `authority` int(11) DEFAULT '1' COMMENT 'user auth',
+      PRIMARY KEY (`user_id`),
+      KEY `FK_authority` (`user_id`,`user_name`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;"""
+
+    result = DDLParser(ddl).run(output_mode="mysql")
+    assert result == expected
