@@ -417,6 +417,8 @@ class Column:
         | defcolumn option_with_tag
         | defcolumn option_with_masking_policy
         | defcolumn as_virtual
+        | defcolumn constraint
+        | defcolumn generated_by
         """
         p[0] = p[1]
         p_list = list(p)
@@ -1387,11 +1389,15 @@ class BaseSQL(
         | id LP f_call RP
         | id LP multi_id RP
         | id LP pid RP
+        | id LP id AS id RP
         """
         p_list = list(p)
         if isinstance(p[1], list):
             p[0] = p[1]
             p[0].append(p_list[-1])
+        elif p_list[1].upper() == "CAST":
+            p_list = remove_par(p_list)
+            p[0] = {"cast": {"value": p_list[2], "as": p_list[4]}}
         else:
             value = ""
             for elem in p_list[1:]:
@@ -1410,6 +1416,8 @@ class BaseSQL(
         if isinstance(p[1], list):
             p[0] = p[1]
             p[0].append(p_list[-1])
+        elif isinstance(p_list[1], dict):
+            p[0] = p[1]
         else:
             value = " ".join(p_list[1:])
             p[0] = value

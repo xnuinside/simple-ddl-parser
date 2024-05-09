@@ -62,6 +62,9 @@ columns_definition = {
     "NOORDER",
     "VISIBLE",
     "INVISIBLE",
+    "AUTOINCREMENT",
+    "GENERATED",
+    "BY",
 }
 columns_definition = {value: value for value in columns_definition}
 columns_definition[","] = "COMMA"
@@ -157,7 +160,6 @@ tokens = tuple(
             "LT",
             "RT",
             "COMMAT",
-            "AUTOINCREMENT",
         ]
         + list(definition_statements.values())
         + list(common_statements.values())

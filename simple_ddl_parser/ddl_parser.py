@@ -170,7 +170,10 @@ class DDLParser(Parser, Dialects):
 
     def t_AUTOINCREMENT(self, t: LexToken):
         r"(?i:AUTO_INCREMENT|AUTOINCREMENT)\b"
-        t.type = "AUTOINCREMENT"
+        if not self.lexer.after_columns:
+            t.type = "AUTOINCREMENT"
+        else:
+            t.type = "ID"
         return self.set_last_token(t)
 
     def t_ID(self, t: LexToken):
