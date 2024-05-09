@@ -549,7 +549,7 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
-**v1.2.0**
+**v1.2.1**
 
 Fixes
 ^^^^^

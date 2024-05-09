@@ -486,7 +486,7 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
-**v1.2.0**
+**v1.2.1**
 ### Fixes
 MySQL:
 1. Fixed issue relative to auto_increment that caused empty output if auto_increment defined in table properties -
