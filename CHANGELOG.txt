@@ -1,3 +1,20 @@
+**v1.3.0**
+
+### Fixes
+PostgreSQL:
+1.  Timezone was moved out from type definition to keyword 'with_time_zone' it can be True (if with time zone) or False (if without)
+BigQuery:
+1. Previously Range in RANGE_BUCKETS was parsed as a columns, now this behaviour is changed and
+range placed in own keyword - 'range' (can be array or str).
+Also for all ``*_TRUNC PARTITIONS` like DATETIME_TRUNC, TIMESTAMP_TRUNC, etc, second argument moved to arg 'trunc_by'
+
+### Improvements
+PostgreSQL:
+1. Added support for PostgreSQL with / without time zone - https://github.com/xnuinside/simple-ddl-parser/issues/250
+
+BigQuery:
+1. Added support for GENERATE_ARRAY in RANGE_BUCKETS https://github.com/xnuinside/simple-ddl-parser/issues/183
+
 **v1.2.1**
 ### Fixes
 MySQL:

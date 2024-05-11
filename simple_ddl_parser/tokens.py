@@ -58,6 +58,7 @@ columns_definition = {
     "POLICY",
     "MASKING",
     "WITH",
+    "WITHOUT",
     "ORDER",
     "NOORDER",
     "VISIBLE",
