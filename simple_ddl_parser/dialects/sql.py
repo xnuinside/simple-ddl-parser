@@ -10,7 +10,7 @@ auth = "AUTHORIZATION"
 
 class AfterColumns:
     @staticmethod
-    def _parse_range_bucket(data: list[str]) -> Tuple[List[str], List[str]]:
+    def _parse_range_bucket(data: List[str]) -> Tuple[List[str], List[str]]:
         range = None
 
         if len(data) == 3:
