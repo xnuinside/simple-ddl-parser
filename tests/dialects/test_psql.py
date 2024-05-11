@@ -86,3 +86,36 @@ def test_cast_generated():
         }
     ]
     assert expected == result
+
+
+def test_with_time_zone():
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "date_updated",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "timestamp",
+                    "unique": False,
+                    "with_time_zone": True,
+                }
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": "public",
+            "table_name": "test",
+            "tablespace": None,
+        }
+    ]
+    ddl = """
+    CREATE TABLE public.test (date_updated timestamp with time zone);"""
+
+    result = DDLParser(ddl).run(output_mode="postgres")
+    assert expected == result

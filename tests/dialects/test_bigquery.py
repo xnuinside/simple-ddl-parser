@@ -484,7 +484,8 @@ def test_table_name_with_project_id():
                     }
                 ],
                 "partition_by": {
-                    "columns": ["fiscal_half_year_reporting_week_no", "DAY"],
+                    "columns": ["fiscal_half_year_reporting_week_no"],
+                    "trunc_by": "DAY",
                     "type": "DATETIME_TRUNC",
                 },
                 "partitioned_by": [],
@@ -646,7 +647,8 @@ def test_multiple_options():
                     {"option_four": '"Four"'},
                 ],
                 "partition_by": {
-                    "columns": ["fiscal_half_year_reporting_week_no", "DAY"],
+                    "columns": ["fiscal_half_year_reporting_week_no"],
+                    "trunc_by": "DAY",
                     "type": "DATETIME_TRUNC",
                 },
                 "partitioned_by": [],
@@ -868,4 +870,127 @@ def test_bigquery_options_string():
         ],
         "types": [],
     }
+    assert result == expected
+
+
+def test_bigquery_partition_range():
+    ddl = """
+    CREATE TABLE data.test(
+        field_a INT OPTIONS(description='some description')
+    )
+    PARTITION BY RANGE_BUCKET(field_a, GENERATE_ARRAY(10, 1000, 1));"""
+
+    result = DDLParser(ddl).run(output_mode="bigquery")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "field_a",
+                    "nullable": True,
+                    "options": [{"description": "'some description'"}],
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": False,
+                }
+            ],
+            "index": [],
+            "partition_by": {
+                "columns": ["field_a"],
+                "range": "GENERATE_ARRAY(10,1000,1)",
+                "type": "RANGE_BUCKET",
+            },
+            "partitioned_by": [],
+            "primary_key": [],
+            "dataset": "data",
+            "table_name": "test",
+            "tablespace": None,
+        }
+    ]
+
+    assert result == expected
+
+
+def test_array_range():
+    ddl = """CREATE TABLE data.test(
+       field_a INT OPTIONS(description='some description')
+     )
+     PARTITION BY RANGE_BUCKET(field_a, [1,2,3]]) ;"""
+
+    result = DDLParser(ddl).run(output_mode="bigquery")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "field_a",
+                    "nullable": True,
+                    "options": [{"description": "'some description'"}],
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": False,
+                }
+            ],
+            "dataset": "data",
+            "index": [],
+            "partition_by": {
+                "columns": ["field_a"],
+                "range": ["1", "2", "3"],
+                "type": "RANGE_BUCKET",
+            },
+            "partitioned_by": [],
+            "primary_key": [],
+            "table_name": "test",
+            "tablespace": None,
+        }
+    ]
+    assert expected == result
+
+
+def test_date_trunc():
+    ddl = """CREATE TABLE data.test(
+       field_a INT OPTIONS(description='some description')
+     )
+     PARTITION BY DATE_TRUNC(field, MONTH);"""
+
+    result = DDLParser(ddl).run(output_mode="bigquery")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "field_a",
+                    "nullable": True,
+                    "options": [{"description": "'some description'"}],
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": False,
+                }
+            ],
+            "dataset": "data",
+            "index": [],
+            "partition_by": {
+                "columns": ["field"],
+                "trunc_by": "MONTH",
+                "type": "DATE_TRUNC",
+            },
+            "partitioned_by": [],
+            "primary_key": [],
+            "table_name": "test",
+            "tablespace": None,
+        }
+    ]
+
     assert result == expected

@@ -9,21 +9,56 @@ auth = "AUTHORIZATION"
 
 
 class AfterColumns:
+    @staticmethod
+    def _parse_range_bucket(data: list[str]) -> Tuple[List[str], List[str]]:
+        range = None
+
+        if len(data) == 3:
+            columns = data[0]
+            range = data[2]
+        else:
+            columns = []
+            for column in data[0]:
+                if "[" in column:
+                    range = [column.replace("[", "")]
+                elif range:
+                    range.append(column.replace("]", ""))
+                else:
+                    columns.append(column)
+        return columns, range
+
     def p_expression_partition_by(self, p: List) -> None:
         """expr : expr PARTITION BY LP pid RP
         | expr PARTITION BY id LP pid RP
         | expr PARTITION BY pid
-        | expr PARTITION BY id pid"""
+        | expr PARTITION BY id pid
+        | expr PARTITION BY id LP pid COMMA f_call RP
+        """
         p[0] = p[1]
-        p_list = list(p)
-        _type = None
-        if isinstance(p[4], list):
-            columns = p[4]
+        p_list = remove_par(list(p))
+        _type, range, trunc_by = None, None, None
+
+        if isinstance(p_list[4], list):
+            columns = p_list[4]
+        elif "_TRUNC" in p_list[4]:
+            # bigquery
+            _type = p_list[4]
+            trunc_by = p_list[5][-1]
+            p_list[5].pop(-1)
+            columns = p_list[5]
+        elif p_list[4].upper() == "RANGE_BUCKET":
+            # bigquery RANGE_BUCKET with GENERATE_ARRAY
+            _type = p_list[4]
+            columns, range = self._parse_range_bucket(p_list[5:])
         else:
-            columns = p_list[-2]
-        if isinstance(p[4], str) and p[4].lower() != "(":
-            _type = p[4]
+            columns = p_list[-1]
+        if not _type and isinstance(p_list[4], str):
+            _type = p_list[4]
         p[0]["partition_by"] = {"columns": columns, "type": _type}
+        if range:
+            p[0]["partition_by"]["range"] = range
+        if trunc_by:
+            p[0]["partition_by"]["trunc_by"] = trunc_by
 
 
 class Database:
@@ -419,6 +454,7 @@ class Column:
         | defcolumn as_virtual
         | defcolumn constraint
         | defcolumn generated_by
+        | defcolumn timezone
         """
         p[0] = p[1]
         p_list = list(p)
