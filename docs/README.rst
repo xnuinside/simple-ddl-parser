@@ -549,6 +549,26 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.4.0**
+
+Fixes
+^^^^^
+
+BigQuery:
+~~~~~~~~~
+
+
+#. Indexes without schema causes issues in BigQuery dialect - fixed.
+
+Improvements
+^^^^^^^^^^^^
+
+Oracle:
+~~~~~~~
+
+
+#. Added new output keywords in table definition - ``temp`` & ``is_global``. Added support for create global temporary table - https://github.com/xnuinside/simple-ddl-parser/issues/182
+
 **v1.3.0**
 
 Fixes

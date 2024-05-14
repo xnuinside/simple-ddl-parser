@@ -994,3 +994,46 @@ def test_date_trunc():
     ]
 
     assert result == expected
+
+
+def test_index_without_schema():
+    ddl = """CREATE TABLE t1 (
+      val INT,
+    );
+    CREATE INDEX idx1 ON t1(val);"""
+
+    result = DDLParser(ddl).run(output_mode="bigquery")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "val",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": False,
+                }
+            ],
+            "dataset": None,
+            "index": [
+                {
+                    "columns": ["val"],
+                    "detailed_columns": [
+                        {"name": "val", "nulls": "LAST", "order": "ASC"}
+                    ],
+                    "index_name": "idx1",
+                    "unique": False,
+                }
+            ],
+            "partitioned_by": [],
+            "primary_key": [],
+            "table_name": "t1",
+            "tablespace": None,
+        }
+    ]
+    assert expected == result

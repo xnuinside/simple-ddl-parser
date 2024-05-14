@@ -255,6 +255,8 @@ def test_oracle_output_mode():
                 "schema": None,
                 "table_name": "employee",
                 "tablespace": None,
+                "temp": False,
+                "is_global": False,
             },
             {
                 "alter": {},
@@ -311,6 +313,8 @@ def test_oracle_output_mode():
                 "schema": None,
                 "table_name": "employee_2",
                 "tablespace": None,
+                "temp": False,
+                "is_global": False,
             },
         ],
         "types": [],
@@ -381,6 +385,8 @@ def test_storage():
                 "storage": {"initial": "5m", "maxextents": "Unlimited", "next": "5m"},
                 "table_name": "emp_table",
                 "tablespace": None,
+                "temp": False,
+                "is_global": False,
             }
         ],
         "types": [],
@@ -502,6 +508,8 @@ CREATE TABLE order_items
                 "schema": None,
                 "table_name": "order_items",
                 "tablespace": None,
+                "temp": False,
+                "is_global": False,
             }
         ],
         "types": [],
@@ -677,6 +685,8 @@ def test_star_in_columns_siize():
                 "schema": None,
                 "table_name": "ACT_RU_VARIABLE",
                 "tablespace": None,
+                "temp": False,
+                "is_global": False,
             }
         ],
         "types": [],
@@ -766,6 +776,8 @@ def test_organization_index():
                 "schema": None,
                 "table_name": "meta_criteria_combo",
                 "tablespace": None,
+                "temp": False,
+                "is_global": False,
             }
         ],
         "types": [],
@@ -826,6 +838,8 @@ create table test (
                 "schema": None,
                 "table_name": "test",
                 "tablespace": None,
+                "temp": False,
+                "is_global": False,
             }
         ],
         "types": [],
@@ -862,6 +876,8 @@ def test_oracle_constraintin_column_def():
             "schema": None,
             "table_name": "event_types",
             "tablespace": None,
+            "temp": False,
+            "is_global": False,
         }
     ]
 
@@ -897,6 +913,8 @@ def test_generated_by_as_null():
             "schema": None,
             "table_name": "event_types",
             "tablespace": None,
+            "temp": False,
+            "is_global": False,
         }
     ]
     assert result == expected
@@ -931,6 +949,8 @@ def test_generated_by_default():
             "schema": None,
             "table_name": "event_types",
             "tablespace": None,
+            "temp": False,
+            "is_global": False,
         }
     ]
 
@@ -966,6 +986,45 @@ def test_generated_always_as_identity():
             "schema": None,
             "table_name": "event_types",
             "tablespace": None,
+            "temp": False,
+            "is_global": False,
         }
     ]
     assert expected == result
+
+
+def test_is_global_and_temp():
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "encrypt": None,
+                    "name": "id",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "number",
+                    "unique": False,
+                }
+            ],
+            "index": [],
+            "is_global": True,
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "test",
+            "tablespace": None,
+            "temp": True,
+        }
+    ]
+
+    ddl = """
+    create global temporary table test (id number);
+    """
+
+    result = DDLParser(ddl).run(output_mode="oracle")
+    assert result == expected

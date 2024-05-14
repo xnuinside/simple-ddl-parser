@@ -101,7 +101,7 @@ class MySSQL(Dialect):
 @dataclass
 @dialect(name="bigquery")
 class BigQuery(Dialect):
-    dataset: Optional[str] = field(default=False)
+    dataset: Optional[str] = field(default=None)
     project: Optional[str] = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
@@ -186,6 +186,7 @@ class PostgreSQL(Dialect):
 class Oracle(Dialect):
     # https://oracle-base.com/articles/8i/index-organized-tables
 
+    is_global: Optional[bool] = field(default=False)
     organization_index: Optional[bool] = field(
         default=False, metadata={"exclude_if_not_provided": True}
     )
@@ -253,7 +254,7 @@ class CommonDialectsFieldsMixin(Dialect):
     """base fields & mixed between dialects"""
 
     temp: Optional[bool] = field(
-        default=False, metadata={"output_modes": add_dialects([HQL, Redshift])}
+        default=False, metadata={"output_modes": add_dialects([HQL, Redshift, Oracle])}
     )
     tblproperties: Optional[dict] = field(
         default_factory=dict,
