@@ -38,7 +38,10 @@ class Output:
         return target_table
 
     def clean_up_index_statement(self, statement: Dict) -> None:
-        del statement[self.schema_key]
+        try:
+            del statement[self.schema_key]
+        except KeyError:
+            del statement["schema"]
         del statement["table_name"]
 
         if self.output_mode != "mssql":
@@ -46,8 +49,10 @@ class Output:
 
     def add_index_to_table(self, statement: Dict) -> None:
         """populate 'index' key in output data"""
+
         target_table = self.get_table_from_tables_data(
-            statement[self.schema_key], statement["table_name"]
+            statement.get(self.schema_key) or statement.get("schema"),
+            statement["table_name"],
         )
         self.clean_up_index_statement(statement)
         target_table.index.append(statement)

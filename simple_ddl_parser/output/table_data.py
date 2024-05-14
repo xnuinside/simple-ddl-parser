@@ -63,7 +63,6 @@ class TableData:
         table_properties = {
             k.lower(): v for k, v in kwargs.items() if k.lower() not in table_main_args
         }
-
         init_data = {}
         init_data.update(table_main_args)
         init_data.update(table_properties)

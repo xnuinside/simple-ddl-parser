@@ -161,6 +161,7 @@ class Table:
         | CREATE OR REPLACE TABLE
         | CREATE id TABLE IF NOT EXISTS
         | CREATE id TABLE
+        | CREATE id id TABLE
         | CREATE OR REPLACE id TABLE IF NOT EXISTS
         | CREATE OR REPLACE id TABLE
 
@@ -173,14 +174,21 @@ class Table:
 
         if "REPLACE" in p_list:
             p[0]["replace"] = True
-
-        id_key = p_list[4] if "REPLACE" in p_list else p_list[2]
+        if "REPLACE" in p_list:
+            id_key = p_list[4]
+        elif len(p_list) == 5:
+            id_key = p_list[3]
+        else:
+            id_key = p_list[2]
         id_key = id_key.upper()
-
         if id_key in ["EXTERNAL", "TRANSIENT"]:
             p[0][id_key.lower()] = True
+        elif id_key in ["GLOBAL"]:
+            p[0]["is_global"] = True
         elif id_key in ["TEMP", "TEMPORARY"]:
             p[0]["temp"] = True
+            if len(p_list) == 5 and p_list[2].upper() == "GLOBAL":
+                p[0]["is_global"] = True
 
 
 class Column:
