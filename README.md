@@ -10,6 +10,10 @@ Yes, library already has about 9000+ downloads per day  - https://pypistats.org/
 
 As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. But! Pay attention that sometimes output in keywords can be changed in minor version because of fixing wrong behaviour in past.
 
+### Articles with examples
+
+1. SQL Diagram (Part 3): SQL-to-ERD with DDL: https://levelup.gitconnected.com/sql-diagram-part-3-sql-to-erd-with-ddl-4c9840ee86c3 
+
 ### Updates in version 1.x
 
 The full list of updates can be found in the Changelog below (at the end of README).
