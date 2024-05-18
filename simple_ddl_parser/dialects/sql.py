@@ -421,9 +421,12 @@ class Column:
         references = None
         if isinstance(p_list[-1], str):
             if p_list[-1].upper() == "KEY":
-                pk = True
-                nullable = False
-            elif p_list[-1].upper() == "UNIQUE":
+                if p_list[-2].upper() == "UNIQUE":
+                    unique = True
+                else:
+                    pk = True
+                    nullable = False
+            if p_list[-1].upper() == "UNIQUE":
                 unique = True
         elif isinstance(p_list[-1], dict) and "references" in p_list[-1]:
             p_list[-1]["references"]["column"] = p_list[-1]["references"]["columns"][0]

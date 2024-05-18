@@ -29,6 +29,12 @@ Yes, library already has about 9000+ downloads per day  - https://pypistats.org/
 
 As maintainer, I guarantee that any backward incompatible changes will not be done in patch or minor version. But! Pay attention that sometimes output in keywords can be changed in minor version because of fixing wrong behaviour in past.
 
+Articles with examples
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+#. SQL Diagram (Part 3): SQL-to-ERD with DDL: https://levelup.gitconnected.com/sql-diagram-part-3-sql-to-erd-with-ddl-4c9840ee86c3 
+
 Updates in version 1.x
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -548,6 +554,15 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 Changelog
 ---------
+
+**v1.5.0**
+
+Fixes
+^^^^^
+
+
+#. Now, ``unique`` set up to column only if it was only one column in unique constraint/index. Issue - https://github.com/xnuinside/simple-ddl-parser/issues/255
+#. Fixed issue when UNIQUE KEY was identified as primary key - https://github.com/xnuinside/simple-ddl-parser/issues/253
 
 **v1.4.0**
 
