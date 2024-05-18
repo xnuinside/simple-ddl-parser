@@ -259,3 +259,117 @@ def test_unique_key_statement():
         }
     ]
     assert DDLParser(ddl).run() == expected
+
+
+def test_unique_alter_sql():
+    ddl = """
+    CREATE TABLE "participations"(
+        "user_id" BIGINT NOT NULL,
+        "project_id" BIGINT NOT NULL,
+        "team_id" BIGINT NOT NULL,
+    );
+    ALTER TABLE
+        "participations" ADD CONSTRAINT "participations_team_id_user_id_unique" UNIQUE("team_id", "user_id");
+    """
+
+    result = DDLParser(ddl).run()
+    expected = [
+        {
+            "alter": {
+                "uniques": [
+                    {
+                        "columns": ['"team_id"', '"user_id"'],
+                        "constraint_name": '"participations_team_id_user_id_unique"',
+                    }
+                ]
+            },
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": '"user_id"',
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "BIGINT",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": '"project_id"',
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "BIGINT",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": '"team_id"',
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "BIGINT",
+                    "unique": False,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": '"participations"',
+            "tablespace": None,
+        }
+    ]
+    assert expected == result
+
+
+def test_unique_key():
+    ddl = """
+    CREATE TABLE `posts`(
+        `integer_column__unique` INT NOT NULL AUTO_INCREMENT UNIQUE,
+        `integer_column__unique_key` INT NOT NULL AUTO_INCREMENT UNIQUE KEY
+    );
+    """
+
+    result = DDLParser(ddl).run()
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "autoincrement": True,
+                    "check": None,
+                    "default": None,
+                    "name": "`integer_column__unique`",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": True,
+                },
+                {
+                    "autoincrement": True,
+                    "check": None,
+                    "default": None,
+                    "name": "`integer_column__unique_key`",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": True,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "`posts`",
+            "tablespace": None,
+        }
+    ]
+    assert expected == result

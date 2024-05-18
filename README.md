@@ -490,6 +490,14 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 
 ## Changelog
+**v1.5.0**
+
+### Fixes
+
+1. Now, `unique` set up to column only if it was only one column in unique constraint/index. Issue - https://github.com/xnuinside/simple-ddl-parser/issues/255
+2. Fixed issue when UNIQUE KEY was identified as primary key - https://github.com/xnuinside/simple-ddl-parser/issues/253
+
+
 **v1.4.0**
 
 ### Fixes

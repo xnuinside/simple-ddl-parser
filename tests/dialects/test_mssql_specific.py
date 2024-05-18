@@ -1326,7 +1326,7 @@ def test_alter_unique():
                         "references": None,
                         "size": (38, 20),
                         "type": "DECIMAL",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,
@@ -1386,7 +1386,7 @@ def test_alter_unique():
                         "references": None,
                         "size": 7,
                         "type": "DATETIME2",
-                        "unique": True,
+                        "unique": False,
                     },
                     {
                         "check": None,

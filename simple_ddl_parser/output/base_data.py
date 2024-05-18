@@ -112,7 +112,7 @@ class BaseData:
                     check_in = []
             else:
                 check_in = getattr(self, key, {})
-            if column["name"] in check_in:
+            if len(check_in) == 1 and column["name"] in check_in:
                 column["unique"] = True
 
     def normalize_ref_columns_in_final_output(self):
@@ -285,9 +285,11 @@ class BaseData:
 
     def set_unique_columns_from_alter(self, statement: Dict) -> None:
         for column in self.columns:
-            for column_name in statement["unique"]["columns"]:
-                if column["name"] == column_name:
-                    column["unique"] = True
+            if len(statement["unique"]["columns"]) == 1:
+                # if unique index only on one column
+                for column_name in statement["unique"]["columns"]:
+                    if column["name"] == column_name:
+                        column["unique"] = True
 
     def alter_modify_columns(self, statement) -> None:
         alter_key = "columns_to_modify"
