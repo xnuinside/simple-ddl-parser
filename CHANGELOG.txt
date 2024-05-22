@@ -1,3 +1,11 @@
+**v1.5.1**
+### Improvements
+#### MySQL
+
+1. Added support for INDEX statement in column definition - https://github.com/xnuinside/simple-ddl-parser/issues/253
+2.
+
+
 **v1.5.0**
 
 ### Fixes

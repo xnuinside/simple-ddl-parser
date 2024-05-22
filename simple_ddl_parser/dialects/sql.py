@@ -419,6 +419,8 @@ class Column:
         default = None
         unique = False
         references = None
+        index = False
+
         if isinstance(p_list[-1], str):
             if p_list[-1].upper() == "KEY":
                 if p_list[-2].upper() == "UNIQUE":
@@ -432,7 +434,9 @@ class Column:
             p_list[-1]["references"]["column"] = p_list[-1]["references"]["columns"][0]
             del p_list[-1]["references"]["columns"]
             references = p_list[-1]["references"]
-        return pk, default, unique, references, nullable
+        if p_list[-1] == "INDEX":
+            index = True
+        return pk, default, unique, references, nullable, index
 
     def p_autoincrement(self, p: List) -> None:
         """autoincrement : AUTOINCREMENT"""
@@ -445,6 +449,7 @@ class Column:
         | defcolumn PRIMARY KEY
         | defcolumn UNIQUE KEY
         | defcolumn UNIQUE
+        | defcolumn INDEX
         | defcolumn check_ex
         | defcolumn default
         | defcolumn collate
@@ -470,7 +475,9 @@ class Column:
         p[0] = p[1]
         p_list = list(p)
 
-        pk, default, unique, references, nullable = self.get_column_properties(p_list)
+        pk, default, unique, references, nullable, index = self.get_column_properties(
+            p_list
+        )
 
         self.set_property(p)
 
@@ -486,6 +493,8 @@ class Column:
         if isinstance(p_list[-1], dict) and p_list[-1].get("encode"):
             p[0]["encode"] = p[0].get("encode", p_list[-1]["encode"])
         p[0]["check"] = self.set_check_in_columm(p[0].get("check"))
+        if index:
+            p[0]["index"] = index
 
     @staticmethod
     def set_check_in_columm(check: Optional[List]) -> Optional[str]:
