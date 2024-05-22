@@ -557,3 +557,38 @@ def test_auto_increment_table_property():
 
     result = DDLParser(ddl).run(output_mode="mysql")
     assert result == expected
+
+
+def test_column_index():
+    ddl = """CREATE TABLE `posts`(
+        `integer_column__index` INT NOT NULL INDEX
+    );"""
+
+    result = DDLParser(ddl).run()
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "index": True,
+                    "name": "`integer_column__index`",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": False,
+                }
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "`posts`",
+            "tablespace": None,
+        }
+    ]
+
+    assert result == expected

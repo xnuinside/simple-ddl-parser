@@ -555,6 +555,18 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.5.1**
+
+Improvements
+^^^^^^^^^^^^
+
+MySQL
+~~~~~
+
+
+#. Added support for INDEX statement in column definition - https://github.com/xnuinside/simple-ddl-parser/issues/253
+   2.
+
 **v1.5.0**
 
 Fixes
