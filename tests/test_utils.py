@@ -39,4 +39,3 @@ def test_find_first_unpair_closed_par(expression, expected_result):
 )
 def test_remove_par(expression, expected_result):
     assert utils.remove_par(expression) == expected_result
-    assert utils.old_version(expression) == expected_result
