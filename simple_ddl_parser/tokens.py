@@ -150,8 +150,8 @@ sequence_reserved = {value: value for value in sequence_reserved}
 
 
 tokens = tuple(
-    set(
-        [
+    {
+        *[
             "ID",
             "DOT",
             "STRING_BASE",
@@ -161,14 +161,14 @@ tokens = tuple(
             "LT",
             "RT",
             "COMMAT",
-        ]
-        + list(definition_statements.values())
-        + list(common_statements.values())
-        + list(columns_definition.values())
-        + list(sequence_reserved.values())
-        + list(after_columns_tokens.values())
-        + list(alter_tokens.values())
-    )
+        ],
+        *definition_statements.values(),
+        *common_statements.values(),
+        *columns_definition.values(),
+        *sequence_reserved.values(),
+        *after_columns_tokens.values(),
+        *alter_tokens.values(),
+    }
 )
 
 symbol_tokens = {

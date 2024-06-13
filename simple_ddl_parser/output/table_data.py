@@ -13,7 +13,7 @@ class TableData:
 
         if output_mode and output_mode != "sql":
             main_cls = dialect_by_name.get(output_mode)
-            cls = dataclass(
+            cls_ = dataclass(
                 type(
                     f"{main_cls.__name__}{cls.cls_prefix}",
                     (main_cls, CommonDialectsFieldsMixin),
@@ -21,12 +21,12 @@ class TableData:
                 )
             )
         else:
-            cls = BaseData
+            cls_ = BaseData
 
-        return cls
+        return cls_
 
     @staticmethod
-    def pre_process_kwargs(kwargs: dict, aliased_fields: dict) -> dict:
+    def pre_process_kwargs(kwargs: dict, aliased_fields: dict) -> None:
         for alias, field_name in aliased_fields.items():
             if alias in kwargs:
                 kwargs[field_name] = kwargs[alias]
@@ -40,7 +40,7 @@ class TableData:
             kwargs["fields_terminated_by"] = "','"
 
     @classmethod
-    def pre_load_mods(cls, main_cls, kwargs):
+    def pre_load_mods(cls, main_cls, kwargs) -> dict:
         if kwargs.get("output_mode") == "bigquery":
             if kwargs.get("schema"):
                 kwargs["dataset"] = kwargs["schema"]

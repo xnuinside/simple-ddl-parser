@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 
 from ply.lex import LexToken
 
+from simple_ddl_parser.exception import DDLParserError
 from simple_ddl_parser import tokens as tok
 from simple_ddl_parser.dialects import (
     HQL,
@@ -17,10 +18,6 @@ from simple_ddl_parser.dialects import (
     SparkSQL,
 )
 from simple_ddl_parser.parser import Parser
-
-
-class DDLParserError(Exception):
-    pass
 
 
 class Dialects(
