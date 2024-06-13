@@ -1,12 +1,24 @@
 import re
 from typing import List, Tuple, Optional
 
+__all__ = [
+    "remove_par",
+    "check_spec",
+    "find_first_unpair_closed_par",
+    "normalize_name",
+    "get_table_id",
+]
+
+_parentheses = {'(', ')'}
+
 
 def remove_par(p_list: List[str]) -> List[str]:
-    remove_set = {"(", ")"}
+    """
+    Remove the parentheses from the given list
+    """
     i = j = 0
     while i < len(p_list):
-        if p_list[i] not in remove_set:
+        if p_list[i] not in _parentheses:
             p_list[j] = p_list[i]
             j += 1
         i += 1
@@ -23,16 +35,15 @@ spec_mapper = {
 }
 
 
+# TODO: Add tests
 def check_spec(value: str) -> str:
     replace_value = spec_mapper.get(value)
-    if not replace_value:
-        for item in spec_mapper:
-            if item in value:
-                replace_value = value.replace(item, spec_mapper[item])
-                break
-        else:
-            replace_value = value
-    return replace_value
+    if replace_value:
+        return replace_value
+    for item in spec_mapper:
+        if item in value:
+            return value.replace(item, spec_mapper[item])
+    return value
 
 
 def find_first_unpair_closed_par(str_: str) -> Optional[int]:
@@ -48,7 +59,9 @@ def find_first_unpair_closed_par(str_: str) -> Optional[int]:
 
 
 def normalize_name(name: str) -> str:
-    # clean up [] and " symbols from names
+    """
+    Clean up [] and " characters from the given name
+    """
     clean_up_re = r'[\[\]"]'
     return re.sub(clean_up_re, "", name).lower()
 
