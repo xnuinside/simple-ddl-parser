@@ -29,7 +29,7 @@ def remove_par(p_list: List[Union[str, Any]]) -> List[Union[str, Any]]:
     return p_list
 
 
-spec_mapper = {
+_spec_mapper = {
     "'pars_m_t'": "'\t'",
     "'pars_m_n'": "'\n'",
     "'pars_m_dq'": '"',
@@ -37,18 +37,23 @@ spec_mapper = {
 }
 
 
-# TODO: Add tests
-def check_spec(value: str) -> str:
-    replace_value = spec_mapper.get(value)
-    if replace_value:
-        return replace_value
-    for item in spec_mapper:
-        if item in value:
-            return value.replace(item, spec_mapper[item])
-    return value
+def check_spec(string: str) -> str:
+    """
+    Replace escape tokens to their representation
+    """
+    if string in _spec_mapper:
+        return _spec_mapper[string]
+    for replace_from, replace_to in _spec_mapper.items():
+        if replace_from in string:
+            return string.replace(replace_from, replace_to)
+    return string
 
 
 def find_first_unpair_closed_par(str_: str) -> Optional[int]:
+    """
+    Returns index of first unpair close parentheses.
+    Or returns None, if there is no one.
+    """
     count_open = 0
     for i, char in enumerate(str_):
         if char == '(':
