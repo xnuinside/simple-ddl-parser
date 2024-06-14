@@ -1,6 +1,6 @@
 import pytest
 
-import utils
+from simple_ddl_parser import utils
 
 
 @pytest.mark.parametrize(
@@ -28,7 +28,7 @@ def test_find_first_unpair_closed_par(expression, expected_result):
         (["("], []),
         ([")"], []),
         (["(", ")"], []),
-        (["(", ")"], []),
+        ([")", "("], []),
         (["(", "A"], ["A"]),
         (["A", ")"], ["A"]),
         (["(", "A", ")"], ["A"]),
