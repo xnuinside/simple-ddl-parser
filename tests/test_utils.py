@@ -38,6 +38,7 @@ def test_find_first_unpair_closed_par(expression, expected_result):
         (["A", "(", "(", "B", "C", "("], ["A", "B", "C"]),
         (["A", ")", "B", ")", "(", "C"], ["A", "B", "C"]),
         (["(", "A", ")", "B", "C", ")"], ["A", "B", "C"]),
+        ([dict()], [dict()]),  # Edge case (unhashable types)
     ]
 )
 def test_remove_par(expression, expected_result):

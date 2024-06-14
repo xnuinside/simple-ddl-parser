@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union, Any
 
 __all__ = [
     "remove_par",
@@ -9,12 +9,14 @@ __all__ = [
     "get_table_id",
 ]
 
-_parentheses = {'(', ')'}
+_parentheses = ('(', ')')
 
 
-def remove_par(p_list: List[str]) -> List[str]:
+def remove_par(p_list: List[Union[str, Any]]) -> List[str]:
     """
     Remove the parentheses from the given list
+
+    Warn: p_list may contain unhashable types for some unexplored reasons
     """
     i = j = 0
     while i < len(p_list):
