@@ -123,7 +123,7 @@ class Output:
                     else:
                         _type.extend(item["comments"])
                     break
-        if result_as_dict["comments"] == []:
+        if not result_as_dict["comments"]:
             del result_as_dict["comments"]
 
         self.final_result = result_as_dict
