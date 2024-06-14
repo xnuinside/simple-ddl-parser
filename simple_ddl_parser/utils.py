@@ -16,7 +16,7 @@ def remove_par(p_list: List[Union[str, Any]]) -> List[Union[str, Any]]:
     """
     Remove the parentheses from the given list
 
-    Warn: p_list may contain unhashable types for some unexplored reasons
+    Warn: p_list may contain unhashable types, such as 'dict'.
     """
     i = j = 0
     while i < len(p_list):
