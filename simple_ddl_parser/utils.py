@@ -12,7 +12,7 @@ __all__ = [
 _parentheses = ('(', ')')
 
 
-def remove_par(p_list: List[Union[str, Any]]) -> List[str]:
+def remove_par(p_list: List[Union[str, Any]]) -> List[Union[str, Any]]:
     """
     Remove the parentheses from the given list
 
