@@ -86,7 +86,7 @@ class SparkSQL(Dialect):
 
 @dataclass
 @dialect(name="mysql")
-class MySSQL(Dialect):
+class MySQL(Dialect):
     engine: Optional[str] = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
