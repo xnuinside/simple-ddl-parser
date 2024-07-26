@@ -167,6 +167,14 @@ class DDLParser(Parser, Dialects):
         if value == "TABLESPACE" and self.lexer.last_token == "INDEX":
             return True
         return False
+    
+    def t_COLLATE(self, t: LexToken):
+        r"(?i:COLLATE|COLLATE)\b"
+        if not self.lexer.after_columns:
+            t.type = "COLLATE"
+        else:
+            t.type = "ID"
+        return self.set_last_token(t)
 
     def t_AUTOINCREMENT(self, t: LexToken):
         r"(?i:AUTO_INCREMENT|AUTOINCREMENT)\b"

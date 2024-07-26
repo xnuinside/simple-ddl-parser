@@ -592,3 +592,41 @@ def test_column_index():
     ]
 
     assert result == expected
+
+def test_table_properties():
+    ddl = """CREATE TABLE `posts`(
+        `integer_column__index` INT NOT NULL INDEX
+    ) ENGINE=InnoDB AUTO_INCREMENT=4682 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='test';"""
+
+    result = DDLParser(ddl).run(output_mode="mysql")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "auto_increment": "4682",
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "index": True,
+                    "name": "`integer_column__index`",
+                    "nullable": False,
+                    "references": None,
+                    "size": None,
+                    "type": "INT",
+                    "unique": False,
+                }
+            ],
+            "comment": "'test'",
+            "default_charset": "utf8mb4",
+            "engine": "InnoDB",
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "`posts`",
+            "tablespace": None,
+            "table_properties": {"collate": "utf8mb4_unicode_ci"}
+        }
+    ]
+    assert result == expected
