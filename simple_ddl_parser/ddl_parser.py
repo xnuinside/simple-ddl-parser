@@ -168,6 +168,14 @@ class DDLParser(Parser, Dialects):
             return True
         return False
 
+    def t_COLLATE(self, t: LexToken):
+        r"(?i:COLLATE|COLLATE)\b"
+        if not self.lexer.after_columns:
+            t.type = "COLLATE"
+        else:
+            t.type = "ID"
+        return self.set_last_token(t)
+
     def t_AUTOINCREMENT(self, t: LexToken):
         r"(?i:AUTO_INCREMENT|AUTOINCREMENT)\b"
         if not self.lexer.after_columns:
