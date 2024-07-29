@@ -22,12 +22,11 @@ def remove_par(p_list: List[Union[str, Any]]) -> List[Union[str, Any]]:
 
     Warn: p_list may contain unhashable types, such as 'dict'.
     """
-    i = j = 0
-    while i < len(p_list):
+    j = 0
+    for i in range(len(p_list)):
         if p_list[i] not in _parentheses:
             p_list[j] = p_list[i]
             j += 1
-        i += 1
     while j < len(p_list):
         p_list.pop()
     return p_list
