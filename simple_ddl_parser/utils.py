@@ -1,12 +1,16 @@
 import re
 from typing import List, Tuple, Optional, Union, Any
 
+# Backward compatibility import
+from simple_ddl_parser.exception import SimpleDDLParserException
+
 __all__ = [
     "remove_par",
     "check_spec",
     "find_first_unpair_closed_par",
     "normalize_name",
     "get_table_id",
+    "SimpleDDLParserException"
 ]
 
 _parentheses = ('(', ')')
