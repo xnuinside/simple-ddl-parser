@@ -1,8 +1,8 @@
 __all__ = [
-    "DDLParserError",
+    "SimpleDDLParserException",
 ]
 
 
-class DDLParserError(Exception):
+class SimpleDDLParserException(Exception):
     """ Base exception in simple ddl parser library """
     pass

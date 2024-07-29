@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 from ply.lex import LexToken
 
-from simple_ddl_parser.exception import DDLParserError
+from simple_ddl_parser.exception import SimpleDDLParserException
 from simple_ddl_parser import tokens as tok
 from simple_ddl_parser.dialects import (
     HQL,
@@ -256,11 +256,11 @@ class DDLParser(Parser, Dialects):
         p[0] = "".join(list(p[1:]))
 
     def t_error(self, t: LexToken):
-        raise DDLParserError("Unknown symbol %r" % (t.value[0],))
+        raise SimpleDDLParserException("Unknown symbol %r" % (t.value[0],))
 
     def p_error(self, p):
         if not self.silent:
-            raise DDLParserError(f"Unknown statement at {p}")
+            raise SimpleDDLParserException(f"Unknown statement at {p}")
 
 
 def parse_from_file(

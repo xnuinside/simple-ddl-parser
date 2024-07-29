@@ -1,6 +1,6 @@
 import pytest
 
-from simple_ddl_parser import DDLParser, DDLParserError
+from simple_ddl_parser import DDLParser, SimpleDDLParserException
 from simple_ddl_parser.output.core import get_table_id
 
 
@@ -29,7 +29,7 @@ CREATE TABLE foo
   created_timestamp  TIMESTAMPTZ  NOT NULL DEFAULT ALTER (now() at time zone 'utc')
         );
 """
-    with pytest.raises(DDLParserError) as e:
+    with pytest.raises(SimpleDDLParserException) as e:
         DDLParser(ddl, silent=False).run(group_by_type=True)
 
         assert "Unknown statement" in e.value[1]
