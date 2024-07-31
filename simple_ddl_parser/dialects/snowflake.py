@@ -38,16 +38,21 @@ class Snowflake:
             p[0] = value
 
     def p_fmt_equals(self, p: List) -> None:
-        """fmt_equals : id LP multi_id_or_string RP"""
+        """fmt_equals : id LP multi_id_or_string RP
+        | id id_or_string
+        """
         fmt_split = re.compile(
             r"\w+\s*=\s*\w+|\w+\s*=\s*'.'|\w+\s*=\s*'..'|\w+\s*=\s*\('.+'\)|\w+\s*=\(\)"
         )
         p_list = list(p)
-        p[0] = {
-            f.split("=")[0].strip(): f.split("=")[1].strip()
-            for f in fmt_split.findall(p_list[3])
-            if "=" in f
-        }
+        if len(p_list) > 3:
+            p[0] = {
+                f.split("=")[0].strip(): f.split("=")[1].strip()
+                for f in fmt_split.findall(p_list[3])
+                if "=" in f
+            }
+        else:
+            p[0] = str(p_list[-1])
 
     def p_table_property_equals(self, p: List) -> None:
         """table_property_equals : id id id_or_string

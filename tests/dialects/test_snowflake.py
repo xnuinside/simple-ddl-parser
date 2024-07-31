@@ -1093,6 +1093,58 @@ def test_external_table_with_nullif():
 
     assert result == expected
 
+def test_external_table_file_format_without_parenthesis():
+    ddl = """create or replace external table if not exists ${database_name}.MySchemaName.MyTableName(
+            "Filename" VARCHAR(16777216) AS (METADATA$FILENAME))
+            partition by ("Filename")
+            location = @ADL_DH_DL_PTS/
+            auto_refresh = false
+            file_format = MyFormatName
+            ;"""
+
+    result = DDLParser(ddl, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
+    expected = [
+        {
+            "table_name": "MyTableName",
+            "schema": "MySchemaName",
+            "primary_key": [],
+            "columns": [
+                {
+                    "name": "Filename",
+                    "type": "VARCHAR",
+                    "size": 16777216,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated": {"as": "METADATA$FILENAME"},
+                }
+            ],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "partition_by": {"columns": ["Filename"], "type": None},
+            "tablespace": None,
+            "if_not_exists": True,
+            "table_properties": {
+                "project": "${database_name}",
+                "auto_refresh": False,
+                "file_format":"MyFormatName",
+            },
+            "replace": True,
+            "location": "@ADL_DH_DL_PTS/",
+            "external": True,
+            "primary_key_enforced": None,
+            "clone": None,
+        }
+    ]
+
+    assert result == expected
+
 
 def test_external_table_with_field_delimiter():
     ddl = """create or replace external table if not exists ${database_name}.MySchemaName.MyTableName(
