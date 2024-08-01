@@ -3,6 +3,21 @@ from dataclasses import dataclass
 from simple_ddl_parser.output.base_data import BaseData
 from simple_ddl_parser.output.dialects import CommonDialectsFieldsMixin, dialect_by_name
 
+__all__ = [
+    "TableData",
+]
+
+
+def _pre_process_kwargs(kwargs: dict, aliased_fields: dict) -> None:
+    for alias, field_name in aliased_fields.items():
+        if alias in kwargs:
+            kwargs[field_name] = kwargs[alias]
+            del kwargs[alias]
+
+    # todo: need to figure out how workaround it normally
+    if kwargs.get("fields_terminated_by") == "_ddl_parser_comma_only_str":
+        kwargs["fields_terminated_by"] = "','"
+
 
 class TableData:
     cls_prefix = "Dialect"
@@ -13,34 +28,18 @@ class TableData:
 
         if output_mode and output_mode != "sql":
             main_cls = dialect_by_name.get(output_mode)
-            cls = dataclass(
+            return dataclass(
                 type(
                     f"{main_cls.__name__}{cls.cls_prefix}",
                     (main_cls, CommonDialectsFieldsMixin),
                     {},
                 )
             )
-        else:
-            cls = BaseData
 
-        return cls
-
-    @staticmethod
-    def pre_process_kwargs(kwargs: dict, aliased_fields: dict) -> dict:
-        for alias, field_name in aliased_fields.items():
-            if alias in kwargs:
-                kwargs[field_name] = kwargs[alias]
-                del kwargs[alias]
-
-        # todo: need to figure out how workaround it normally
-        if (
-            "fields_terminated_by" in kwargs
-            and "_ddl_parser_comma_only_str" == kwargs["fields_terminated_by"]
-        ):
-            kwargs["fields_terminated_by"] = "','"
+        return BaseData
 
     @classmethod
-    def pre_load_mods(cls, main_cls, kwargs):
+    def pre_load_mods(cls, main_cls, kwargs) -> dict:
         if kwargs.get("output_mode") == "bigquery":
             if kwargs.get("schema"):
                 kwargs["dataset"] = kwargs["schema"]
@@ -55,7 +54,7 @@ class TableData:
             for name, value in cls_fields.items()
             if value.metadata and "alias" in value.metadata
         }
-        cls.pre_process_kwargs(kwargs, aliased_fields)
+        _pre_process_kwargs(kwargs, aliased_fields)
         table_main_args = {
             k.lower(): v for k, v in kwargs.items() if k.lower() in cls_fields
         }
