@@ -488,8 +488,15 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/ankitdata ,
 * https://github.com/kalyan939
 
-
 ## Changelog
+
+**v1.5.2**
+
+### Fixes
+
+1. Fix Snowflake unexpected behaviour when file_format name given - https://github.com/xnuinside/simple-ddl-parser/issues/273
+2.
+
 **v1.5.1**
 ### Improvements
 #### MySQL
