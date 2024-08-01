@@ -627,8 +627,7 @@ def test_table_properties():
             "schema": None,
             "table_name": "`posts`",
             "tablespace": None,
-            "table_properties": {"collate": "utf8mb4_unicode_ci"}
+            "table_properties": {"collate": "utf8mb4_unicode_ci"},
         }
     ]
     assert result == expected
-

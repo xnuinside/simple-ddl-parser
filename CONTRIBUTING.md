@@ -33,7 +33,7 @@ There is a lot of way how you can contribute to any project (not only in this), 
 
 - Add more tests to the code
 
-It's always needed, I have only functional tests right now, so if you want to help wiht covering library for example, with unittests - please welcome, open the PR.
+It's always needed, I have only functional tests right now, so if you want to help with covering library for example, with unittests - please welcome, open the PR.
 
 For ANY type of contributinon I will really really appritiate. Each of them are important.
 

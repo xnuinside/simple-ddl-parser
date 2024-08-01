@@ -1093,6 +1093,7 @@ def test_external_table_with_nullif():
 
     assert result == expected
 
+
 def test_external_table_file_format_without_parenthesis():
     ddl = """create or replace external table if not exists ${database_name}.MySchemaName.MyTableName(
             "Filename" VARCHAR(16777216) AS (METADATA$FILENAME))
@@ -1133,7 +1134,7 @@ def test_external_table_file_format_without_parenthesis():
             "table_properties": {
                 "project": "${database_name}",
                 "auto_refresh": False,
-                "file_format":"MyFormatName",
+                "file_format": "MyFormatName",
             },
             "replace": True,
             "location": "@ADL_DH_DL_PTS/",

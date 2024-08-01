@@ -96,10 +96,8 @@ How to use
 Extract additional information from HQL (& other dialects)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table,
-STORED AS, location & etc. This property will be always empty in 'classic' SQL DB like PostgreSQL or MySQL
-and this is the reason, why by default this information is 'hidden'.
-Also some fields are hidden in HQL, because they are simple not exists in HIVE, for example 'deferrable_initially'
+In some dialects like HQL there is a lot of additional information about table like, fore example, is it external table, STORED AS, location & etc. This property will be always empty in 'classic' SQL DB like PostgreSQL or MySQL and this is the reason, why by default this information are 'hidden'.
+Also some fields hidden in HQL, because they are simple not exists in HIVE, for example 'deferrable_initially'
 To get this 'hql' specific details about table in output please use 'output_mode' argument in run() method.
 
 example:
@@ -556,6 +554,26 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 
 Changelog
 ---------
+
+**v1.5.3**
+
+Fixes
+^^^^^
+
+
+#. In Snowflake Fix unexpected behaviour when file_format name given - https://github.com/xnuinside/simple-ddl-parser/issues/273
+   2.
+
+**v1.5.2**
+
+Improvements
+^^^^^^^^^^^^
+
+MySQL
+~~~~~
+
+
+#. Added support for COLLATE - https://github.com/xnuinside/simple-ddl-parser/pull/266/files
 
 **v1.5.1**
 

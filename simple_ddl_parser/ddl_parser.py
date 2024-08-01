@@ -16,9 +16,13 @@ from simple_ddl_parser.dialects import (
     Snowflake,
     SparkSQL,
 )
-# "DDLParserError" is an alias for backward compatibility
-from simple_ddl_parser.exception import SimpleDDLParserException as DDLParserError
+from simple_ddl_parser.exception import SimpleDDLParserException
 from simple_ddl_parser.parser import Parser
+
+
+# "DDLParserError" is an alias for backward compatibility
+class DDLParserError(SimpleDDLParserException):
+    pass
 
 
 class Dialects(
