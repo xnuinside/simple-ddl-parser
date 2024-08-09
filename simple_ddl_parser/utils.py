@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple, Optional, Union, Any
+from typing import Any, List, Optional, Tuple, Union
 
 # Backward compatibility import
 from simple_ddl_parser.exception import SimpleDDLParserException
@@ -10,10 +10,10 @@ __all__ = [
     "find_first_unpair_closed_par",
     "normalize_name",
     "get_table_id",
-    "SimpleDDLParserException"
+    "SimpleDDLParserException",
 ]
 
-_parentheses = ('(', ')')
+_parentheses = ("(", ")")
 
 
 def remove_par(p_list: List[Union[str, Any]]) -> List[Union[str, Any]]:
@@ -59,9 +59,9 @@ def find_first_unpair_closed_par(str_: str) -> Optional[int]:
     """
     count_open = 0
     for i, char in enumerate(str_):
-        if char == '(':
+        if char == "(":
             count_open += 1
-        if char == ')':
+        if char == ")":
             count_open -= 1
         if count_open < 0:
             return i
