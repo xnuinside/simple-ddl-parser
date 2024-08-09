@@ -13,7 +13,6 @@ class HQL:
         p_list = list(p)
         p[0]["location"] = p_list[-1]
 
-
     def p_expression_clustered(self, p: List) -> None:
         """expr : expr ID ON LP pid RP
         | expr ID by_smthg"""

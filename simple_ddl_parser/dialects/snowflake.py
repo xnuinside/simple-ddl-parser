@@ -35,7 +35,7 @@ class Snowflake:
             p[0].append(p_list[-1])
         else:
             totrim = " ".join(p_list[1:])
-            p[0] = totrim.replace(' = ','=').replace('= ','')
+            p[0] = totrim.replace(' = ', '=').replace('= ', '')
 
     def p_fmt_equals(self, p: List) -> None:
         """fmt_equals : id LP multi_id_or_string RP
