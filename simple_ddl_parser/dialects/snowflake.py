@@ -34,8 +34,8 @@ class Snowflake:
             p[0] = p[1]
             p[0].append(p_list[-1])
         else:
-            value = " ".join(p_list[1:])
-            p[0] = value
+            totrim = " ".join(p_list[1:])
+            p[0] = totrim.replace(' = ','=').replace('= ','')
 
     def p_fmt_equals(self, p: List) -> None:
         """fmt_equals : id LP multi_id_or_string RP
@@ -209,6 +209,12 @@ class Snowflake:
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["auto_refresh"] = p_list[-1]
+
+    def p_expression_pattern(self, p: List) -> None:
+        """expr : expr PATTERN table_property_equals"""
+        p[0] = p[1]
+        p_list = remove_par(list(p))
+        p[0]["pattern"] = p_list[-1]
 
     def p_as_virtual(self, p: List):
         """as_virtual : AS LP id LP id LP pid RP COMMA pid RP RP

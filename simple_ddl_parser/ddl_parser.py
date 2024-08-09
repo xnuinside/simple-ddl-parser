@@ -81,7 +81,7 @@ class DDLParser(Parser, Dialects):
         t_tag = self.parse_tags_symbols(t)
         if t_tag:
             return t_tag
-        if "ARRAY" in t.value:
+        if t.value.startswith("ARRAY") :
             t.type = "ARRAY"
             return t
         elif self.lexer.is_like:

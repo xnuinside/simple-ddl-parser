@@ -827,16 +827,19 @@ def test_order_sequence():
 
 def test_virtual_column_ext_table():
     ddl = """
-    create or replace external table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
+    create external table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
        "type" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 1), '=', 2 )),
        "year" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 2), '=', 2)),
        "month" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 3), '=', 2)),
        "day" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 4), '=', 2)),
+       "cast_YEAR" VARCHAR(200) AS (GET(VALUE,'c1')::string),
        "path" VARCHAR(255) AS (METADATA$FILENAME)
        )
     partition by ("type", "year", "month", "day", "path")
-    location=@ADL_Azure_Storage_Account_Container_Name/
+    location=@ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/
     auto_refresh=false
+    pattern='*.csv'
+    file_format = (TYPE = JSON NULL_IF = () STRIP_OUTER_ARRAY = TRUE )
     ;
     """
     result_ext_table = DDLParser(ddl, normalize_names=True, debug=True).run(
@@ -902,6 +905,19 @@ def test_virtual_column_ext_table():
                     },
                 },
                 {
+                    "name": "cast_YEAR",
+                    "type": "VARCHAR",
+                    "size": 200,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated": {
+                        "as": "GET(VALUE,'c1') ::string"
+                    },
+                },
+                {
                     "name": "path",
                     "type": "VARCHAR",
                     "size": 255,
@@ -924,12 +940,17 @@ def test_virtual_column_ext_table():
             "schema": "TABLE_DATA_SRC",
             "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
             "tablespace": None,
-            "replace": True,
             "external": True,
             "if_not_exists": True,
-            "location": "@ADL_Azure_Storage_Account_Container_Name/",
+            "location": "@ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/",
             "table_properties": {
                 "auto_refresh": False,
+                "pattern": "'*.csv'",
+                "file_format" : {
+                    "TYPE" : "JSON",
+                    "NULL_IF": "()",
+                    "STRIP_OUTER_ARRAY" : "TRUE",
+                }
             },
         }
     ]
@@ -943,7 +964,7 @@ def test_virtual_column_table():
        id bigint,
        derived bigint as (id * 10)
        )
-    location = @Database.Schema.ADL_Azure_Storage_Account_Container_Name/entity
+    location = @ADL_Azure_Storage_Account_Container_Name/entity
     auto_refresh = false
     file_format = (TYPE=JSON NULL_IF=('field') DATE_FORMAT=AUTO TRIM_SPACE=TRUE)
     stage_file_format = (TYPE=JSON NULL_IF=())
@@ -991,7 +1012,7 @@ def test_virtual_column_table():
             "tablespace": None,
             "replace": True,
             "if_not_exists": True,
-            "location": "ADL_Azure_Storage_Account_Container_Name/entity",
+            "location": "@ADL_Azure_Storage_Account_Container_Name/entity",
             "table_properties": {
                 "auto_refresh": False,
                 "file_format": {

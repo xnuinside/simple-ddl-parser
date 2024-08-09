@@ -7,10 +7,12 @@ class HQL:
     def p_expression_location(self, p: List) -> None:
         """expr : expr LOCATION STRING
         | expr LOCATION DQ_STRING
-        | expr LOCATION table_property_equals"""
+        | expr LOCATION multi_id_or_string
+        """
         p[0] = p[1]
         p_list = list(p)
         p[0]["location"] = p_list[-1]
+
 
     def p_expression_clustered(self, p: List) -> None:
         """expr : expr ID ON LP pid RP
