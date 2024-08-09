@@ -124,6 +124,7 @@ after_columns_tokens = {
     "DATA_RETENTION_TIME_IN_DAYS",
     "MAX_DATA_EXTENSION_TIME_IN_DAYS",
     "CHANGE_TRACKING",
+    "PATTERN",
     "AUTO_REFRESH",
     "FILE_FORMAT",
     "TABLE_FORMAT",
