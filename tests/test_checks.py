@@ -179,39 +179,58 @@ def test_check_function_with_schema():
 
     result = DDLParser(ddl).run(group_by_type=True)
     expected = {
-        'tables': [
-            {'alter': {},
-             'checks': [{'constraint_name': 'my_constraint', 'statement': 'v2.my_function(name) IS TRUE'}],
-             'columns': [{'check': None,
-                          'default': 'public.getId()',
-                          'name': 'entity_id',
-                          'nullable': False,
-                          'references': None,
-                          'size': None,
-                          'type': 'UUID',
-                          'unique': False},
-                         {'check': None,
-                          'default': None,
-                          'name': 'name',
-                          'nullable': True,
-                          'references': None,
-                          'size': None,
-                          'type': 'TEXT',
-                          'unique': False}],
-             'constraints': {'checks': [{'constraint_name': 'my_constraint',
-                                         'statement': 'v2.my_function(name) IS '
-                                                      'TRUE'}]},
-             'index': [],
-             'partitioned_by': [],
-             'primary_key': ['entity_id'],
-             'schema': None,
-             'table_name': 'foo',
-             'tablespace': None}],
-        'types': [],
-        'ddl_properties': [],
-        'domains': [],
-        'schemas': [],
-        'sequences': [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [
+                    {
+                        "constraint_name": "my_constraint",
+                        "statement": "v2.my_function(name) IS TRUE",
+                    }
+                ],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": "public.getId()",
+                        "name": "entity_id",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "UUID",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "name",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "TEXT",
+                        "unique": False,
+                    },
+                ],
+                "constraints": {
+                    "checks": [
+                        {
+                            "constraint_name": "my_constraint",
+                            "statement": "v2.my_function(name) IS " "TRUE",
+                        }
+                    ]
+                },
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["entity_id"],
+                "schema": None,
+                "table_name": "foo",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
     }
 
     assert result == expected
