@@ -162,6 +162,7 @@ tokens = tuple(
             "LT",
             "RT",
             "COMMAT",
+            "EQ",
         ],
         *definition_statements.values(),
         *common_statements.values(),

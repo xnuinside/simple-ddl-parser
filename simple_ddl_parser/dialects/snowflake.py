@@ -4,6 +4,13 @@ from typing import List
 from simple_ddl_parser.utils import remove_par
 
 
+def convert_to_python_bool(value: str) -> bool:
+    if value == "true":
+        return True
+    else:
+        return False
+
+
 class Snowflake:
     def p_clone(self, p: List) -> None:
         """clone : CLONE id"""
@@ -35,12 +42,13 @@ class Snowflake:
             p[0].append(p_list[-1])
         else:
             totrim = " ".join(p_list[1:])
-            p[0] = totrim.replace(' = ', '=').replace('= ', '')
+            p[0] = totrim.replace(" = ", "=").replace("= ", "")
 
     def p_fmt_equals(self, p: List) -> None:
         """fmt_equals : id LP multi_id_or_string RP
-        | id id_or_string
+        | id id_or_string id
         """
+        print(list(p))
         fmt_split = re.compile(
             r"\w+\s*=\s*\w+|\w+\s*=\s*'.'|\w+\s*=\s*'..'|\w+\s*=\s*\('.+'\)|\w+\s*=\(\)"
         )
@@ -55,7 +63,7 @@ class Snowflake:
             p[0] = str(p_list[-1])
 
     def p_table_property_equals(self, p: List) -> None:
-        """table_property_equals : id id id_or_string
+        """table_property_equals : id EQ id_or_string
         | id id_or_string
         | id DOT id_or_string
         | id DOT id DOT id_or_string
@@ -63,6 +71,7 @@ class Snowflake:
         | LP id_or_string RP
         | id table_property_equals
         | id_equals
+        | multi_id_equals
         """
         p_list = remove_par(list(p))
         p[0] = str(p_list[-1])
@@ -77,15 +86,11 @@ class Snowflake:
         p[0] = int(p_list[-1])
 
     def p_table_property_equals_bool(self, p: List) -> None:
-        """table_property_equals_bool : id id id_or_string
+        """table_property_equals_bool : id EQ id_or_string
         | id id_or_string
         """
         p_list = remove_par(list(p))
-
-        if p_list[-1].lower() == "true":
-            p[0] = True
-        else:
-            p[0] = False
+        p[0] = convert_to_python_bool(p_list[-1].lower())
 
     def p_expression_data_retention_time_in_days(self, p: List) -> None:
         """expr : expr DATA_RETENTION_TIME_IN_DAYS table_property_equals_int"""
@@ -187,13 +192,16 @@ class Snowflake:
         p[0]["catalog"] = p_list[-1]
 
     def p_expression_file_format(self, p: List) -> None:
-        """expr : expr FILE_FORMAT fmt_equals"""
+        """expr : expr FILE_FORMAT EQ LP multi_id_equals RP
+        | expr FILE_FORMAT EQ ID
+        """
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["file_format"] = p_list[-1]
 
     def p_expression_stage_file_format(self, p: List) -> None:
-        """expr : expr STAGE_FILE_FORMAT fmt_equals"""
+        """expr : expr STAGE_FILE_FORMAT EQ LP multi_id_equals RP
+        | expr STAGE_FILE_FORMAT EQ ID"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["stage_file_format"] = p_list[-1] if len(p_list[-1]) > 1 else p_list[-1][0]
@@ -205,10 +213,11 @@ class Snowflake:
         p[0]["table_format"] = p_list[-1]
 
     def p_expression_auto_refresh(self, p: List) -> None:
-        """expr : expr AUTO_REFRESH table_property_equals_bool"""
+        """expr : expr AUTO_REFRESH EQ ID"""
         p[0] = p[1]
         p_list = remove_par(list(p))
-        p[0]["auto_refresh"] = p_list[-1]
+
+        p[0]["auto_refresh"] = convert_to_python_bool(p_list[-1])
 
     def p_expression_pattern(self, p: List) -> None:
         """expr : expr PATTERN table_property_equals"""

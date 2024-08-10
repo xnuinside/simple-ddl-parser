@@ -115,8 +115,13 @@ class DDLParser(Parser, Dialects):
         elif t.type == "CHECK":
             self.lexer.check = True
 
+    def t_EQ(self, t: LexToken) -> LexToken:
+        r"(=)+"
+        t.type = "EQ"
+        return self.set_last_token(t)
+
     def t_DOT(self, t: LexToken) -> LexToken:
-        r"\."
+        r"(\.)+"
         t.type = "DOT"
         return self.set_last_token(t)
 
@@ -194,6 +199,7 @@ class DDLParser(Parser, Dialects):
             self.lexer.lp_open += 1
             self.lexer.columns_def = True
             self.lexer.last_token = "LP"
+            print(t.type, t.value)
             return t
         elif self.is_token_column_name(t) or self.lexer.last_token == "DOT":
             t.type = "ID"
@@ -243,6 +249,7 @@ class DDLParser(Parser, Dialects):
 
     def set_last_token(self, t: LexToken):
         self.lexer.last_token = t.type
+        print(t.value, t.type)
         return t
 
     def p_id(self, p):

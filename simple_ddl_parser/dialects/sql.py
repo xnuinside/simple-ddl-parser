@@ -986,34 +986,30 @@ class BaseSQL(
             _property = p_list[-2][0]
         return _property
 
-    def p_id_equals(self, p: List) -> None:
-        """id_equals : id id id_or_string
-        | id id_or_string
-        | id_equals COMMA
-        | id_equals COMMA id id id_or_string
-        | id
-        | id_equals LP pid RP
-        | id_equals LP pid RP id
-        | id_equals COMMA id id
-        | id_equals COMMA id
+    def p_multi_id_equals(self, p: List) -> None:
+        """multi_id_equals : id_equals
+        | multi_id_equals id_equals
         """
-        p_list = remove_par(list(p))
-        if p_list[-1] == "]":
-            p_list = p_list[:-1]
-        if isinstance(p_list[-1], list):
-            p[0] = p[1]
-            p[0][-1][list(p[0][-1].keys())[0]] = p_list[-1]
-        else:
-            p_list = self.clean_up_id_list_in_equal(p_list)
-            _property = self.get_property(p_list)
+        p[0] = {}
+        for item in list(p)[1:]:
+            p[0].update(item)
+        print(p[0])
 
-            if _property:
-                if not isinstance(p[1], list):
-                    p[0] = [_property]
-                else:
-                    p[0] = p[1]
-                    if not p_list[-1] == ",":
-                        p[0].append(_property)
+    def p_id_equals(self, p: List) -> None:
+        """id_equals : id EQ id
+        | id EQ LP pid RP
+        | id EQ LP RP
+        | id EQ STRING_BASE
+        """
+        p_list = list(p)
+        if not p_list[-1] == ")":
+            p[0] = {p[1]: p_list[-1]}
+        else:
+            if not p_list[-2] == "(":
+                p[0] = {p[1]: p_list[-2]}
+            else:
+                p[0] = {p[1]: "()"}
+        print(p[0])
 
     def p_expression_index(self, p: List) -> None:
         """expr : index_table_name LP index_pid RP"""
@@ -1448,6 +1444,7 @@ class BaseSQL(
         | id LP id AS id RP
         """
         p_list = list(p)
+        print(p_list)
         if isinstance(p[1], list):
             p[0] = p[1]
             p[0].append(p_list[-1])
@@ -1501,6 +1498,7 @@ class BaseSQL(
         """funct_expr : LP multi_id RP
         | multi_id
         """
+        print()
         if len(p) > 2:
             p[0] = p[2]
         else:
@@ -1601,6 +1599,8 @@ class BaseSQL(
         if len(p) > 3 and p_list[-1].lower() == "stored":
             stored = True
         _as = p[2]
+
+        print("as", _as)
         p[0] = {"generated": {"always": True, "as": _as, "stored": stored}}
 
     def p_gen_always(self, p: List) -> None:
