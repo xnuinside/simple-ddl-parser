@@ -489,10 +489,16 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/kalyan939
 
 ## Changelog
+**v1.5.4**
+### Improvements
+#### Snowflake :
+1. In Snowflake add `pattern` token for external table statement, and improve location rendering
+2.
+
 **v1.5.3**
 ### Fixes
 
-1. In Snowflake Fix unexpected behaviour when file_format name given - https://github.com/xnuinside/simple-ddl-parser/issues/273
+1. In Snowflake unexpected error when STRIP_OUTER_ARRAY property in file_format statement - https://github.com/xnuinside/simple-ddl-parser/issues/276
 2.
 
 **v1.5.2**
@@ -500,6 +506,9 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 #### MySQL
 1. Added support for COLLATE - https://github.com/xnuinside/simple-ddl-parser/pull/266/files
 
+### Fixes
+
+1. In Snowflake Fix unexpected behaviour when file_format name given - https://github.com/xnuinside/simple-ddl-parser/issues/273
 
 **v1.5.1**
 ### Improvements
