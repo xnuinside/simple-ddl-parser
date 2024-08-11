@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Union
 
 from simple_ddl_parser.utils import remove_par
 
 
 # todo: move to utils module
-def convert_to_python_bool(value: str) -> bool | str:
+def convert_to_python_bool(value: str) -> Union[bool, str]:
     value = value.lower().strip()
     if value == "true":
         return True
@@ -13,7 +13,7 @@ def convert_to_python_bool(value: str) -> bool | str:
     return value
 
 
-def convert_to_python_int(value: str) -> int | str:
+def convert_to_python_int(value: str) -> Union[int, str]:
     try:
         return int(value)
     except Exception:
