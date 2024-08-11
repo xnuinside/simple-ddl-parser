@@ -24,7 +24,7 @@ def test_no_unexpected_logs(capsys):
 
 def test_silent_false_flag():
     ddl = """
-CREATE TABLE foo
+CREATE PABLE foo
         (
   created_timestamp  TIMESTAMPTZ  NOT NULL DEFAULT ALTER (now() at time zone 'utc')
         );
@@ -109,10 +109,10 @@ def test_flag_normalize_names():
 
 
 def test_flag_normalize_names_mixed_usage():
-    ddl = ddl = """
-    CREATE TABLE [dbo].T1(ID int NOT NULL PRIMARY KEY)
-    CREATE TABLE dbo.[T2](T2_TO_T1_ID int FOREIGN KEY REFERENCES dbo.[T1](ID))
-    CREATE TABLE dbo.T3(T3_TO_T1_ID int FOREIGN KEY REFERENCES [dbo].[T1](ID))
+    ddl = """
+    CREATE TABLE [dbo].T1(ID int NOT NULL PRIMARY KEY);
+    CREATE TABLE dbo.[T2](T2_TO_T1_ID int FOREIGN KEY REFERENCES dbo.[T1](ID));
+    CREATE TABLE dbo.T3(T3_TO_T1_ID int FOREIGN KEY REFERENCES [dbo].[T1](ID));
     """
 
     result = DDLParser(ddl, silent=False, normalize_names=True).run(group_by_type=True)

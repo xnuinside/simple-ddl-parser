@@ -16,6 +16,7 @@ class Redshift:
     def p_expression_diststyle(self, p: List) -> None:
         """expr : expr id id
         | expr id KEY
+        | expr IN id
         """
         p_list = list(p)
         if p_list[-2] == "IN":

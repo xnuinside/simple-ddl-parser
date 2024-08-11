@@ -35,9 +35,9 @@ class MSSQL:
             p[0]["with"]["properties"] = p_list[-1]["properties"]
 
     def p_equals(self, p: List) -> None:
-        """equals : id id id
-        | id id ON
-        | id id id DOT id
+        """equals : id EQ id
+        | id EQ ON
+        | id EQ dot_id
         """
         p_list = list(p)
         if "." in p_list:

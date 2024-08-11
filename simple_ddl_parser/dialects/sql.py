@@ -142,7 +142,8 @@ class TableSpaces:
         | id STRING
         | id ON
         | id STORAGE
-        | id ROW
+        | IN ROW
+        | BY id
         """
         p[0] = {p[1]: p[2]}
 
@@ -446,6 +447,7 @@ class Column:
         """defcolumn : column
         | defcolumn comment
         | defcolumn encode
+        | defcolumn as_virtual
         | defcolumn PRIMARY KEY
         | defcolumn UNIQUE KEY
         | defcolumn UNIQUE
@@ -467,7 +469,6 @@ class Column:
         | defcolumn option_order_noorder
         | defcolumn option_with_tag
         | defcolumn option_with_masking_policy
-        | defcolumn as_virtual
         | defcolumn constraint
         | defcolumn generated_by
         | defcolumn timezone
@@ -492,7 +493,16 @@ class Column:
         p[0]["check"] = p[0].get("check", None)
         if isinstance(p_list[-1], dict) and p_list[-1].get("encode"):
             p[0]["encode"] = p[0].get("encode", p_list[-1]["encode"])
-        p[0]["check"] = self.set_check_in_columm(p[0].get("check"))
+        if p[0].get("check"):
+            if isinstance(p[0].get("check"), dict) or (
+                isinstance(p[0].get("check"), list)
+                and isinstance(p[0].get("check")[0], dict)
+                and p[0].get("check")[0].get("in_statement")
+            ):
+                check = p[0].get("check")
+            else:
+                check = self.set_check_in_columm(p[0].get("check"))
+            p[0]["check"] = check
         if index:
             p[0]["index"] = index
 
@@ -505,21 +515,28 @@ class Column:
                     in_clause = ", ".join(item)
                     check_statement += f" ({in_clause})"
                 else:
+                    if isinstance(item, dict):
+                        # mean from id_equals
+                        key, value = list(item.items())[0]
+                        item = f"{key} = {value}"
                     check_statement += f" {item}" if n > 0 else f"{item}"
-
             return check_statement
 
     def p_check_ex(self, p: List) -> None:
-        """check_ex :  check_st
+        """check_ex : check_st
         | constraint check_st
         """
         name = None
         if isinstance(p[1], dict):
             if "constraint" in p[1]:
+                if "in_statement" not in p[2]["check"][0]:
+                    statement = " ".join(p[2]["check"])
+                else:
+                    statement = p[2]["check"][0]
                 p[0] = {
                     "check": {
                         "constraint_name": p[1]["constraint"]["name"],
-                        "statement": " ".join(p[2]["check"]),
+                        "statement": statement,
                     }
                 }
             elif "check" in p[1]:
@@ -631,7 +648,7 @@ class Schema:
 
     def p_create_database(self, p: List) -> None:
         """create_database : database_base
-        | create_database id id id
+        | create_database multi_id_equals
         | create_database id id STRING
         | create_database options
         """
@@ -704,7 +721,7 @@ class Type:
     def p_type_definition(self, p: List) -> None:  # noqa: C901
         """type_definition : type_name id LP pid RP
         | type_name id LP multiple_column_names RP
-        | type_name LP id_equals RP
+        | type_name LP multi_id_equals RP
         | type_name TABLE LP defcolumn
         | type_definition COMMA defcolumn
         | type_definition RP
@@ -720,9 +737,8 @@ class Type:
 
         if isinstance(p[0]["base_type"], str):
             p[0] = self.process_str_base_type(p[0], p_list)
-        elif isinstance(p_list[-1], list):
-            for item in p_list[-1]:
-                p[0]["properties"].update(item)
+        elif len(p_list) > 2 and isinstance(p_list[-1], dict):
+            p[0]["properties"].update(p_list[-1])
 
     def p_expression_type_as(self, p: List) -> None:
         """expr : type_definition"""
@@ -863,7 +879,6 @@ class AlterTable:
         | alter_default id
         | alter_default FOR pid
         """
-
         p[0] = p[1]
         column, value = self.get_column_and_value_from_alter(p)
 
@@ -884,18 +899,19 @@ class AlterTable:
             p[0]["default"]["constraint_name"] = p[3]["constraint"]["name"]
 
     def p_alter_check(self, p: List) -> None:
-        """alter_check : alt_table ADD check_st
-        | alt_table ADD constraint check_st
-        """
+        """alter_check : alt_table ADD check_ex"""
         p_list = remove_par(list(p))
         p[0] = p[1]
         if isinstance(p[1], dict):
             p[0] = p[1]
         if not p[0].get("check"):
             p[0]["check"] = {"constraint_name": None, "statement": []}
-        if isinstance(p[3], dict) and "constraint" in p[3]:
+        if "constraint" in p[3]:
             p[0]["check"]["constraint_name"] = p[3]["constraint"]["name"]
-        p[0]["check"]["statement"] = p_list[-1]["check"]
+        if "constraint_name" in p_list[-1]["check"]:
+            p[0]["check"] = p_list[-1]["check"]
+        else:
+            p[0]["check"]["statement"] = p_list[-1]["check"]
 
     def p_alter_foreign(self, p: List) -> None:
         """alter_foreign : alt_table ADD foreign
@@ -986,34 +1002,37 @@ class BaseSQL(
             _property = p_list[-2][0]
         return _property
 
-    def p_id_equals(self, p: List) -> None:
-        """id_equals : id id id_or_string
-        | id id_or_string
-        | id_equals COMMA
-        | id_equals COMMA id id id_or_string
-        | id
-        | id_equals LP pid RP
-        | id_equals LP pid RP id
-        | id_equals COMMA id id
-        | id_equals COMMA id
+    def p_multi_id_equals(self, p: List) -> None:
+        """multi_id_equals : id_equals
+        | multi_id_equals id_equals
+        | multi_id_equals COMMA id_equals
+        | multi_id_equals COMMA
         """
-        p_list = remove_par(list(p))
-        if p_list[-1] == "]":
-            p_list = p_list[:-1]
-        if isinstance(p_list[-1], list):
-            p[0] = p[1]
-            p[0][-1][list(p[0][-1].keys())[0]] = p_list[-1]
-        else:
-            p_list = self.clean_up_id_list_in_equal(p_list)
-            _property = self.get_property(p_list)
+        p[0] = {}
+        for item in list(p)[1:]:
+            if item == ",":
+                continue
+            p[0].update(item)
 
-            if _property:
-                if not isinstance(p[1], list):
-                    p[0] = [_property]
-                else:
-                    p[0] = p[1]
-                    if not p_list[-1] == ",":
-                        p[0].append(_property)
+    def p_id_equals(self, p: List) -> None:
+        """id_equals : id EQ id
+        | id EQ LP pid RP
+        | id EQ ID LP pid RP ID
+        | id EQ LP RP
+        | id EQ STRING_BASE
+        """
+        p_list = list(p)
+
+        if not p_list[-1] in [")", "]"]:
+            p[0] = {p[1]: p_list[-1]}
+        else:
+            if len(p_list) > 6 and isinstance(p_list[5], list):
+                # pid
+                p[0] = {p[1]: p_list[5]}
+            elif not p_list[-2] == "(":
+                p[0] = {p[1]: p_list[-2]}
+            else:
+                p[0] = {p[1]: "()"}
 
     def p_expression_index(self, p: List) -> None:
         """expr : index_table_name LP index_pid RP"""
@@ -1116,11 +1135,12 @@ class BaseSQL(
         | expr COMMA constraint foreign ref
         | expr COMMA foreign ref
         | expr encode
-        | expr DEFAULT id id id
+        | expr DEFAULT id_equals
         | expr RP
         """
         p[0] = p[1] or defaultdict(list)
         p_list = remove_par(list(p))
+
         if len(p_list) > 2 and "cluster_by" in p_list[2]:
             p[0].update(p_list[2])
         if p_list[-1] != "," and p_list[-1] is not None:
@@ -1154,7 +1174,11 @@ class BaseSQL(
                 p_list[-2].update(p_list[-1])
                 p[0].update({"primary_key_enforced": p_list[-1]["enforced"]})
             elif "DEFAULT" in p_list:
-                p[0].update({"default_charset": p_list[-1]})
+                if isinstance(p_list[-1], dict):
+                    value = p_list[-1].get("CHARSET") or p_list[-1].get("charset")
+                else:
+                    value = p_list[-1]
+                p[0].update({"default_charset": value})
             elif isinstance(p_list[-1], dict):
                 p[0].update(p_list[-1])
 
@@ -1430,6 +1454,16 @@ class BaseSQL(
 
         return ref
 
+    def p_dot_id_or_id(self, p: List) -> None:
+        """dot_id_or_id : id
+        | dot_id"""
+        p[0] = p[1]
+
+    def p_dot_id(self, p: List) -> None:
+        """dot_id : id DOT id
+        | dot_id DOT id"""
+        p[0] = f"{p[1]}.{p[3]}"
+
     def p_null(self, p: List) -> None:
         """null : NULL
         | NOT NULL
@@ -1441,11 +1475,18 @@ class BaseSQL(
         p[0] = {"nullable": nullable}
 
     def p_f_call(self, p: List) -> None:
-        """f_call : id LP RP
+        """f_call : dot_id_or_id LP RP
+        | id LP id RP
+        | id LP RP
         | id LP f_call RP
         | id LP multi_id RP
         | id LP pid RP
         | id LP id AS id RP
+        | dot_id_or_id LP id RP
+        | dot_id_or_id LP f_call RP
+        | dot_id_or_id LP multi_id RP
+        | dot_id_or_id LP pid RP
+        | dot_id_or_id LP id AS id RP
         """
         p_list = list(p)
         if isinstance(p[1], list):
@@ -1506,32 +1547,29 @@ class BaseSQL(
         else:
             p[0] = p[1]
 
-    def p_dot_id(self, p: List) -> None:
-        """dot_id : id DOT id"""
-        p[0] = f"{p[1]}.{p[3]}"
-
     def p_default(self, p: List) -> None:
         """default : DEFAULT id
         | DEFAULT STRING
         | DEFAULT NULL
-        | default FOR dot_id
-        | DEFAULT funct_expr
+        | default FOR dot_id_or_id
+        | DEFAULT f_call
         | DEFAULT LP pid RP
         | DEFAULT LP funct_expr pid RP
         | default id
-        | DEFAULT id DOT funct_expr
-        | default LP RP
+        | DEFAULT ID EQ id_or_string
+        | DEFAULT funct_expr
         """
         p_list = remove_par(list(p))
 
         default = self.pre_process_default(p_list)
-
+        if "DEFAULT" in p_list:
+            index_default = p_list.index("DEFAULT")
+            p_list = p_list[index_default:]
         if isinstance(p_list[-1], list):
             p_list[-1] = " ".join(p_list[-1])
             default = " ".join(p_list[1:])
-        elif not isinstance(default, dict) and default.isnumeric():
+        if default.isnumeric():
             default = int(default)
-
         if isinstance(p[1], dict):
             p[0] = self.process_dict_default_value(p_list, default)
         else:
@@ -1539,6 +1577,8 @@ class BaseSQL(
 
     @staticmethod
     def pre_process_default(p_list: List) -> Any:
+        if "FOR" in p_list or "for" in p_list:
+            return "FOR"
         if len(p_list) == 5:
             if isinstance(p_list[3], list):
                 default = p_list[3][0]
@@ -1547,7 +1587,7 @@ class BaseSQL(
         elif "DEFAULT" in p_list and len(p_list) == 4:
             default = f"{p_list[2]} {p_list[3]}"
         else:
-            default = p_list[2]
+            default = p_list[-1]
         return default
 
     @staticmethod
@@ -1601,6 +1641,7 @@ class BaseSQL(
         if len(p) > 3 and p_list[-1].lower() == "stored":
             stored = True
         _as = p[2]
+
         p[0] = {"generated": {"always": True, "as": _as, "stored": stored}}
 
     def p_gen_always(self, p: List) -> None:
@@ -1609,16 +1650,39 @@ class BaseSQL(
         """
         p[0] = {"generated": {"always": True}}
 
+    def p_in_statement(self, p: List) -> None:
+        """in_statement : ID IN LP pid RP"""
+        p_list = list(p)
+        p[0] = {}
+        p[0]["in_statement"] = {"name": p[1], "in": p_list[-2]}
+
+    def p_multi_id_statement(self, p: List) -> None:
+        """multi_id_statement : id_or_string id_or_string
+        | multi_id_statement id_or_string
+        | multi_id_statement EQ id_or_string
+        | multi_id_statement in_statement
+        """
+        p_list = list(p)
+        p[0] = " ".join(p_list[1:])
+
     def p_check_st(self, p: List) -> None:
-        """check_st : CHECK LP id
+        """check_st : CHECK LP multi_id_statement RP
+        | CHECK LP f_call id id RP
+        | CHECK LP f_call id RP
+        | CHECK LP f_call RP
+        | CHECK LP id_equals
+        | CHECK LP in_statement RP
         | check_st id
         | check_st STRING
         | check_st id STRING
-        | check_st id RP
+        | check_st LP id RP
         | check_st STRING RP
         | check_st funct_args
-        | CHECK LP id DOT id
-        | check_st LP pid RP
+        | CHECK LP id DOT id RP
+        | CHECK LP id RP
+        | CHECK LP pid RP
+        | check_st id RP
+        | check_st id_equals RP
         """
         p_list = remove_par(list(p))
         if isinstance(p[1], dict):

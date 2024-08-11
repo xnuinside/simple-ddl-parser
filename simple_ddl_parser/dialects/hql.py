@@ -5,13 +5,22 @@ from simple_ddl_parser.utils import check_spec, remove_par
 
 class HQL:
     def p_expression_location(self, p: List) -> None:
-        """expr : expr LOCATION STRING
+        """expr : expr LOCATION EQ STRING
+        | expr LOCATION EQ DQ_STRING
+        | expr LOCATION EQ multi_id_or_string
         | expr LOCATION DQ_STRING
+        | expr LOCATION STRING
         | expr LOCATION multi_id_or_string
+        | expr LOCATION EQ ID EQ ID EQ ID
         """
+        # last expr for sample like location=@ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/
         p[0] = p[1]
         p_list = list(p)
-        p[0]["location"] = p_list[-1]
+        if len(p_list) == 9:
+            location = "".join(p_list[4:])
+        else:
+            location = p_list[-1]
+        p[0]["location"] = location
 
     def p_expression_clustered(self, p: List) -> None:
         """expr : expr ID ON LP pid RP
@@ -73,10 +82,10 @@ class HQL:
         p[0].update(p_list[-1])
 
     def p_assignment(self, p: List) -> None:
-        """assignment : id id id
-        |  STRING id STRING
-        |  id id STRING
-        |  STRING id id
+        """assignment : id EQ id
+        |  STRING EQ STRING
+        |  id EQ STRING
+        |  STRING EQ id
         |  STRING id"""
         p_list = remove_par(list(p))
         if "state" in self.lexer.__dict__:
@@ -142,6 +151,7 @@ class HQL:
         """expr : expr PARTITIONED BY pid_with_type
         | expr PARTITIONED BY LP pid RP
         | expr PARTITIONED BY LP multiple_funct RP
+        | expr PARTITIONED BY funct
         """
         p[0] = p[1]
         p_list = remove_par(list(p))

@@ -728,7 +728,15 @@ def test_organization_index():
                         "encrypt": None,
                     },
                     {
-                        "check": "constraint_name statement",
+                        "check": {
+                            "constraint_name": "chk_metalistcombo_logicalopr",
+                            "statement": {
+                                "in_statement": {
+                                    "in": ["'I'", "'E'"],
+                                    "name": "include_exclude_ind",
+                                }
+                            },
+                        },
                         "default": None,
                         "name": "include_exclude_ind",
                         "nullable": False,

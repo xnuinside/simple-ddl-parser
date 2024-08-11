@@ -913,9 +913,7 @@ def test_virtual_column_ext_table():
                     "nullable": True,
                     "default": None,
                     "check": None,
-                    "generated": {
-                        "as": "GET(VALUE,'c1') ::string"
-                    },
+                    "generated": {"as": "GET(VALUE,'c1')::string"},
                 },
                 {
                     "name": "path",
@@ -946,11 +944,11 @@ def test_virtual_column_ext_table():
             "table_properties": {
                 "auto_refresh": False,
                 "pattern": "'*.csv'",
-                "file_format" : {
-                    "TYPE" : "JSON",
+                "file_format": {
+                    "TYPE": "JSON",
                     "NULL_IF": "()",
-                    "STRIP_OUTER_ARRAY" : "TRUE",
-                }
+                    "STRIP_OUTER_ARRAY": "TRUE",
+                },
             },
         }
     ]
@@ -1017,7 +1015,7 @@ def test_virtual_column_table():
                 "auto_refresh": False,
                 "file_format": {
                     "TYPE": "JSON",
-                    "NULL_IF": "('field')",
+                    "NULL_IF": ["'field'"],
                     "DATE_FORMAT": "AUTO",
                     "TRIM_SPACE": "TRUE",
                 },
