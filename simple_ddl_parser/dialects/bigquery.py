@@ -15,10 +15,11 @@ class BigQuery:
             p[0] = p[1]
 
     def p_options(self, p):
-        """options : OPTIONS LP id_equals RP"""
+        """options : OPTIONS LP multi_id_equals RP"""
         p_list = list(p)
         if not isinstance(p[1], dict):
-            p[0] = {"options": p[3]}
+            options = [{key: value} for key, value in p[3].items()]
+            p[0] = {"options": options}
         else:
             p[0] = p[1]
             if len(p) == 4:

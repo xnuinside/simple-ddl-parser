@@ -238,6 +238,14 @@ class Snowflake(Dialect):
     )
 
 
+@dataclass
+@dialect(name="athena")
+class Athena(HQL):
+    escaped_by: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
+
+
 dialect_by_name = {
     obj.__d_name__: obj
     for obj in list(globals().values())
@@ -254,23 +262,28 @@ class CommonDialectsFieldsMixin(Dialect):
     """base fields & mixed between dialects"""
 
     temp: Optional[bool] = field(
-        default=False, metadata={"output_modes": add_dialects([HQL, Redshift, Oracle])}
+        default=False,
+        metadata={"output_modes": add_dialects([HQL, Redshift, Oracle, Athena])},
     )
     tblproperties: Optional[dict] = field(
         default_factory=dict,
         metadata={
             "exclude_if_not_provided": True,
-            "output_modes": add_dialects([SparkSQL, HQL, Redshift]),
+            "output_modes": add_dialects([SparkSQL, HQL, Redshift, Athena]),
         },
     )
     stored_as: Optional[str] = field(
         default=None,
-        metadata={"output_modes": add_dialects([SparkSQL, HQL, Databricks, Redshift])},
+        metadata={
+            "output_modes": add_dialects([SparkSQL, HQL, Databricks, Redshift, Athena])
+        },
     )
 
     row_format: Optional[dict] = field(
         default=None,
-        metadata={"output_modes": add_dialects([SparkSQL, HQL, Databricks, Redshift])},
+        metadata={
+            "output_modes": add_dialects([SparkSQL, HQL, Databricks, Redshift, Athena])
+        },
     )
     location: Optional[str] = field(
         default=None,
@@ -281,16 +294,16 @@ class CommonDialectsFieldsMixin(Dialect):
     )
     fields_terminated_by: Optional[str] = field(
         default=None,
-        metadata={"output_modes": add_dialects([HQL, Databricks])},
+        metadata={"output_modes": add_dialects([HQL, Databricks, Athena])},
     )
     lines_terminated_by: Optional[str] = field(
-        default=None, metadata={"output_modes": add_dialects([HQL, Databricks])}
+        default=None, metadata={"output_modes": add_dialects([HQL, Databricks, Athena])}
     )
     map_keys_terminated_by: Optional[str] = field(
-        default=None, metadata={"output_modes": add_dialects([HQL, Databricks])}
+        default=None, metadata={"output_modes": add_dialects([HQL, Databricks, Athena])}
     )
     collection_items_terminated_by: Optional[str] = field(
-        default=None, metadata={"output_modes": add_dialects([HQL, Databricks])}
+        default=None, metadata={"output_modes": add_dialects([HQL, Databricks, Athena])}
     )
     clustered_by: Optional[list] = field(
         default=None,
@@ -309,12 +322,12 @@ class CommonDialectsFieldsMixin(Dialect):
     transient: Optional[bool] = field(
         default=False,
         metadata={
-            "output_modes": add_dialects([HQL, Databricks]),
+            "output_modes": add_dialects([HQL, Databricks, Athena]),
             "exclude_if_not_provided": True,
         },
     )
     external: Optional[bool] = field(
-        default=False, metadata={"output_modes": add_dialects([HQL, Snowflake])}
+        default=False, metadata={"output_modes": add_dialects([HQL, Snowflake, Athena])}
     )
     cluster_by: Optional[list] = field(
         default_factory=list,
@@ -323,6 +336,18 @@ class CommonDialectsFieldsMixin(Dialect):
             "output_modes": add_dialects([BigQuery, Snowflake]),
         },
     )
+
+    def __post_init__(self):
+        super().__post_init__()
+        if (
+            getattr(self, "lines_terminated_by", None)
+            and self.lines_terminated_by is not None
+            and (
+                "'\\n'" in self.lines_terminated_by
+                or '"\\n"' in self.lines_terminated_by
+            )
+        ):
+            self.lines_terminated_by = self.lines_terminated_by.replace("\\n", "\n")
 
 
 dialect_by_name["sql"] = None

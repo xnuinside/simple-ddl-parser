@@ -7,6 +7,7 @@ from simple_ddl_parser.dialects import (
     HQL,
     MSSQL,
     PSQL,
+    Athena,
     BaseSQL,
     BigQuery,
     IBMDb2,
@@ -37,6 +38,7 @@ class Dialects(
     BigQuery,
     IBMDb2,
     PSQL,
+    Athena,
 ):
     pass
 
@@ -115,8 +117,13 @@ class DDLParser(Parser, Dialects):
         elif t.type == "CHECK":
             self.lexer.check = True
 
+    def t_EQ(self, t: LexToken) -> LexToken:
+        r"(=)+"
+        t.type = "EQ"
+        return self.set_last_token(t)
+
     def t_DOT(self, t: LexToken) -> LexToken:
-        r"\."
+        r"(\.)+"
         t.type = "DOT"
         return self.set_last_token(t)
 
@@ -154,14 +161,18 @@ class DDLParser(Parser, Dialects):
             "TYPE",
             "DOMAIN",
             "TABLESPACE",
-            "INDEX",
             "CONSTRAINT",
             "EXISTS",
         ]
         return (
             t.value not in skip_id_tokens
             and t.value.upper() not in ["IF"]
-            and self.lexer.last_token in exceptional_keys
+            and (
+                self.lexer.last_token in exceptional_keys
+                or (
+                    self.lexer.last_token == "INDEX" and self.lexer.is_table is not True
+                )
+            )
             and not self.exceptional_cases(t.value.upper())
         )
 
@@ -188,6 +199,8 @@ class DDLParser(Parser, Dialects):
 
     def t_ID(self, t: LexToken):
         r"([0-9]+[.][0-9]*([e][+-]?[0-9]+)?|[0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\\\=\-\+\~\%$@#\|&?;*\()!{}\[\]\`\[\]]+)"
+        if len(t.value) > 1 and t.value.endswith(","):
+            t.value = t.value[:-1]
         t.type = tok.symbol_tokens.get(t.value, "ID")
 
         if t.type == "LP":

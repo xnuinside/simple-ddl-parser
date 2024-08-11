@@ -253,6 +253,13 @@ class BaseData:
         del alter_column["references"]["columns"]
         return alter_column
 
+    def process_check_in_statement(self, statement: dict) -> None:
+        if not self.alter.get("checks"):
+            self.alter["checks"] = []
+        if isinstance(statement["check"]["statement"], list):
+            statement["check"]["statement"] = " ".join(statement["check"]["statement"])
+        self.alter["checks"].append(statement["check"])
+
     def append_statement_information_to_table(self, statement: Dict) -> None:
         if "columns" in statement:
             self.prepare_alter_columns(statement)
@@ -263,10 +270,7 @@ class BaseData:
         elif "columns_to_modify" in statement:
             self.alter_modify_columns(statement)
         elif "check" in statement:
-            if not self.alter.get("checks"):
-                self.alter["checks"] = []
-            statement["check"]["statement"] = " ".join(statement["check"]["statement"])
-            self.alter["checks"].append(statement["check"])
+            self.process_check_in_statement(statement)
         elif "unique" in statement:
             self.set_alter_to_table_data("unique", statement)
             self.set_unique_columns_from_alter(statement)

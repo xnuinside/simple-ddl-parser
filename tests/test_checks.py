@@ -47,7 +47,14 @@ def test_in_clause_in_check():
                     "unique": False,
                 },
                 {
-                    "check": "`col_name` IN ('year','month')",
+                    "check": [
+                        {
+                            "in_statement": {
+                                "in": ["'year'", "'month'"],
+                                "name": "`col_name`",
+                            }
+                        }
+                    ],
                     "default": None,
                     "name": "`col_name`",
                     "nullable": True,
@@ -113,7 +120,15 @@ def test_checks_with_in_works():
                         "unique": False,
                     },
                     {
-                        "check": "constraint_name statement",
+                        "check": {
+                            "constraint_name": "chk_metalistcombo_logicalopr",
+                            "statement": {
+                                "in_statement": {
+                                    "in": ["'I'", "'E'"],
+                                    "name": "include_exclude_ind",
+                                }
+                            },
+                        },
                         "default": None,
                         "name": "include_exclude_ind",
                         "nullable": False,

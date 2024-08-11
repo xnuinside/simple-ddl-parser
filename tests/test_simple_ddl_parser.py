@@ -2105,7 +2105,7 @@ def test_method_in_check():
     ddl = r"""
     CREATE TABLE foo
     (
-        entity_id        UUID PRIMARY KEY DEFAULT getId()
+        entity_id        UUID PRIMARY KEY DEFAULT getId(),
         name             VARCHAR(64),
         CONSTRAINT my_constraint  CHECK(my_function(name) IS TRUE)
     );
@@ -2128,14 +2128,24 @@ def test_method_in_check():
                 "columns": [
                     {
                         "check": None,
-                        "default": "getId() name VARCHAR(64)",
+                        "default": "getId()",
                         "name": "entity_id",
                         "nullable": False,
                         "references": None,
                         "size": None,
                         "type": "UUID",
                         "unique": False,
-                    }
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "name",
+                        "nullable": True,
+                        "references": None,
+                        "size": 64,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
                 ],
                 "constraints": {
                     "checks": [
@@ -2535,7 +2545,7 @@ CREATE TABLE foo
                     },
                     {
                         "check": None,
-                        "default": "DEFAULT now() at time zone 'utc'",
+                        "default": "now() at time zone 'utc'",
                         "name": "created_timestamp",
                         "nullable": False,
                         "references": None,

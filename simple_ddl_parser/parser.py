@@ -95,11 +95,11 @@ class Parser:
         self.block_comments = []
         self.comments = []
 
-        self.comma_only_str = re.compile(r"((\')|(' ))+(,)((\')|( '))+\B")
+        # self.comma_only_str = re.compile(r"((\')|(' ))+(,)((\')|( '))+\B")
         self.equal_without_space = re.compile(r"(\b)=")
         self.in_comment = re.compile(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+")
         self.set_statement = re.compile(r"SET ")
-        self.skip_regex = re.compile(r"^(GO|USE|INSERT)\b")
+        self.skip_regex = re.compile(r"^(GO|USE|INSERT|GRANT|DELETE)\b")
 
     def catch_comment_or_process_line(self, code_line: str) -> str:
         if self.multi_line_comment:
@@ -117,7 +117,7 @@ class Parser:
 
     def pre_process_line(self) -> Tuple[str, List]:
         code_line = ""
-        self.line = self.comma_only_str.sub("_ddl_parser_comma_only_str", self.line)
+        # self.line = self.comma_only_str.sub("_ddl_parser_comma_only_str", self.line)
         self.line = self.equal_without_space.sub(" = ", self.line)
         code_line = self.catch_comment_or_process_line(code_line)
         if self.line.startswith(OP_COM) and CL_COM not in self.line:
@@ -177,19 +177,25 @@ class Parser:
         # todo: not sure how to workaround ',' normal way
         if "input.regex" in data:
             data = self.process_regex_input(data)
+        quote_before = r"((?!\'[\w]*[\\']*[\w]*)"
+        quote_after = r"((?![\w]*[\\']*[\w]*\')))"
+        # add space everywhere except strings
+        for symbol, replace_to in [
+            (r"(,)+", " , "),
+            (r"((\()){1}", " ( "),
+            (r"((\))){1}", " ) "),
+        ]:
+            data = re.sub(quote_before + symbol + quote_after, replace_to, data)
 
+        if data.count("'") % 2 != 0:
+            data = data.replace("\\'", "pars_m_single")
         data = (
-            data.replace(",", " , ")
-            .replace("(", " ( ")
-            .replace(")", " ) ")
-            .replace("\\x", "\\0")
+            data.replace("\\x", "\\0")
             .replace("‘", "'")
             .replace("’", "'")
             .replace("\\u2018", "'")
             .replace("\\u2019", "'")
             .replace("'\\t'", "'pars_m_t'")
-            .replace("'\\n'", "'pars_m_n'")
-            .replace("\\'", "pars_m_single")
             .replace("\\t", " ")
         )
         return data
@@ -249,7 +255,10 @@ class Parser:
     def parse_data(self) -> List[Dict]:
         self.tables: List[Dict] = []
         data = self.pre_process_data(self.data)
-        lines = data.replace("\\t", "").split("\\n")
+        regex_n = r"((?!\'[\w]*[\\']*[\w]*)\\n(?![\w]*[\\']*[\w]*\'))"
+        data = data.replace("\\t", "")
+        lines = re.split(regex_n, data)
+        lines = [line for line in lines if line != "\\n"]
 
         self.set_line: Optional[str] = None
 

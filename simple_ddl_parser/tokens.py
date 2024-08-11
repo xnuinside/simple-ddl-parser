@@ -29,6 +29,7 @@ common_statements = {
     "INITIALLY",
     "IF",
     "NOT",
+    "IN",
     "EXISTS",
     "ON",
     "FOR",
@@ -40,6 +41,7 @@ common_statements = {
     "OPTIONS",
     # snoflake
     "TAG",
+    "IN",
 }
 common_statements = {value: value for value in common_statements}
 
@@ -131,6 +133,8 @@ after_columns_tokens = {
     "STAGE_FILE_FORMAT",
     "CATALOG",
     "ENGINE",
+    "IN",
+    "ESCAPED",
 }
 after_columns_tokens = {value: value for value in after_columns_tokens}
 
@@ -162,6 +166,7 @@ tokens = tuple(
             "LT",
             "RT",
             "COMMAT",
+            "EQ",
         ],
         *definition_statements.values(),
         *common_statements.values(),

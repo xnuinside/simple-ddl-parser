@@ -1,3 +1,4 @@
+from simple_ddl_parser.dialects.athena import Athena
 from simple_ddl_parser.dialects.bigquery import BigQuery
 from simple_ddl_parser.dialects.hql import HQL
 from simple_ddl_parser.dialects.ibm import IBMDb2
@@ -22,4 +23,5 @@ __all__ = [
     "IBMDb2",
     "BaseSQL",
     "PSQL",
+    "Athena",
 ]

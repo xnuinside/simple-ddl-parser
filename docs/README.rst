@@ -555,6 +555,46 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.6.0**
+
+IMPORTANT:
+^^^^^^^^^^
+
+In this versions there is some output changes & fixes that can break your code.
+
+
+#. 
+   Now all arguments inside brackets are parsed as separate strings in the list.
+   For example:
+   ``file_format = (TYPE=JSON NULL_IF=('field')`` this was parsed like 'NULL_IF': "('field')",
+   now it will be: 'NULL_IF': ["'field'"],
+
+#. 
+   Added separate tokens for EQ ``=`` and IN (previously they was parsed as IDs also - for internal info, for contributors.
+
+#. 
+   Some check statements in columns now parsed validly, also IN statements parsed as normal lists.
+   So this statement include_exclude_ind CHAR(1) NOT NULL CONSTRAINT chk_metalistcombo_logicalopr
+   CHECK (include_exclude_ind IN ('I', 'E')),
+
+will produce this output:
+
+{'check': {'constraint_name': 'chk_metalistcombo_logicalopr',
+                         'statement': {'in_statement': {'in': ["'I'", "'E'"],
+                                                        'name': 'include_exclude_ind'}}},
+
+Fixes
+^^^^^
+
+
+#. DEFAULT word now is not arriving in key 'default' (it was before in some cases)
+
+New Features
+^^^^^^^^^^^^
+
+
+#. Added Athena output mode and initial support - https://github.com/datacontract/datacontract-cli/issues/332
+
 **v1.5.4**
 
 Improvements
@@ -565,7 +605,6 @@ Snowflake :
 
 
 #. In Snowflake add ``pattern`` token for external table statement, and improve location rendering
-   2.
 
 **v1.5.3**
 
