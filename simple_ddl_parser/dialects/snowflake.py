@@ -41,7 +41,14 @@ class Snowflake:
 
     def p_multi_id_or_string(self, p: List) -> None:
         """multi_id_or_string : id_or_string
-        | multi_id_or_string id_or_string
+        | id DOT id EQ id
+        | id DOT id EQ id EQ id
+        | id DOT id EQ id EQ id EQ id
+        | id DOT id EQ id EQ id EQ id EQ id
+        | id DOT id DOT id EQ id
+        | id DOT id DOT id EQ id EQ id
+        | id DOT id DOT id EQ id EQ id EQ id
+        | id DOT id DOT id EQ id EQ id EQ id EQ id
         | f_call
         | multi_id_or_string f_call
         """
@@ -51,7 +58,7 @@ class Snowflake:
             p[0].append(p_list[-1])
         else:
             totrim = " ".join(p_list[1:])
-            p[0] = totrim.replace(" = ", "=").replace("= ", "")
+            p[0] = totrim.replace(" = ", "=").replace("= ", "").replace(" . ",".")
 
     # todo: need to review & maybe simplify / remove
     def p_table_property_equals(self, p: List) -> None:

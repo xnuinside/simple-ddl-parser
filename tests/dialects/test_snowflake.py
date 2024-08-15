@@ -836,7 +836,7 @@ def test_virtual_column_ext_table():
        "path" VARCHAR(255) AS (METADATA$FILENAME)
        )
     partition by ("type", "year", "month", "day", "path")
-    location=@ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/
+    location=@db_name.schema_name.ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/
     auto_refresh=false
     pattern='*.csv'
     file_format = (TYPE = JSON NULL_IF = () STRIP_OUTER_ARRAY = TRUE )
@@ -940,7 +940,7 @@ def test_virtual_column_ext_table():
             "tablespace": None,
             "external": True,
             "if_not_exists": True,
-            "location": "@ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/",
+            "location": "@db_name.schema_name.ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/",
             "table_properties": {
                 "auto_refresh": False,
                 "pattern": "'*.csv'",
@@ -1045,6 +1045,22 @@ def test_schema_create_if_not_exists():
     expected = [{"schema_name": "myschema", "if_not_exists": True}]
 
     assert expected == result
+
+def test_schema_create_if_not_exists_options():
+    ddl = """
+    create schema if not exists myschema comment = 'mycomment'  tag (demo = 'test');
+    """
+    schema_if_not_exists = DDLParser(ddl).run(output_mode="snowflake") 
+    expected = [
+        {
+            'if_not_exists': True, 
+            'schema_name': 'myschema', 
+            'comment': "'mycomment'",
+            'with_tag': "demo='test'",
+            }
+        ] 
+
+    assert schema_if_not_exists == expected
 
 
 def test_schema_create_or_replace():
