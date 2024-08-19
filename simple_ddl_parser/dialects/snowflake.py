@@ -41,17 +41,9 @@ class Snowflake:
 
     def p_multi_id_or_string(self, p: List) -> None:
         """multi_id_or_string : id_or_string
-        | id DOT id EQ id
-        | id DOT id EQ id EQ id
-        | id DOT id EQ id EQ id EQ id
-        | id DOT id EQ id EQ id EQ id EQ id
-        | id DOT id DOT id EQ id
-        | id DOT id DOT id EQ id EQ id
-        | id DOT id DOT id EQ id EQ id EQ id
-        | id DOT id DOT id EQ id EQ id EQ id EQ id
-        | f_call
-        | multi_id_or_string f_call
-        """
+        | EQ id_or_string
+        | id DOT multi_id_or_string
+        | multi_id_or_string EQ id_or_string"""
         p_list = list(p)
         if isinstance(p[1], list):
             p[0] = p[1]
