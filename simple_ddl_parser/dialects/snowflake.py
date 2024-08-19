@@ -50,7 +50,7 @@ class Snowflake:
             p[0].append(p_list[-1])
         else:
             totrim = " ".join(p_list[1:])
-            p[0] = totrim.replace(" = ", "=").replace("= ", "").replace(" . ",".")
+            p[0] = totrim.replace(" = ", "=").replace("= ", "").replace(" . ", ".")
 
     # todo: need to review & maybe simplify / remove
     def p_table_property_equals(self, p: List) -> None:
