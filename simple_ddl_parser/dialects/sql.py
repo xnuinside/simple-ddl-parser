@@ -606,10 +606,7 @@ class Schema:
         | c_schema id DOT id
         | c_schema IF NOT EXISTS id
         | c_schema IF NOT EXISTS id DOT id
-        | create_schema id id id
-        | create_schema id id STRING
-        | create_schema options
-        """
+        | create_schema options"""
         p_list = list(p)
         p[0] = {}
         auth_index = None

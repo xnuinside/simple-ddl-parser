@@ -836,7 +836,7 @@ def test_virtual_column_ext_table():
        "path" VARCHAR(255) AS (METADATA$FILENAME)
        )
     partition by ("type", "year", "month", "day", "path")
-    location=@ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/
+    location=@schema_name.StageName/year=2023/month=08/
     auto_refresh=false
     pattern='*.csv'
     file_format = (TYPE = JSON NULL_IF = () STRIP_OUTER_ARRAY = TRUE )
@@ -940,7 +940,7 @@ def test_virtual_column_ext_table():
             "tablespace": None,
             "external": True,
             "if_not_exists": True,
-            "location": "@ADL_Azure_Storage_Account_Container_Name/year=2023/month=08/",
+            "location": "@schema_name.StageName/year=2023/month=08/",
             "table_properties": {
                 "auto_refresh": False,
                 "pattern": "'*.csv'",
@@ -955,6 +955,164 @@ def test_virtual_column_ext_table():
 
     assert result_ext_table == expected_ext_table
 
+    location_fm1 = """
+    create external table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
+       "type" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 1), '=', 2 ))
+       )
+    location=@StageName
+    file_format = (TYPE = JSON NULL_IF = () STRIP_OUTER_ARRAY = TRUE )
+    ;
+    """
+    result_fm1 = DDLParser(location_fm1, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
+
+    expected_fm1 = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "type",
+                    "type": "VARCHAR",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated": {
+                        "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)"
+                    },
+                }],
+             "partitioned_by": [],
+            "primary_key": [],
+            "primary_key_enforced": None,
+            "schema": "TABLE_DATA_SRC",
+            "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
+            "tablespace": None,
+            "external": True,
+            "if_not_exists": True,
+            "index" : [],
+            "location": "@StageName",
+            "table_properties": {
+                 "file_format": {
+                    "TYPE": "JSON",
+                    "NULL_IF": "()",
+                    "STRIP_OUTER_ARRAY": "TRUE",
+                },
+            },
+        }
+    ]
+
+    assert result_fm1 == expected_fm1
+
+    location_fm2 = """
+    create external table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
+       "type" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 1), '=', 2 ))
+       )
+    location = @db.schema.StageName/year=2024
+    file_format = (TYPE = JSON NULL_IF = () STRIP_OUTER_ARRAY = TRUE )
+    ;
+    """
+    result_fm2 = DDLParser(location_fm2, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
+
+    expected_fm2 = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "type",
+                    "type": "VARCHAR",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated": {
+                        "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)"
+                    },
+                }],
+             "partitioned_by": [],
+            "primary_key": [],
+            "primary_key_enforced": None,
+            "schema": "TABLE_DATA_SRC",
+            "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
+            "tablespace": None,
+            "external": True,
+            "if_not_exists": True,
+            "index" : [],
+            "location": "@db.schema.StageName/year=2024",
+            "table_properties": {
+                 "file_format": {
+                    "TYPE": "JSON",
+                    "NULL_IF": "()",
+                    "STRIP_OUTER_ARRAY": "TRUE",
+                },
+            },
+        }
+    ]
+
+    assert result_fm2 == expected_fm2
+
+    location_fm3 = """
+    create external table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
+       "type" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 1), '=', 2 ))
+       )
+    location=@Db.Schema.StageName/year=2024/
+    file_format = (TYPE = JSON NULL_IF = () STRIP_OUTER_ARRAY = TRUE )
+    ;
+    """
+    result_fm3 = DDLParser(location_fm3, normalize_names=True, debug=True).run(
+        output_mode="snowflake"
+    )
+
+    expected_fm3 = [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "columns": [
+                {
+                    "name": "type",
+                    "type": "VARCHAR",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated": {
+                        "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)"
+                    },
+                }],
+             "partitioned_by": [],
+            "primary_key": [],
+            "primary_key_enforced": None,
+            "schema": "TABLE_DATA_SRC",
+            "table_name": "EXT_PAYLOAD_MANIFEST_WEB",
+            "tablespace": None,
+            "external": True,
+            "if_not_exists": True,
+            "index" : [],
+            "location": "@Db.Schema.StageName/year=2024/",
+            "table_properties": {
+                 "file_format": {
+                    "TYPE": "JSON",
+                    "NULL_IF": "()",
+                    "STRIP_OUTER_ARRAY": "TRUE",
+                },
+            },
+        }
+    ]
+
+    assert result_fm3 == expected_fm3
 
 def test_virtual_column_table():
     ddl = """
@@ -962,7 +1120,7 @@ def test_virtual_column_table():
        id bigint,
        derived bigint as (id * 10)
        )
-    location = @ADL_Azure_Storage_Account_Container_Name/entity
+    location = @sc.stage/entity=events/
     auto_refresh = false
     file_format = (TYPE=JSON NULL_IF=('field') DATE_FORMAT=AUTO TRIM_SPACE=TRUE)
     stage_file_format = (TYPE=JSON NULL_IF=())
@@ -1010,7 +1168,7 @@ def test_virtual_column_table():
             "tablespace": None,
             "replace": True,
             "if_not_exists": True,
-            "location": "@ADL_Azure_Storage_Account_Container_Name/entity",
+            "location": "@sc.stage/entity=events/",
             "table_properties": {
                 "auto_refresh": False,
                 "file_format": {
@@ -1045,6 +1203,22 @@ def test_schema_create_if_not_exists():
     expected = [{"schema_name": "myschema", "if_not_exists": True}]
 
     assert expected == result
+
+def test_schema_create_if_not_exists_options():
+    ddl = """
+    create schema if not exists myschema comment = 'mycomment'  tag (demo = 'test');
+    """
+    schema_if_not_exists = DDLParser(ddl).run(output_mode="snowflake") 
+    expected = [
+        {
+            'if_not_exists': True, 
+            'schema_name': 'myschema', 
+            'comment': "'mycomment'",
+            'with_tag': "demo='test'",
+            }
+        ] 
+
+    assert schema_if_not_exists == expected
 
 
 def test_schema_create_or_replace():
