@@ -1720,7 +1720,7 @@ class BaseSQL(
         | id LP RP
         | pid COMMA id
         | pid COMMA STRING
-        """
+          """
         p_list = list(p)
 
         if len(p_list) == 4 and isinstance(p[1], str):
