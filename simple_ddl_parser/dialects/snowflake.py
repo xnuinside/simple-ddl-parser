@@ -200,14 +200,27 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0]["pattern"] = p_list[-1]
 
+    def p_recursive_pid(self, p: List) -> None:
+        """recursive_pid : pid
+        | multi_id
+        | id LP RP
+        | id LP pid RP
+        | id LP pid RP pid
+        | id COMMA pid
+        | id LP id LP recursive_pid RP COMMA pid RP
+        | multi_id LP pid RP
+        | id LP multi_id RP
+        | id LP id AS recursive_pid RP
+        | id LP id LP recursive_pid RP AS recursive_pid RP
+        """
+        p_list = list(p)
+        items = [item if isinstance(item, str) else ",".join(item) for item in p_list[1:]]
+        p[0] = "".join(items)
+
     def p_as_virtual(self, p: List):
-        """as_virtual : AS LP id LP id LP pid RP COMMA pid RP RP
-        | AS LP id LP pid RP RP
-        | AS LP multi_id RP
-        | AS LP ID STRING_BASE RP ID RP
-        | AS LP f_call RP id RP
-        | as_virtual ID
-        | AS LP id LP pid RP ID RP"""
+        """as_virtual : AS LP id RP
+        | AS LP recursive_pid RP
+        | AS LP id LP id LP multi_id COMMA pid RP AS recursive_pid RP RP"""
         _as = ""
         # Simple function else Nested function call
         if len(p) == 5:

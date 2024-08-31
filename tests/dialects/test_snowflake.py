@@ -1010,7 +1010,7 @@ def test_virtual_column_ext_table():
 
     location_fm2 = """
     create external table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
-       "type" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 1), '=', 2 ))
+       "type" VARCHAR(255) AS (SPLIT_PART(SPLIT_PART(METADATA$FILENAME, '/', 1), '=', 2 )),
        )
     location = @db.schema.StageName/year=2024
     file_format = (TYPE = JSON NULL_IF = () STRIP_OUTER_ARRAY = TRUE )
@@ -1118,7 +1118,10 @@ def test_virtual_column_table():
     ddl = """
     create or replace table if not exists TABLE_DATA_SRC.EXT_PAYLOAD_MANIFEST_WEB (
        id bigint,
-       derived bigint as (id * 10)
+       derived bigint as (id * 10),
+       "year" NUMBER(38,0) AS (EXTRACT(year from METADATA$FILE_LAST_MODIFIED)),
+       PERIOD VARCHAR(200) AS (CAST(col1 AS VARCHAR(16777216))),
+       field VARCHAR(205) AS (CAST(GET(VALUE, 'c3') AS VARCHAR(16777216)))
        )
     location = @sc.stage/entity=events/
     auto_refresh = false
@@ -1156,6 +1159,39 @@ def test_virtual_column_table():
                     "default": None,
                     "check": None,
                     "generated": {"as": "id * 10"},
+                },
+                {
+                    "name": "year",
+                    "type": "NUMBER",
+                    "size": (38,0),
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated": {"as": "EXTRACT(year from METADATA$FILE_LAST_MODIFIED)"},
+                },
+                {
+                    "name": "PERIOD",
+                    "type": "VARCHAR",
+                    "size": 200,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated": {"as": "CAST(col1ASVARCHAR(16777216))"},
+                },
+                 {
+                    "name": "field",
+                    "type": "VARCHAR",
+                    "size": 205,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "generated": {"as": "CAST(GET(VALUE,'c3')ASVARCHAR(16777216))"},
                 },
             ],
             "index": [],
