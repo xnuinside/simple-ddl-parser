@@ -555,6 +555,15 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.6.1**
+
+Fixes
+^^^^^
+
+
+#. #289 CREATE SCHEMA IF NOT EXISTS plus comment fail
+#. schema or db.schema location in snowflake
+
 **v1.6.0**
 
 IMPORTANT:
