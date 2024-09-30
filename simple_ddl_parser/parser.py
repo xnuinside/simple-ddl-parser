@@ -179,13 +179,20 @@ class Parser:
             data = self.process_regex_input(data)
         quote_before = r"((?!\'[\w]*[\\']*[\w]*)"
         quote_after = r"((?![\w]*[\\']*[\w]*\')))"
+        num = 0
         # add space everywhere except strings
         for symbol, replace_to in [
             (r"(,)+", " , "),
             (r"((\()){1}", " ( "),
             (r"((\))){1}", " ) "),
         ]:
-            data = re.sub(quote_before + symbol + quote_after, replace_to, data)
+            num += 1
+            if num == 2:
+                # need for correct work with `(`` but not need in other symbols
+                quote_after_use = quote_after.replace(")))", "))*)")
+            else:
+                quote_after_use = quote_after
+            data = re.sub(quote_before + symbol + quote_after_use, replace_to, data)
 
         if data.count("'") % 2 != 0:
             data = data.replace("\\'", "pars_m_single")

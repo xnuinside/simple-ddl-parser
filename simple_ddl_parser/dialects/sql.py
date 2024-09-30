@@ -241,13 +241,18 @@ class Column:
         | id DOT id
         | tid
         | ARRAY
+        | ENUM LP pid RP
+        | SET LP pid RP
         | c_type ARRAY
         | c_type tid
         """
         p[0] = {}
         p_list = remove_par(list(p))
         _type = None
-        if len(p_list) == 2:
+        if p_list[1] in ("ENUM", "SET"):
+            p[0] = {"property": {"values": p_list[-1]}}
+            _type = p_list[1]
+        elif len(p_list) == 2:
             _type = p_list[-1]
         elif isinstance(p[1], str) and p[1].lower() == "encode":
             p[0] = {"property": {"encode": p[2]}}
@@ -603,6 +608,8 @@ class Schema:
         """create_schema : c_schema id id
         | c_schema id id id
         | c_schema id
+        | create_schema COMMENT STRING
+        | create_schema COMMENT EQ STRING
         | c_schema id DOT id
         | c_schema IF NOT EXISTS id
         | c_schema IF NOT EXISTS id DOT id
@@ -611,19 +618,19 @@ class Schema:
         p[0] = {}
         auth_index = None
 
-        if "comment" in p_list[-1]:
-            del p_list[-1]
-
         self.add_if_not_exists(p[0], p_list)
 
         if isinstance(p_list[1], dict):
             p[0] = p_list[1]
-            self.set_properties_for_schema_and_database(p, p_list)
+            if "COMMENT" in p_list:
+                p[0]["comment"] = p_list[-1]
+            else:
+                self.set_properties_for_schema_and_database(p, p_list)
         elif auth in p_list:
             auth_index = p_list.index(auth)
             self.set_auth_property_in_schema(p, p_list)
 
-        if isinstance(p_list[-1], str):
+        if not p[0].get("schema_name") and isinstance(p_list[-1], str):
             if auth_index:
                 schema_name = p_list[auth_index - 1]
                 if schema_name is None:
@@ -869,10 +876,10 @@ class AlterTable:
         return column, value
 
     def p_alter_default(self, p: List) -> None:
-        """alter_default : alt_table id id
-        | alt_table ADD constraint id id
-        | alt_table ADD id STRING
-        | alt_table ADD constraint id STRING
+        """alter_default : alt_table DEFAULT id
+        | alt_table ADD constraint DEFAULT id
+        | alt_table ADD DEFAULT STRING
+        | alt_table ADD constraint DEFAULT STRING
         | alter_default id
         | alter_default FOR pid
         """
@@ -1555,9 +1562,9 @@ class BaseSQL(
         | default id
         | DEFAULT ID EQ id_or_string
         | DEFAULT funct_expr
+        | default dot_id
         """
         p_list = remove_par(list(p))
-
         default = self.pre_process_default(p_list)
         if "DEFAULT" in p_list:
             index_default = p_list.index("DEFAULT")
@@ -1567,6 +1574,7 @@ class BaseSQL(
             default = " ".join(p_list[1:])
         if default.isnumeric():
             default = int(default)
+
         if isinstance(p[1], dict):
             p[0] = self.process_dict_default_value(p_list, default)
         else:
@@ -1596,10 +1604,11 @@ class BaseSQL(
             for i in p_list[2:]:
                 if isinstance(p_list[2], str):
                     p_list[2] = p_list[2].replace("\\'", "'")
-                    if i == ")" or i == "(":
-                        data["default"] = str(data["default"]) + f"{i}"
+                    if i == ")" or i == "(" or "::" in p_list[-1]:
+                        item_to_append = f"{i}"
                     else:
-                        data["default"] = str(data["default"]) + f" {i}"
+                        item_to_append = f" {i}"
+                    data["default"] = str(data["default"]) + item_to_append
                     data["default"] = data["default"].replace("))", ")")
         return data
 
@@ -1770,6 +1779,8 @@ class BaseSQL(
         | ref LP pid RP
         | ref ON DELETE id
         | ref ON UPDATE id
+        | ref ON DELETE SET
+        | ref ON UPDATE SET
         | ref DEFERRABLE INITIALLY id
         | ref NOT DEFERRABLE
         """

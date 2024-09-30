@@ -61,7 +61,7 @@ class DDLParser(Parser, Dialects):
         t.type = tok.after_columns_tokens.get(t.value.upper(), t.type)
         if t.type != "ID":
             self.lexer.after_columns = True
-        elif self.lexer.columns_def:
+        elif not self.lexer.after_columns and self.lexer.columns_def:
             t.type = tok.columns_definition.get(t.value.upper(), t.type)
         return t
 
