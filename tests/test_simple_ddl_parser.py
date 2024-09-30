@@ -3434,3 +3434,138 @@ def test_reference_not_null():
     }
 
     assert expected == result
+
+
+def test_default_value_with_cast_symbols():
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "id",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "client_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "name",
+                        "nullable": True,
+                        "references": None,
+                        "size": 255,
+                        "type": "character varying",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "slug",
+                        "nullable": True,
+                        "references": None,
+                        "size": 255,
+                        "type": "character varying",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "color",
+                        "nullable": True,
+                        "references": None,
+                        "size": 16,
+                        "type": "character varying",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": "true",
+                        "name": "published",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "boolean",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": "'public'::public.blog_categories_visibility",
+                        "name": "visibility",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "public.blog_categories_visibility",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "filter_id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "integer",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": "public",
+                "table_name": "blog_categories",
+                "tablespace": None,
+            }
+        ],
+        "types": [
+            {
+                "base_type": "ENUM",
+                "properties": {"values": ["'public'", "'protected'", "'private'"]},
+                "schema": "public",
+                "type_name": "blog_categories_visibility",
+            }
+        ],
+    }
+    ddl = """
+    CREATE TYPE public.blog_categories_visibility AS ENUM (
+        'public',
+        'protected',
+        'private'
+    );
+
+    CREATE TABLE public.blog_categories (
+        id integer NOT NULL,
+        client_id integer,
+        name character varying(255),
+        slug character varying(255),
+        color character varying(16),
+        published boolean DEFAULT true NOT NULL,
+        visibility public.blog_categories_visibility DEFAULT 'public'::public.blog_categories_visibility NOT NULL,
+        filter_id integer
+    );
+    """
+
+    result = DDLParser(ddl, debug=True).run(
+        group_by_type=True,
+        output_mode="mysql",
+    )
+    assert result == expected

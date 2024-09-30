@@ -555,6 +555,20 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.7.0**
+
+Fixes
+^^^^^
+
+
+#. DEFAULT Value with '::' cast parsed correctly now - https://github.com/xnuinside/simple-ddl-parser/issues/286
+
+Improvements
+^^^^^^^^^^^^
+
+
+#. Added support for ENUM & SET column type - https://github.com/xnuinside/simple-ddl-parser/issues/259 
+
 **v1.6.1**
 
 Fixes

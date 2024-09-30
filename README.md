@@ -489,6 +489,14 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/kalyan939
 
 ## Changelog
+**v1.7.0**
+### Fixes
+1. DEFAULT Value with '::' cast parsed correctly now - https://github.com/xnuinside/simple-ddl-parser/issues/286
+
+### Improvements
+1. Added support for ENUM & SET column type - https://github.com/xnuinside/simple-ddl-parser/issues/259 
+
+
 **v1.6.1**
 ### Fixes
 1. #289 CREATE SCHEMA IF NOT EXISTS plus comment fail

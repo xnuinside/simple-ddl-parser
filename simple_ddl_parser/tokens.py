@@ -37,6 +37,10 @@ common_statements = {
     "SALT",
     "NO",
     "USING",
+    "DELETE",
+    "UPDATE",
+    "DEFAULT",
+    "COMMENT",
     # bigquery
     "OPTIONS",
     # snoflake
@@ -47,16 +51,14 @@ common_statements = {value: value for value in common_statements}
 
 
 columns_definition = {
-    "DELETE",
-    "UPDATE",
+    "ENUM",
+    "SET",
     "NULL",
     "ARRAY",
-    "DEFAULT",
     "COLLATE",
     "ENFORCED",
     "ENCODE",
     "GENERATED",
-    "COMMENT",
     "POLICY",
     "MASKING",
     "WITH",

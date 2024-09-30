@@ -631,3 +631,94 @@ def test_table_properties():
         }
     ]
     assert result == expected
+
+
+def test_enum_column_type():
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": "'enabled'",
+                        "name": "cancellation_type",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "ENUM",
+                        "unique": False,
+                        "values": ["'enabled'", "'disabled'"],
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "myset",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    ddl = """
+CREATE TABLE myset (
+     cancellation_type enum('enabled','disabled') NOT NULL DEFAULT 'enabled'
+);
+"""
+    result = DDLParser(ddl, debug=True).run(
+        group_by_type=True,
+        output_mode="mysql",
+    )
+    assert result == expected
+
+
+def test_set_type():
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "randomcolumn",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "SET",
+                        "unique": False,
+                        "values": ["'a'", "'b'", "'c'", "'d'"],
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "myset",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+
+    ddl = """
+    CREATE TABLE myset (
+        randomcolumn SET('a', 'b', 'c', 'd')
+    );
+    """
+    result = DDLParser(ddl, debug=True).run(
+        group_by_type=True,
+        output_mode="mysql",
+    )
+    assert expected == result
