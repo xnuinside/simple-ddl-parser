@@ -489,6 +489,11 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/kalyan939
 
 ## Changelog
+**v1.7.1**
+### Fixes:
+1. Fix 'character set' issue - https://github.com/xnuinside/simple-ddl-parser/issues/288 
+
+
 **v1.7.0**
 ### Fixes
 1. DEFAULT Value with '::' cast parsed correctly now - https://github.com/xnuinside/simple-ddl-parser/issues/286

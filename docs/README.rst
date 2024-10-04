@@ -555,6 +555,14 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 Changelog
 ---------
 
+**v1.7.1**
+
+Fixes:
+^^^^^^
+
+
+#. Fix 'character set' issue - https://github.com/xnuinside/simple-ddl-parser/issues/288 
+
 **v1.7.0**
 
 Fixes

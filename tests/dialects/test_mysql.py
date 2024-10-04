@@ -722,3 +722,60 @@ def test_set_type():
         output_mode="mysql",
     )
     assert expected == result
+
+
+def test_mysql_character_set():
+    ddl = """
+    CREATE TABLE `table_notes` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `notes` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+    );"""
+    result = DDLParser(ddl, debug=True).run(
+        group_by_type=True,
+        output_mode="mysql",
+    )
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "autoincrement": True,
+                        "check": None,
+                        "default": None,
+                        "name": "`id`",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    },
+                    {
+                        "character_set": "utf8mb3",
+                        "check": None,
+                        "collate": "utf8mb3_general_ci",
+                        "default": None,
+                        "name": "`notes`",
+                        "nullable": False,
+                        "references": None,
+                        "size": 255,
+                        "type": "varchar",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "`table_notes`",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
