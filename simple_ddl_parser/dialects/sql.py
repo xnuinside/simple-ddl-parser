@@ -194,7 +194,9 @@ class Table:
 
 class Column:
     def p_column_property(self, p: List):
-        """c_property : id id"""
+        """c_property : id id
+        | id SET id
+        | SET id"""
         p_list = list(p)
         if p[1].lower() == "auto":
             p[0] = {"increment": True}
@@ -413,6 +415,9 @@ class Column:
             if isinstance(item, dict):
                 if "property" in item:
                     for key, value in item["property"].items():
+                        if key == "SET" and "CHARACTER" in p[0]["type"].upper():
+                            p[0]["type"] = p[0]["type"].split("CHARACTER")[0].strip()
+                            key = f"CHARACTER_{key}".lower()
                         p[0][key] = value
                     del item["property"]
                 p[0].update(item)
@@ -480,7 +485,6 @@ class Column:
         """
         p[0] = p[1]
         p_list = list(p)
-
         pk, default, unique, references, nullable, index = self.get_column_properties(
             p_list
         )
