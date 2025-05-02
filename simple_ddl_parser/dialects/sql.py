@@ -1566,6 +1566,7 @@ class BaseSQL(
         | default id
         | DEFAULT ID EQ id_or_string
         | DEFAULT funct_expr
+        | DEFAULT dot_id
         | default dot_id
         """
         p_list = remove_par(list(p))

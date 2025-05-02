@@ -757,6 +757,58 @@ def test_autoincrement_order():
     }
     assert result == expected
 
+def test_table_with_sequence():
+    # test for 
+    ddl = """CREATE TABLE table (
+        surrogatekey_SK NUMBER(38,0) NOT NULL DEFAULT DBTEST.SCTEST.SQTEST.NEXTVAL COMMENT 'Record Identification Number',
+        myColumnComment VARCHAR(255) COMMENT 'Record Identification Number from Sequence')"""
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "comment": "'Record Identification Number'",
+                        "default": "DBTEST.SCTEST.SQTEST.NEXTVAL",
+                        "name": "surrogatekey_SK",
+                        "nullable": False,
+                        "references": None,
+                        "size": (38, 0),
+                        "type": "NUMBER",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "comment": "'Record Identification Number from Sequence'",
+                        "default": None,
+                        "name": "myColumnComment",
+                        "nullable": True,
+                        "references": None,
+                        "size": 255,
+                        "type": "VARCHAR",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "table",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected
+
+
 
 def test_autoincrement_noorder():
     # test for https://github.com/xnuinside/simple-ddl-parser/issues/208
