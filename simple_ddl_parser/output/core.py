@@ -71,17 +71,22 @@ class Output:
             # mean we have table
             statement_data["output_mode"] = self.output_mode
             table_data = TableData.init(**statement_data)
-            self.tables_dict[
-                get_table_id(
-                    schema_name=getattr(table_data, self.schema_key),
-                    table_name=table_data.table_name,
-                )
-            ] = table_data
-            data = table_data.to_dict()
+            table_id = get_table_id(
+                schema_name=getattr(table_data, self.schema_key),
+                table_name=table_data.table_name,
+            )
+            self.tables_dict[table_id] = table_data
+            data = table_data  # .to_dict()
         else:
             data = statement_data
             dialects_clean_up(self.output_mode, data)
         return data
+
+    def process_comments(self, statement: Dict):
+        table_name = statement["comment_on"]["table_name"]
+        schema = statement.get(self.schema_key) or statement["comment_on"].get("schema")
+        target_table = self.get_table_from_tables_data(schema, table_name)
+        target_table.append_statement_information_to_table(statement)
 
     def process_alter_and_index_result(self, table: Dict):
         if table.get("index_name"):
@@ -133,12 +138,24 @@ class Output:
             # process each item in parser output
             if "index_name" in statement or "alter_table_name" in statement:
                 self.process_alter_and_index_result(statement)
+            elif "comment_on" in statement:
+                self.process_comments(statement)
             else:
                 # process tables, types, sequence and etc. data
                 statement_data = self.process_statement_data(statement)
                 self.final_result.append(statement_data)
+
+        # Since we update the table.comment via "COMMENT ON" statements, we need to
+        # wait until all statements are processed, before transforming them to a dict.
+        # Otherwise the table comment wouldn't show up in the final result.
+        self.final_result = [
+            data.to_dict() if not isinstance(data, dict) else data
+            for data in self.final_result
+        ]
+
         if self.group_by_type:
             self.group_by_type_result()
+
         return self.final_result
 
 

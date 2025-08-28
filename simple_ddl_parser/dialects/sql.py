@@ -960,6 +960,29 @@ class AlterTable:
             p[0]["project"] = table_data["project"]
 
 
+class Comment:
+    def p_expression_comment_on(self, p: List):
+        """expr : COMMENT ON TABLE id IS STRING
+        | COMMENT ON TABLE id DOT id IS STRING
+        | COMMENT ON COLUMN id DOT id IS STRING
+        | COMMENT ON COLUMN id DOT id DOT id IS STRING
+        """
+        comment_on = {}
+        p[0] = {"comment_on": comment_on}
+        p_list = list(p)
+        obj_type = p_list[3]
+        comment_on["comment"] = p_list[-1]
+        comment_on["object_type"] = obj_type
+
+        if obj_type == "COLUMN":
+            comment_on["column_name"] = p_list[-3]
+            comment_on["table_name"] = p_list[-5]
+            comment_on["schema"] = p_list[-7] if len(p_list) > 9 else None
+        elif obj_type == "TABLE":
+            comment_on["table_name"] = p_list[-3]
+            comment_on["schema"] = p_list[-5] if len(p_list) > 7 else None
+
+
 class BaseSQL(
     Database,
     Table,
@@ -971,6 +994,7 @@ class BaseSQL(
     Type,
     Schema,
     TableSpaces,
+    Comment,
 ):
     def clean_up_id_list_in_equal(self, p_list: List) -> List:  # noqa R701
         if isinstance(p_list[1], str) and p_list[1].endswith("="):

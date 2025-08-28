@@ -216,9 +216,10 @@ class DDLParser(Parser, Dialects):
             t = self.tokens_not_columns_names(t)
 
         if self.lexer.is_alter:
-            _type = tok.alter_tokens.get(t.value)
-            if _type:
-                t.type = _type
+            t.type = tok.alter_tokens.get(t.value, t.type)
+
+        if self.lexer.is_comment:
+            t.type = tok.comment_on_tokens.get(t.value, t.type)
 
         self.capitalize_tokens(t)
         self.commat_type(t)
@@ -247,6 +248,8 @@ class DDLParser(Parser, Dialects):
 
         if t.type == "ALTER":
             self.lexer.is_alter = True
+        if t.type == "ON" and self.lexer.last_token == "COMMENT":
+            self.lexer.is_comment = True
         if t.type == "LIKE":
             self.lexer.is_like = True
         elif t.type in ["TYPE", "DOMAIN", "TABLESPACE"]:
