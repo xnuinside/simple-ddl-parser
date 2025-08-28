@@ -346,3 +346,103 @@ def test_two_defices_in_string_work_ok():
         }
     ]
     assert expected == parse_result
+
+
+def test_comment_on_table():
+    ddl = """
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100)
+    );
+
+    COMMENT ON TABLE users IS 'User information table';
+    """
+
+    parse_result = DDLParser(ddl).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "SERIAL",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "name",
+                    "type": "VARCHAR",
+                    "size": 100,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": ["id"],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "schema": None,
+            "partitioned_by": [],
+            "table_name": "users",
+            "tablespace": None,
+            "comment": "User information table",
+        }
+    ]
+    assert expected == parse_result
+
+
+def test_comment_on_columns():
+    ddl = """
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100)
+    );
+
+    COMMENT ON COLUMN users.id IS 'Primary key for user identification, e.g. ''abcde''';
+    COMMENT ON COLUMN users.name IS 'User name (first name, last name)';
+    """
+
+    parse_result = DDLParser(ddl).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "SERIAL",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                    "comment": "Primary key for user identification, e.g. ''abcde''",
+                },
+                {
+                    "name": "name",
+                    "type": "VARCHAR",
+                    "size": 100,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "comment": "User name (first name, last name)",
+                },
+            ],
+            "primary_key": ["id"],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "schema": None,
+            "partitioned_by": [],
+            "table_name": "users",
+            "tablespace": None,
+        }
+    ]
+    assert expected == parse_result

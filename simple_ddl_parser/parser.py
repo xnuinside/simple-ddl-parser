@@ -177,22 +177,33 @@ class Parser:
         # todo: not sure how to workaround ',' normal way
         if "input.regex" in data:
             data = self.process_regex_input(data)
-        quote_before = r"((?!\'[\w]*[\\']*[\w]*)"
-        quote_after = r"((?![\w]*[\\']*[\w]*\')))"
-        num = 0
-        # add space everywhere except strings
-        for symbol, replace_to in [
-            (r"(,)+", " , "),
-            (r"((\()){1}", " ( "),
-            (r"((\))){1}", " ) "),
-        ]:
-            num += 1
-            if num == 2:
-                # need for correct work with `(`` but not need in other symbols
-                quote_after_use = quote_after.replace(")))", "))*)")
+
+        # Process the string character by character to handle quoted sections
+        result = []
+        in_quote = False
+        i = 0
+        symbol_spacing_map = {
+            ",": " , ",
+            "(": " ( ",
+            ")": " ) ",
+        }
+        while i < len(data):
+            char = data[i]
+
+            # Handle quote start/end
+            if char == "'" and (i == 0 or data[i - 1] != "\\"):
+                in_quote = not in_quote
+                result.append(char)
+            # Handle symbols that need spacing
+            elif not in_quote and char in symbol_spacing_map:
+                result.append(symbol_spacing_map[char])
+            # Keep all other characters as-is
             else:
-                quote_after_use = quote_after
-            data = re.sub(quote_before + symbol + quote_after_use, replace_to, data)
+                result.append(char)
+
+            i += 1
+
+        data = "".join(result)
 
         if data.count("'") % 2 != 0:
             data = data.replace("\\'", "pars_m_single")
@@ -333,6 +344,7 @@ class Parser:
             "lp_open",
             "is_alter",
             "is_like",
+            "is_comment",
         ]
         for attr in attrs:
             setattr(self.lexer, attr, False)
