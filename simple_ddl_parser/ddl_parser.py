@@ -248,14 +248,14 @@ class DDLParser(Parser, Dialects):
 
         if t.type == "ALTER":
             self.lexer.is_alter = True
-        if t.type == "ON" and self.lexer.last_token == "COMMENT":
-            self.lexer.is_comment = True
         if t.type == "LIKE":
             self.lexer.is_like = True
         elif t.type in ["TYPE", "DOMAIN", "TABLESPACE"]:
             self.lexer.is_table = False
         elif t.type in ["TABLE", "INDEX"] and not self.lexer.is_alter:
             self.lexer.is_table = True
+        elif t.type == "COMMENT":
+            self.lexer.is_comment = True
 
     def set_last_token(self, t: LexToken):
         self.lexer.last_token = t.type
