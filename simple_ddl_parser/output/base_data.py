@@ -285,13 +285,13 @@ class BaseData:
 
     def set_table_comment(self, statement: Dict) -> None:
         comment = statement["comment_on"]
-        self.comment = comment["comment"][1:-1]
+        self.comment = comment["comment"]
 
     def set_column_comments(self, statement: Dict) -> None:
         comment = statement["comment_on"]
         for column in self.columns:
             if column["name"] == comment["column_name"]:
-                column["comment"] = comment["comment"][1:-1]
+                column["comment"] = comment["comment"]
                 break
 
     def set_default_columns_from_alter(self, statement: Dict) -> None:
