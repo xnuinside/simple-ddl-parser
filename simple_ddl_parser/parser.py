@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import re
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 from ply import lex, yacc
 
@@ -18,6 +18,8 @@ CL_COM = "*/"
 
 IN_COM = "--"
 MYSQL_COM = "#"
+
+LF_IN_QUOTE = r"\N"
 
 
 def set_logging_config(
@@ -173,7 +175,7 @@ class Parser:
         return data
 
     def pre_process_data(self, data):
-        data = data.decode("utf-8")
+        data = cast(str, data.decode("utf-8"))
         # todo: not sure how to workaround ',' normal way
         if "input.regex" in data:
             data = self.process_regex_input(data)
@@ -182,21 +184,35 @@ class Parser:
         result = []
         in_quote = False
         i = 0
-        symbol_spacing_map = {
-            ",": " , ",
-            "(": " ( ",
-            ")": " ) ",
-        }
+        symbol_spacing_map = {",", "(", ")"}
+
+        # Special handling for odd number of single quotes
+        if data.count("'") % 2 != 0:
+            data = data.replace("\\'", "pars_m_single")
+
         while i < len(data):
             char = data[i]
+            startswith = data[i:].startswith
 
             # Handle quote start/end
-            if char == "'" and (i == 0 or data[i - 1] != "\\"):
+            if char == "'":
                 in_quote = not in_quote
                 result.append(char)
+
+            # Handle line feeds in quotes
+            elif in_quote and startswith("\\n"):
+                result.append(LF_IN_QUOTE)
+                i += 1
+
+            # Handle special unicode quotes
+            elif not in_quote and (startswith(r"\u2018") or startswith(r"\u2019")):
+                result.append("'")
+                i += 5
+
             # Handle symbols that need spacing
             elif not in_quote and char in symbol_spacing_map:
-                result.append(symbol_spacing_map[char])
+                result.append(f" {char} ")
+
             # Keep all other characters as-is
             else:
                 result.append(char)
@@ -204,15 +220,8 @@ class Parser:
             i += 1
 
         data = "".join(result)
-
-        if data.count("'") % 2 != 0:
-            data = data.replace("\\'", "pars_m_single")
         data = (
             data.replace("\\x", "\\0")
-            .replace("‘", "'")
-            .replace("’", "'")
-            .replace("\\u2018", "'")
-            .replace("\\u2019", "'")
             .replace("'\\t'", "'pars_m_t'")
             .replace("\\t", " ")
         )
@@ -296,7 +305,13 @@ class Parser:
     ) -> Tuple[Optional[str], bool]:
         self.pre_process_line()
 
-        self.line = self.line.strip().replace("\n", "").replace("\t", "")
+        # Remove whitespace, while preserving newlines in quotes
+        self.line = (
+            self.line.strip()
+            .replace("\n", "")
+            .replace("\t", "")
+            .replace(LF_IN_QUOTE, "\\n")
+        )
         self.skip = self.check_line_on_skip_words()
 
         self.parse_set_statement()

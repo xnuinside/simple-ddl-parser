@@ -971,7 +971,9 @@ class Comment:
         p[0] = {"comment_on": comment_on}
         p_list = list(p)
         obj_type = p_list[3]
-        comment_on["comment"] = p_list[-1]
+
+        # Cleanse comment quotes and handle escaped quotes
+        comment_on["comment"] = p_list[-1][1:-1].replace("''", "'")
         comment_on["object_type"] = obj_type
 
         if obj_type == "COLUMN":
@@ -1055,7 +1057,7 @@ class BaseSQL(
         """
         p_list = list(p)
 
-        if not p_list[-1] in [")", "]"]:
+        if p_list[-1] not in [")", "]"]:
             p[0] = {p[1]: p_list[-1]}
         else:
             if len(p_list) > 6 and isinstance(p_list[5], list):
