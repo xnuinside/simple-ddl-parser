@@ -204,6 +204,10 @@ class Parser:
                 result.append(LF_IN_QUOTE)
                 i += 1
 
+            # Handle equal sign in quotes
+            elif in_quote and char == "=":
+                result.append("\\03d")
+
             # Handle special unicode quotes
             elif not in_quote and (startswith(r"\u2018") or startswith(r"\u2019")):
                 result.append("'")
