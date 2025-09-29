@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from simple_ddl_parser.utils import remove_par
+from simple_ddl_parser.utils import check_spec, remove_par
 
 
 # todo: move to utils module
@@ -228,4 +228,4 @@ class Snowflake:
         else:
             for i in p[3 : len(p) - 1]:  # noqa: E203
                 _as += i if isinstance(i, str) else ",".join(i)
-        p[0] = {"generated": {"as": _as}}
+        p[0] = {"generated": {"as": check_spec(_as)}}

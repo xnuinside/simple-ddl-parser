@@ -1677,6 +1677,8 @@ class BaseSQL(
         if len(p) > 3 and p_list[-1].lower() == "stored":
             stored = True
         _as = p[2]
+        if isinstance(_as, str):
+            _as = check_spec(_as)
 
         p[0] = {"generated": {"always": True, "as": _as, "stored": stored}}
 
