@@ -29,13 +29,11 @@ url = "https://pypi.org/simple/"
 python = "^3.9"
 ply = "^3.11"
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.0"
-m2r = "^0.3.1"
-twine = "^3.3.0"
-black = "^20.8b1"
-flake8 = "^4.0.1"
-mistune = "0.8.4"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+twine = "^6.0"
+black = "^24.0"
+flake8 = "^7.0"
 
 [tool.poetry.scripts]
 sdp = 'simple_ddl_parser.cli:main'
