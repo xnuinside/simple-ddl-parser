@@ -346,3 +346,198 @@ def test_two_defices_in_string_work_ok():
         }
     ]
     assert expected == parse_result
+
+
+def test_comment_on_table():
+    ddl = """
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100)
+    );
+
+    COMMENT ON TABLE users IS 'User information table';
+    """
+
+    parse_result = DDLParser(ddl, silent=False).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "SERIAL",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "name",
+                    "type": "VARCHAR",
+                    "size": 100,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "primary_key": ["id"],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "schema": None,
+            "partitioned_by": [],
+            "table_name": "users",
+            "tablespace": None,
+            "comment": "User information table",
+        }
+    ]
+    assert expected == parse_result
+
+
+def test_comment_on_columns_with_special_quotes():
+    ddl = """
+    CREATE TABLE quoting (
+        quote1 VARCHAR(10),
+        quote2 VARCHAR(10),
+        quote3 VARCHAR(10),
+        quote4 VARCHAR(10)
+    );
+
+    COMMENT ON COLUMN quoting.quote1 IS 'Column with special quotes: ‘Hello, World!’';
+    COMMENT ON COLUMN quoting.quote2 IS 'Column with special quotes: ''Hello, World!''';
+    COMMENT ON COLUMN quoting.quote3 IS 'Column with special quotes: “Hello, World!”';
+    COMMENT ON COLUMN quoting.quote4 IS 'Column with special quotes: "Hello, World!"';
+    """
+    parse_result = DDLParser(ddl, silent=False).run()
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "check": None,
+                    "comment": "Column with special quotes: \\u2018Hello, World!\\u2019",
+                    "default": None,
+                    "name": "quote1",
+                    "nullable": True,
+                    "references": None,
+                    "size": 10,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "comment": "Column with special quotes: 'Hello, World!'",
+                    "default": None,
+                    "name": "quote2",
+                    "nullable": True,
+                    "references": None,
+                    "size": 10,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "comment": "Column with special quotes: \\u201cHello, World!\\u201d",
+                    "default": None,
+                    "name": "quote3",
+                    "nullable": True,
+                    "references": None,
+                    "size": 10,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "comment": 'Column with special quotes: "Hello, World!"',
+                    "default": None,
+                    "name": "quote4",
+                    "nullable": True,
+                    "references": None,
+                    "size": 10,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "quoting",
+            "tablespace": None,
+        },
+    ]
+    assert expected == parse_result
+
+
+def test_comment_on_columns():
+    ddl = """
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100),
+        market VARCHAR(2)
+    );
+
+    COMMENT ON COLUMN users.id IS 'Primary key for user identification';
+    COMMENT ON COLUMN users.name IS 'User name (first name, last name)';
+    COMMENT ON COLUMN users.market IS 'Market code, e.g.
+DE
+US
+IT
+PT
+UK
+IR';
+    """
+
+    parse_result = DDLParser(ddl, silent=False).run()
+    expected = [
+        {
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "SERIAL",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                    "comment": "Primary key for user identification",
+                },
+                {
+                    "name": "name",
+                    "type": "VARCHAR",
+                    "size": 100,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                    "comment": "User name (first name, last name)",
+                },
+                {
+                    "check": None,
+                    "comment": r"Market code, e.g.\nDE\nUS\nIT\nPT\nUK\nIR",
+                    "default": None,
+                    "name": "market",
+                    "nullable": True,
+                    "references": None,
+                    "size": 2,
+                    "type": "VARCHAR",
+                    "unique": False,
+                },
+            ],
+            "primary_key": ["id"],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "schema": None,
+            "partitioned_by": [],
+            "table_name": "users",
+            "tablespace": None,
+        }
+    ]
+    assert expected == parse_result

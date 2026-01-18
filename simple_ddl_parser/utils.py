@@ -37,6 +37,7 @@ _spec_mapper = {
     "'pars_m_n'": "'\n'",
     "'pars_m_dq'": '"',
     "pars_m_single": "'",
+    "\\03d": "=",
 }
 
 

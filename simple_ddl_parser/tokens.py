@@ -13,6 +13,7 @@ definition_statements = {
     "CLUSTERED",
     "SEQUENCE",
     "TABLESPACE",
+    "COMMENT",
 }
 
 definition_statements = {value: value for value in definition_statements}
@@ -89,6 +90,20 @@ first_liners = {
 }
 first_liners = {value: value for value in first_liners}
 
+comment_on_tokens = {
+    "ON",
+    "IS",
+    "TABLE",
+    "COLUMN",
+    "MATERIALIZED",
+    "VIEW",
+    "FUNCTION",
+    "INDEX",
+    "SCHEMA",
+    "SEQUENCE",
+    "PROCEDURE",
+}
+comment_on_tokens = {value: value for value in comment_on_tokens}
 
 common_statements.update(first_liners)
 definition_statements.update(common_statements)
@@ -169,6 +184,7 @@ tokens = tuple(
             "RT",
             "COMMAT",
             "EQ",
+            "IS",
         ],
         *definition_statements.values(),
         *common_statements.values(),
