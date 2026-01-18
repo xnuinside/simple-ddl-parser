@@ -128,12 +128,12 @@ class DDLParser(Parser, Dialects):
         return self.set_last_token(t)
 
     def t_STRING_BASE(self, t: LexToken) -> LexToken:
-        r"((\')([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}\[\]\/\\\"\#\*&^|?;±§@~]*)(\')){1}"
+        r"((\')([^\']*)(\')){1}"
         t.type = "STRING_BASE"
         return self.set_last_token(t)
 
     def t_DQ_STRING(self, t: LexToken) -> LexToken:
-        r"((\")([a-zA-Z_,`0-9:><\=\-\+.\~\%$\!() {}'\[\]\/\\\\#\*&^|?;±§@~]*)(\")){1}"
+        r"((\")([^\"]*)(\"))"
         t.type = "DQ_STRING"
         return self.set_last_token(t)
 

@@ -25,6 +25,8 @@
    - ADD COLUMN syntax (with COLUMN keyword)
    - DROP without COLUMN keyword (Oracle style)
    - Note: `dropped_columns` and `modified_columns` in output are now lists instead of single dicts
+4. Fixed BigQuery OPTIONS parsing with unicode characters (em-dash, etc.) - https://github.com/xnuinside/simple-ddl-parser/issues/298
+   - String literals now support any unicode characters in descriptions
 
 
 **v1.7.1**
