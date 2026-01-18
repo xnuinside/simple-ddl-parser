@@ -8,6 +8,14 @@
 
 ### New Features
 1. Added support for COMMENT ON syntax (TABLE, COLUMN, SCHEMA, DATABASE) - https://github.com/xnuinside/simple-ddl-parser/pull/301
+2. Added support for Informix/GBase 8s dialect - https://github.com/xnuinside/simple-ddl-parser/issues/299
+   - Informix data types: SERIAL, SERIAL8, BIGSERIAL, INT8, LVARCHAR, TEXT, BYTE, BLOB, CLOB, MONEY, NCHAR, NVARCHAR
+   - DATETIME YEAR TO SECOND/FRACTION/DAY syntax
+   - INTERVAL HOUR TO MINUTE/DAY TO DAY/YEAR TO MONTH syntax
+   - DEFAULT with Informix functions (TODAY, CURRENT, USER)
+   - Storage options: IN dbspace, EXTENT SIZE, NEXT SIZE, LOCK MODE
+   - GBase 8s Oracle-compatible types: VARCHAR2, NVARCHAR2, NUMBER
+   - GBase 8s virtual columns: column AS (expression), GENERATED ALWAYS AS (expression)
 
 ### Fixes
 1. Fixed Snowflake sequence NEXTVAL in column default value - https://github.com/xnuinside/simple-ddl-parser/pull/295

@@ -27,7 +27,7 @@ Parser supports:
 
 - SQL
 - HQL (Hive)
-- MSSQL dialec
+- MSSQL dialect
 - Oracle dialect
 - MySQL dialect
 - PostgreSQL dialect
@@ -36,6 +36,7 @@ Parser supports:
 - Snowflake
 - SparkSQL
 - IBM DB2 dialect
+- Informix/GBase 8s dialect
 
 You can check dialects sections after `Supported Statements` section to get more information that statements from dialects already supported by parser. If you need to add more statements or new dialects - feel free to open the issue. 
 
@@ -454,6 +455,21 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - OPTION in CREATE SCHEMA statement
 - OPTION in CREATE TABLE statement
 - OPTION in column definition statement
+
+### Informix/GBase 8s
+
+Informix is an IBM relational database. GBase 8s is a Chinese enterprise database based on Informix with Oracle compatibility features.
+
+Supported Informix-specific features:
+- Data types: SERIAL, SERIAL8, BIGSERIAL, INT8, LVARCHAR, TEXT, BYTE, BLOB, CLOB, MONEY, NCHAR, NVARCHAR
+- DATETIME with qualifiers: DATETIME YEAR TO SECOND, DATETIME YEAR TO FRACTION(n), DATETIME YEAR TO DAY
+- INTERVAL types: INTERVAL HOUR TO MINUTE, INTERVAL DAY TO DAY, INTERVAL YEAR TO MONTH
+- DEFAULT with Informix functions: TODAY, CURRENT, USER
+- Storage options: IN dbspace, EXTENT SIZE, NEXT SIZE, LOCK MODE
+
+GBase 8s Oracle-compatible features:
+- Data types: VARCHAR2, NVARCHAR2, NUMBER
+- Virtual columns: `column_name AS (expression)`, `GENERATED ALWAYS AS (expression)`
 
 ### Parser settings
 
