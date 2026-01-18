@@ -489,6 +489,15 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/kalyan939
 
 ## Changelog
+**v1.8.0**
+### Important
+1. Python 3.7 and 3.8 support is deprecated. Minimum supported version is now Python 3.9.
+
+### Improvements
+1. Added support for Python 3.13.
+2. Added tox configuration for testing across multiple Python versions (3.9-3.13).
+
+
 **v1.7.1**
 ### Fixes:
 1. Fix 'character set' issue - https://github.com/xnuinside/simple-ddl-parser/issues/288 
