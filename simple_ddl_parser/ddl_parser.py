@@ -216,9 +216,10 @@ class DDLParser(Parser, Dialects):
             t = self.tokens_not_columns_names(t)
 
         if self.lexer.is_alter:
-            _type = tok.alter_tokens.get(t.value)
-            if _type:
-                t.type = _type
+            t.type = tok.alter_tokens.get(t.value, t.type)
+
+        if self.lexer.is_comment:
+            t.type = tok.comment_on_tokens.get(t.value, t.type)
 
         self.capitalize_tokens(t)
         self.commat_type(t)
@@ -253,6 +254,8 @@ class DDLParser(Parser, Dialects):
             self.lexer.is_table = False
         elif t.type in ["TABLE", "INDEX"] and not self.lexer.is_alter:
             self.lexer.is_table = True
+        elif t.type == "COMMENT":
+            self.lexer.is_comment = True
 
     def set_last_token(self, t: LexToken):
         self.lexer.last_token = t.type
