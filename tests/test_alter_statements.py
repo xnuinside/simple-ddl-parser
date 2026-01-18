@@ -1928,16 +1928,18 @@ def test_drop_column():
         "tables": [
             {
                 "alter": {
-                    "dropped_columns": {
-                        "check": None,
-                        "default": None,
-                        "name": "DATETIME",
-                        "nullable": True,
-                        "references": None,
-                        "size": None,
-                        "type": "datetime",
-                        "unique": False,
-                    }
+                    "dropped_columns": [
+                        {
+                            "check": None,
+                            "default": None,
+                            "name": "DATETIME",
+                            "nullable": True,
+                            "references": None,
+                            "size": None,
+                            "type": "datetime",
+                            "unique": False,
+                        }
+                    ]
                 },
                 "checks": [],
                 "columns": [
@@ -1983,16 +1985,18 @@ def test_modify_column_sql_server():
         "tables": [
             {
                 "alter": {
-                    "modified_columns": {
-                        "check": None,
-                        "default": None,
-                        "name": "REGIONID",
-                        "nullable": True,
-                        "references": None,
-                        "size": None,
-                        "type": "varchar",
-                        "unique": False,
-                    }
+                    "modified_columns": [
+                        {
+                            "check": None,
+                            "default": None,
+                            "name": "REGIONID",
+                            "nullable": True,
+                            "references": None,
+                            "size": None,
+                            "type": "varchar",
+                            "unique": False,
+                        }
+                    ]
                 },
                 "checks": [],
                 "columns": [
@@ -2048,16 +2052,18 @@ def test_modify_alter():
         "tables": [
             {
                 "alter": {
-                    "modified_columns": {
-                        "check": None,
-                        "default": None,
-                        "name": "REGIONID",
-                        "nullable": True,
-                        "references": None,
-                        "size": None,
-                        "type": "varchar",
-                        "unique": False,
-                    }
+                    "modified_columns": [
+                        {
+                            "check": None,
+                            "default": None,
+                            "name": "REGIONID",
+                            "nullable": True,
+                            "references": None,
+                            "size": None,
+                            "type": "varchar",
+                            "unique": False,
+                        }
+                    ]
                 },
                 "checks": [],
                 "columns": [
@@ -2113,16 +2119,18 @@ def test_modify_oracle():
         "tables": [
             {
                 "alter": {
-                    "modified_columns": {
-                        "check": None,
-                        "default": None,
-                        "name": "REGIONID",
-                        "nullable": True,
-                        "references": None,
-                        "size": None,
-                        "type": "varchar",
-                        "unique": False,
-                    }
+                    "modified_columns": [
+                        {
+                            "check": None,
+                            "default": None,
+                            "name": "REGIONID",
+                            "nullable": True,
+                            "references": None,
+                            "size": None,
+                            "type": "varchar",
+                            "unique": False,
+                        }
+                    ]
                 },
                 "checks": [],
                 "columns": [
@@ -2159,3 +2167,137 @@ def test_modify_oracle():
         "types": [],
     }
     assert result == expected
+
+
+def test_alter_add_column_with_keyword():
+    """Test ALTER TABLE ADD COLUMN (with COLUMN keyword)."""
+    ddl = """
+    CREATE TABLE t (
+        id int,
+        col1 varchar
+    );
+    ALTER TABLE t ADD COLUMN col2 int;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert result["tables"][0]["alter"]["columns"][0]["name"] == "col2"
+    assert result["tables"][0]["alter"]["columns"][0]["type"] == "int"
+
+
+def test_alter_multiple_add_operations():
+    """Test ALTER TABLE with multiple ADD operations."""
+    ddl = """
+    CREATE TABLE t (
+        id int
+    );
+    ALTER TABLE t ADD col1 int, ADD col2 varchar;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    columns = result["tables"][0]["alter"]["columns"]
+    assert len(columns) == 2
+    assert columns[0]["name"] == "col1"
+    assert columns[0]["type"] == "int"
+    assert columns[1]["name"] == "col2"
+    assert columns[1]["type"] == "varchar"
+
+
+def test_alter_multiple_add_column_operations():
+    """Test ALTER TABLE with multiple ADD COLUMN operations (with keyword)."""
+    ddl = """
+    CREATE TABLE t (
+        id int
+    );
+    ALTER TABLE t ADD COLUMN col1 int, ADD COLUMN col2 varchar;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    columns = result["tables"][0]["alter"]["columns"]
+    assert len(columns) == 2
+    assert columns[0]["name"] == "col1"
+    assert columns[1]["name"] == "col2"
+
+
+def test_alter_drop_without_column_keyword():
+    """Test ALTER TABLE DROP (without COLUMN keyword, Oracle style)."""
+    ddl = """
+    CREATE TABLE t (
+        id int,
+        col1 varchar
+    );
+    ALTER TABLE t DROP col1;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    dropped = result["tables"][0]["alter"]["dropped_columns"]
+    assert len(dropped) == 1
+    assert dropped[0]["name"] == "col1"
+
+
+def test_alter_multiple_drop_operations():
+    """Test ALTER TABLE with multiple DROP operations."""
+    ddl = """
+    CREATE TABLE t (
+        id int,
+        col1 varchar,
+        col2 int
+    );
+    ALTER TABLE t DROP COLUMN col1, DROP COLUMN col2;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    dropped = result["tables"][0]["alter"]["dropped_columns"]
+    assert len(dropped) == 2
+    assert dropped[0]["name"] == "col1"
+    assert dropped[1]["name"] == "col2"
+    # Also verify columns are removed from the table
+    columns = result["tables"][0]["columns"]
+    assert len(columns) == 1
+    assert columns[0]["name"] == "id"
+
+
+def test_alter_multiple_modify_operations():
+    """Test ALTER TABLE with multiple MODIFY COLUMN operations."""
+    ddl = """
+    CREATE TABLE t (
+        col1 varchar,
+        col2 varchar
+    );
+    ALTER TABLE t MODIFY COLUMN col1 int, MODIFY COLUMN col2 int;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    modified = result["tables"][0]["alter"]["modified_columns"]
+    assert len(modified) == 2
+    assert modified[0]["name"] == "col1"
+    assert modified[1]["name"] == "col2"
+    # Verify columns are updated
+    columns = result["tables"][0]["columns"]
+    assert columns[0]["type"] == "int"
+    assert columns[1]["type"] == "int"
+
+
+def test_alter_multiple_modify_oracle_style():
+    """Test ALTER TABLE with multiple MODIFY operations (Oracle style, no COLUMN)."""
+    ddl = """
+    CREATE TABLE t (
+        col1 varchar,
+        col2 varchar
+    );
+    ALTER TABLE t MODIFY col1 int, MODIFY col2 int;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    modified = result["tables"][0]["alter"]["modified_columns"]
+    assert len(modified) == 2
+    assert modified[0]["name"] == "col1"
+    assert modified[1]["name"] == "col2"
+
+
+def test_alter_multiple_alter_column_sql_server():
+    """Test ALTER TABLE with multiple ALTER COLUMN operations (SQL Server style)."""
+    ddl = """
+    CREATE TABLE t (
+        col1 varchar,
+        col2 varchar
+    );
+    ALTER TABLE t ALTER COLUMN col1 int, ALTER COLUMN col2 int;
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    modified = result["tables"][0]["alter"]["modified_columns"]
+    assert len(modified) == 2
+    assert modified[0]["name"] == "col1"
+    assert modified[1]["name"] == "col2"

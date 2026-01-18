@@ -3,10 +3,14 @@ from typing import List
 
 class MSSQL:
     def p_alter_column_sql_server(self, p: List) -> None:
-        """alter_column_sql_server : alt_table ALTER COLUMN defcolumn"""
+        """alter_column_sql_server : alt_table ALTER COLUMN defcolumn
+        | alter_column_sql_server COMMA ALTER COLUMN defcolumn
+        """
         p[0] = p[1]
         p_list = list(p)
-        p[0]["columns_to_modify"] = [p_list[-1]]
+        if not p[0].get("columns_to_modify"):
+            p[0]["columns_to_modify"] = []
+        p[0]["columns_to_modify"].append(p_list[-1])
 
     def p_pkey_constraint(self, p: List) -> None:
         """pkey_constraint : constraint pkey_statement id LP index_pid RP

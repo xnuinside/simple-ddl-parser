@@ -819,16 +819,26 @@ class AlterTable:
             p[0].update(p[2])
 
     def p_alter_column_modify(self, p: List) -> None:
-        """alter_column_modify : alt_table MODIFY COLUMN defcolumn"""
+        """alter_column_modify : alt_table MODIFY COLUMN defcolumn
+        | alter_column_modify COMMA MODIFY COLUMN defcolumn
+        """
         p[0] = p[1]
         p_list = list(p)
-        p[0]["columns_to_modify"] = [p_list[-1]]
+        if not p[0].get("columns_to_modify"):
+            p[0]["columns_to_modify"] = []
+        p[0]["columns_to_modify"].append(p_list[-1])
 
     def p_alter_drop_column(self, p: List) -> None:
-        """alter_drop_column : alt_table DROP COLUMN id"""
+        """alter_drop_column : alt_table DROP COLUMN id
+        | alt_table DROP id
+        | alter_drop_column COMMA DROP COLUMN id
+        | alter_drop_column COMMA DROP id
+        """
         p[0] = p[1]
         p_list = list(p)
-        p[0]["columns_to_drop"] = [p_list[-1]]
+        if not p[0].get("columns_to_drop"):
+            p[0]["columns_to_drop"] = []
+        p[0]["columns_to_drop"].append(p_list[-1])
 
     def p_alter_rename_column(self, p: List) -> None:
         """alter_rename_column : alt_table RENAME COLUMN id id id"""
@@ -837,10 +847,16 @@ class AlterTable:
         p[0]["columns_to_rename"] = [{"from": p_list[-3], "to": p_list[-1]}]
 
     def p_alter_column_add(self, p: List) -> None:
-        """alter_column_add : alt_table ADD defcolumn"""
+        """alter_column_add : alt_table ADD defcolumn
+        | alt_table ADD COLUMN defcolumn
+        | alter_column_add COMMA ADD defcolumn
+        | alter_column_add COMMA ADD COLUMN defcolumn
+        """
         p[0] = p[1]
         p_list = list(p)
-        p[0]["columns"] = [p_list[-1]]
+        if not p[0].get("columns"):
+            p[0]["columns"] = []
+        p[0]["columns"].append(p_list[-1])
 
     def p_alter_primary_key(self, p: List) -> None:
         """alter_primary_key : alt_table ADD PRIMARY KEY LP pid RP

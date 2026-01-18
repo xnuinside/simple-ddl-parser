@@ -110,6 +110,7 @@ definition_statements.update(common_statements)
 
 alter_tokens = {"COLUMN", "RENAME", "PRIMARY", "KEY", "MODIFY"}
 alter_tokens = {value: value for value in alter_tokens}
+alter_tokens[","] = "COMMA"
 
 after_columns_tokens = {
     "PARTITIONED",

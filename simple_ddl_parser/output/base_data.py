@@ -325,7 +325,7 @@ class BaseData:
                     index = num
                     break
             if index is not None:
-                self.alter[table_alter_key] = self.columns[index]
+                self.alter[table_alter_key].append(self.columns[index])
                 self.columns[index] = modified_column
 
     def alter_drop_columns(self, statement) -> None:
@@ -341,7 +341,7 @@ class BaseData:
                     col_index = num
                     break
             if col_index is not None:
-                self.alter[table_alter_key] = self.columns[col_index]
+                self.alter[table_alter_key].append(self.columns[col_index])
                 del self.columns[col_index]
 
     def alter_rename_columns(self, statement) -> None:

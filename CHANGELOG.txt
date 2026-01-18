@@ -6,6 +6,18 @@
 1. Added support for Python 3.13.
 2. Added tox configuration for testing across multiple Python versions (3.9-3.13).
 
+### New Features
+1. Added support for COMMENT ON syntax (TABLE, COLUMN, SCHEMA, DATABASE) - https://github.com/xnuinside/simple-ddl-parser/pull/301
+
+### Fixes
+1. Fixed Snowflake sequence NEXTVAL in column default value - https://github.com/xnuinside/simple-ddl-parser/pull/295
+2. Fixed escape sequence handling for '=' in generated column expressions.
+3. Added support for ALTER TABLE with multiple column operations (ADD, DROP, MODIFY) - https://github.com/xnuinside/simple-ddl-parser/issues/300
+   - Multiple ADD/DROP/MODIFY operations in a single ALTER statement (comma-separated)
+   - ADD COLUMN syntax (with COLUMN keyword)
+   - DROP without COLUMN keyword (Oracle style)
+   - Note: `dropped_columns` and `modified_columns` in output are now lists instead of single dicts
+
 
 **v1.7.1**
 ### Fixes:
