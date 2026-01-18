@@ -5,10 +5,14 @@ from simple_ddl_parser.utils import remove_par
 
 class Oracle:
     def p_alter_column_modify_oracle(self, p: List) -> None:
-        """alter_column_modify_oracle : alt_table MODIFY defcolumn"""
+        """alter_column_modify_oracle : alt_table MODIFY defcolumn
+        | alter_column_modify_oracle COMMA MODIFY defcolumn
+        """
         p[0] = p[1]
         p_list = list(p)
-        p[0]["columns_to_modify"] = [p_list[-1]]
+        if not p[0].get("columns_to_modify"):
+            p[0]["columns_to_modify"] = []
+        p[0]["columns_to_modify"].append(p_list[-1])
 
     def p_encrypt(self, p: List) -> None:
         """encrypt : ENCRYPT

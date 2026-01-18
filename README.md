@@ -291,17 +291,28 @@ For example:
 
 ### ALTER statements
 
-Right now added support only for ALTER statements with FOREIGEIN key
+Parser supports various ALTER TABLE statements:
 
-For example, if in your ddl after table definitions (create table statements) you have ALTER table statements like this:
+- **ADD COLUMN** - with or without COLUMN keyword
+- **DROP COLUMN** - with or without COLUMN keyword (Oracle style)
+- **MODIFY COLUMN** - with or without COLUMN keyword (Oracle style)
+- **ALTER COLUMN** - SQL Server style
+- **RENAME COLUMN**
+- **ADD FOREIGN KEY** - with or without CONSTRAINT
+- **ADD PRIMARY KEY** - with or without CONSTRAINT
+- **ADD UNIQUE**
+- **ADD CHECK**
+- **ADD DEFAULT**
+
+Multiple operations can be combined in a single ALTER statement using commas:
 
 ```sql
-
-ALTER TABLE "material_attachments" ADD FOREIGN KEY ("material_id", "material_title") REFERENCES "materials" ("id", "title");
-
+ALTER TABLE my_table ADD col1 int, ADD col2 varchar;
+ALTER TABLE my_table DROP COLUMN col1, DROP COLUMN col2;
+ALTER TABLE my_table MODIFY COLUMN col1 int, MODIFY COLUMN col2 varchar;
 ```
 
-This statements will be parsed and information about them putted inside 'alter' key in table's dict.
+All ALTER statements are parsed and information is stored in the 'alter' key of the table's dict.
 For example, please check alter statement tests - **tests/test_alter_statements.py**
 
 
