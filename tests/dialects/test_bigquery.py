@@ -1037,3 +1037,98 @@ def test_index_without_schema():
         }
     ]
     assert expected == result
+
+
+def test_options_with_unicode_characters():
+    """Test that OPTIONS with unicode characters like em-dash are parsed correctly.
+
+    Regression test for https://github.com/xnuinside/simple-ddl-parser/issues/298
+    """
+    ddl = """
+    CREATE TABLE `bigquery-public-data.noaa_gsod.gsod2000` (
+      stn STRING OPTIONS(description="Station number (WMO/DATSAV3 number) for the location"),
+      wban STRING OPTIONS(description="WBAN number where applicable\u2014this is the historical 'Weather Bureau Air Force Navy' number"),
+      temp FLOAT64 OPTIONS(description="Mean temperature for the day in degrees Fahrenheit. Missing = 9999.9"),
+    )
+    OPTIONS(
+      description="Global summary of day data for 18 surface meteorological elements"
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="bigquery")
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "stn",
+                        "nullable": True,
+                        "options": [
+                            {
+                                "description": '"Station number  ( WMO/DATSAV3 number )  '
+                                'for the location"'
+                            }
+                        ],
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "wban",
+                        "nullable": True,
+                        "options": [
+                            {
+                                "description": '"WBAN number where applicable\\u2014this is '
+                                "the historical 'Weather Bureau Air Force Navy' number\""
+                            }
+                        ],
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "temp",
+                        "nullable": True,
+                        "options": [
+                            {
+                                "description": '"Mean temperature for the day in degrees '
+                                'Fahrenheit. Missing = 9999.9"'
+                            }
+                        ],
+                        "references": None,
+                        "size": None,
+                        "type": "FLOAT64",
+                        "unique": False,
+                    },
+                ],
+                "dataset": "noaa_gsod",
+                "index": [],
+                "options": [
+                    {
+                        "description": '"Global summary of day data for 18 surface '
+                        'meteorological elements"'
+                    }
+                ],
+                "partitioned_by": [],
+                "primary_key": [],
+                "project": "`bigquery-public-data",
+                "table_name": "gsod2000`",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected
