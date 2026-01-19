@@ -779,3 +779,61 @@ def test_mysql_character_set():
         "types": [],
     }
     assert expected == result
+
+
+def test_unicode_right_single_quote_in_comment():
+    """Test for issue #297: Unicode right single quotation mark (U+2019) in COMMENT.
+
+    The parser should handle Unicode curly quotes inside string literals without
+    raising DDLParserError.
+    """
+    # U+2019 is RIGHT SINGLE QUOTATION MARK (')
+    ddl = "CREATE TABLE `example_table` (\n    `id` INT NOT NULL AUTO_INCREMENT,\n    `name` VARCHAR(255) NOT NULL COMMENT 'text with \u2019 curly quote',\n    PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+
+    result = DDLParser(ddl).run(output_mode="mysql")
+
+    assert len(result) == 1
+    assert result[0]["table_name"] == "`example_table`"
+    assert len(result[0]["columns"]) == 2
+
+    name_col = result[0]["columns"][1]
+    assert name_col["name"] == "`name`"
+    assert name_col["type"] == "VARCHAR"
+    # The comment should contain the escaped unicode character
+    assert "\\u2019" in name_col["comment"]
+
+
+def test_unicode_left_single_quote_in_comment():
+    """Test Unicode left single quotation mark (U+2018) in COMMENT."""
+    # U+2018 is LEFT SINGLE QUOTATION MARK (')
+    ddl = "CREATE TABLE t (`col` VARCHAR(100) COMMENT 'value with \u2018quote');"
+
+    result = DDLParser(ddl).run(output_mode="mysql")
+
+    assert len(result) == 1
+    assert result[0]["columns"][0]["name"] == "`col`"
+    assert "\\u2018" in result[0]["columns"][0]["comment"]
+
+
+def test_unicode_both_curly_quotes_in_comment():
+    """Test both Unicode curly quotes (U+2018 and U+2019) in COMMENT."""
+    # Using both left and right single quotation marks
+    ddl = "CREATE TABLE t (`col` VARCHAR(100) COMMENT 'text \u2018quoted\u2019 here');"
+
+    result = DDLParser(ddl).run(output_mode="mysql")
+
+    assert len(result) == 1
+    comment = result[0]["columns"][0]["comment"]
+    assert "\\u2018" in comment
+    assert "\\u2019" in comment
+
+
+def test_unicode_quotes_in_column_default():
+    """Test Unicode curly quotes in DEFAULT value."""
+    ddl = "CREATE TABLE t (`col` VARCHAR(100) DEFAULT 'it\u2019s a test');"
+
+    result = DDLParser(ddl).run(output_mode="mysql")
+
+    assert len(result) == 1
+    default_val = result[0]["columns"][0]["default"]
+    assert "\\u2019" in default_val
