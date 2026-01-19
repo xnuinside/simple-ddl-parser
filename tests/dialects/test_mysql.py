@@ -792,7 +792,7 @@ def test_unicode_right_single_quote_in_comment():
     # Using exact DDL from issue #297
     ddl = """CREATE TABLE `example_table` (
     `id` INT NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL COMMENT 'double width single quote \u2019 in comment',
+    `name` VARCHAR(255) NOT NULL COMMENT 'double width single quote ’ in comment',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"""
 
@@ -825,8 +825,8 @@ def test_unicode_right_single_quote_in_comment():
 
 def test_unicode_left_single_quote_in_comment():
     """Test Unicode left single quotation mark (U+2018) in COMMENT."""
-    # U+2018 is LEFT SINGLE QUOTATION MARK (')
-    ddl = "CREATE TABLE t (`col` VARCHAR(100) COMMENT 'value with \u2018quote');"
+    # U+2018 is LEFT SINGLE QUOTATION MARK (‘)
+    ddl = """CREATE TABLE t (`col` VARCHAR(100) COMMENT 'value with ‘ quote');"""
 
     result = DDLParser(ddl).run(output_mode="mysql")
 
@@ -837,8 +837,8 @@ def test_unicode_left_single_quote_in_comment():
 
 def test_unicode_both_curly_quotes_in_comment():
     """Test both Unicode curly quotes (U+2018 and U+2019) in COMMENT."""
-    # Using both left and right single quotation marks
-    ddl = "CREATE TABLE t (`col` VARCHAR(100) COMMENT 'text \u2018quoted\u2019 here');"
+    # Using both left (‘) and right (’) single quotation marks
+    ddl = """CREATE TABLE t (`col` VARCHAR(100) COMMENT 'text ‘quoted’ here');"""
 
     result = DDLParser(ddl).run(output_mode="mysql")
 
@@ -850,7 +850,7 @@ def test_unicode_both_curly_quotes_in_comment():
 
 def test_unicode_quotes_in_column_default():
     """Test Unicode curly quotes in DEFAULT value."""
-    ddl = "CREATE TABLE t (`col` VARCHAR(100) DEFAULT 'it\u2019s a test');"
+    ddl = """CREATE TABLE t (`col` VARCHAR(100) DEFAULT 'it’s a test');"""
 
     result = DDLParser(ddl).run(output_mode="mysql")
 
