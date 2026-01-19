@@ -786,9 +786,15 @@ def test_unicode_right_single_quote_in_comment():
 
     The parser should handle Unicode curly quotes inside string literals without
     raising DDLParserError.
+    https://github.com/xnuinside/simple-ddl-parser/issues/297
     """
     # U+2019 is RIGHT SINGLE QUOTATION MARK (')
-    ddl = "CREATE TABLE `example_table` (\n    `id` INT NOT NULL AUTO_INCREMENT,\n    `name` VARCHAR(255) NOT NULL COMMENT 'text with \u2019 curly quote',\n    PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+    # Using exact DDL from issue #297
+    ddl = """CREATE TABLE `example_table` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL COMMENT 'double width single quote \u2019 in comment',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"""
 
     result = DDLParser(ddl).run(output_mode="mysql")
 
@@ -796,11 +802,25 @@ def test_unicode_right_single_quote_in_comment():
     assert result[0]["table_name"] == "`example_table`"
     assert len(result[0]["columns"]) == 2
 
+    # Check id column
+    id_col = result[0]["columns"][0]
+    assert id_col["name"] == "`id`"
+    assert id_col["type"] == "INT"
+    assert id_col["autoincrement"] is True
+
+    # Check name column with unicode quote in comment
     name_col = result[0]["columns"][1]
     assert name_col["name"] == "`name`"
     assert name_col["type"] == "VARCHAR"
+    assert name_col["size"] == 255
+    assert name_col["nullable"] is False
     # The comment should contain the escaped unicode character
-    assert "\\u2019" in name_col["comment"]
+    assert name_col["comment"] == "'double width single quote \\u2019 in comment'"
+
+    # Check table properties
+    assert result[0]["primary_key"] == ["`id`"]
+    assert result[0]["engine"] == "InnoDB"
+    assert result[0]["default_charset"] == "utf8mb4"
 
 
 def test_unicode_left_single_quote_in_comment():
