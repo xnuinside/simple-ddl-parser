@@ -857,3 +857,41 @@ def test_unicode_quotes_in_column_default():
     assert len(result) == 1
     default_val = result[0]["columns"][0]["default"]
     assert "\\u2019" in default_val
+
+
+def test_character_set_table_option():
+    """Test for issue #296: CHARACTER SET table option without DEFAULT.
+
+    Parser should handle table-level CHARACTER SET = value syntax.
+    https://github.com/xnuinside/simple-ddl-parser/issues/296
+    """
+    ddl = """
+    CREATE TABLE `tab_space_station_common_info` (
+      `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+      `col1` varchar(16) NULL DEFAULT NULL,
+      PRIMARY KEY (`id`) USING BTREE
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4;
+    """
+    result = DDLParser(ddl).run(output_mode="mysql")
+
+    assert len(result) == 1
+    assert result[0]["table_name"] == "`tab_space_station_common_info`"
+    assert result[0]["engine"] == "InnoDB"
+    assert result[0]["character"] == "utf8mb4"
+    assert len(result[0]["columns"]) == 2
+    assert result[0]["primary_key"] == ["`id`"]
+
+
+def test_character_set_and_collate_table_options():
+    """Test CHARACTER SET and COLLATE table options together."""
+    ddl = """
+    CREATE TABLE `test_table` (
+      `id` int(11) NOT NULL
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+    """
+    result = DDLParser(ddl).run(output_mode="mysql")
+
+    assert len(result) == 1
+    assert result[0]["engine"] == "InnoDB"
+    assert result[0]["character"] == "utf8mb4"
+    assert result[0]["table_properties"]["collate"] == "utf8mb4_unicode_ci"

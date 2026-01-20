@@ -93,6 +93,9 @@ class MySQL(Dialect):
     default_charset: Optional[str] = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
+    character: Optional[str] = field(
+        default=None, metadata={"exclude_if_not_provided": True}
+    )
     auto_increment: Optional[str] = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )

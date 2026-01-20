@@ -153,6 +153,8 @@ after_columns_tokens = {
     "ENGINE",
     "IN",
     "ESCAPED",
+    # mysql - for CHARACTER SET table option
+    "SET",
 }
 after_columns_tokens = {value: value for value in after_columns_tokens}
 
