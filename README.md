@@ -1,6 +1,6 @@
 ## Simple DDL Parser
 
-[![PyPI](https://img.shields.io/pypi/v/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![License](https://img.shields.io/pypi/l/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Python Versions](https://img.shields.io/pypi/pyversions/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml)
+[![PyPI](https://img.shields.io/pypi/v/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![License](https://img.shields.io/pypi/l/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Python Versions](https://img.shields.io/pypi/pyversions/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/ci-tests-runner.yml)
 
 Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 

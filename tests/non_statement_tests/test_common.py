@@ -36,7 +36,9 @@ CREATE PABLE foo
 
 
 def test_flag_normalize_names():
-    ddl = ddl = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
+    ddl = (
+        ddl
+    ) = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
     SET ANSI_NULLS ON
     GO
     SET QUOTED_IDENTIFIER ON

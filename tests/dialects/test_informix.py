@@ -8,6 +8,7 @@ References:
 - https://www.ibm.com/docs/en/informix-servers/14.10.0
 - https://www.oninit.com/manual/informix/
 """
+
 from simple_ddl_parser import DDLParser
 
 

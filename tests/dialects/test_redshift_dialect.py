@@ -489,8 +489,6 @@ def test_interleaved_sortkey_also_ok():
                 "distkey": None,
                 "diststyle": "all",
                 "encode": None,
-                "row_format": None,
-                "stored_as": None,
                 "index": [],
                 "partitioned_by": [],
                 "primary_key": [],
