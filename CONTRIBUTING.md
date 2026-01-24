@@ -3,7 +3,7 @@
 Anyone who want to add new statements support or improve library anyhow - can do this.
 
 Please describe issue that you want to solve and open the PR, I will review it as soon as possible.
-Please, if you add support for new statements or any new features - don't forget to add tests for them. And run flake8 check before open the PR. Thank you!
+Please, if you add support for new statements or any new features - don't forget to add tests for them. And run ruff/black before open the PR. Thank you!
 
 Any questions? Ping me in Telegram: https://t.me/xnuinside 
 
@@ -25,7 +25,7 @@ There is a lot of way how you can contribute to any project (not only in this), 
 
 3) When you prepare PR with some new statements do not forget create test to them similar as already exists in tests/
 
-4) Before open the PR run flake8 check (it required and will be runs in Actions on PR in GitHub)
+4) Before open the PR run ruff/black (it required and will be runs in Actions on PR in GitHub)
 
 5) Do not forget add changes to CHANGELOG.txt
 

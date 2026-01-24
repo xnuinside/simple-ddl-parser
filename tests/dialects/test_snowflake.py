@@ -757,8 +757,9 @@ def test_autoincrement_order():
     }
     assert result == expected
 
+
 def test_table_with_sequence():
-    # test for 
+    # test for
     ddl = """CREATE TABLE table (
         surrogatekey_SK NUMBER(38,0) NOT NULL DEFAULT DBTEST.SCTEST.SQTEST.NEXTVAL COMMENT 'Record Identification Number',
         myColumnComment VARCHAR(255) COMMENT 'Record Identification Number from Sequence')"""
@@ -807,7 +808,6 @@ def test_table_with_sequence():
         "types": [],
     }
     assert result == expected
-
 
 
 def test_autoincrement_noorder():
@@ -1037,8 +1037,9 @@ def test_virtual_column_ext_table():
                     "generated": {
                         "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)"
                     },
-                }],
-             "partitioned_by": [],
+                }
+            ],
+            "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,
             "schema": "TABLE_DATA_SRC",
@@ -1046,10 +1047,10 @@ def test_virtual_column_ext_table():
             "tablespace": None,
             "external": True,
             "if_not_exists": True,
-            "index" : [],
+            "index": [],
             "location": "@StageName",
             "table_properties": {
-                 "file_format": {
+                "file_format": {
                     "TYPE": "JSON",
                     "NULL_IF": "()",
                     "STRIP_OUTER_ARRAY": "TRUE",
@@ -1090,8 +1091,9 @@ def test_virtual_column_ext_table():
                     "generated": {
                         "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)"
                     },
-                }],
-             "partitioned_by": [],
+                }
+            ],
+            "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,
             "schema": "TABLE_DATA_SRC",
@@ -1099,10 +1101,10 @@ def test_virtual_column_ext_table():
             "tablespace": None,
             "external": True,
             "if_not_exists": True,
-            "index" : [],
+            "index": [],
             "location": "@db.schema.StageName/year=2024",
             "table_properties": {
-                 "file_format": {
+                "file_format": {
                     "TYPE": "JSON",
                     "NULL_IF": "()",
                     "STRIP_OUTER_ARRAY": "TRUE",
@@ -1143,8 +1145,9 @@ def test_virtual_column_ext_table():
                     "generated": {
                         "as": "SPLIT_PART(SPLIT_PART(METADATA$FILENAME,'/',1),'=',2)"
                     },
-                }],
-             "partitioned_by": [],
+                }
+            ],
+            "partitioned_by": [],
             "primary_key": [],
             "primary_key_enforced": None,
             "schema": "TABLE_DATA_SRC",
@@ -1152,10 +1155,10 @@ def test_virtual_column_ext_table():
             "tablespace": None,
             "external": True,
             "if_not_exists": True,
-            "index" : [],
+            "index": [],
             "location": "@Db.Schema.StageName/year=2024/",
             "table_properties": {
-                 "file_format": {
+                "file_format": {
                     "TYPE": "JSON",
                     "NULL_IF": "()",
                     "STRIP_OUTER_ARRAY": "TRUE",
@@ -1165,6 +1168,7 @@ def test_virtual_column_ext_table():
     ]
 
     assert result_fm3 == expected_fm3
+
 
 def test_virtual_column_table():
     ddl = """
@@ -1215,13 +1219,15 @@ def test_virtual_column_table():
                 {
                     "name": "year",
                     "type": "NUMBER",
-                    "size": (38,0),
+                    "size": (38, 0),
                     "references": None,
                     "unique": False,
                     "nullable": True,
                     "default": None,
                     "check": None,
-                    "generated": {"as": "EXTRACT(year from METADATA$FILE_LAST_MODIFIED)"},
+                    "generated": {
+                        "as": "EXTRACT(year from METADATA$FILE_LAST_MODIFIED)"
+                    },
                 },
                 {
                     "name": "PERIOD",
@@ -1234,7 +1240,7 @@ def test_virtual_column_table():
                     "check": None,
                     "generated": {"as": "CAST(col1ASVARCHAR(16777216))"},
                 },
-                 {
+                {
                     "name": "field",
                     "type": "VARCHAR",
                     "size": 205,
@@ -1292,19 +1298,20 @@ def test_schema_create_if_not_exists():
 
     assert expected == result
 
+
 def test_schema_create_if_not_exists_options():
     ddl = """
     create schema if not exists myschema comment = 'mycomment'  tag (demo = 'test');
     """
-    schema_if_not_exists = DDLParser(ddl).run(output_mode="snowflake") 
+    schema_if_not_exists = DDLParser(ddl).run(output_mode="snowflake")
     expected = [
         {
-            'if_not_exists': True, 
-            'schema_name': 'myschema', 
-            'comment': "'mycomment'",
-            'with_tag': "demo='test'",
-            }
-        ] 
+            "if_not_exists": True,
+            "schema_name": "myschema",
+            "comment": "'mycomment'",
+            "with_tag": "demo='test'",
+        }
+    ]
 
     assert schema_if_not_exists == expected
 

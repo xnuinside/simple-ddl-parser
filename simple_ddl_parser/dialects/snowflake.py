@@ -214,7 +214,9 @@ class Snowflake:
         | id LP id LP recursive_pid RP AS recursive_pid RP
         """
         p_list = list(p)
-        items = [item if isinstance(item, str) else ",".join(item) for item in p_list[1:]]
+        items = [
+            item if isinstance(item, str) else ",".join(item) for item in p_list[1:]
+        ]
         p[0] = "".join(items)
 
     def p_as_virtual(self, p: List):

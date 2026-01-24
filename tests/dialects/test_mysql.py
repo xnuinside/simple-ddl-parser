@@ -544,9 +544,10 @@ def test_auto_increment_table_property():
             "index": [
                 {
                     "clustered": False,
-                    "columns": ["`user_id`"],
+                    "columns": ["`user_id`", "`user_name`"],
                     "detailed_columns": [
-                        {"name": "`user_id`", "nulls": "LAST", "order": "ASC"}
+                        {"name": "`user_id`", "nulls": "LAST", "order": "ASC"},
+                        {"name": "`user_name`", "nulls": "LAST", "order": "ASC"},
                     ],
                     "index_name": "`FK_authority`",
                     "unique": False,
@@ -570,6 +571,30 @@ def test_auto_increment_table_property():
 
     result = DDLParser(ddl).run(output_mode="mysql")
     assert result == expected
+
+
+def test_mysql_composite_index_columns():
+    ddl = """CREATE TABLE `employee` (
+      `employee_id` int NOT NULL,
+      `first_name` varchar(50) NOT NULL,
+      `last_name` varchar(50) NOT NULL,
+      `job_id` int NOT NULL,
+      PRIMARY KEY (`employee_id`),
+      KEY `composite_full_name` (`first_name`,`last_name`),
+      KEY `idx_job_id` (`job_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"""
+
+    result = DDLParser(ddl).run(output_mode="mysql")
+    composite = next(
+        index
+        for index in result[0]["index"]
+        if index["index_name"] == "`composite_full_name`"
+    )
+    assert composite["columns"] == ["`first_name`", "`last_name`"]
+    assert composite["detailed_columns"] == [
+        {"name": "`first_name`", "nulls": "LAST", "order": "ASC"},
+        {"name": "`last_name`", "nulls": "LAST", "order": "ASC"},
+    ]
 
 
 def test_column_index():
