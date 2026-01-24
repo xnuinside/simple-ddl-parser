@@ -12,7 +12,21 @@ class MySQL:
         """expr : expr id EQ id_or_string"""
         p_list = list(p)
         p[0] = p[1]
-        p[0][p[2]] = p_list[-1]
+        if p[2].upper() == "CHARSET":
+            p[0]["default_charset"] = p_list[-1]
+        else:
+            p[0][p[2]] = p_list[-1]
+
+    def p_character_set(self, p: List) -> None:
+        """expr : expr id SET EQ id_or_string
+        | expr id SET id_or_string
+        """
+        p_list = list(p)
+        p[0] = p[1]
+        if p[2].upper() == "CHARACTER":
+            p[0]["character"] = p_list[-1]
+        else:
+            p[0][p[2]] = p_list[-1]
 
     def p_on_update(self, p: List) -> None:
         """on_update : ON UPDATE id

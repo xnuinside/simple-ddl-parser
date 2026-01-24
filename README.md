@@ -1,6 +1,6 @@
 ## Simple DDL Parser
 
-![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) ![workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)
+[![PyPI](https://img.shields.io/pypi/v/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![License](https://img.shields.io/pypi/l/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Python Versions](https://img.shields.io/pypi/pyversions/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml)
 
 Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
@@ -516,6 +516,15 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/kalyan939
 
 ## Changelog
+**v1.9.0**
+### Improvements
+1. Updated black dependency to >=24,<26 - https://github.com/xnuinside/simple-ddl-parser/pull/307
+2. Added tests for MySQL COMMENT with unicode quotes - https://github.com/xnuinside/simple-ddl-parser/pull/308
+
+### Fixes
+1. Fixed MySQL table CHARACTER SET/CHARSET option parsing - https://github.com/xnuinside/simple-ddl-parser/issues/296
+
+
 **v1.8.0**
 ### Important
 1. Python 3.7 and 3.8 support is deprecated. Minimum supported version is now Python 3.9.
