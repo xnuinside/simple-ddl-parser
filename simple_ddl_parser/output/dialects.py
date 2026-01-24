@@ -97,6 +97,17 @@ class MySQL(Dialect):
         default=None, metadata={"exclude_if_not_provided": True}
     )
 
+    def post_process(self) -> None:
+        character = None
+        if self.table_properties:
+            character = self.table_properties.pop("character", None)
+            if character is None:
+                character = self.table_properties.pop("charset", None)
+        if character and not self.default_charset:
+            self.default_charset = character
+            if isinstance(self.init_data, dict):
+                self.init_data["default_charset"] = character
+
 
 @dataclass
 @dialect(name="bigquery")

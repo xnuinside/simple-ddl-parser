@@ -151,6 +151,7 @@ after_columns_tokens = {
     "STAGE_FILE_FORMAT",
     "CATALOG",
     "ENGINE",
+    "SET",
     "IN",
     "ESCAPED",
 }

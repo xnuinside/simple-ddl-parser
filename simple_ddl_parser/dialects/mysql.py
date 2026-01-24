@@ -24,7 +24,7 @@ class MySQL:
         p_list = list(p)
         p[0] = p[1]
         if p[2].upper() == "CHARACTER":
-            p[0]["default_charset"] = p_list[-1]
+            p[0]["character"] = p_list[-1]
         else:
             p[0][p[2]] = p_list[-1]
 
