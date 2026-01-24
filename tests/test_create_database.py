@@ -45,3 +45,18 @@ def test_create_database_database():
     """
     result = DDLParser(ddl).run(group_by_type=True, output_mode="hql")
     assert expected == result
+
+
+def test_create_database_if_not_exists():
+    ddl = "CREATE DATABASE IF NOT EXISTS `employees`;"
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "ddl_properties": [],
+        "databases": [{"database_name": "`employees`", "if_not_exists": True}],
+    }
+    assert result == expected
