@@ -40,7 +40,6 @@ def dialect(name: str) -> Callable:
 
 
 class Dialect(BaseData):
-
     """abstract class to implement Dialect"""
 
     def post_process(self) -> None:
