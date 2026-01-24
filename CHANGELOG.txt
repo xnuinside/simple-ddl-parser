@@ -27,6 +27,8 @@
    - Note: `dropped_columns` and `modified_columns` in output are now lists instead of single dicts
 4. Fixed BigQuery OPTIONS parsing with unicode characters (em-dash, etc.) - https://github.com/xnuinside/simple-ddl-parser/issues/298
    - String literals now support any unicode characters in descriptions
+5. Fixed MySQL COMMENT parsing with unicode curly quotes (U+2018, U+2019) - https://github.com/xnuinside/simple-ddl-parser/issues/297
+   - Unicode single quotation marks in string literals are now handled correctly
 
 
 **v1.7.1**
