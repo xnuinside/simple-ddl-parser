@@ -39,10 +39,10 @@ ruff = "^0.6.9"
 sdp = 'simple_ddl_parser.cli:main'
 
 [tool.ruff]
-exclude = ["simple_ddl_parser/parsetab.py"]
+exclude = ["simple_ddl_parser/parsetab.py", ".tox"]
 
 [tool.black]
-exclude = "simple_ddl_parser/parsetab.py"
+exclude = "(/\\.tox/|simple_ddl_parser/parsetab\\.py)"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

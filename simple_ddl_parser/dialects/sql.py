@@ -71,6 +71,8 @@ class Database:
     def p_database_base(self, p: List) -> None:
         """database_base : CREATE DATABASE id
         | CREATE ID DATABASE id
+        | CREATE DATABASE IF NOT EXISTS id
+        | CREATE ID DATABASE IF NOT EXISTS id
         | database_base clone
         """
         if isinstance(p[1], dict):
@@ -84,6 +86,8 @@ class Database:
             p[0]["database_name"] = p_list[-1]
         if len(p_list) == 5:
             p[0][p[2].lower()] = True
+        if "IF" in p_list and "NOT" in p_list and "EXISTS" in p_list:
+            p[0]["if_not_exists"] = True
 
 
 class TableSpaces:
