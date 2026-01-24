@@ -410,17 +410,23 @@ class Column:
                         else size_values[0]
                     )
                 else:
-                    first = (
-                        int(size_values[0])
-                        if str(size_values[0]).isnumeric()
-                        else size_values[0]
-                    )
-                    second = (
-                        int(size_values[1])
-                        if str(size_values[1]).isnumeric()
-                        else size_values[1]
-                    )
-                    size = (first, second)
+                    first_raw = size_values[0]
+                    second_raw = size_values[1]
+                    if str(first_raw).isnumeric() and str(second_raw).lower() in {
+                        "char",
+                        "byte",
+                    }:
+                        size = f"{first_raw} {second_raw}"
+                    else:
+                        first = (
+                            int(first_raw) if str(first_raw).isnumeric() else first_raw
+                        )
+                        second = (
+                            int(second_raw)
+                            if str(second_raw).isnumeric()
+                            else second_raw
+                        )
+                        size = (first, second)
                 if self.check_type_parameter(size):
                     p[0]["type_parameters"] = size
                 elif "identity" in p[0]:
