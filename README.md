@@ -1,6 +1,6 @@
 ## Simple DDL Parser
 
-![badge1](https://img.shields.io/pypi/v/simple-ddl-parser) ![badge2](https://img.shields.io/pypi/l/simple-ddl-parser) ![badge3](https://img.shields.io/pypi/pyversions/simple-ddl-parser) ![workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)
+[![PyPI](https://img.shields.io/pypi/v/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![License](https://img.shields.io/pypi/l/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Python Versions](https://img.shields.io/pypi/pyversions/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml)
 
 Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 

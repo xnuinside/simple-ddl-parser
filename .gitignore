@@ -12,3 +12,4 @@ poetry.lock
 .idea/
 venv/
 payload.json
+.tox/
