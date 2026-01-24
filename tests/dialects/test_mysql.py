@@ -304,6 +304,19 @@ def test_default_charset():
     assert expected == results
 
 
+def test_character_set_table_option():
+    ddl = """
+    CREATE TABLE `tab_space_station_common_info`  (
+      `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+      `col1` varchar(16) NULL DEFAULT NULL,
+      PRIMARY KEY (`id`) USING BTREE
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4;
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mysql")
+    assert len(result["tables"]) == 1
+    assert result["tables"][0]["default_charset"] == "utf8mb4"
+
+
 def test_identity_with_properties():
     ddl = """
 CREATE TABLE IF NOT EXISTS database.table_name
