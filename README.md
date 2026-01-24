@@ -516,6 +516,15 @@ for help with debugging & testing support for BigQuery dialect DDLs:
 * https://github.com/kalyan939
 
 ## Changelog
+**v1.9.0**
+### Improvements
+1. Updated black dependency to >=24,<26 - https://github.com/xnuinside/simple-ddl-parser/pull/307
+2. Added tests for MySQL COMMENT with unicode quotes - https://github.com/xnuinside/simple-ddl-parser/pull/308
+
+### Fixes
+1. Fixed MySQL table CHARACTER SET/CHARSET option parsing - https://github.com/xnuinside/simple-ddl-parser/issues/296
+
+
 **v1.8.0**
 ### Important
 1. Python 3.7 and 3.8 support is deprecated. Minimum supported version is now Python 3.9.
