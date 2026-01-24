@@ -376,7 +376,13 @@ class Column:
             return
         if p[1] and isinstance(p[1], dict) and p[1].get("index_stmt") is True:
             # @TODO: if we are normalizing columns, we need to normalize them here too.
-            p[1]["columns"] = remove_par(list(p))[2]
+            p_list = remove_par(list(p))
+            columns = [
+                item
+                for item in p_list[2:]
+                if isinstance(item, str) and item != ","
+            ]
+            p[1]["columns"] = columns[0] if len(columns) == 1 else columns
             p[0] = p[1]
             return
 
@@ -1203,16 +1209,39 @@ class BaseSQL(
                 if not p[0].get("index"):
                     p[0]["index"] = []
                 index_data = p_list[-1]
-                _index = {
-                    "clustered": False,
-                    "columns": [index_data["columns"]],
-                    "detailed_columns": [
+                index_columns = index_data["columns"]
+                if (
+                    isinstance(index_columns, list)
+                    and index_columns
+                    and isinstance(index_columns[0], dict)
+                ):
+                    columns = [index_columns]
+                    detailed_columns = [
                         {
-                            "name": index_data["columns"],
+                            "name": index_columns,
                             "nulls": "LAST",
                             "order": "ASC",
                         }
-                    ],
+                    ]
+                elif isinstance(index_columns, list):
+                    columns = index_columns
+                    detailed_columns = [
+                        {"name": col, "nulls": "LAST", "order": "ASC"}
+                        for col in index_columns
+                    ]
+                else:
+                    columns = [index_columns]
+                    detailed_columns = [
+                        {
+                            "name": index_columns,
+                            "nulls": "LAST",
+                            "order": "ASC",
+                        }
+                    ]
+                _index = {
+                    "clustered": False,
+                    "columns": columns,
+                    "detailed_columns": detailed_columns,
                     "index_name": index_data["name"],
                     "unique": False,
                 }
