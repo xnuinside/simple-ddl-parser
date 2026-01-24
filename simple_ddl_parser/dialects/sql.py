@@ -364,11 +364,8 @@ class Column:
     def p_column(self, p: List) -> None:
         """column : id c_type
         | column comment
-        | column LP id RP
-        | column LP id id RP
-        | column LP id RP c_type
-        | column LP id COMMA id RP
-        | column LP id COMMA id RP c_type
+        | column LP pid RP
+        | column LP pid RP c_type
         """
         if p[1] == "KEY":
             # This is an index
@@ -377,11 +374,12 @@ class Column:
         if p[1] and isinstance(p[1], dict) and p[1].get("index_stmt") is True:
             # @TODO: if we are normalizing columns, we need to normalize them here too.
             p_list = remove_par(list(p))
-            columns = [
-                item
-                for item in p_list[2:]
-                if isinstance(item, str) and item != ","
-            ]
+            columns = []
+            for item in p_list[2:]:
+                if isinstance(item, list):
+                    columns.extend(item)
+                elif isinstance(item, str) and item != ",":
+                    columns.append(item)
             p[1]["columns"] = columns[0] if len(columns) == 1 else columns
             p[0] = p[1]
             return
@@ -402,6 +400,34 @@ class Column:
             self.set_column_size(p_list, p)
 
     def set_column_size(self, p_list: List, p: List):
+        if isinstance(p_list[-1], list):
+            size_values = p_list[-1]
+            if size_values:
+                if len(size_values) == 1:
+                    size = (
+                        int(size_values[0])
+                        if str(size_values[0]).isnumeric()
+                        else size_values[0]
+                    )
+                else:
+                    first = (
+                        int(size_values[0])
+                        if str(size_values[0]).isnumeric()
+                        else size_values[0]
+                    )
+                    second = (
+                        int(size_values[1])
+                        if str(size_values[1]).isnumeric()
+                        else size_values[1]
+                    )
+                    size = (first, second)
+                if self.check_type_parameter(size):
+                    p[0]["type_parameters"] = size
+                elif "identity" in p[0]:
+                    p[0]["identity"] = size
+                else:
+                    p[0]["size"] = size
+                return
         if (
             not isinstance(p_list[-1], dict)
             and bool(re.match(r"[0-9]+", p_list[-1]))
