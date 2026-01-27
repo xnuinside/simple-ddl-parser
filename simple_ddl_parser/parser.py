@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import re
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import Callable, Dict, List, Optional, Tuple, Union, cast
 
 from ply import lex, yacc
 
@@ -378,6 +378,7 @@ class Parser:
         output_mode: str = "sql",
         group_by_type: bool = False,
         json_dump=False,
+        custom_output_schema: Optional[Union[str, Callable]] = None,
     ) -> List[Dict]:
         """
         dump: provide 'True' if you need to dump output in file
@@ -391,6 +392,7 @@ class Parser:
                 'sequences', 'types', 'domains']
             and each dict will contain list of parsed entities. Without it output is a List with Dicts where each
             Dict == one entity from ddl - one table or sequence or type.
+        custom_output_schema: custom output schema name or callable to reshape output, for example "bigquery".
         """
         if output_mode not in dialect_by_name:
             raise SimpleDDLParserException(
@@ -402,6 +404,10 @@ class Parser:
             group_by_type=group_by_type,
             output_mode=output_mode,
         ).format()
+        if custom_output_schema:
+            from simple_ddl_parser.output.custom_schemas import apply_custom_output_schema
+
+            self.tables = apply_custom_output_schema(custom_output_schema, self.tables)
         if dump:
             if file_path:
                 # if we run parse from one file - save same way to one file
