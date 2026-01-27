@@ -162,6 +162,7 @@ There are Python usage examples in `examples/`:
 - `examples/basic_usage.py`
 - `examples/custom_schema.py`
 - `examples/output_modes.py`
+- `examples/bigquery_schema.py`
 
 ### From command line
 
