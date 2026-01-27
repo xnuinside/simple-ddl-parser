@@ -394,6 +394,12 @@ class Parser:
             Dict == one entity from ddl - one table or sequence or type.
         custom_output_schema: custom output schema name or callable to reshape output, for example "bigquery".
         """
+        if (
+            isinstance(custom_output_schema, str)
+            and custom_output_schema.lower() == "bigquery"
+            and output_mode == "sql"
+        ):
+            output_mode = "bigquery"
         if output_mode not in dialect_by_name:
             raise SimpleDDLParserException(
                 f"Output mode can be one of possible variants: {dialect_by_name.keys()}"
@@ -405,7 +411,9 @@ class Parser:
             output_mode=output_mode,
         ).format()
         if custom_output_schema:
-            from simple_ddl_parser.output.custom_schemas import apply_custom_output_schema
+            from simple_ddl_parser.output.custom_schemas import (
+                apply_custom_output_schema,
+            )
 
             self.tables = apply_custom_output_schema(custom_output_schema, self.tables)
         if dump:

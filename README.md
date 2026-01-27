@@ -237,6 +237,7 @@ Output will be:
 .run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databricks', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
 
 Argument `custom_output_schema` allows you to reshape output into a schema format. Built-in support currently includes `bigquery` (JSON schema array), and you can register your own schema converters.
+When `custom_output_schema="bigquery"` is used, the parser will default to `output_mode="bigquery"` for dialect-specific syntax.
 
 ```python
 from simple_ddl_parser import DDLParser, register_custom_output_schema

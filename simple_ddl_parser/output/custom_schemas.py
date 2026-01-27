@@ -11,7 +11,9 @@ _CUSTOM_OUTPUT_SCHEMAS: Dict[str, CustomSchemaFunc] = {}
 
 def register_custom_output_schema(name: str, handler: CustomSchemaFunc) -> None:
     if not name or not isinstance(name, str):
-        raise SimpleDDLParserException("Custom output schema name must be a non-empty string.")
+        raise SimpleDDLParserException(
+            "Custom output schema name must be a non-empty string."
+        )
     if not callable(handler):
         raise SimpleDDLParserException("Custom output schema handler must be callable.")
     _CUSTOM_OUTPUT_SCHEMAS[name.lower()] = handler
@@ -35,8 +37,7 @@ def apply_custom_output_schema(
     if handler is None:
         supported = ", ".join(list_custom_output_schemas())
         raise SimpleDDLParserException(
-            "Custom output schema can be one of the following: "
-            f"[{supported}]"
+            "Custom output schema can be one of the following: " f"[{supported}]"
         )
     return handler(output)
 
@@ -107,15 +108,19 @@ def _to_bigquery_schema(output: OutputPayload) -> List[Dict]:
             elif struct_match:
                 normalized = "RECORD"
             field_type = _BQ_TYPE_MAP.get(normalized, normalized)
-            fields.append({"name": column.get("name"), "type": field_type, "mode": mode})
+            fields.append(
+                {"name": column.get("name"), "type": field_type, "mode": mode}
+            )
 
         entry = {"table_name": table.get("table_name"), "schema": fields}
-        if table.get("schema"):
-            entry["schema_name"] = table.get("schema")
-        if table.get("dataset"):
-            entry["dataset"] = table.get("dataset")
-        if table.get("project"):
-            entry["project"] = table.get("project")
+        dataset = table.get("dataset") or table.get("schema")
+        if dataset:
+            entry["dataset"] = dataset
+        project = table.get("project")
+        if project is None and isinstance(table.get("table_properties"), dict):
+            project = table["table_properties"].get("project")
+        if project:
+            entry["project"] = project
         result.append(entry)
     return result
 

@@ -5,6 +5,7 @@
 3. Added CLI support for custom_output_schema.
 4. Added examples directory with Python usage samples and documented it in README.
 5. Added tox to dev dependencies.
+6. Custom output schema "bigquery" now defaults the output mode to BigQuery for dialect-specific parsing.
 
 
 **v1.9.0**

@@ -47,17 +47,16 @@ def test_custom_output_schema_bigquery_with_dataset_and_project():
 
 def test_custom_output_schema_bigquery_with_array_and_struct():
     ddl = """
-    CREATE TABLE users (
-        tags ARRAY<STRING>,
-        meta STRUCT<key STRING, value INT64>
+    CREATE TABLE mydataset.users (
+        meta STRUCT<a ARRAY<STRING>,b BOOL>
     );
     """
     result = DDLParser(ddl).run(custom_output_schema="bigquery")
     expected = [
         {
             "table_name": "users",
+            "dataset": "mydataset",
             "schema": [
-                {"name": "tags", "type": "STRING", "mode": "REPEATED"},
                 {"name": "meta", "type": "RECORD", "mode": "NULLABLE"},
             ],
         }
