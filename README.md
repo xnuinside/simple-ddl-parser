@@ -1,6 +1,6 @@
 ## Simple DDL Parser
 
-[![PyPI](https://img.shields.io/pypi/v/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![License](https://img.shields.io/pypi/l/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Python Versions](https://img.shields.io/pypi/pyversions/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/main.yml/badge.svg)](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/ci-tests-runner.yml)
+[![PyPI](https://img.shields.io/pypi/v/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![License](https://img.shields.io/pypi/l/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Python Versions](https://img.shields.io/pypi/pyversions/simple-ddl-parser)](https://pypi.org/project/simple-ddl-parser/) [![Workflow](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/ci-tests-runner.yml/badge.svg)](https://github.com/xnuinside/simple-ddl-parser/actions/workflows/ci-tests-runner.yml)
 
 Build with ply (lex & yacc in python). A lot of samples in 'tests/.
 
@@ -156,6 +156,14 @@ Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', '
 
 ```
 
+### Examples
+
+There are Python usage examples in `examples/`:
+- `examples/basic_usage.py`
+- `examples/custom_schema.py`
+- `examples/output_modes.py`
+- `examples/bigquery_schema.py`
+
 ### From command line
 
 simple-ddl-parser is installed to environment as command **sdp**
@@ -187,6 +195,12 @@ If you don't want to dump schema in file and just print result to the console, u
     
     sdp tests/sql/test_two_tables.sql --no-dump
     
+```
+
+To reshape output with a custom schema (for example, BigQuery JSON schema), use **--custom-output-schema**:
+
+```bash
+    sdp tests/sql/test_two_tables.sql --no-dump --custom-output-schema bigquery
 ```
 
 You can provide target path where you want to dump result with argument **-t**, **--target**:
@@ -222,6 +236,22 @@ Output will be:
 
 `DDLParser(ddl).run()`
 .run() method contains several arguments, that impact changing output result. As you can saw upper exists argument `output_mode` that allow you to set dialect and get more fields in output relative to chosen dialect, for example 'hql'. Possible output_modes: ['redshift', 'spark_sql', 'mysql', 'bigquery', 'mssql', 'databricks', 'sqlite', 'vertics', 'ibm_db2', 'postgres', 'oracle', 'hql', 'snowflake', 'sql']
+
+Argument `custom_output_schema` allows you to reshape output into a schema format. Built-in support currently includes `bigquery` (JSON schema array), and you can register your own schema converters.
+When `custom_output_schema="bigquery"` is used, the parser will default to `output_mode="bigquery"` for dialect-specific syntax.
+
+```python
+from simple_ddl_parser import DDLParser, register_custom_output_schema
+
+ddl = "CREATE TABLE users (id INT NOT NULL, email VARCHAR(255));"
+bigquery_schema = DDLParser(ddl).run(custom_output_schema="bigquery")
+
+def to_custom_schema(output):
+    return [{"custom": True, "tables": len(output)}]
+
+register_custom_output_schema("custom", to_custom_schema)
+custom_schema = DDLParser(ddl).run(custom_output_schema="custom")
+```
 
 Also in .run() method exists argument `group_by_type` (by default: False). By default output of parser looks like a List with Dicts where each dict == one entity from ddl (table, sequence, type, etc). And to understand that is current entity you need to check Dict like: if 'table_name' in dict - this is a table, if 'type_name' - this is a type & etc.
 

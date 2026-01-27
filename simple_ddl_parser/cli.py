@@ -4,7 +4,7 @@ import os
 import pprint
 import sys
 
-from simple_ddl_parser import parse_from_file
+from simple_ddl_parser import list_custom_output_schemas, parse_from_file
 from simple_ddl_parser.output.dialects import dialect_by_name
 
 logger = logging.getLogger("simple_ddl_parser")
@@ -39,6 +39,14 @@ def cli():
         default="sql",
         help=f"Output mode that will be used to format result. Possible variants: {dialect_by_name.keys()}",
     )
+    sdp_cli.add_argument(
+        "--custom-output-schema",
+        default=None,
+        help=(
+            "Custom output schema to reshape the output. "
+            f"Supported built-ins: {list_custom_output_schemas()}"
+        ),
+    )
     return sdp_cli
 
 
@@ -49,6 +57,7 @@ def run_for_file(args):
         dump=not args.no_dump,
         dump_path=args.target,
         output_mode=args.output_mode,
+        custom_output_schema=args.custom_output_schema,
     )
 
     logger.info(f"File with result was saved to >> {args.target} folder")

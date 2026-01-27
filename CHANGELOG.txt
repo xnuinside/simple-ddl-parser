@@ -1,3 +1,15 @@
+**v1.10.0**
+### New Features
+1. Added custom_output_schema support with built-in BigQuery schema conversion and custom schema registry.
+2. Added tests for BigQuery custom schema output and user-registered schemas.
+3. Added CLI support for custom_output_schema.
+4. Added examples directory with Python usage samples and documented it in README.
+5. Added tox to dev dependencies.
+6. Custom output schema "bigquery" now defaults the output mode to BigQuery for dialect-specific parsing.
+7. Updated tox linting configuration to skip the local .venv directory.
+8. Added a BigQuery custom schema usage example.
+
+
 **v1.9.0**
 ### Improvements
 1. Updated black dependency to >=24,<26 - https://github.com/xnuinside/simple-ddl-parser/pull/307
