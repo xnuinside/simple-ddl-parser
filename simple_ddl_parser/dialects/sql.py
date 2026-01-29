@@ -1893,8 +1893,14 @@ class BaseSQL(
         | ref LP pid RP
         | ref ON DELETE id
         | ref ON UPDATE id
+        | ref ON DELETE SET id
+        | ref ON UPDATE SET id
         | ref ON DELETE SET
         | ref ON UPDATE SET
+        | ref ON DELETE SET NULL
+        | ref ON UPDATE SET NULL
+        | ref ON DELETE SET DEFAULT
+        | ref ON UPDATE SET DEFAULT
         | ref DEFERRABLE INITIALLY id
         | ref NOT DEFERRABLE
         """
@@ -1915,10 +1921,17 @@ class BaseSQL(
     @staticmethod
     def process_references_with_properties(data: Dict, p_list: List) -> Dict:
         if "ON" in p_list:
+            is_set = "SET" in p_list
             if "DELETE" in p_list:
-                data["references"]["on_delete"] = p_list[-1]
+                if is_set:
+                    data["references"]["on_delete"] = f"SET {p_list[-1]}"
+                else:
+                    data["references"]["on_delete"] = p_list[-1]
             elif "UPDATE" in p_list:
-                data["references"]["on_update"] = p_list[-1]
+                if is_set:
+                    data["references"]["on_update"] = f"SET {p_list[-1]}"
+                else:
+                    data["references"]["on_update"] = p_list[-1]
         elif "DEFERRABLE" in p_list:
             if "NOT" not in p_list:
                 data["references"]["deferrable_initially"] = p_list[-1]
