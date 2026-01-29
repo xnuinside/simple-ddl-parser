@@ -27,7 +27,7 @@ There is a lot of way how you can contribute to any project (not only in this), 
 
 4) Before open the PR run ruff/black (it required and will be runs in Actions on PR in GitHub)
 
-5) Do not forget add changes to CHANGELOG.txt
+5) Do not forget add changes to CHANGELOG.md
 
 6) And updated SUPPORTED Statements in README.md
 
