@@ -555,6 +555,9 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 ### Added
 - None.
 
+### Changed
+- Switched the canonical changelog to CHANGELOG.md.
+
 ## [1.10.0] - 2026-01-27
 ### Added
 - Custom output schema support with built-in BigQuery schema conversion and a custom schema registry.
