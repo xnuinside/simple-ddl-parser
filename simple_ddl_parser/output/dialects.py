@@ -246,6 +246,10 @@ class Snowflake(Dialect):
         default_factory=list,
         metadata={"exclude_if_not_provided": True},
     )
+    with_row_access_policy: Optional[str] = field(
+        default=None,
+        metadata={"exclude_if_not_provided": True},
+    )
 
 
 @dataclass

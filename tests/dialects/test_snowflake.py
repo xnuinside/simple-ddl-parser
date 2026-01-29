@@ -552,6 +552,64 @@ def test_table_with_mask():
     assert result_masked == expected_masked
 
 
+def test_table_with_row_access_policy():
+    ddl = """
+    CREATE TABLE TEST_TABLE (
+        ID INT,
+        NAME STRING
+    ) WITH ROW ACCESS POLICY MY_POLICY;
+    """
+    result = DDLParser(ddl, normalize_names=True).run(
+        group_by_type=True, output_mode="snowflake"
+    )
+    expected = {
+        "ddl_properties": [],
+        "domains": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "clone": None,
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "ID",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "INT",
+                        "unique": False,
+                    },
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "NAME",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "STRING",
+                        "unique": False,
+                    },
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": [],
+                "primary_key_enforced": None,
+                "schema": None,
+                "table_name": "TEST_TABLE",
+                "tablespace": None,
+                "external": False,
+                "with_row_access_policy": "MY_POLICY",
+            }
+        ],
+        "types": [],
+    }
+    assert result == expected
+
+
 def test_table_with_retention():
     ddl = """
     create TABLE ASIN.EXCLUSION (
