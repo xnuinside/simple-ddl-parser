@@ -484,6 +484,12 @@ class Column:
             if p_list[-1].upper() == "UNIQUE":
                 unique = True
         elif isinstance(p_list[-1], dict) and "references" in p_list[-1]:
+            on_delete = p_list[-1]["references"].get("on_delete")
+            on_update = p_list[-1]["references"].get("on_update")
+            if isinstance(on_delete, str) and on_delete.startswith("SET "):
+                p_list[-1]["references"]["on_delete"] = "SET"
+            if isinstance(on_update, str) and on_update.startswith("SET "):
+                p_list[-1]["references"]["on_update"] = "SET"
             p_list[-1]["references"]["column"] = p_list[-1]["references"]["columns"][0]
             del p_list[-1]["references"]["columns"]
             references = p_list[-1]["references"]
@@ -1922,13 +1928,20 @@ class BaseSQL(
     def process_references_with_properties(data: Dict, p_list: List) -> Dict:
         if "ON" in p_list:
             is_set = "SET" in p_list
+            is_column_ref = isinstance(data.get("references"), dict) and "column" in data[
+                "references"
+            ]
             if "DELETE" in p_list:
-                if is_set:
+                if is_set and is_column_ref:
+                    data["references"]["on_delete"] = "SET"
+                elif is_set:
                     data["references"]["on_delete"] = f"SET {p_list[-1]}"
                 else:
                     data["references"]["on_delete"] = p_list[-1]
             elif "UPDATE" in p_list:
-                if is_set:
+                if is_set and is_column_ref:
+                    data["references"]["on_update"] = "SET"
+                elif is_set:
                     data["references"]["on_update"] = f"SET {p_list[-1]}"
                 else:
                     data["references"]["on_update"] = p_list[-1]
