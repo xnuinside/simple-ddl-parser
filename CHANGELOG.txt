@@ -9,6 +9,10 @@
 7. Updated tox linting configuration to skip the local .venv directory.
 8. Added a BigQuery custom schema usage example.
 
+### Fixes
+1. Fixed MySQL parsing for FOREIGN KEY constraints with ON DELETE SET NULL in multi-table DDL - https://github.com/xnuinside/simple-ddl-parser/issues/290
+2. Preserved column-level reference handling for SET actions while supporting SET NULL constraints.
+
 
 **v1.9.0**
 ### Improvements
