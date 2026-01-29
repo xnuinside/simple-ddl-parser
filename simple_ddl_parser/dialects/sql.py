@@ -1928,9 +1928,10 @@ class BaseSQL(
     def process_references_with_properties(data: Dict, p_list: List) -> Dict:
         if "ON" in p_list:
             is_set = "SET" in p_list
-            is_column_ref = isinstance(data.get("references"), dict) and "column" in data[
-                "references"
-            ]
+            is_column_ref = (
+                isinstance(data.get("references"), dict)
+                and "column" in data["references"]
+            )
             if "DELETE" in p_list:
                 if is_set and is_column_ref:
                     data["references"]["on_delete"] = "SET"
