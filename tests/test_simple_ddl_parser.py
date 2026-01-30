@@ -804,6 +804,7 @@ def test_defaults_with_comments():
                 {
                     "check": None,
                     "default": "'requested'",
+                    "comment": "inline comment",
                     "name": "status",
                     "nullable": False,
                     "references": None,
@@ -814,6 +815,7 @@ def test_defaults_with_comments():
                 {
                     "check": None,
                     "default": "'none'",
+                    "comment": "inline comment",
                     "name": "notes",
                     "nullable": False,
                     "references": None,
@@ -824,6 +826,7 @@ def test_defaults_with_comments():
                 {
                     "check": None,
                     "default": None,
+                    "comment": "inline comment",
                     "name": "id",
                     "nullable": False,
                     "references": None,

@@ -9,7 +9,7 @@ from ply import lex, yacc
 from simple_ddl_parser.exception import SimpleDDLParserException
 from simple_ddl_parser.output.core import Output, dump_data_to_file
 from simple_ddl_parser.output.dialects import dialect_by_name
-from simple_ddl_parser.utils import find_first_unpair_closed_par
+from simple_ddl_parser.utils import find_first_unpair_closed_par, normalize_name
 
 # open comment
 OP_COM = "/*"
@@ -96,6 +96,7 @@ class Parser:
         self.statement = None
         self.block_comments = []
         self.comments = []
+        self.statement_inline_comments = []
 
         # self.comma_only_str = re.compile(r"((\')|(' ))+(,)((\')|( '))+\B")
         self.equal_without_space = re.compile(r"(\b)=")
@@ -134,7 +135,9 @@ class Parser:
         else:
             splitted_line = line.split(IN_COM)
             code_line = splitted_line[0]
-            self.comments.append(splitted_line[1])
+            comment = splitted_line[1]
+            self.comments.append(comment)
+            self.add_inline_column_comment(code_line, comment)
         return code_line
 
     def process_line_before_comment(self) -> str:
@@ -164,6 +167,42 @@ class Parser:
         if comment:
             self.comments.append(comment)
         return code_line
+
+    def add_inline_column_comment(self, code_line: str, comment: str) -> None:
+        column_name = self.extract_column_name_from_line(code_line)
+        if column_name:
+            self.statement_inline_comments.append(
+                {"name": column_name, "comment": comment}
+            )
+
+    @staticmethod
+    def extract_column_name_from_line(line: str) -> Optional[str]:
+        stripped = line.strip().lstrip(",").strip()
+        if not stripped or stripped.startswith(")"):
+            return None
+        first_token = stripped.split(None, 1)[0].upper()
+        if first_token in {
+            "CONSTRAINT",
+            "PRIMARY",
+            "FOREIGN",
+            "UNIQUE",
+            "CHECK",
+            "CREATE",
+            "ALTER",
+            "DROP",
+        }:
+            return None
+        if stripped.startswith('"'):
+            end_idx = stripped.find('"', 1)
+            return stripped[1:end_idx] if end_idx != -1 else None
+        if stripped.startswith("`"):
+            end_idx = stripped.find("`", 1)
+            return stripped[1:end_idx] if end_idx != -1 else None
+        if stripped.startswith("["):
+            end_idx = stripped.find("]", 1)
+            return stripped[1:end_idx] if end_idx != -1 else None
+        match = re.match(r"^[A-Za-z_][\w$]*", stripped)
+        return match.group(0) if match else None
 
     def process_regex_input(self, data):
         regex = data.split('"input.regex"')[1].split("=")[1]
@@ -342,13 +381,38 @@ class Parser:
             self.parse_statement()
         if self.new_statement:
             self.statement = self.line
+            self.statement_inline_comments = []
         else:
             self.statement = None
+            self.statement_inline_comments = []
 
     def parse_statement(self) -> None:
         _parse_result = yacc.parse(self.statement)
         if _parse_result:
+            self.apply_inline_comments_to_statement(_parse_result)
             self.tables.append(_parse_result)
+
+    def apply_inline_comments_to_statement(self, statement: Dict) -> None:
+        if getattr(self, "output_mode", "sql") not in {"sql", "postgres", "psql"}:
+            return
+        if not self.statement_inline_comments:
+            return
+        if not isinstance(statement, dict):
+            return
+        columns = statement.get("columns")
+        if not columns:
+            return
+        for item in self.statement_inline_comments:
+            comment = " ".join(item["comment"].strip().split())
+            comment = comment.replace(" ,", ",")
+            if not comment:
+                continue
+            comment_name = normalize_name(item["name"])
+            for column in columns:
+                if normalize_name(column["name"]) == comment_name:
+                    if not column.get("comment"):
+                        column["comment"] = comment
+                    break
 
     def set_default_flags_in_lexer(self) -> None:
         attrs = [
@@ -381,6 +445,7 @@ class Parser:
         custom_output_schema: Optional[Union[str, Callable]] = None,
     ) -> List[Dict]:
         """
+        self.output_mode = output_mode
         dump: provide 'True' if you need to dump output in file
         dump_path: folder where you want to store result dump files
         file_path: pass full path to ddl file if you want to use this
