@@ -116,6 +116,12 @@ class Snowflake:
         if p[2]:
             p[0].update(p[2])
 
+    def p_row_access_policy(self, p: List) -> None:
+        """expr : expr option_with_row_access_policy"""
+        p[0] = p[1]
+        if p[2]:
+            p[0].update(p[2])
+
     def p_tag_equals(self, p: List) -> None:
         """tag_equals : id EQ id_or_string
         | id id_or_string
@@ -159,6 +165,13 @@ class Snowflake:
         """
         p_list = remove_par(list(p))
         p[0] = {"with_masking_policy": f"{p_list[-5]}.{p_list[-3]}.{p_list[-1]}"}
+
+    def p_option_with_row_access_policy(self, p: List) -> None:
+        """option_with_row_access_policy : WITH ROW ACCESS POLICY dot_id_or_id
+        | ROW ACCESS POLICY dot_id_or_id
+        """
+        p_list = remove_par(list(p))
+        p[0] = {"with_row_access_policy": p_list[-1]}
 
     def p_expression_catalog(self, p: List) -> None:
         """expr : expr CATALOG table_property_equals"""

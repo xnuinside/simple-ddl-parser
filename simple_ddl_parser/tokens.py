@@ -121,6 +121,7 @@ after_columns_tokens = {
     "STORED",
     "LOCATION",
     "ROW",
+    "ACCESS",
     "FORMAT",
     "TERMINATED",
     "COLLECTION",
@@ -154,6 +155,8 @@ after_columns_tokens = {
     "SET",
     "IN",
     "ESCAPED",
+    "WITH",
+    "POLICY",
 }
 after_columns_tokens = {value: value for value in after_columns_tokens}
 
