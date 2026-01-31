@@ -397,7 +397,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 
 - TABLESPACE statement
 
-- COMMENT ON statement
+- COMMENT ON statement (TABLE, COLUMN, SCHEMA, DATABASE, SEQUENCE, VIEW, INDEX, FUNCTION, AGGREGATE, CAST, COLLATION, CONVERSION, CONSTRAINT)
 
 - CREATE SCHEMA [IF NOT EXISTS] ... [AUTHORIZATION] ...
 

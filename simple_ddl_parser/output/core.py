@@ -104,6 +104,7 @@ class Output:
             "schemas": [],
             "ddl_properties": [],
             "comments": [],
+            "comment_on": [],
         }
         keys_map = {
             "table_name": "tables",
@@ -115,6 +116,7 @@ class Output:
             "database_name": "databases",
             "value": "ddl_properties",
             "comments": "comments",
+            "comment_on": "comment_on",
         }
         for item in self.final_result:
             for key in keys_map:
@@ -130,6 +132,8 @@ class Output:
                     break
         if not result_as_dict["comments"]:
             del result_as_dict["comments"]
+        if not result_as_dict["comment_on"]:
+            del result_as_dict["comment_on"]
 
         self.final_result = result_as_dict
 
@@ -139,7 +143,10 @@ class Output:
             if "index_name" in statement or "alter_table_name" in statement:
                 self.process_alter_and_index_result(statement)
             elif "comment_on" in statement:
-                self.process_comments(statement)
+                if statement["comment_on"]["object_type"] in {"TABLE", "COLUMN"}:
+                    self.process_comments(statement)
+                else:
+                    self.final_result.append(statement)
             else:
                 # process tables, types, sequence and etc. data
                 statement_data = self.process_statement_data(statement)

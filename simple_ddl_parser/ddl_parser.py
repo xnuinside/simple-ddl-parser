@@ -219,7 +219,7 @@ class DDLParser(Parser, Dialects):
             t.type = tok.alter_tokens.get(t.value, t.type)
 
         if self.lexer.is_comment:
-            t.type = tok.comment_on_tokens.get(t.value, t.type)
+            t.type = tok.comment_on_tokens.get(t.value.upper(), t.type)
 
         self.capitalize_tokens(t)
         self.commat_type(t)
