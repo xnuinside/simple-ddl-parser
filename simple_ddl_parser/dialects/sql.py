@@ -1389,9 +1389,9 @@ class BaseSQL(
                 ref_data,
                 p_list[3]["constraint"]["name"],
             )
-            data = self.add_ref_columns_from_constraints(data, ref_data, ref_col_names)
-        elif isinstance(p_list[-2], list):
-            data = self.add_ref_columns_from_constraints(
+            return self.add_ref_columns_from_constraints(data, ref_data, ref_col_names)
+        if isinstance(p_list[-2], list):
+            return self.add_ref_columns_from_constraints(
                 data, p_list[-1]["references"], p_list[-2]
             )
         return data
@@ -1400,26 +1400,30 @@ class BaseSQL(
     def add_ref_columns_from_constraints(
         data: Dict, ref_data: Dict, ref_col_names
     ) -> Dict:
+        def build_ref(name, column):
+            ref = deepcopy(ref_data)
+            if "columns" in ref:
+                ref["column"] = column
+                del ref["columns"]
+            ref["name"] = name
+            return ref
+
         if "ref_columns" not in data:
             data["ref_columns"] = []
         if isinstance(ref_col_names, list):
             for num, column in enumerate(ref_col_names):
-                ref = deepcopy(ref_data)
-                if isinstance(ref.get("columns"), list) and num < len(ref["columns"]):
-                    ref["column"] = ref["columns"][num]
+                if isinstance(ref_data.get("columns"), list) and num < len(
+                    ref_data["columns"]
+                ):
+                    ref_column = ref_data["columns"][num]
                 else:
-                    ref["column"] = None
-                if "columns" in ref:
-                    del ref["columns"]
-                ref["name"] = column
-                data["ref_columns"].append(ref)
+                    ref_column = None
+                data["ref_columns"].append(build_ref(column, ref_column))
         else:
-            ref = deepcopy(ref_data)
-            if isinstance(ref.get("columns"), list):
-                ref["column"] = ref["columns"][0]
-                del ref["columns"]
-            ref["name"] = ref_col_names
-            data["ref_columns"].append(ref)
+            ref_column = None
+            if isinstance(ref_data.get("columns"), list):
+                ref_column = ref_data["columns"][0]
+            data["ref_columns"].append(build_ref(ref_col_names, ref_column))
         return data
 
     @staticmethod

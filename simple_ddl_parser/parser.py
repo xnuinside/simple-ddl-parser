@@ -104,25 +104,20 @@ class Parser:
         self.set_statement = re.compile(r"SET ")
         self.skip_regex = re.compile(r"^(GO|USE|INSERT|GRANT|DELETE)\b")
 
-    def catch_comment_or_process_line(self, code_line: str) -> str:
+    def catch_comment_or_process_line(self) -> str:
         if self.multi_line_comment:
             self.comments.append(self.line)
             if CL_COM in self.line:
                 self.multi_line_comment = False
             return ""
+        if self.line.strip().startswith((MYSQL_COM, IN_COM)):
+            return ""
+        return self.process_inline_comments()
 
-        elif not (
-            self.line.strip().startswith(MYSQL_COM)
-            or self.line.strip().startswith(IN_COM)
-        ):
-            return self.process_inline_comments(code_line)
-        return code_line
-
-    def pre_process_line(self) -> Tuple[str, List]:
-        code_line = ""
+    def pre_process_line(self) -> None:
         # self.line = self.comma_only_str.sub("_ddl_parser_comma_only_str", self.line)
         self.line = self.equal_without_space.sub(" = ", self.line)
-        code_line = self.catch_comment_or_process_line(code_line)
+        code_line = self.catch_comment_or_process_line()
         if self.line.startswith(OP_COM) and CL_COM not in self.line:
             self.multi_line_comment = True
         elif self.line.startswith(CL_COM):
@@ -142,14 +137,13 @@ class Parser:
 
     def process_line_before_comment(self) -> str:
         """get useful codeline - remove comment"""
-        code_line = ""
         if IN_COM in self.line:
-            code_line = self.process_in_comment(self.line)
-        elif CL_COM not in self.line and OP_COM not in self.line:
-            code_line = self.line
-        return code_line
+            return self.process_in_comment(self.line)
+        if CL_COM not in self.line and OP_COM not in self.line:
+            return self.line
+        return ""
 
-    def process_inline_comments(self, code_line: str) -> Tuple[str, List]:
+    def process_inline_comments(self) -> str:
         """this method сatches comments like "create table ( # some comment" - inline this statement"""
         comment = None
         code_line = self.process_line_before_comment()
@@ -192,15 +186,11 @@ class Parser:
             "DROP",
         }:
             return None
-        if stripped.startswith('"'):
-            end_idx = stripped.find('"', 1)
-            return stripped[1:end_idx] if end_idx != -1 else None
-        if stripped.startswith("`"):
-            end_idx = stripped.find("`", 1)
-            return stripped[1:end_idx] if end_idx != -1 else None
-        if stripped.startswith("["):
-            end_idx = stripped.find("]", 1)
-            return stripped[1:end_idx] if end_idx != -1 else None
+        quote_pairs = {'"': '"', "`": "`", "[": "]"}
+        for opener, closer in quote_pairs.items():
+            if stripped.startswith(opener):
+                end_idx = stripped.find(closer, 1)
+                return stripped[1:end_idx] if end_idx != -1 else None
         match = re.match(r"^[A-Za-z_][\w$]*", stripped)
         return match.group(0) if match else None
 
@@ -392,19 +382,21 @@ class Parser:
             self.apply_inline_comments_to_statement(_parse_result)
             self.tables.append(_parse_result)
 
+    @staticmethod
+    def normalize_inline_comment(comment: str) -> str:
+        comment = " ".join(comment.strip().split())
+        return comment.replace(" ,", ",")
+
     def apply_inline_comments_to_statement(self, statement: Dict) -> None:
-        if getattr(self, "output_mode", "sql") not in {"sql", "postgres", "psql"}:
+        if (
+            getattr(self, "output_mode", "sql") not in {"sql", "postgres", "psql"}
+            or not self.statement_inline_comments
+            or not isinstance(statement, dict)
+        ):
             return
-        if not self.statement_inline_comments:
-            return
-        if not isinstance(statement, dict):
-            return
-        columns = statement.get("columns")
-        if not columns:
-            return
+        columns = statement.get("columns") or []
         for item in self.statement_inline_comments:
-            comment = " ".join(item["comment"].strip().split())
-            comment = comment.replace(" ,", ",")
+            comment = self.normalize_inline_comment(item["comment"])
             if not comment:
                 continue
             comment_name = normalize_name(item["name"])
