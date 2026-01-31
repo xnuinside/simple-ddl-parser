@@ -32,6 +32,7 @@ def test_int_identity_type():
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -89,6 +90,7 @@ def test_mssql_foreign_ref_in_column():
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -116,6 +118,7 @@ def test_mssql_foreign_ref_in_column():
                         "size": None,
                         "type": "INT",
                         "unique": False,
+                        "comment": "ADD THIS COLUMN FOR THE FOREIGN KEY",
                     },
                 ],
                 "index": [],
@@ -217,6 +220,7 @@ def test_constraint_unique():
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -293,6 +297,7 @@ def test_constraint_unique_none():
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -398,11 +403,20 @@ def test_two_unique_constructs():
                         "default": None,
                         "name": "id",
                         "nullable": False,
-                        "references": None,
+                        "references": {
+                            "column": "PersonID",
+                            "deferrable_initially": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "schema": None,
+                            "table": "Persons",
+                            "constraint_name": "FK_Person_Age_under",
+                        },
                         "size": None,
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -430,6 +444,7 @@ def test_two_unique_constructs():
                         "size": None,
                         "type": "INT",
                         "unique": False,
+                        "comment": "ADD THIS COLUMN FOR THE FOREIGN KEY",
                     },
                     {
                         "check": None,
@@ -640,6 +655,7 @@ def test_two_unique_constructs():
                         "size": None,
                         "type": "date",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -650,6 +666,7 @@ def test_two_unique_constructs():
                         "size": 255,
                         "type": "varchar",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -670,6 +687,7 @@ def test_two_unique_constructs():
                         "size": None,
                         "type": "GEOMETRY",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                     {
                         "check": None,
@@ -680,6 +698,7 @@ def test_two_unique_constructs():
                         "size": None,
                         "type": "IMAGE",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                 ],
                 "constraints": {
@@ -803,6 +822,7 @@ def test_foreign_keys():
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -830,6 +850,7 @@ def test_foreign_keys():
                         "size": None,
                         "type": "INT",
                         "unique": False,
+                        "comment": "ADD THIS COLUMN FOR THE FOREIGN KEY",
                     },
                     {
                         "check": None,
@@ -1007,6 +1028,7 @@ def test_foreign_keys():
                         "size": None,
                         "type": "date",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -1017,6 +1039,7 @@ def test_foreign_keys():
                         "size": 255,
                         "type": "varchar",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -1037,6 +1060,7 @@ def test_foreign_keys():
                         "size": None,
                         "type": "GEOMETRY",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                     {
                         "check": None,
@@ -1047,6 +1071,7 @@ def test_foreign_keys():
                         "size": None,
                         "type": "IMAGE",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                 ],
                 "constraints": {
@@ -1165,11 +1190,13 @@ def test_alter_unique():
                             "on_update": None,
                             "schema": None,
                             "table": "Persons",
+                            "constraint_name": "FK_Person_Age_under",
                         },
                         "size": None,
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -1197,6 +1224,7 @@ def test_alter_unique():
                         "size": None,
                         "type": "INT",
                         "unique": False,
+                        "comment": "ADD THIS COLUMN FOR THE FOREIGN KEY",
                     },
                     {
                         "check": None,
@@ -1407,6 +1435,7 @@ def test_alter_unique():
                         "size": None,
                         "type": "date",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -1417,6 +1446,7 @@ def test_alter_unique():
                         "size": 255,
                         "type": "varchar",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -1437,6 +1467,7 @@ def test_alter_unique():
                         "size": None,
                         "type": "GEOMETRY",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                     {
                         "check": None,
@@ -1447,6 +1478,7 @@ def test_alter_unique():
                         "size": None,
                         "type": "IMAGE",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                 ],
                 "constraints": {
@@ -1561,11 +1593,13 @@ def test_defaults_in_alter():
                             "on_update": None,
                             "schema": None,
                             "table": "Persons",
+                            "constraint_name": "FK_Person_Age_under",
                         },
                         "size": None,
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -1593,6 +1627,7 @@ def test_defaults_in_alter():
                         "size": None,
                         "type": "INT",
                         "unique": False,
+                        "comment": "ADD THIS COLUMN FOR THE FOREIGN KEY",
                     },
                     {
                         "check": None,
@@ -1653,6 +1688,7 @@ def test_defaults_in_alter():
                         "size": None,
                         "type": "date",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -1663,6 +1699,7 @@ def test_defaults_in_alter():
                         "size": 255,
                         "type": "varchar",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -1683,6 +1720,7 @@ def test_defaults_in_alter():
                         "size": None,
                         "type": "GEOMETRY",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                     {
                         "check": None,
@@ -1693,6 +1731,7 @@ def test_defaults_in_alter():
                         "size": None,
                         "type": "IMAGE",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                 ],
                 "constraints": {

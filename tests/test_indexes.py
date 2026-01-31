@@ -74,11 +74,13 @@ def test_several_indexes_types():
                             "on_update": None,
                             "schema": None,
                             "table": "Persons",
+                            "constraint_name": "FK_Person_Age_under",
                         },
                         "size": None,
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE THE IDENTITY",
                     },
                     {
                         "check": None,
@@ -106,6 +108,7 @@ def test_several_indexes_types():
                         "size": None,
                         "type": "INT",
                         "unique": False,
+                        "comment": "ADD THIS COLUMN FOR THE FOREIGN KEY",
                     },
                     {
                         "check": None,
@@ -216,6 +219,7 @@ def test_several_indexes_types():
                         "size": None,
                         "type": "date",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -226,6 +230,7 @@ def test_several_indexes_types():
                         "size": 255,
                         "type": "varchar",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -246,6 +251,7 @@ def test_several_indexes_types():
                         "size": None,
                         "type": "GEOMETRY",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                     {
                         "check": None,
@@ -256,6 +262,7 @@ def test_several_indexes_types():
                         "size": None,
                         "type": "IMAGE",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                 ],
                 "constraints": {
@@ -418,11 +425,13 @@ def test_clustered_index():
                             "on_update": None,
                             "schema": None,
                             "table": "Persons",
+                            "constraint_name": "FK_Person_Age_under",
                         },
                         "size": None,
                         "identity": (1, 1),
                         "type": "INT",
                         "unique": False,
+                        "comment": "NOTE",
                     },
                     {
                         "check": None,
@@ -450,6 +459,7 @@ def test_clustered_index():
                         "size": None,
                         "type": "INT",
                         "unique": False,
+                        "comment": "ADD THIS COLUMN FOR THE FOREIGN KEY",
                     },
                     {
                         "check": None,
@@ -560,6 +570,7 @@ def test_clustered_index():
                         "size": None,
                         "type": "date",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -570,6 +581,7 @@ def test_clustered_index():
                         "size": 255,
                         "type": "varchar",
                         "unique": False,
+                        "comment": "added to demonstrate sql sever Defaults",
                     },
                     {
                         "check": None,
@@ -590,6 +602,7 @@ def test_clustered_index():
                         "size": None,
                         "type": "GEOMETRY",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                     {
                         "check": None,
@@ -600,6 +613,7 @@ def test_clustered_index():
                         "size": None,
                         "type": "IMAGE",
                         "unique": False,
+                        "comment": "Sql Server Defaults to Null",
                     },
                 ],
                 "constraints": {
@@ -959,7 +973,15 @@ def test_index_as_key():
                         "name": '"criteria_id"',
                         "type": "int unsigned",
                         "size": None,
-                        "references": None,
+                        "references": {
+                            "table": '"criteria"',
+                            "schema": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "constraint_name": '"criteria_ibfk"',
+                            "column": '"id"',
+                        },
                         "unique": False,
                         "nullable": False,
                         "default": None,
@@ -980,7 +1002,15 @@ def test_index_as_key():
                         "name": '"currency_id"',
                         "type": "int unsigned",
                         "size": None,
-                        "references": None,
+                        "references": {
+                            "table": '"currency"',
+                            "schema": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "constraint_name": '"currency_ibfk"',
+                            "column": '"id"',
+                        },
                         "unique": False,
                         "nullable": True,
                         "default": "'1'",

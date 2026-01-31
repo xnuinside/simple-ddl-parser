@@ -48,6 +48,7 @@ def test_inline_comment():
                     "nullable": False,
                     "default": None,
                     "check": None,
+                    "comment": "group_id or role_id",
                 },
                 {
                     "name": "user",
@@ -178,6 +179,41 @@ def test_block_comments():
         {"comments": [" outer comment start", " inner comment */"]},
     ]
     assert expected == parse_result
+
+
+def test_inline_comments_with_fk_reference():
+    ddl = """
+    CREATE TABLE pole.t_spiel (
+        id varchar(10) NOT NULL, -- Comment 0
+        refprodid varchar(10) NOT NULL, -- Comment 1 // references is empty
+        titel varchar(100) NOT NULL, -- Comment 2
+        datum date NOT NULL,
+        uhrzeit time NOT NULL,
+        dauer int4 NOT NULL, -- Comment 3, should be 5
+        CONSTRAINT t_spiel_pk PRIMARY KEY (id),
+        CONSTRAINT foreign_key_t_produktion FOREIGN KEY (refprodid) REFERENCES pole.t_produktion (id)
+    );
+    """
+    result = DDLParser(ddl).run()
+    table = result[0]
+    columns = {column["name"]: column for column in table["columns"]}
+
+    assert columns["id"]["comment"] == "Comment 0"
+    assert columns["refprodid"]["comment"] == "Comment 1 // references is empty"
+    assert columns["titel"]["comment"] == "Comment 2"
+    assert columns["dauer"]["comment"] == "Comment 3, should be 5"
+
+    assert columns["refprodid"]["references"] == {
+        "column": "id",
+        "constraint_name": "foreign_key_t_produktion",
+        "deferrable_initially": None,
+        "on_delete": None,
+        "on_update": None,
+        "schema": "pole",
+        "table": "t_produktion",
+    }
+
+    assert result[-1]["comments"]
 
 
 def test_mysql_comments_support():

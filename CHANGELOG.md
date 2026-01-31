@@ -9,9 +9,11 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 ### Changed
 - Switched the canonical changelog to CHANGELOG.md.
+- Refactored inline comment handling and FK reference mapping for readability (no behavior change).
 
 ### Fixed
 - Snowflake parsing for table DDL with `WITH ROW ACCESS POLICY` now returns expected output. https://github.com/xnuinside/simple-ddl-parser/issues/291
+- Inline comments now attach to columns, and table-level foreign keys populate column references. https://github.com/xnuinside/simple-ddl-parser/issues/282
 
 ## [1.10.0] - 2026-01-27
 ### Added
