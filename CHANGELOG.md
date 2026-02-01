@@ -14,6 +14,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 ### Fixed
 - Snowflake parsing for table DDL with `WITH ROW ACCESS POLICY` now returns expected output. https://github.com/xnuinside/simple-ddl-parser/issues/291
 - Inline comments now attach to columns, and table-level foreign keys populate column references. https://github.com/xnuinside/simple-ddl-parser/issues/282
+- COMMENT ON column parsing now works for PostgreSQL-style statements. https://github.com/xnuinside/simple-ddl-parser/issues/269
 
 ## [1.10.0] - 2026-01-27
 ### Added

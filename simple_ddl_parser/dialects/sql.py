@@ -1025,20 +1025,48 @@ class AlterTable:
 
 
 class Comment:
+    def p_comment_value(self, p: List):
+        """comment_value : STRING
+        | NULL
+        """
+        if isinstance(p[1], str) and p[1].upper() == "NULL":
+            p[0] = None
+        else:
+            p[0] = p[1][1:-1].replace("''", "'")
+
     def p_expression_comment_on(self, p: List):
-        """expr : COMMENT ON TABLE id IS STRING
-        | COMMENT ON TABLE id DOT id IS STRING
-        | COMMENT ON COLUMN id DOT id IS STRING
-        | COMMENT ON COLUMN id DOT id DOT id IS STRING
+        """expr : COMMENT ON TABLE id IS comment_value
+        | COMMENT ON TABLE id DOT id IS comment_value
+        | COMMENT ON COLUMN id DOT id IS comment_value
+        | COMMENT ON COLUMN id DOT id DOT id IS comment_value
+        | COMMENT ON SCHEMA id IS comment_value
+        | COMMENT ON DATABASE id IS comment_value
+        | COMMENT ON SEQUENCE id IS comment_value
+        | COMMENT ON VIEW id IS comment_value
+        | COMMENT ON INDEX id IS comment_value
+        | COMMENT ON AGGREGATE f_call IS comment_value
+        | COMMENT ON FUNCTION f_call IS comment_value
+        | COMMENT ON COLLATION id IS comment_value
+        | COMMENT ON CONVERSION id IS comment_value
+        | COMMENT ON CAST LP id AS id RP IS comment_value
+        | COMMENT ON CONSTRAINT id ON id IS comment_value
+        | COMMENT ON CONSTRAINT id ON id DOT id IS comment_value
         """
         comment_on = {}
         p[0] = {"comment_on": comment_on}
         p_list = list(p)
         obj_type = p_list[3]
 
-        # Cleanse comment quotes and handle escaped quotes
-        comment_on["comment"] = p_list[-1][1:-1].replace("''", "'")
+        comment_on["comment"] = p_list[-1]
         comment_on["object_type"] = obj_type
+
+        def set_object_name(target_key: str = "object_name") -> None:
+            if "DOT" in p_list:
+                comment_on["schema"] = p_list[-5]
+                comment_on[target_key] = p_list[-3]
+            else:
+                comment_on["schema"] = None
+                comment_on[target_key] = p_list[-3]
 
         if obj_type == "COLUMN":
             comment_on["column_name"] = p_list[-3]
@@ -1047,6 +1075,20 @@ class Comment:
         elif obj_type == "TABLE":
             comment_on["table_name"] = p_list[-3]
             comment_on["schema"] = p_list[-5] if len(p_list) > 7 else None
+        elif obj_type == "CONSTRAINT":
+            comment_on["constraint_name"] = p_list[4]
+            if "DOT" in p_list:
+                comment_on["schema"] = p_list[-5]
+                comment_on["table_name"] = p_list[-3]
+            else:
+                comment_on["schema"] = None
+                comment_on["table_name"] = p_list[-3]
+        elif obj_type == "CAST":
+            comment_on["object_name"] = {"cast": {"value": p_list[5], "as": p_list[7]}}
+        elif obj_type in {"AGGREGATE", "FUNCTION"}:
+            comment_on["object_name"] = p_list[4]
+        else:
+            set_object_name()
 
 
 class BaseSQL(

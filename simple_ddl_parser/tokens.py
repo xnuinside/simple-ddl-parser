@@ -25,7 +25,11 @@ common_statements = {
     "KEY",
     "ADD",
     "AS",
+    "AGGREGATE",
     "CLONE",
+    "CAST",
+    "COLLATION",
+    "CONVERSION",
     "DEFERRABLE",
     "INITIALLY",
     "IF",
@@ -42,6 +46,8 @@ common_statements = {
     "UPDATE",
     "DEFAULT",
     "COMMENT",
+    "FUNCTION",
+    "VIEW",
     # bigquery
     "OPTIONS",
     # snoflake
@@ -93,15 +99,22 @@ first_liners = {value: value for value in first_liners}
 comment_on_tokens = {
     "ON",
     "IS",
+    "NULL",
     "TABLE",
     "COLUMN",
-    "MATERIALIZED",
-    "VIEW",
-    "FUNCTION",
-    "INDEX",
+    "DATABASE",
     "SCHEMA",
     "SEQUENCE",
+    "VIEW",
+    "MATERIALIZED",
+    "INDEX",
     "PROCEDURE",
+    "FUNCTION",
+    "AGGREGATE",
+    "CAST",
+    "COLLATION",
+    "CONVERSION",
+    "CONSTRAINT",
 }
 comment_on_tokens = {value: value for value in comment_on_tokens}
 

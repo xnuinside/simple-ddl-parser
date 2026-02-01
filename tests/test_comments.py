@@ -384,6 +384,74 @@ def test_two_defices_in_string_work_ok():
     assert expected == parse_result
 
 
+def test_comment_on_examples_postgres_docs():
+    ddl = """
+    CREATE TABLE my_table (
+        my_column text
+    );
+    COMMENT ON TABLE my_table IS 'This is a table comment';
+    COMMENT ON COLUMN my_table.my_column IS 'Column comment';
+    COMMENT ON TABLE my_table IS NULL;
+    COMMENT ON AGGREGATE concat(text, text) IS 'Concatenate text';
+    COMMENT ON CAST (text AS int) IS 'Cast text to int';
+    COMMENT ON COLLATION de_DE IS 'German collation';
+    COMMENT ON CONVERSION my_conv IS 'Conversion comment';
+    COMMENT ON CONSTRAINT my_constraint ON my_table IS 'Constraint comment';
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="sql")
+
+    table = result["tables"][0]
+    columns = {column["name"]: column for column in table["columns"]}
+
+    assert columns["my_column"]["comment"] == "Column comment"
+    assert "comment" not in table
+
+    expected_comment_on = [
+        {
+            "comment_on": {
+                "comment": "Concatenate text",
+                "object_type": "AGGREGATE",
+                "object_name": "concat(text,text)",
+            }
+        },
+        {
+            "comment_on": {
+                "comment": "Cast text to int",
+                "object_type": "CAST",
+                "object_name": {"cast": {"value": "text", "as": "int"}},
+            }
+        },
+        {
+            "comment_on": {
+                "comment": "German collation",
+                "object_type": "COLLATION",
+                "object_name": "de_DE",
+                "schema": None,
+            }
+        },
+        {
+            "comment_on": {
+                "comment": "Conversion comment",
+                "object_type": "CONVERSION",
+                "object_name": "my_conv",
+                "schema": None,
+            }
+        },
+        {
+            "comment_on": {
+                "comment": "Constraint comment",
+                "object_type": "CONSTRAINT",
+                "constraint_name": "my_constraint",
+                "schema": None,
+                "table_name": "my_table",
+            }
+        },
+    ]
+
+    assert result["comment_on"] == expected_comment_on
+
+
 def test_comment_on_table():
     ddl = """
     CREATE TABLE users (
