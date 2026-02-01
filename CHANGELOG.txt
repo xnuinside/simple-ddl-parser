@@ -14,6 +14,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 6. Custom output schema "bigquery" now defaults the output mode to BigQuery for dialect-specific parsing.
 7. Updated tox linting configuration to skip the local .venv directory.
 8. Added a BigQuery custom schema usage example.
+9. Added a tox environment to test against the installed wheel.
 
 ### Fixed
 1. Fixed MySQL parsing for FOREIGN KEY constraints with ON DELETE SET NULL in multi-table DDL - https://github.com/xnuinside/simple-ddl-parser/issues/290
