@@ -586,10 +586,13 @@ class Column:
         name = None
         if isinstance(p[1], dict):
             if "constraint" in p[1]:
-                if "in_statement" not in p[2]["check"][0]:
-                    statement = " ".join(p[2]["check"])
-                else:
-                    statement = p[2]["check"][0]
+                statement = p[2]["check"]
+                if isinstance(statement, list):
+                    if statement and isinstance(statement[0], dict):
+                        # Keep dict payload for IN statements.
+                        statement = statement[0]
+                    else:
+                        statement = self.set_check_in_columm(statement)
                 p[0] = {
                     "check": {
                         "constraint_name": p[1]["constraint"]["name"],
@@ -1860,6 +1863,7 @@ class BaseSQL(
 
     def p_check_st(self, p: List) -> None:
         """check_st : CHECK LP multi_id_statement RP
+        | CHECK LP check_pid RP
         | CHECK LP f_call id id RP
         | CHECK LP f_call id RP
         | CHECK LP f_call RP
@@ -1901,6 +1905,36 @@ class BaseSQL(
             else:
                 p[0]["check"].append(item)
             i += 1
+
+    def p_check_pid(self, p: List) -> None:
+        """check_pid : id
+        | STRING
+        | IS
+        | NULL
+        | OR
+        | EQ
+        | check_pid id
+        | check_pid STRING
+        | check_pid IS
+        | check_pid NULL
+        | check_pid OR
+        | check_pid EQ
+        | LP check_pid RP
+        | check_pid LP check_pid RP
+        """
+        p_list = list(p)
+        if len(p_list) == 2:
+            p[0] = [p_list[1]]
+        elif len(p_list) == 4 and p_list[1] == "(":
+            nested = " ".join(p[2]) if isinstance(p[2], list) else p[2]
+            p[0] = [f"({nested})"]
+        elif len(p_list) == 5 and isinstance(p[1], list) and p_list[2] == "(":
+            p[0] = p_list[1]
+            nested = " ".join(p[3]) if isinstance(p[3], list) else p[3]
+            p[0].append(f"({nested})")
+        else:
+            p[0] = p_list[1]
+            p[0].append(p_list[-1])
 
     def p_using_tablespace(self, p: List) -> None:
         """using_tablespace : USING INDEX tablespace"""
