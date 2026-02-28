@@ -1,3 +1,8 @@
+**v1.11.0**
+### Fixes
+1. Fixed PostgreSQL parsing for complex `GENERATED ALWAYS AS (...) STORED` expressions with nested `CASE`, regex, casts, and function calls. https://github.com/xnuinside/simple-ddl-parser/issues/267 (Fix #267)
+
+
 **v1.10.0**
 ### New Features
 1. Added custom_output_schema support with built-in BigQuery schema conversion and custom schema registry.
