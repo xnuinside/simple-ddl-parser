@@ -8,6 +8,16 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Changed
+- None.
+
+### Fixed
+- None.
+
+## [1.11.0] - 2026-02-28
+### Added
+- None.
+
+### Changed
 - Switched the canonical changelog to CHANGELOG.md.
 - Refactored inline comment handling and FK reference mapping for readability (no behavior change).
 
@@ -170,7 +180,8 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 Older versions are documented in ARCHIVE_CHANGELOG.txt.
 
-[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.10.0...HEAD
+[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.11.0...HEAD
+[1.11.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/xnuinside/simple-ddl-parser/compare/v1.7.1...1.8.0
