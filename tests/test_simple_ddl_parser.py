@@ -1586,6 +1586,30 @@ def test_generated_always_with_concat():
     assert expected == result
 
 
+def test_generated_always_with_case_and_regex():
+    ddl = r"""
+    create table pole.t_spiel (
+    id               varchar(10)               not null
+        constraint t_spiel_pk
+            primary key,
+    v_id             varchar(10) generated always as (
+        CASE
+            WHEN ((id)::text ~ '^\d+$'::text) THEN (lpad((id)::text, 2, '0'::text))::character varying
+            ELSE id
+            END) stored
+    );
+    """
+
+    result = DDLParser(ddl).run(output_mode="postgres")
+
+    assert len(result) == 1
+    generated = result[0]["columns"][1]["generated"]
+    assert generated["always"] is True
+    assert generated["stored"] is True
+    assert "^\\d+$" in generated["as"]
+    assert "lpad((id)::text,2,'0'::text)" in generated["as"].replace(" ", "")
+
+
 def test_enum_in_lowercase():
     ddl = """
     CREATE TYPE my_status AS enum (

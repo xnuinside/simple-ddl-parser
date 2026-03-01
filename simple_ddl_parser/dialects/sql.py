@@ -1825,20 +1825,60 @@ class BaseSQL(
 
     def p_generated(self, p: List) -> None:
         """
-        generated : gen_always funct_expr
-        | gen_always funct_expr id
-        | gen_always LP multi_id RP
+        generated : gen_always multi_id
+        | gen_always multi_id id
+        | gen_always LP f_call RP
+        | gen_always LP f_call RP id
+        | gen_always LP check_pid RP
+        | gen_always LP check_pid RP id
         | gen_always f_call
         """
         p_list = list(p)
         stored = False
+        from_check_pid = False
         if len(p) > 3 and p_list[-1].lower() == "stored":
             stored = True
-        _as = p[2]
+        if p_list[2] == "(":
+            _as = p[3]
+            if isinstance(_as, list):
+                from_check_pid = True
+                _as = " ".join(_as)
+        else:
+            _as = p[2]
         if isinstance(_as, str):
             _as = check_spec(_as)
+            if from_check_pid:
+                _as = self.normalize_generated_expression(_as)
 
         p[0] = {"generated": {"always": True, "as": _as, "stored": stored}}
+
+    @staticmethod
+    def normalize_generated_expression(expression: str) -> str:
+        expression = re.sub(r"\s*,\s*", ",", expression)
+        expression = re.sub(r"\(\s+", "(", expression)
+        expression = re.sub(r"\s+\)", ")", expression)
+        expression = re.sub(r"\s*::\s*", "::", expression)
+        keywords_with_spacing = {
+            "CASE",
+            "WHEN",
+            "THEN",
+            "ELSE",
+            "END",
+            "AND",
+            "OR",
+            "NOT",
+        }
+
+        def _normalize_call_spacing(match: re.Match) -> str:
+            name = match.group(1)
+            if name.upper() in keywords_with_spacing:
+                return f"{name} ("
+            return f"{name}("
+
+        expression = re.sub(
+            r"\b([A-Za-z_][A-Za-z0-9_$]*)\s+\(", _normalize_call_spacing, expression
+        )
+        return expression.replace("\\\\", "\\")
 
     def p_gen_always(self, p: List) -> None:
         """
@@ -1913,12 +1953,14 @@ class BaseSQL(
         | NULL
         | OR
         | EQ
+        | COMMA
         | check_pid id
         | check_pid STRING
         | check_pid IS
         | check_pid NULL
         | check_pid OR
         | check_pid EQ
+        | check_pid COMMA
         | LP check_pid RP
         | check_pid LP check_pid RP
         """

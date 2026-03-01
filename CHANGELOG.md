@@ -11,7 +11,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
-- None.
+- PostgreSQL `GENERATED ALWAYS AS (...) STORED` now parses complex `CASE` expressions with regex/casts and nested function calls (for example `~ '^\d+$'::text` with `lpad(...)`). https://github.com/xnuinside/simple-ddl-parser/issues/267 (Fix #267)
 
 ## [1.11.0] - 2026-02-28
 ### Added
