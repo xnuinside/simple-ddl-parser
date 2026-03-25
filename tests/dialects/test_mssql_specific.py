@@ -58,6 +58,50 @@ def test_int_identity_type():
     assert expected == result
 
 
+def test_primary_key_before_identity():
+    ddl = """
+    CREATE TABLE Customer (
+
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    )
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
+    expected = {
+        "ddl_properties": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "Id",
+                        "nullable": False,
+                        "references": None,
+                        "size": None,
+                        "identity": (1, 1),
+                        "type": "INT",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partitioned_by": [],
+                "primary_key": ["Id"],
+                "schema": None,
+                "table_name": "Customer",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+    assert expected == result
+
+
 def test_mssql_foreign_ref_in_column():
     ddl = """
     CREATE TABLE sqlserverlist (

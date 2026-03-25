@@ -501,6 +501,32 @@ class Column:
         """autoincrement : AUTOINCREMENT"""
         p[0] = {"autoincrement": True}
 
+    def p_identity(self, p: List) -> None:
+        """identity : IDENTITY
+        | IDENTITY LP pid RP
+        """
+        p[0] = {"identity": None}
+        if len(p) == 5:
+            size_values = p[3]
+            if len(size_values) == 1:
+                p[0]["identity"] = (
+                    int(size_values[0])
+                    if str(size_values[0]).isnumeric()
+                    else size_values[0]
+                )
+            elif len(size_values) > 1:
+                first = (
+                    int(size_values[0])
+                    if str(size_values[0]).isnumeric()
+                    else size_values[0]
+                )
+                second = (
+                    int(size_values[1])
+                    if str(size_values[1]).isnumeric()
+                    else size_values[1]
+                )
+                p[0]["identity"] = (first, second)
+
     def p_defcolumn(self, p: List) -> None:
         """defcolumn : column
         | defcolumn comment
@@ -524,6 +550,7 @@ class Column:
         | defcolumn on_update
         | defcolumn options
         | defcolumn autoincrement
+        | defcolumn identity
         | defcolumn option_order_noorder
         | defcolumn option_with_tag
         | defcolumn option_with_masking_policy
