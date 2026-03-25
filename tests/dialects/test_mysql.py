@@ -845,6 +845,24 @@ def test_mysql_character_set():
     assert expected == result
 
 
+def test_mysql_unique_constraint_name_without_key_keyword():
+    ddl = """CREATE TABLE `api_tokenbucket` (
+      `id` INT(11) NOT NULL AUTO_INCREMENT,
+      `value` VARCHAR(80),
+      UNIQUE `constraint_name` (
+        `value`
+      )
+    );"""
+
+    result = DDLParser(ddl, silent=False).run(output_mode="mysql")
+
+    assert len(result) == 1
+    assert result[0]["table_name"] == "`api_tokenbucket`"
+    assert result[0]["index"] == []
+    assert result[0]["columns"][1]["name"] == "`value`"
+    assert result[0]["columns"][1]["unique"] is True
+
+
 def test_unicode_right_single_quote_in_comment():
     """Test for issue #297: Unicode right single quotation mark (U+2019) in COMMENT.
 
