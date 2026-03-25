@@ -2102,6 +2102,7 @@ class BaseSQL(
 
     def p_uniq(self, p: List) -> None:
         """uniq : UNIQUE LP pid RP
+        | UNIQUE id LP pid RP
         | UNIQUE KEY id LP pid RP
         """
         p_list = remove_par(list(p))
