@@ -200,9 +200,31 @@ class Column:
     def p_column_property(self, p: List):
         """c_property : id id
         | id SET id
-        | SET id"""
+        | SET id
+        | id LP pid RP"""
         p_list = list(p)
-        if p[1].lower() == "auto":
+        if len(p) == 5 and p[1].upper() == "IDENTITY":
+            size_values = p[3]
+            if len(size_values) == 1:
+                value = (
+                    int(size_values[0])
+                    if str(size_values[0]).isnumeric()
+                    else size_values[0]
+                )
+            else:
+                first = (
+                    int(size_values[0])
+                    if str(size_values[0]).isnumeric()
+                    else size_values[0]
+                )
+                second = (
+                    int(size_values[1])
+                    if str(size_values[1]).isnumeric()
+                    else size_values[1]
+                )
+                value = (first, second)
+            p[0] = {"identity": value}
+        elif p[1].lower() == "auto":
             p[0] = {"increment": True}
         else:
             p[0] = {"property": {p_list[1]: p_list[-1]}}
