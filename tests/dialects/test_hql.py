@@ -2261,3 +2261,77 @@ def test_location_with_table_properties_in_like():
         }
     ]
     assert expected == result
+
+
+def test_external_table_with_quoted_column_name_containing_space():
+    ddl = """
+    CREATE EXTERNAL TABLE IF NOT EXISTS competitor_analytics.wtp_weekly_unique_hirer_by_billing_paid_budget_sheet_target
+    (
+    `week ending` string,
+    `dbhk` string,
+    `jsmy` string
+    )
+    ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+    LOCATION 's3://demo/path'
+    TBLPROPERTIES ("skip.header.line.count" = "1")
+    """
+    result = DDLParser(ddl, normalize_names=True).run(output_mode="hql")
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "collection_items_terminated_by": None,
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "week ending",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "string",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "dbhk",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "string",
+                    "unique": False,
+                },
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "jsmy",
+                    "nullable": True,
+                    "references": None,
+                    "size": None,
+                    "type": "string",
+                    "unique": False,
+                },
+            ],
+            "external": True,
+            "fields_terminated_by": None,
+            "if_not_exists": True,
+            "index": [],
+            "lines_terminated_by": None,
+            "location": "'s3://demo/path'",
+            "map_keys_terminated_by": None,
+            "partitioned_by": [],
+            "primary_key": [],
+            "row_format": {
+                "java_class": "'org.apache.hadoop.hive.serde2.OpenCSVSerde'",
+                "serde": True,
+            },
+            "schema": "competitor_analytics",
+            "stored_as": None,
+            "table_name": "wtp_weekly_unique_hirer_by_billing_paid_budget_sheet_target",
+            "tablespace": None,
+            "tblproperties": {"skip.header.line.count": "1"},
+            "temp": False,
+        }
+    ]
+    assert expected == result

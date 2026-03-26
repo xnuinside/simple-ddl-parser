@@ -198,7 +198,7 @@ class DDLParser(Parser, Dialects):
         return self.set_last_token(t)
 
     def t_ID(self, t: LexToken):
-        r"([0-9]+[.][0-9]*([e][+-]?[0-9]+)?|[0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\\\=\-\+\~\%$@#\|&?;*\()!{}\[\]\`\[\]]+)"
+        r"([0-9]+[.][0-9]*([e][+-]?[0-9]+)?|[0-9]\.[0-9])\w|(`[^`]+`|\[[^\]]+\]|[a-zA-Z_,0-9:><\/\\\=\-\+\~\%$@#\|&?;*\()!{}\[\]\`\[\]]+)"
         if len(t.value) > 1 and t.value.endswith(","):
             t.value = t.value[:-1]
         t.type = tok.symbol_tokens.get(t.value, "ID")
