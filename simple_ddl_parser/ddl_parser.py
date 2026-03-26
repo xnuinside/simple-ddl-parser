@@ -197,14 +197,6 @@ class DDLParser(Parser, Dialects):
             t.type = "ID"
         return self.set_last_token(t)
 
-    def t_IDENTITY(self, t: LexToken):
-        r"(?i:IDENTITY)\b"
-        if not self.lexer.after_columns:
-            t.type = "IDENTITY"
-        else:
-            t.type = "ID"
-        return self.set_last_token(t)
-
     def t_ID(self, t: LexToken):
         r"([0-9]+[.][0-9]*([e][+-]?[0-9]+)?|[0-9]\.[0-9])\w|([a-zA-Z_,0-9:><\/\\\=\-\+\~\%$@#\|&?;*\()!{}\[\]\`\[\]]+)"
         if len(t.value) > 1 and t.value.endswith(","):

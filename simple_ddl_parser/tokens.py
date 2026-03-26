@@ -60,7 +60,6 @@ common_statements = {value: value for value in common_statements}
 columns_definition = {
     "ENUM",
     "SET",
-    "IDENTITY",
     "NULL",
     "ARRAY",
     "COLLATE",
