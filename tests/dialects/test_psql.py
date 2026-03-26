@@ -149,3 +149,28 @@ def test_generated_by_default_identity_with_check_constraint():
     )
     assert result[0]["checks"][0]["constraint_name"] == "t_zuschauer_email"
     assert "email IS NULL" in result[0]["checks"][0]["statement"]
+
+
+def test_generated_always_identity_with_options_issue_257():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS public.generator_id (
+        hall_id int4 GENERATED ALWAYS AS IDENTITY(
+            INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE
+        ) NOT NULL,
+        hall_name varchar(50) NOT NULL,
+        CONSTRAINT hall_pkey PRIMARY KEY (hall_id)
+    );
+    """
+
+    result = DDLParser(ddl).run(output_mode="postgres")
+
+    assert len(result) == 1
+    assert result[0]["schema"] == "public"
+    assert result[0]["table_name"] == "generator_id"
+    assert result[0]["primary_key"] == ["hall_id"]
+    assert result[0]["columns"][0]["generated_by"] == (
+        "ALWAYS AS IDENTITY(INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 "
+        "START 1 CACHE 1 NO CYCLE)"
+    )
+    assert result[0]["columns"][0]["nullable"] is False
+    assert result[0]["columns"][1]["name"] == "hall_name"

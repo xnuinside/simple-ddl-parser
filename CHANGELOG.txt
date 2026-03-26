@@ -1,2 +1,0 @@
-# Changelog
-This file is deprecated. The canonical changelog is now in CHANGELOG.md.
