@@ -1240,6 +1240,52 @@ def test_comment_and_lines():
     assert expected == result
 
 
+def test_array_of_primitive_type_hql_issue_192():
+    ddl = """
+    CREATE TABLE IF NOT EXISTS a.b(
+        c array<string>
+    )
+    """
+
+    result = DDLParser(ddl).run(output_mode="hql")
+
+    expected = [
+        {
+            "table_name": "b",
+            "schema": "a",
+            "primary_key": [],
+            "columns": [
+                {
+                    "name": "c",
+                    "type": "array<string>",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                }
+            ],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "tablespace": None,
+            "if_not_exists": True,
+            "temp": False,
+            "stored_as": None,
+            "row_format": None,
+            "fields_terminated_by": None,
+            "lines_terminated_by": None,
+            "map_keys_terminated_by": None,
+            "collection_items_terminated_by": None,
+            "external": False,
+        }
+    ]
+
+    assert expected == result
+
+
 def test_simple_serde():
     ddl = """
     CREATE TABLE apachelog (

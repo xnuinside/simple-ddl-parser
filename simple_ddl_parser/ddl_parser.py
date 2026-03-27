@@ -1,3 +1,4 @@
+import re
 from typing import Dict, List, Optional
 
 from ply.lex import LexToken
@@ -46,6 +47,8 @@ class Dialects(
 class DDLParser(Parser, Dialects):
     tokens = tok.tokens
     t_ignore = "\t  \r"
+
+    SIMPLE_GENERIC_TYPE_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*<[^,<>]+>$")
 
     def get_tag_symbol_value_and_increment(self, t: LexToken) -> LexToken:
         # todo: need to find less hacky way to parse HQL structure types
@@ -208,6 +211,13 @@ class DDLParser(Parser, Dialects):
             self.lexer.columns_def = True
             self.lexer.last_token = "LP"
             return t
+        elif (
+            self.lexer.is_table
+            and self.lexer.lp_open
+            and self.lexer.last_token != "COMMA"
+            and self.SIMPLE_GENERIC_TYPE_RE.match(t.value)
+        ):
+            t.type = "ID"
         elif self.is_token_column_name(t) or self.lexer.last_token == "DOT":
             t.type = "ID"
         elif t.type != "DQ_STRING" and self.is_creation_name(t):
