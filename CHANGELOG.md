@@ -11,6 +11,16 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
+- None.
+
+## [1.12.0] - 2026-03-27
+### Added
+- None.
+
+### Changed
+- None.
+
+### Fixed
 - PostgreSQL `GENERATED ALWAYS AS IDENTITY(...)` column definitions now parse with identity options like `INCREMENT BY` and `NO CYCLE`. https://github.com/xnuinside/simple-ddl-parser/issues/257
 - PostgreSQL `GENERATED ALWAYS AS (...) STORED` now parses complex `CASE` expressions with regex/casts and nested function calls (for example `~ '^\d+$'::text` with `lpad(...)`). https://github.com/xnuinside/simple-ddl-parser/issues/267 (Fix #267)
 - MySQL table-level `UNIQUE constraint_name (...)` definitions now parse without requiring the `KEY` keyword. https://github.com/xnuinside/simple-ddl-parser/issues/262
@@ -185,7 +195,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 Older versions are documented in ARCHIVE_CHANGELOG.txt.
 
-[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.11.0...HEAD
+[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...HEAD
 [1.11.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.8.0...1.9.0
