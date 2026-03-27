@@ -1,6 +1,6 @@
 import pytest
 
-from simple_ddl_parser import DDLParser, SimpleDDLParserException
+from simple_ddl_parser import DDLParser, DDLParserError, SimpleDDLParserException
 from simple_ddl_parser.output.core import get_table_id
 
 
@@ -33,6 +33,31 @@ CREATE PABLE foo
         DDLParser(ddl, silent=False).run(group_by_type=True)
 
         assert "Unknown statement" in e.value[1]
+
+
+def test_silent_false_invalid_alter_foreign_key_returns_parser_error():
+    ddl = """
+    ALTER TABLE a ADD CONSTRAINT fk FOREIGN KEY fk (proj_id) REFERENCES t (id);
+    """
+
+    with pytest.raises(DDLParserError) as excinfo:
+        DDLParser(ddl, silent=False).run(output_mode="mysql")
+
+    assert "Failed to parse statement" in str(excinfo.value)
+    assert "FOREIGN KEY fk" in str(excinfo.value)
+
+
+def test_silent_false_unknown_alter_target_returns_parser_error():
+    ddl = """
+    ALTER TABLE a ADD CONSTRAINT fk FOREIGN KEY (proj_id) REFERENCES t (id);
+    """
+
+    with pytest.raises(DDLParserError) as excinfo:
+        DDLParser(ddl, silent=False).run(output_mode="mysql")
+
+    assert "TABLE a with SCHEMA None does not exists in tables data" in str(
+        excinfo.value
+    )
 
 
 def test_flag_normalize_names():

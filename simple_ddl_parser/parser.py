@@ -679,6 +679,7 @@ class Parser:
             parser_output=self.tables,
             group_by_type=group_by_type,
             output_mode=output_mode,
+            silent=self.silent,
         ).format()
         if custom_output_schema:
             from simple_ddl_parser.output.custom_schemas import (

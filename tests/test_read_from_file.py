@@ -1,6 +1,8 @@
 import os
 
-from simple_ddl_parser import parse_from_file
+import pytest
+
+from simple_ddl_parser import DDLParserError, parse_from_file
 
 
 def test_parse_from_file_one_table():
@@ -82,6 +84,23 @@ def test_parse_from_file_one_table():
     assert expected == parse_from_file(
         os.path.join(current_path, "sql", "test_one_table.sql")
     )
+
+
+def test_parse_from_file_silent_false_invalid_ddl_returns_parser_error(tmp_path):
+    ddl_file = tmp_path / "broken.sql"
+    ddl_file.write_text(
+        "ALTER TABLE a ADD CONSTRAINT fk FOREIGN KEY fk (proj_id) REFERENCES t (id);",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DDLParserError) as excinfo:
+        parse_from_file(
+            str(ddl_file),
+            parser_settings={"silent": False},
+            output_mode="mysql",
+        )
+
+    assert "Failed to parse statement" in str(excinfo.value)
 
 
 def test_parse_from_file_two_statements():

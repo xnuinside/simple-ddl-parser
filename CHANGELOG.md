@@ -11,6 +11,17 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
+- None.
+
+## [1.12.1] - 2026-03-27
+### Added
+- None.
+
+### Changed
+- None.
+
+### Fixed
+- Invalid DDL statements now raise `DDLParserError` instead of internal exceptions when `silent=False`, including `parse_from_file(..., parser_settings={"silent": False})` paths that previously surfaced `AttributeError` or unresolved alter-target errors. https://github.com/xnuinside/simple-ddl-parser/issues/149
 - HQL primitive generic array types like `array<string>` now parse without failing on the closing `>` token. https://github.com/xnuinside/simple-ddl-parser/issues/192
 - `TRUNCATE TABLE schema.table` statements now return the affected table in parser output instead of being skipped. https://github.com/xnuinside/simple-ddl-parser/issues/190
 
@@ -195,7 +206,8 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 Older versions are documented in ARCHIVE_CHANGELOG.txt.
 
-[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...HEAD
+[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.1...HEAD
+[1.12.1]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...1.12.1
 [1.12.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.11.0...1.12.0
 [1.11.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.9.0...1.10.0
