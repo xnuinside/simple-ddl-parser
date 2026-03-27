@@ -39,6 +39,28 @@ CREATE_TABLE_AS_SELECT_RE = re.compile(
     flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
 
+CREATE_VIEW_RE = re.compile(
+    r"""
+    ^\s*CREATE\s+
+    (?P<replace>OR\s+REPLACE\s+)?
+    VIEW\s+
+    (?P<target>[^\s(]+)
+    \s+AS\s+
+    (?P<definition>.+?)
+    \s*$
+    """,
+    flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
+)
+
+DROP_VIEW_RE = re.compile(
+    r"""
+    ^\s*DROP\s+VIEW\s+
+    (?P<target>[^\s;]+)
+    \s*$
+    """,
+    flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
+)
+
 
 def set_logging_config(
     log_level: Union[str, int], log_file: Optional[str] = None
@@ -427,6 +449,27 @@ class Parser:
             }
         }
 
+    def parse_create_view_statement(self, statement: str) -> Optional[Dict]:
+        match = CREATE_VIEW_RE.match(statement)
+        if not match:
+            return None
+
+        schema, view_name = self.split_table_identifier(match.group("target"))
+        return {
+            "schema": schema,
+            "view_name": view_name,
+            "definition": match.group("definition").strip(),
+            "replace": bool(match.group("replace")),
+        }
+
+    def parse_drop_view_statement(self, statement: str) -> Optional[Dict]:
+        match = DROP_VIEW_RE.match(statement)
+        if not match:
+            return None
+
+        schema, view_name = self.split_table_identifier(match.group("target"))
+        return {"schema": schema, "drop_view_name": view_name}
+
     @staticmethod
     def clone_create_table_as_select_columns(
         source_table: Dict, select_columns: Union[str, List[Dict[str, str]]]
@@ -585,6 +628,14 @@ class Parser:
         if create_table_as_select_statement:
             self.tables.append(create_table_as_select_statement)
             return
+        create_view_statement = self.parse_create_view_statement(self.statement)
+        if create_view_statement:
+            self.tables.append(create_view_statement)
+            return
+        drop_view_statement = self.parse_drop_view_statement(self.statement)
+        if drop_view_statement:
+            self.tables.append(drop_view_statement)
+            return
         _parse_result = yacc.parse(self.statement)
         if _parse_result:
             if (
@@ -679,7 +730,6 @@ class Parser:
             parser_output=self.tables,
             group_by_type=group_by_type,
             output_mode=output_mode,
-            silent=self.silent,
         ).format()
         if custom_output_schema:
             from simple_ddl_parser.output.custom_schemas import (

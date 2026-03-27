@@ -1,6 +1,6 @@
 import pytest
 
-from simple_ddl_parser import DDLParser, DDLParserError, SimpleDDLParserException
+from simple_ddl_parser import DDLParser, SimpleDDLParserException
 from simple_ddl_parser.output.core import get_table_id
 
 
@@ -35,29 +35,72 @@ CREATE PABLE foo
         assert "Unknown statement" in e.value[1]
 
 
-def test_silent_false_invalid_alter_foreign_key_returns_parser_error():
+def test_silent_false_mysql_named_foreign_key_in_alter():
     ddl = """
-    ALTER TABLE a ADD CONSTRAINT fk FOREIGN KEY fk (proj_id) REFERENCES t (id);
+    CREATE TABLE parent (
+        id int PRIMARY KEY
+    );
+
+    CREATE TABLE child (
+        parent_id int
+    );
+
+    ALTER TABLE child ADD CONSTRAINT fk_child_parent FOREIGN KEY fk_child_parent (parent_id) REFERENCES parent (id);
     """
 
-    with pytest.raises(DDLParserError) as excinfo:
-        DDLParser(ddl, silent=False).run(output_mode="mysql")
+    result = DDLParser(ddl, silent=False).run(output_mode="mysql")
 
-    assert "Failed to parse statement" in str(excinfo.value)
-    assert "FOREIGN KEY fk" in str(excinfo.value)
+    assert result[1]["table_name"] == "child"
+    assert result[1]["alter"]["columns"] == [
+        {
+            "name": "parent_id",
+            "constraint_name": "fk_child_parent",
+            "references": {
+                "column": "id",
+                "table": "parent",
+                "schema": None,
+                "on_update": None,
+                "on_delete": None,
+                "deferrable_initially": None,
+            },
+        }
+    ]
 
 
-def test_silent_false_unknown_alter_target_returns_parser_error():
+def test_create_and_drop_view_statements():
     ddl = """
-    ALTER TABLE a ADD CONSTRAINT fk FOREIGN KEY (proj_id) REFERENCES t (id);
+    DROP VIEW reporting.user_ip_address_view;
+    CREATE VIEW reporting.user_ip_address_view AS SELECT id, name FROM users;
     """
 
-    with pytest.raises(DDLParserError) as excinfo:
-        DDLParser(ddl, silent=False).run(output_mode="mysql")
+    result = DDLParser(ddl, silent=False).run(group_by_type=True)
 
-    assert "TABLE a with SCHEMA None does not exists in tables data" in str(
-        excinfo.value
-    )
+    assert result["drop_views"] == [
+        {"schema": "reporting", "drop_view_name": "user_ip_address_view"}
+    ]
+    assert result["views"] == [
+        {
+            "schema": "reporting",
+            "view_name": "user_ip_address_view",
+            "definition": "SELECT id ,  name FROM users",
+            "replace": False,
+        }
+    ]
+
+
+def test_alter_drop_foreign_key_statement():
+    ddl = """
+    CREATE TABLE child (
+        parent_id int
+    );
+
+    ALTER TABLE child DROP FOREIGN KEY fk_child_parent;
+    """
+
+    result = DDLParser(ddl, silent=False).run(output_mode="mysql")
+
+    assert result[0]["table_name"] == "child"
+    assert result[0]["alter"]["foreign_keys_to_drop"] == ["fk_child_parent"]
 
 
 def test_flag_normalize_names():

@@ -1,8 +1,6 @@
 import os
 
-import pytest
-
-from simple_ddl_parser import DDLParserError, parse_from_file
+from simple_ddl_parser import parse_from_file
 
 
 def test_parse_from_file_one_table():
@@ -86,21 +84,31 @@ def test_parse_from_file_one_table():
     )
 
 
-def test_parse_from_file_silent_false_invalid_ddl_returns_parser_error(tmp_path):
-    ddl_file = tmp_path / "broken.sql"
+def test_parse_from_file_mysql_named_foreign_key_with_silent_false(tmp_path):
+    ddl_file = tmp_path / "named_fk.sql"
     ddl_file.write_text(
-        "ALTER TABLE a ADD CONSTRAINT fk FOREIGN KEY fk (proj_id) REFERENCES t (id);",
+        """
+        CREATE TABLE parent (
+            id int PRIMARY KEY
+        );
+
+        CREATE TABLE child (
+            parent_id int
+        );
+
+        ALTER TABLE child ADD CONSTRAINT fk_child_parent FOREIGN KEY fk_child_parent (parent_id) REFERENCES parent (id);
+        """,
         encoding="utf-8",
     )
 
-    with pytest.raises(DDLParserError) as excinfo:
-        parse_from_file(
-            str(ddl_file),
-            parser_settings={"silent": False},
-            output_mode="mysql",
-        )
+    result = parse_from_file(
+        str(ddl_file),
+        parser_settings={"silent": False},
+        output_mode="mysql",
+    )
 
-    assert "Failed to parse statement" in str(excinfo.value)
+    assert result[1]["table_name"] == "child"
+    assert result[1]["alter"]["columns"][0]["constraint_name"] == "fk_child_parent"
 
 
 def test_parse_from_file_two_statements():

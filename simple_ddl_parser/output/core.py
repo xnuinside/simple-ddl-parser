@@ -14,11 +14,7 @@ class Output:
     """class implements logic to format final output after parser"""
 
     def __init__(
-        self,
-        parser_output: List[Dict],
-        output_mode: str,
-        group_by_type: bool,
-        silent: bool = True,
+        self, parser_output: List[Dict], output_mode: str, group_by_type: bool
     ) -> None:
         self.output_mode = output_mode
         if output_mode == "bigquery":
@@ -26,7 +22,6 @@ class Output:
         else:
             self.schema_key = "schema"
         self.group_by_type = group_by_type
-        self.silent = silent
         self.parser_output = parser_output
 
         self.final_result = []
@@ -37,8 +32,6 @@ class Output:
         table_id = get_table_id(schema, table_name)
         target_table = self.tables_dict.get(table_id)
         if target_table is None:
-            if self.silent:
-                return None
             raise ValueError(
                 f"TABLE {table_id[0]} with SCHEMA {table_id[1]} does not exists in tables data"
             )
@@ -61,8 +54,6 @@ class Output:
             statement.get(self.schema_key) or statement.get("schema"),
             statement["table_name"],
         )
-        if target_table is None:
-            return
         self.clean_up_index_statement(statement)
         target_table.index.append(statement)
 
@@ -71,8 +62,6 @@ class Output:
         target_table = self.get_table_from_tables_data(
             statement["schema"], statement["alter_table_name"]
         )
-        if target_table is None:
-            return
         target_table.append_statement_information_to_table(statement)
 
     def process_statement_data(self, statement_data: Dict) -> Dict:
@@ -97,8 +86,6 @@ class Output:
         table_name = statement["comment_on"]["table_name"]
         schema = statement.get(self.schema_key) or statement["comment_on"].get("schema")
         target_table = self.get_table_from_tables_data(schema, table_name)
-        if target_table is None:
-            return
         target_table.append_statement_information_to_table(statement)
 
     def process_alter_and_index_result(self, table: Dict):
@@ -115,6 +102,8 @@ class Output:
             "sequences": [],
             "domains": [],
             "schemas": [],
+            "views": [],
+            "drop_views": [],
             "ddl_properties": [],
             "comments": [],
             "comment_on": [],
@@ -125,6 +114,8 @@ class Output:
             "type_name": "types",
             "domain_name": "domains",
             "schema_name": "schemas",
+            "view_name": "views",
+            "drop_view_name": "drop_views",
             "tablespace_name": "tablespaces",
             "database_name": "databases",
             "value": "ddl_properties",
@@ -147,6 +138,10 @@ class Output:
             del result_as_dict["comments"]
         if not result_as_dict["comment_on"]:
             del result_as_dict["comment_on"]
+        if not result_as_dict["views"]:
+            del result_as_dict["views"]
+        if not result_as_dict["drop_views"]:
+            del result_as_dict["drop_views"]
 
         self.final_result = result_as_dict
 

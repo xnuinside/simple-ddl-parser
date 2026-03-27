@@ -301,25 +301,6 @@ class DDLParser(Parser, Dialects):
         if not self.silent:
             raise DDLParserError(f"Unknown statement at {p}")
 
-    def parse_statement(self) -> None:
-        try:
-            super().parse_statement()
-        except (AttributeError, ValueError) as exc:
-            if self.silent:
-                return
-            statement = (self.statement or "").strip().replace("\n", " ")
-            raise DDLParserError(
-                f"Failed to parse statement: {statement}. {exc}"
-            ) from exc
-
-    def run(self, *args, **kwargs):
-        try:
-            return super().run(*args, **kwargs)
-        except ValueError as exc:
-            if self.silent:
-                return []
-            raise DDLParserError(str(exc)) from exc
-
 
 def parse_from_file(
     file_path: str,
