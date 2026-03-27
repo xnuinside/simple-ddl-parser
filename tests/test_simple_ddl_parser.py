@@ -785,6 +785,172 @@ def test_like_statement():
     assert expected == result
 
 
+def test_create_table_as_select_from_table_in_same_ddl():
+    ddl = """
+    CREATE TABLE Person (
+        person_id int,
+        last_name varchar(255),
+        first_name varchar(255),
+        city varchar(255)
+    );
+
+    CREATE TABLE TestTable AS
+    SELECT person_id, first_name, last_name
+    FROM Person;
+    """
+
+    result = DDLParser(ddl).run()
+
+    expected = [
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "name": "person_id",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "last_name",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "first_name",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "city",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "Person",
+            "tablespace": None,
+        },
+        {
+            "alter": {},
+            "checks": [],
+            "columns": [
+                {
+                    "name": "person_id",
+                    "type": "int",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "first_name",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "last_name",
+                    "type": "varchar",
+                    "size": 255,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "index": [],
+            "partitioned_by": [],
+            "primary_key": [],
+            "schema": None,
+            "table_name": "TestTable",
+            "tablespace": None,
+        },
+    ]
+
+    assert expected == result
+
+
+def test_create_table_as_select_star_from_table_in_same_ddl():
+    ddl = """
+    CREATE TABLE Person (
+        person_id int,
+        first_name varchar(255)
+    );
+
+    CREATE TABLE TestTable AS
+    SELECT *
+    FROM Person;
+    """
+
+    result = DDLParser(ddl).run()
+
+    assert result[1]["columns"] == result[0]["columns"]
+
+
+def test_create_table_as_select_requires_source_table_in_same_ddl():
+    ddl = """
+    CREATE TABLE TestTable AS
+    SELECT person_id, first_name, last_name
+    FROM Person;
+    """
+
+    result = DDLParser(ddl).run()
+
+    assert result == []
+
+
+def test_create_table_as_select_resolves_source_table_defined_later():
+    ddl = """
+    CREATE TABLE TestTable AS
+    SELECT person_id, first_name
+    FROM Person;
+
+    CREATE TABLE Person (
+        person_id int,
+        first_name varchar(255)
+    );
+    """
+
+    result = DDLParser(ddl).run()
+
+    assert result[0]["table_name"] == "TestTable"
+    assert [column["name"] for column in result[0]["columns"]] == [
+        "person_id",
+        "first_name",
+    ]
+
+
 def test_defaults_with_comments():
     ddl = """
 

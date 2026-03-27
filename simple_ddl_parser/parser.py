@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from copy import deepcopy
 from typing import Callable, Dict, List, Optional, Tuple, Union, cast
 
 from ply import lex, yacc
@@ -9,7 +10,11 @@ from ply import lex, yacc
 from simple_ddl_parser.exception import SimpleDDLParserException
 from simple_ddl_parser.output.core import Output, dump_data_to_file
 from simple_ddl_parser.output.dialects import dialect_by_name
-from simple_ddl_parser.utils import find_first_unpair_closed_par, normalize_name
+from simple_ddl_parser.utils import (
+    find_first_unpair_closed_par,
+    get_table_id,
+    normalize_name,
+)
 
 # open comment
 OP_COM = "/*"
@@ -20,6 +25,19 @@ IN_COM = "--"
 MYSQL_COM = "#"
 
 LF_IN_QUOTE = r"\N"
+
+CREATE_TABLE_AS_SELECT_RE = re.compile(
+    r"""
+    ^\s*CREATE\s+TABLE\s+
+    (?P<target>[^\s(]+)
+    \s+AS\s+SELECT\s+
+    (?P<select>.+?)
+    \s+FROM\s+
+    (?P<source>[^\s;]+)
+    (?P<tail>\s+.*)?$
+    """,
+    flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
+)
 
 
 def set_logging_config(
@@ -343,9 +361,158 @@ class Parser:
 
         for num, self.line in enumerate(lines):
             self.process_line(num != len(lines) - 1)
+        self.resolve_create_table_as_select_statements()
         if self.comments:
             self.tables.append({"comments": self.comments})
         return self.tables
+
+    @staticmethod
+    def split_table_identifier(identifier: str) -> Tuple[Optional[str], str]:
+        parts = [part.strip() for part in identifier.split(".") if part.strip()]
+        if not parts:
+            return None, identifier
+        if len(parts) == 1:
+            return None, parts[0]
+        return parts[-2], parts[-1]
+
+    @classmethod
+    def parse_select_column_definition(
+        cls, raw_column: str
+    ) -> Optional[Dict[str, str]]:
+        match = re.match(
+            r"""
+            ^\s*
+            (?P<source>(?:[^\s,]+\.)?[^\s,]+)
+            (?:\s+(?:AS\s+)?(?P<alias>[^\s,]+))?
+            \s*$
+            """,
+            raw_column,
+            flags=re.IGNORECASE | re.VERBOSE,
+        )
+        if not match:
+            return None
+        source_name = match.group("source").split(".")[-1]
+        alias = match.group("alias")
+        return {"source_name": source_name, "alias": alias}
+
+    def parse_create_table_as_select_statement(self, statement: str) -> Optional[Dict]:
+        match = CREATE_TABLE_AS_SELECT_RE.match(statement)
+        if not match:
+            return None
+
+        target_schema, target_table_name = self.split_table_identifier(
+            match.group("target")
+        )
+        source_schema, source_table_name = self.split_table_identifier(
+            match.group("source")
+        )
+        raw_select = match.group("select").strip()
+        if raw_select == "*":
+            select_columns = "*"
+        else:
+            select_columns = []
+            for raw_column in raw_select.split(","):
+                parsed_column = self.parse_select_column_definition(raw_column.strip())
+                if parsed_column is None:
+                    return None
+                select_columns.append(parsed_column)
+
+        return {
+            "__create_table_as_select__": {
+                "schema": target_schema,
+                "table_name": target_table_name,
+                "source_schema": source_schema,
+                "source_table_name": source_table_name,
+                "select_columns": select_columns,
+            }
+        }
+
+    @staticmethod
+    def clone_create_table_as_select_columns(
+        source_table: Dict, select_columns: Union[str, List[Dict[str, str]]]
+    ) -> Optional[List[Dict]]:
+        source_columns = {
+            normalize_name(column["name"]): column
+            for column in source_table.get("columns", [])
+        }
+        if select_columns == "*":
+            return [deepcopy(column) for column in source_table.get("columns", [])]
+
+        cloned_columns = []
+        for selected_column in select_columns:
+            source_column = source_columns.get(
+                normalize_name(selected_column["source_name"])
+            )
+            if source_column is None:
+                return None
+            column_copy = deepcopy(source_column)
+            if selected_column.get("alias"):
+                column_copy["name"] = selected_column["alias"]
+            cloned_columns.append(column_copy)
+        return cloned_columns
+
+    def build_create_table_as_select_statement(
+        self, statement: Dict, source_table: Dict
+    ) -> Optional[Dict]:
+        data = statement["__create_table_as_select__"]
+        columns = self.clone_create_table_as_select_columns(
+            source_table, data["select_columns"]
+        )
+        if columns is None:
+            return None
+        return {
+            "table_name": data["table_name"],
+            "schema": data["schema"],
+            "primary_key": [],
+            "columns": columns,
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "tablespace": None,
+        }
+
+    def resolve_create_table_as_select_statements(self) -> None:
+        unresolved = True
+        while unresolved:
+            unresolved = False
+            tables_by_id = {
+                get_table_id(table.get("schema"), table["table_name"]): table
+                for table in self.tables
+                if table.get("table_name") and "__create_table_as_select__" not in table
+            }
+            next_tables = []
+            progress = False
+            for statement in self.tables:
+                create_table_as_select = statement.get("__create_table_as_select__")
+                if create_table_as_select is None:
+                    next_tables.append(statement)
+                    continue
+                source_table = tables_by_id.get(
+                    get_table_id(
+                        create_table_as_select["source_schema"],
+                        create_table_as_select["source_table_name"],
+                    )
+                )
+                if source_table is None:
+                    unresolved = True
+                    next_tables.append(statement)
+                    continue
+                resolved_statement = self.build_create_table_as_select_statement(
+                    statement, source_table
+                )
+                if resolved_statement is None:
+                    continue
+                next_tables.append(resolved_statement)
+                progress = True
+            self.tables = next_tables
+            if unresolved and not progress:
+                self.tables = [
+                    statement
+                    for statement in self.tables
+                    if "__create_table_as_select__" not in statement
+                ]
+                break
 
     def process_line(
         self,
@@ -412,6 +579,12 @@ class Parser:
                 )
 
     def parse_statement(self) -> None:
+        create_table_as_select_statement = self.parse_create_table_as_select_statement(
+            self.statement
+        )
+        if create_table_as_select_statement:
+            self.tables.append(create_table_as_select_statement)
+            return
         _parse_result = yacc.parse(self.statement)
         if _parse_result:
             if (
