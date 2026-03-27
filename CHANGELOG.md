@@ -12,6 +12,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 ### Fixed
 - HQL primitive generic array types like `array<string>` now parse without failing on the closing `>` token. https://github.com/xnuinside/simple-ddl-parser/issues/192
+- `TRUNCATE TABLE schema.table` statements now return the affected table in parser output instead of being skipped. https://github.com/xnuinside/simple-ddl-parser/issues/190
 
 ## [1.12.0] - 2026-03-27
 ### Added
