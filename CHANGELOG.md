@@ -11,16 +11,6 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
-- None.
-
-## [1.12.1] - 2026-03-27
-### Added
-- None.
-
-### Changed
-- None.
-
-### Fixed
 - HQL primitive generic array types like `array<string>` now parse without failing on the closing `>` token. https://github.com/xnuinside/simple-ddl-parser/issues/192
 
 ## [1.12.0] - 2026-03-27
