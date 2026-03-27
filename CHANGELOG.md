@@ -19,11 +19,12 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 ## [1.11.0] - 2026-02-28
 ### Added
-- None.
+- Support for `CREATE TABLE ... AS SELECT ... FROM source_table` when the referenced source table exists in the same DDL input. https://github.com/xnuinside/simple-ddl-parser/issues/216
 
 ### Changed
 - Switched the canonical changelog to CHANGELOG.md.
 - Refactored inline comment handling and FK reference mapping for readability (no behavior change).
+- Expanded README coverage for supported parser features, including the same-DDL `CREATE TABLE ... AS SELECT ...` limitation and recently added dialect features.
 
 ### Fixed
 - Snowflake parsing for table DDL with `WITH ROW ACCESS POLICY` now returns expected output. https://github.com/xnuinside/simple-ddl-parser/issues/291
