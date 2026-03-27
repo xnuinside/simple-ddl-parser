@@ -586,6 +586,20 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 ### Fixed
 - None.
 
+## [1.12.0] - 2026-03-27
+### Added
+- Support for `CREATE TABLE ... AS SELECT ... FROM source_table` when the referenced source table exists in the same DDL input. https://github.com/xnuinside/simple-ddl-parser/issues/216
+
+### Changed
+- Expanded README coverage for supported parser features, including the same-DDL `CREATE TABLE ... AS SELECT ...` limitation and recently added dialect features.
+
+### Fixed
+- PostgreSQL `GENERATED ALWAYS AS IDENTITY(...)` column definitions now parse with identity options like `INCREMENT BY` and `NO CYCLE`. https://github.com/xnuinside/simple-ddl-parser/issues/257
+- PostgreSQL `GENERATED ALWAYS AS (...) STORED` now parses complex `CASE` expressions with regex/casts and nested function calls (for example `~ '^\d+$'::text` with `lpad(...)`). https://github.com/xnuinside/simple-ddl-parser/issues/267 (Fix #267)
+- MySQL table-level `UNIQUE constraint_name (...)` definitions now parse without requiring the `KEY` keyword. https://github.com/xnuinside/simple-ddl-parser/issues/262
+- MSSQL column definitions now support `PRIMARY KEY IDENTITY(1,1)` when `IDENTITY` appears after `PRIMARY KEY`. https://github.com/xnuinside/simple-ddl-parser/issues/261
+- HQL/Athena quoted column names in backticks now parse correctly when the identifier contains spaces. https://github.com/xnuinside/simple-ddl-parser/issues/238
+
 ## [1.11.0] - 2026-02-28
 ### Added
 - None.
@@ -753,7 +767,8 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 Older versions are documented in ARCHIVE_CHANGELOG.txt.
 
-[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.11.0...HEAD
+[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...HEAD
+[1.12.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.11.0...1.12.0
 [1.11.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.8.0...1.9.0
