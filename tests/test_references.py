@@ -613,3 +613,106 @@ def test_compound_foreigen_keys():
         "types": [],
     }
     assert result == expected
+
+
+def test_inline_table_foreign_key_keeps_referencing_column_name():
+    ddl = """
+    CREATE TABLE orders (
+        order_id integer NOT NULL
+    );
+
+    CREATE TABLE order_items (
+        order_identifier integer NOT NULL,
+        product_id integer NOT NULL,
+        CONSTRAINT fk_order FOREIGN KEY (order_identifier) REFERENCES orders(order_id)
+    );
+    """
+
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [
+            {
+                "table_name": "orders",
+                "schema": None,
+                "primary_key": [],
+                "columns": [
+                    {
+                        "name": "order_id",
+                        "type": "integer",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    }
+                ],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+            },
+            {
+                "table_name": "order_items",
+                "schema": None,
+                "primary_key": [],
+                "columns": [
+                    {
+                        "name": "order_identifier",
+                        "type": "integer",
+                        "size": None,
+                        "references": {
+                            "table": "orders",
+                            "schema": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "constraint_name": "fk_order",
+                            "column": "order_id",
+                        },
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                    {
+                        "name": "product_id",
+                        "type": "integer",
+                        "size": None,
+                        "references": None,
+                        "unique": False,
+                        "nullable": False,
+                        "default": None,
+                        "check": None,
+                    },
+                ],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "constraints": {
+                    "references": [
+                        {
+                            "table": "orders",
+                            "columns": ["order_id"],
+                            "schema": None,
+                            "on_delete": None,
+                            "on_update": None,
+                            "deferrable_initially": None,
+                            "name": "order_identifier",
+                            "constraint_name": "fk_order",
+                        }
+                    ]
+                },
+                "tablespace": None,
+            },
+        ],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "ddl_properties": [],
+    }
+
+    assert result == expected
