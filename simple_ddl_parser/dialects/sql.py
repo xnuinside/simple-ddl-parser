@@ -878,6 +878,7 @@ class AlterTable:
     def p_expression_alter(self, p: List) -> None:
         """expr : alter_foreign ref
         | alter_drop_column
+        | alter_drop_foreign
         | alter_check
         | alter_unique
         | alter_default
@@ -914,6 +915,16 @@ class AlterTable:
         if not p[0].get("columns_to_drop"):
             p[0]["columns_to_drop"] = []
         p[0]["columns_to_drop"].append(p_list[-1])
+
+    def p_alter_drop_foreign(self, p: List) -> None:
+        """alter_drop_foreign : alt_table DROP FOREIGN KEY id
+        | alter_drop_foreign COMMA DROP FOREIGN KEY id
+        """
+        p[0] = p[1]
+        p_list = list(p)
+        if not p[0].get("foreign_keys_to_drop"):
+            p[0]["foreign_keys_to_drop"] = []
+        p[0]["foreign_keys_to_drop"].append(p_list[-1])
 
     def p_alter_rename_column(self, p: List) -> None:
         """alter_rename_column : alt_table RENAME COLUMN id id id"""
@@ -2055,9 +2066,10 @@ class BaseSQL(
     def p_foreign(self, p):
         # todo: need to redone id lists
         """foreign : FOREIGN KEY LP pid RP
+        | FOREIGN KEY id LP pid RP
         | FOREIGN KEY"""
         p_list = remove_par(list(p))
-        if len(p_list) == 4:
+        if isinstance(p_list[-1], list):
             columns = p_list[-1]
             p[0] = columns
 

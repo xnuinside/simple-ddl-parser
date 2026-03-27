@@ -11,6 +11,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
+- MySQL-style `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY constraint_name (...) REFERENCES ...` statements now parse correctly instead of failing on the duplicated foreign key name. `ALTER TABLE ... DROP FOREIGN KEY ...` is also supported, and simple `DROP VIEW` / `CREATE VIEW ... AS ...` statements are now recognized in parser output. https://github.com/xnuinside/simple-ddl-parser/issues/149
 - HQL primitive generic array types like `array<string>` now parse without failing on the closing `>` token. https://github.com/xnuinside/simple-ddl-parser/issues/192
 - `TRUNCATE TABLE schema.table` statements now return the affected table in parser output instead of being skipped. https://github.com/xnuinside/simple-ddl-parser/issues/190
 

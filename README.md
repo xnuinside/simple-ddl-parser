@@ -385,7 +385,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 
 - STATEMENTS: PRIMARY KEY, CHECK, FOREIGN KEY in table definitions (in create table();)
 
-- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS; ALTER .. PRIMARY KEY; ALTER .. USING INDEX TABLESPACE; ALTER .. ADD; ALTER .. MODIFY; ALTER .. ALTER COLUMN; multiple ADD / DROP / MODIFY operations in one statement; etc
+- ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), MySQL-style `ADD CONSTRAINT ... FOREIGN KEY constraint_name (...)`, DROP FOREIGN KEY, ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS; ALTER .. PRIMARY KEY; ALTER .. USING INDEX TABLESPACE; ALTER .. ADD; ALTER .. MODIFY; ALTER .. ALTER COLUMN; multiple ADD / DROP / MODIFY operations in one statement; etc
 
 - PARTITION BY statement
 
@@ -408,6 +408,8 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - CREATE [SMALLFILE | BIGFILE] [TEMPORARY] TABLESPACE statement
 
 - CREATE DATABASE [IF NOT EXISTS] + Properties parsing
+
+- DROP VIEW and simple CREATE VIEW ... AS ... statements
 
 ### SparkSQL Dialect statements
 
@@ -584,7 +586,9 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
-- None.
+- MySQL-style `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY constraint_name (...) REFERENCES ...` statements now parse correctly instead of failing on the duplicated foreign key name. `ALTER TABLE ... DROP FOREIGN KEY ...` is also supported, and simple `DROP VIEW` / `CREATE VIEW ... AS ...` statements are now recognized in parser output. https://github.com/xnuinside/simple-ddl-parser/issues/149
+- HQL primitive generic array types like `array<string>` now parse without failing on the closing `>` token. https://github.com/xnuinside/simple-ddl-parser/issues/192
+- `TRUNCATE TABLE schema.table` statements now return the affected table in parser output instead of being skipped. https://github.com/xnuinside/simple-ddl-parser/issues/190
 
 ## [1.12.0] - 2026-03-27
 ### Added

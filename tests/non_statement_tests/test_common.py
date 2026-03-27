@@ -35,6 +35,74 @@ CREATE PABLE foo
         assert "Unknown statement" in e.value[1]
 
 
+def test_silent_false_mysql_named_foreign_key_in_alter():
+    ddl = """
+    CREATE TABLE parent (
+        id int PRIMARY KEY
+    );
+
+    CREATE TABLE child (
+        parent_id int
+    );
+
+    ALTER TABLE child ADD CONSTRAINT fk_child_parent FOREIGN KEY fk_child_parent (parent_id) REFERENCES parent (id);
+    """
+
+    result = DDLParser(ddl, silent=False).run(output_mode="mysql")
+
+    assert result[1]["table_name"] == "child"
+    assert result[1]["alter"]["columns"] == [
+        {
+            "name": "parent_id",
+            "constraint_name": "fk_child_parent",
+            "references": {
+                "column": "id",
+                "table": "parent",
+                "schema": None,
+                "on_update": None,
+                "on_delete": None,
+                "deferrable_initially": None,
+            },
+        }
+    ]
+
+
+def test_create_and_drop_view_statements():
+    ddl = """
+    DROP VIEW reporting.user_ip_address_view;
+    CREATE VIEW reporting.user_ip_address_view AS SELECT id, name FROM users;
+    """
+
+    result = DDLParser(ddl, silent=False).run(group_by_type=True)
+
+    assert result["drop_views"] == [
+        {"schema": "reporting", "drop_view_name": "user_ip_address_view"}
+    ]
+    assert result["views"] == [
+        {
+            "schema": "reporting",
+            "view_name": "user_ip_address_view",
+            "definition": "SELECT id ,  name FROM users",
+            "replace": False,
+        }
+    ]
+
+
+def test_alter_drop_foreign_key_statement():
+    ddl = """
+    CREATE TABLE child (
+        parent_id int
+    );
+
+    ALTER TABLE child DROP FOREIGN KEY fk_child_parent;
+    """
+
+    result = DDLParser(ddl, silent=False).run(output_mode="mysql")
+
+    assert result[0]["table_name"] == "child"
+    assert result[0]["alter"]["foreign_keys_to_drop"] == ["fk_child_parent"]
+
+
 def test_flag_normalize_names():
     ddl = (
         ddl

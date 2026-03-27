@@ -262,6 +262,10 @@ class BaseData:
             self.alter_rename_columns(statement)
         elif "columns_to_drop" in statement:
             self.alter_drop_columns(statement)
+        elif "foreign_keys_to_drop" in statement:
+            if not self.alter.get("foreign_keys_to_drop"):
+                self.alter["foreign_keys_to_drop"] = []
+            self.alter["foreign_keys_to_drop"].extend(statement["foreign_keys_to_drop"])
         elif "columns_to_modify" in statement:
             self.alter_modify_columns(statement)
         elif "check" in statement:

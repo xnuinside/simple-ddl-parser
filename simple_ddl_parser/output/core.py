@@ -102,6 +102,8 @@ class Output:
             "sequences": [],
             "domains": [],
             "schemas": [],
+            "views": [],
+            "drop_views": [],
             "ddl_properties": [],
             "comments": [],
             "comment_on": [],
@@ -112,6 +114,8 @@ class Output:
             "type_name": "types",
             "domain_name": "domains",
             "schema_name": "schemas",
+            "view_name": "views",
+            "drop_view_name": "drop_views",
             "tablespace_name": "tablespaces",
             "database_name": "databases",
             "value": "ddl_properties",
@@ -134,6 +138,10 @@ class Output:
             del result_as_dict["comments"]
         if not result_as_dict["comment_on"]:
             del result_as_dict["comment_on"]
+        if not result_as_dict["views"]:
+            del result_as_dict["views"]
+        if not result_as_dict["drop_views"]:
+            del result_as_dict["drop_views"]
 
         self.final_result = result_as_dict
 
