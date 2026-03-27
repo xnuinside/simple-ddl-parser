@@ -1,6 +1,7 @@
 # statements that used at the start of definition or in statements without columns
 definition_statements = {
     "DROP",
+    "TRUNCATE",
     "CREATE",
     "TABLE",
     "DATABASE",

@@ -746,6 +746,8 @@ class Drop:
     def p_expression_drop_table(self, p: List) -> None:
         """expr : DROP TABLE id
         | DROP TABLE id DOT id
+        | TRUNCATE TABLE id
+        | TRUNCATE TABLE id DOT id
         """
         # get schema & table name
         p_list = list(p)

@@ -26,6 +26,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - MySQL table-level `UNIQUE constraint_name (...)` definitions now parse without requiring the `KEY` keyword. https://github.com/xnuinside/simple-ddl-parser/issues/262
 - MSSQL column definitions now support `PRIMARY KEY IDENTITY(1,1)` when `IDENTITY` appears after `PRIMARY KEY`. https://github.com/xnuinside/simple-ddl-parser/issues/261
 - HQL/Athena quoted column names in backticks now parse correctly when the identifier contains spaces. https://github.com/xnuinside/simple-ddl-parser/issues/238
+- `TRUNCATE TABLE schema.table` statements now return the affected table in parser output instead of being skipped. https://github.com/xnuinside/simple-ddl-parser/issues/190
 
 ## [1.11.0] - 2026-02-28
 ### Added

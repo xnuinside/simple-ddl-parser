@@ -2562,6 +2562,35 @@ def test_lines_starts_with_statement_keys():
     assert expected == result
 
 
+def test_truncate_table_returns_affected_table():
+    ddl = "TRUNCATE TABLE analytics.events;"
+
+    result = DDLParser(ddl).run(group_by_type=True)
+
+    expected = {
+        "tables": [
+            {
+                "table_name": "events",
+                "schema": "analytics",
+                "primary_key": [],
+                "columns": [],
+                "alter": {},
+                "checks": [],
+                "index": [],
+                "partitioned_by": [],
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "ddl_properties": [],
+    }
+
+    assert result == expected
+
+
 def test_schema_with_project_name():
     ddl = """
     CREATE SCHEMA IF NOT EXISTS `my.data-cdh-hub`
