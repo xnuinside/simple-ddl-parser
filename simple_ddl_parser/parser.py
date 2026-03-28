@@ -98,6 +98,8 @@ class Parser:
         - etc
     """
 
+    INNER_TYPE_COMMENT_PREFIX = "SDP_INNER_TYPE_COMMENT_"
+
     def __init__(
         self,
         content: str,
@@ -126,6 +128,7 @@ class Parser:
         """
         self.tables = []
         self.silent = not debug if debug else silent
+        self.inner_type_comments = {}
         self.has_generated_always_identity = bool(
             re.search(
                 r"GENERATED\s+ALWAYS\s+AS\s+IDENTITY\s*\(",
@@ -140,6 +143,7 @@ class Parser:
                 flags=re.IGNORECASE,
             )
         )
+        content = self.normalize_inner_type_comments(content)
         content = self.normalize_generated_always_identity(content)
         self.data = content.encode("unicode_escape")
         self.paren_count = 0
@@ -170,6 +174,68 @@ class Parser:
                 r"^\s*CREATE\s+USER\b.*$",
             ]
         ]
+
+    def normalize_inner_type_comments(self, content: str) -> str:
+        result = []
+        angle_depth = 0
+        idx = 0
+        comment_idx = 0
+
+        while idx < len(content):
+            char = content[idx]
+            if char == "<":
+                angle_depth += 1
+                result.append(char)
+                idx += 1
+                continue
+            if char == ">":
+                angle_depth = max(0, angle_depth - 1)
+                result.append(char)
+                idx += 1
+                continue
+            if (
+                angle_depth
+                and content[idx : idx + 7].upper() == "COMMENT"
+                and (idx == 0 or not content[idx - 1].isalnum())
+            ):
+                end_idx = idx + 7
+                while end_idx < len(content) and content[end_idx].isspace():
+                    end_idx += 1
+                if end_idx < len(content) and content[end_idx] == "'":
+                    string_end = end_idx + 1
+                    while string_end < len(content):
+                        if content[string_end] == "'" and (
+                            string_end + 1 >= len(content)
+                            or content[string_end + 1] != "'"
+                        ):
+                            break
+                        if (
+                            content[string_end] == "'"
+                            and string_end + 1 < len(content)
+                            and content[string_end + 1] == "'"
+                        ):
+                            string_end += 2
+                            continue
+                        string_end += 1
+                    if string_end < len(content):
+                        placeholder = f"{self.INNER_TYPE_COMMENT_PREFIX}{comment_idx}"
+                        self.inner_type_comments[placeholder] = content[
+                            idx : string_end + 1
+                        ]
+                        result.append(placeholder)
+                        comment_idx += 1
+                        idx = string_end + 1
+                        continue
+
+            result.append(char)
+            idx += 1
+
+        return "".join(result)
+
+    def restore_inner_type_comments(self, value: str) -> str:
+        for placeholder, comment in self.inner_type_comments.items():
+            value = value.replace(placeholder, comment)
+        return value
 
     def catch_comment_or_process_line(self) -> str:
         if self.multi_line_comment:

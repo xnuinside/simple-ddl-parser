@@ -334,6 +334,7 @@ class Column:
         _type = _type.strip().replace(" . ", ".")
 
         _type = self.process_array_types(_type, p_list)
+        _type = self.restore_inner_type_comments(_type)
         return _type
 
     @staticmethod
