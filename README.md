@@ -437,7 +437,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - COLLATE, COMMENT, CHARACTER SET / CHARSET table options
 - INDEX statements in table definitions, including VISIBLE / INVISIBLE indexes
 - `UNIQUE KEY (...)`, named or unnamed `KEY (...)` / `INDEX (...)`, and MySQL index prefix lengths such as `column(32)` inside table definitions
-- `DROP TABLE IF EXISTS` preambles are skipped without breaking `parse_from_file(..., silent=False)` runs, and MySQL dump-style inline comments like `/*$wgDBprefix*/table_name` are handled in DDL files
+- `DROP TABLE IF EXISTS` is parsed as a statement in output, and MySQL dump-style inline comments like `/*$wgDBprefix*/table_name` are handled in DDL files
 
 #### MSSQL 
 

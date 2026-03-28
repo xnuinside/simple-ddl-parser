@@ -61,17 +61,6 @@ DROP_VIEW_RE = re.compile(
     flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
 
-DROP_TABLE_RE = re.compile(
-    r"""
-    ^\s*DROP\s+TABLE\s+
-    (?:IF\s+EXISTS\s+)?
-    (?P<target>[^\s;]+)
-    \s*$
-    """,
-    flags=re.IGNORECASE | re.VERBOSE,
-)
-
-
 def set_logging_config(
     log_level: Union[str, int], log_file: Optional[str] = None
 ) -> None:
@@ -528,9 +517,6 @@ class Parser:
         schema, view_name = self.split_table_identifier(match.group("target"))
         return {"schema": schema, "drop_view_name": view_name}
 
-    def parse_drop_table_statement(self, statement: str) -> bool:
-        return bool(DROP_TABLE_RE.match(statement))
-
     @staticmethod
     def clone_create_table_as_select_columns(
         source_table: Dict, select_columns: Union[str, List[Dict[str, str]]]
@@ -696,8 +682,6 @@ class Parser:
         drop_view_statement = self.parse_drop_view_statement(self.statement)
         if drop_view_statement:
             self.tables.append(drop_view_statement)
-            return
-        if self.parse_drop_table_statement(self.statement):
             return
         _parse_result = yacc.parse(self.statement)
         if _parse_result:

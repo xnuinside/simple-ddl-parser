@@ -35,6 +35,9 @@ class BaseData:
     if_not_exists: Optional[bool] = field(
         default=False, metadata={"exclude_if_not_provided": True}
     )
+    if_exists: Optional[bool] = field(
+        default=False, metadata={"exclude_if_not_provided": True}
+    )
     partition_by: Optional[dict] = field(
         default_factory=dict, metadata={"exclude_if_not_provided": True}
     )

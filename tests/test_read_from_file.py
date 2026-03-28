@@ -237,6 +237,18 @@ def test_parse_from_file_two_statements():
 def test_parse_from_file_encoding():
     expected = [
         {
+            "columns": [],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "tablespace": None,
+            "if_exists": True,
+            "schema": None,
+            "table_name": "`mangos_string`",
+        },
+        {
             "columns": [
                 {
                     "name": "`entry`",
@@ -395,9 +407,12 @@ def test_parse_from_file_issue_148_drop_table_if_exists_and_commit(tmp_path):
         output_mode="mysql",
     )
 
-    assert len(result) == 1
+    assert len(result) == 2
     assert result[0]["table_name"] == "QRTZ_JOB_DETAILS"
-    assert result[0]["if_not_exists"] is True
+    assert result[0]["if_exists"] is True
+    assert result[0]["columns"] == []
+    assert result[1]["table_name"] == "QRTZ_JOB_DETAILS"
+    assert result[1]["if_not_exists"] is True
 
 
 def test_parse_from_file_issue_148_mediawiki_comments_and_mysql_indexes(tmp_path):
