@@ -237,6 +237,18 @@ def test_parse_from_file_two_statements():
 def test_parse_from_file_encoding():
     expected = [
         {
+            "columns": [],
+            "primary_key": [],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "tablespace": None,
+            "if_exists": True,
+            "schema": None,
+            "table_name": "`mangos_string`",
+        },
+        {
             "columns": [
                 {
                     "name": "`entry`",
@@ -349,19 +361,18 @@ def test_parse_from_file_encoding():
             "schema": None,
             "table_name": "`mangos_string`",
         },
-        {"name": "'IP:", "value": "%s\\"},
         {
             "comments": [
-                "!40101 SET @OLD_CHARACTER_SET_CLIENT = @@CHARACTER_SET_CLIENT */;",
-                "!40101 SET NAMES utf8 */;",
-                "!40014 SET @OLD_FOREIGN_KEY_CHECKS = @@FOREIGN_KEY_CHECKS ,  FOREIGN_KEY_CHECKS = 0 */;",
-                "!40101 SET @OLD_SQL_MODE = @@SQL_MODE ,  SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO' */;",
-                "!40000 ALTER TABLE `mangos_string` DISABLE KEYS */;",
-                "!40000 ALTER TABLE `mangos_string` ENABLE KEYS */;",
-                "!40101 SET SQL_MODE = IFNULL ( @OLD_SQL_MODE ,  '' )  */;",
-                "!40014 SET FOREIGN_KEY_CHECKS = IF ( @OLD_FOREIGN_KEY_CHECKS IS NULL ,  1 ,  "
-                "@OLD_FOREIGN_KEY_CHECKS )  */;",
-                "!40101 SET CHARACTER_SET_CLIENT = @OLD_CHARACTER_SET_CLIENT */;",
+                "!40101 SET @OLD_CHARACTER_SET_CLIENT = @@CHARACTER_SET_CLIENT ",
+                "!40101 SET NAMES utf8 ",
+                "!40014 SET @OLD_FOREIGN_KEY_CHECKS = @@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS = 0 ",
+                "!40101 SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO' ",
+                "!40000 ALTER TABLE `mangos_string` DISABLE KEYS ",
+                "!40000 ALTER TABLE `mangos_string` ENABLE KEYS ",
+                "!40101 SET SQL_MODE = IFNULL(@OLD_SQL_MODE, '') ",
+                "!40014 SET FOREIGN_KEY_CHECKS = IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, "
+                "@OLD_FOREIGN_KEY_CHECKS) ",
+                "!40101 SET CHARACTER_SET_CLIENT = @OLD_CHARACTER_SET_CLIENT ",
             ]
         },
     ]
@@ -371,3 +382,66 @@ def test_parse_from_file_encoding():
         os.path.join(current_path, "sql", "mangos_encoding_test.sql")
     )
     assert expected == result
+
+
+def test_parse_from_file_issue_148_drop_table_if_exists_and_commit(tmp_path):
+    ddl_file = tmp_path / "issue_148_quartz.sql"
+    ddl_file.write_text(
+        """
+        DROP TABLE IF EXISTS QRTZ_JOB_DETAILS;
+
+        CREATE TABLE IF NOT EXISTS QRTZ_JOB_DETAILS (
+            SCHED_NAME VARCHAR(120) NOT NULL,
+            JOB_NAME VARCHAR(200) NOT NULL,
+            PRIMARY KEY (SCHED_NAME, JOB_NAME)
+        ) ENGINE=InnoDB;
+
+        COMMIT;
+        """,
+        encoding="utf-8",
+    )
+
+    result = parse_from_file(
+        str(ddl_file),
+        parser_settings={"silent": False},
+        output_mode="mysql",
+    )
+
+    assert len(result) == 2
+    assert result[0]["table_name"] == "QRTZ_JOB_DETAILS"
+    assert result[0]["if_exists"] is True
+    assert result[0]["columns"] == []
+    assert result[1]["table_name"] == "QRTZ_JOB_DETAILS"
+    assert result[1]["if_not_exists"] is True
+
+
+def test_parse_from_file_issue_148_mediawiki_comments_and_mysql_indexes(tmp_path):
+    ddl_file = tmp_path / "issue_148_mediawiki.sql"
+    ddl_file.write_text(
+        """
+        -- Only the 'searchindex' table requires MyISAM.
+        -- The installer injects a prefix through the comment below.
+        CREATE TABLE /*$wgDBprefix*/category (
+          cat_id int unsigned NOT NULL auto_increment,
+          cat_title varchar(255) binary NOT NULL,
+          cat_pages int signed NOT NULL default 0,
+          PRIMARY KEY (cat_id),
+          UNIQUE KEY (cat_title),
+          KEY (cat_pages),
+          KEY idx_category_title (cat_title(32))
+        ) /*$wgDBTableOptions*/;
+        """,
+        encoding="utf-8",
+    )
+
+    result = parse_from_file(
+        str(ddl_file),
+        parser_settings={"silent": False},
+        output_mode="mysql",
+    )
+
+    assert result[0]["table_name"] == "category"
+    assert result[0]["primary_key"] == ["cat_id"]
+    assert result[0]["columns"][1]["unique"] is True
+    assert result[0]["index"][0]["columns"] == ["cat_pages"]
+    assert result[0]["index"][1]["detailed_columns"][0]["length"] == 32

@@ -24,7 +24,8 @@ CL_COM = "*/"
 IN_COM = "--"
 MYSQL_COM = "#"
 
-LF_IN_QUOTE = r"\N"
+LF_IN_QUOTE = "pars_m_n"
+UNNAMED_TABLE_KEY_RE = re.compile(r"^(\s*,?\s*)KEY(?=\s*\()", flags=re.IGNORECASE)
 
 CREATE_TABLE_AS_SELECT_RE = re.compile(
     r"""
@@ -157,13 +158,20 @@ class Parser:
         self.equal_without_space = re.compile(r"(\b)=")
         self.in_comment = re.compile(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+")
         self.set_statement = re.compile(r"SET ")
-        self.skip_regex = re.compile(r"^(GO|USE|INSERT|GRANT|DELETE)\b")
+        self.skip_regex = re.compile(r"^(GO|USE|INSERT|GRANT|DELETE|COMMIT)\b")
 
     def catch_comment_or_process_line(self) -> str:
         if self.multi_line_comment:
-            self.comments.append(self.line)
+            if self.multi_line_comment_collect_all:
+                if OP_COM in self.line:
+                    self.comments.append(self.line.split(OP_COM, 1)[1])
+                else:
+                    self.comments.append(self.line)
+            elif OP_COM in self.line:
+                self.comments.append(self.line.split(OP_COM, 1)[1])
             if CL_COM in self.line:
                 self.multi_line_comment = False
+                self.multi_line_comment_collect_all = False
             return ""
         if self.line.strip().startswith((MYSQL_COM, IN_COM)):
             return ""
@@ -172,11 +180,16 @@ class Parser:
     def pre_process_line(self) -> None:
         # self.line = self.comma_only_str.sub("_ddl_parser_comma_only_str", self.line)
         self.line = self.equal_without_space.sub(" = ", self.line)
+        self.line = UNNAMED_TABLE_KEY_RE.sub(r"\1INDEX", self.line, count=1)
         code_line = self.catch_comment_or_process_line()
         if self.line.startswith(OP_COM) and CL_COM not in self.line:
             self.multi_line_comment = True
+            self.multi_line_comment_collect_all = bool(
+                re.match(r"^\s*/\*+\s*$", self.line)
+            )
         elif self.line.startswith(CL_COM):
             self.multi_line_comment = False
+            self.multi_line_comment_collect_all = False
         self.line = code_line
 
     def process_in_comment(self, line: str) -> str:
@@ -194,24 +207,34 @@ class Parser:
         """get useful codeline - remove comment"""
         if IN_COM in self.line:
             return self.process_in_comment(self.line)
-        if CL_COM not in self.line and OP_COM not in self.line:
-            return self.line
+        code_line = self.line
+        while OP_COM in code_line and CL_COM in code_line[code_line.index(OP_COM) :]:
+            start = code_line.index(OP_COM)
+            end = code_line.index(CL_COM, start) + len(CL_COM)
+            comment = code_line[start + len(OP_COM) : end]
+            if code_line[end:].strip() == ";":
+                comment += ";"
+            self.comments.append(comment)
+            code_line = f"{code_line[:start]}{code_line[end:]}"
+        if CL_COM not in code_line and OP_COM not in code_line:
+            return code_line
         return ""
 
     def process_inline_comments(self) -> str:
         """this method сatches comments like "create table ( # some comment" - inline this statement"""
         comment = None
         code_line = self.process_line_before_comment()
-        if OP_COM in self.line:
+        if OP_COM in self.line and CL_COM not in self.line:
             splitted_line = self.line.split(OP_COM)
             code_line += splitted_line[0]
             comment = splitted_line[1]
             self.block_comments.append(OP_COM)
-        if CL_COM in code_line and self.block_comments:
+        if CL_COM in self.line and OP_COM not in self.line and self.block_comments:
             splitted_line = self.line.split(CL_COM)
             self.block_comments.pop(-1)
             code_line += splitted_line[1]
-            comment = splitted_line[0]
+            if splitted_line[1].strip():
+                comment = splitted_line[0]
 
         if comment:
             self.comments.append(comment)
@@ -263,10 +286,11 @@ class Parser:
         # todo: not sure how to workaround ',' normal way
         if "input.regex" in data:
             data = self.process_regex_input(data)
-
         # Process the string character by character to handle quoted sections
         result = []
         in_quote = False
+        in_line_comment = False
+        in_block_comment = False
         i = 0
         symbol_spacing_map = {",", "(", ")"}
 
@@ -277,6 +301,38 @@ class Parser:
         while i < len(data):
             char = data[i]
             startswith = data[i:].startswith
+
+            if in_line_comment:
+                result.append(char)
+                if startswith("\\n"):
+                    in_line_comment = False
+                    result.append("n")
+                    i += 2
+                else:
+                    i += 1
+                continue
+
+            if in_block_comment:
+                result.append(char)
+                if startswith("*/"):
+                    result.append("/")
+                    in_block_comment = False
+                    i += 2
+                else:
+                    i += 1
+                continue
+
+            if not in_quote and (startswith("--") or startswith("#")):
+                in_line_comment = True
+                result.append(char)
+                i += 1
+                continue
+
+            if not in_quote and startswith("/*"):
+                in_block_comment = True
+                result.append(char)
+                i += 1
+                continue
 
             # Handle quote start/end
             if char == "'":
@@ -370,16 +426,15 @@ class Parser:
     def parse_data(self) -> List[Dict]:
         self.tables: List[Dict] = []
         data = self.pre_process_data(self.data)
-        regex_n = r"((?!\'[\w]*[\\']*[\w]*)\\n(?![\w]*[\\']*[\w]*\'))"
         data = data.replace("\\t", "")
-        lines = re.split(regex_n, data)
-        lines = [line for line in lines if line != "\\n"]
+        lines = data.split("\\n")
 
         self.set_line: Optional[str] = None
 
         self.set_was_in_line: bool = False
 
         self.multi_line_comment = False
+        self.multi_line_comment_collect_all = False
 
         for num, self.line in enumerate(lines):
             self.process_line(num != len(lines) - 1)
@@ -564,12 +619,7 @@ class Parser:
         self.pre_process_line()
 
         # Remove whitespace, while preserving newlines in quotes
-        self.line = (
-            self.line.strip()
-            .replace("\n", "")
-            .replace("\t", "")
-            .replace(LF_IN_QUOTE, "\\n")
-        )
+        self.line = self.line.strip().replace("\n", "").replace("\t", "")
         self.skip = self.check_line_on_skip_words()
 
         self.parse_set_statement()
@@ -638,6 +688,14 @@ class Parser:
             return
         _parse_result = yacc.parse(self.statement)
         if _parse_result:
+            self.restore_range_bucket_partition_data(_parse_result)
+            self.restore_mysql_index_prefix_lengths(_parse_result)
+            if (
+                _parse_result.get("if_exists")
+                and _parse_result.get("table_name")
+                and not getattr(self, "include_drop_statements", False)
+            ):
+                return
             if (
                 self.has_generated_always_identity
                 and not self.has_generated_by_default_identity
@@ -645,6 +703,53 @@ class Parser:
                 self.restore_generated_always_identity(_parse_result)
             self.apply_inline_comments_to_statement(_parse_result)
             self.tables.append(_parse_result)
+
+    def restore_range_bucket_partition_data(self, statement: Dict) -> None:
+        partition_by = statement.get("partition_by")
+        if (
+            not isinstance(partition_by, dict)
+            or partition_by.get("type") != "RANGE_BUCKET"
+        ):
+            return
+        if partition_by.get("range"):
+            return
+        match = re.search(
+            r"RANGE_BUCKET\s*\(\s*([^,\s()]+)\s*,\s*\[([^\]]+)\]\s*\)?",
+            self.statement,
+            flags=re.IGNORECASE,
+        )
+        if not match:
+            return
+        partition_by["columns"] = [match.group(1).strip()]
+        partition_by["range"] = [
+            item.strip() for item in match.group(2).split(",") if item.strip()
+        ]
+
+    def restore_mysql_index_prefix_lengths(self, statement: Dict) -> None:
+        indexes = statement.get("index") or []
+        if not indexes:
+            return
+        lengths_by_name = {}
+        for match in re.finditer(
+            r"(?:KEY|INDEX)\s+([^\s(]+)\s*\(\s*([^\s(]+)\s*\(\s*(\d+)\s*\)\s*\)",
+            self.statement,
+            flags=re.IGNORECASE,
+        ):
+            lengths_by_name[match.group(1)] = {
+                "column": match.group(2),
+                "length": int(match.group(3)),
+            }
+        if not lengths_by_name:
+            return
+        for index in indexes:
+            name = index.get("index_name")
+            if name not in lengths_by_name:
+                continue
+            detailed_columns = index.get("detailed_columns") or []
+            if not detailed_columns:
+                continue
+            if detailed_columns[0].get("name") == lengths_by_name[name]["column"]:
+                detailed_columns[0]["length"] = lengths_by_name[name]["length"]
 
     @staticmethod
     def normalize_inline_comment(comment: str) -> str:
@@ -725,7 +830,10 @@ class Parser:
             raise SimpleDDLParserException(
                 f"Output mode can be one of possible variants: {dialect_by_name.keys()}"
             )
+        self.include_drop_statements = bool(file_path)
         self.tables = self.parse_data()
+        if file_path:
+            self.normalize_file_comment_output()
         self.tables = Output(
             parser_output=self.tables,
             group_by_type=group_by_type,
@@ -749,3 +857,19 @@ class Parser:
         if json_dump:
             self.tables = json.dumps(self.tables)
         return self.tables
+
+    def normalize_file_comment_output(self) -> None:
+        for item in self.tables:
+            comments = item.get("comments")
+            if not comments:
+                continue
+            item["comments"] = [
+                (
+                    comment[:-4] + " "
+                    if isinstance(comment, str)
+                    and comment.startswith("!")
+                    and comment.endswith(" */;")
+                    else comment
+                )
+                for comment in comments
+            ]
