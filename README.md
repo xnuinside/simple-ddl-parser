@@ -423,6 +423,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - WITH SERDEPROPERTIES ("input.regex" =  "..some regex..")
 - STORED AS (AVRO, PARQUET, etc), STORED AS INPUTFORMAT, OUTPUTFORMAT
 - COMMENT
+- Nested complex type comments such as `ARRAY<STRUCT<field: STRING COMMENT '...'>`
 - LOCATION
 - FIELDS TERMINATED BY, LINES TERMINATED BY, COLLECTION ITEMS TERMINATED BY, MAP KEYS TERMINATED BY
 - TBLPROPERTIES ('parquet.compression'='SNAPPY' & etc.)
@@ -592,6 +593,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
+- HQL/Spark SQL nested complex types like `ARRAY<STRUCT<... COMMENT '...'>` now parse correctly when inner `STRUCT` fields include `COMMENT '...'`, instead of failing in strict mode. https://github.com/xnuinside/simple-ddl-parser/issues/137
 - MySQL-style `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY constraint_name (...) REFERENCES ...` statements now parse correctly instead of failing on the duplicated foreign key name. `ALTER TABLE ... DROP FOREIGN KEY ...` is also supported, and simple `DROP VIEW` / `CREATE VIEW ... AS ...` statements are now recognized in parser output. https://github.com/xnuinside/simple-ddl-parser/issues/149
 - HQL primitive generic array types like `array<string>` now parse without failing on the closing `>` token. https://github.com/xnuinside/simple-ddl-parser/issues/192
 - `TRUNCATE TABLE schema.table` statements now return the affected table in parser output instead of being skipped. https://github.com/xnuinside/simple-ddl-parser/issues/190

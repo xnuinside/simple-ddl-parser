@@ -11,6 +11,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
+- HQL/Spark SQL nested complex types like `ARRAY<STRUCT<... COMMENT '...'>` now parse correctly when inner `STRUCT` fields include `COMMENT '...'`, instead of failing in strict mode. https://github.com/xnuinside/simple-ddl-parser/issues/137
 - MySQL dump-style DDL files now parse more reliably: `DROP TABLE IF EXISTS` is supported in parser output and no longer fails in strict mode, inline `/*...*/` comment placeholders inside identifiers are handled, and table-level `KEY` / `UNIQUE KEY` definitions with prefix lengths like `column(32)` are supported. https://github.com/xnuinside/simple-ddl-parser/issues/148
 - MySQL-style `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY constraint_name (...) REFERENCES ...` statements now parse correctly instead of failing on the duplicated foreign key name. `ALTER TABLE ... DROP FOREIGN KEY ...` is also supported, and simple `DROP VIEW` / `CREATE VIEW ... AS ...` statements are now recognized in parser output. https://github.com/xnuinside/simple-ddl-parser/issues/149
 - HQL primitive generic array types like `array<string>` now parse without failing on the closing `>` token. https://github.com/xnuinside/simple-ddl-parser/issues/192

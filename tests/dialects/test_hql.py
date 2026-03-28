@@ -1691,6 +1691,37 @@ def test_special_characters_in_comment():
     assert expected == result
 
 
+def test_nested_struct_field_comments():
+    ddl = """
+    CREATE EXTERNAL TABLE aaa.bbb (
+        test ARRAY<STRUCT<xyz: STRING COMMENT 'xxxxxx',
+         date: STRING COMMENT 'xxxxxxx'>> COMMENT 'xxxxxx'
+    )
+    COMMENT 'xxxxx'
+    PARTITIONED BY (date STRING)
+    STORED AS PARQUET LOCATION 's3://xxxxx'
+    """
+
+    result = DDLParser(ddl, silent=False).run(group_by_type=True, output_mode="hql")
+
+    table = result["tables"][0]
+    column = table["columns"][0]
+
+    assert table["schema"] == "aaa"
+    assert table["table_name"] == "bbb"
+    assert table["external"] is True
+    assert table["comment"] == "'xxxxx'"
+    assert table["partitioned_by"] == [{"name": "date", "type": "STRING", "size": None}]
+    assert table["stored_as"] == "PARQUET"
+    assert table["location"] == "'s3://xxxxx'"
+    assert column["name"] == "test"
+    assert (
+        column["type"]
+        == "ARRAY<STRUCT<xyz: STRING COMMENT 'xxxxxx', date: STRING COMMENT 'xxxxxxx'>>"
+    )
+    assert column["comment"] == "'xxxxxx'"
+
+
 def test_partitioned_by_multiple_columns():
     ddl = """
     CREATE EXTERNAL TABLE test (
