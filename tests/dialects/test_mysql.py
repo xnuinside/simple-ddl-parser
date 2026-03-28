@@ -317,6 +317,20 @@ def test_character_set_table_option():
     assert result["tables"][0]["default_charset"] == "utf8mb4"
 
 
+def test_default_character_set_table_option_without_equals():
+    ddl = """
+    CREATE TABLE `tab_space_station_common_info`  (
+      `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+      PRIMARY KEY (`id`) USING BTREE
+    ) ENGINE = InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    """
+    result = DDLParser(ddl, silent=False).run(group_by_type=True, output_mode="mysql")
+
+    assert len(result["tables"]) == 1
+    assert result["tables"][0]["default_charset"] == "utf8mb4"
+    assert result["tables"][0]["table_properties"]["collate"] == "utf8mb4_unicode_ci"
+
+
 def test_identity_with_properties():
     ddl = """
 CREATE TABLE IF NOT EXISTS database.table_name

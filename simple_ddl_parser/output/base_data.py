@@ -294,6 +294,8 @@ class BaseData:
             self.alter_modify_columns(statement)
         elif "check" in statement:
             self.process_check_in_statement(statement)
+        elif "default_charset" in statement or "collate" in statement:
+            self.set_table_properties_from_alter(statement)
         elif "unique" in statement:
             self.set_alter_to_table_data("unique", statement)
             self.set_unique_columns_from_alter(statement)
@@ -331,6 +333,31 @@ class BaseData:
                     if column["name"] == column_name:
                         column["default"] = statement["default"]["value"]
 
+    def set_table_properties_from_alter(self, statement: Dict) -> None:
+        alter_entry = {}
+
+        if "default_charset" in statement:
+            alter_entry["default_charset"] = statement["default_charset"]
+            if hasattr(self, "default_charset"):
+                self.default_charset = statement["default_charset"]
+            if isinstance(self.init_data, dict):
+                self.init_data["default_charset"] = statement["default_charset"]
+
+        collate = statement.get("collate")
+        if collate is not None:
+            alter_entry["collate"] = collate
+            if self.table_properties is None:
+                self.table_properties = {}
+            self.table_properties["collate"] = collate
+            if isinstance(self.init_data, dict):
+                self.init_data["table_properties"] = self.table_properties
+                self.init_data["collate"] = collate
+
+        if alter_entry:
+            if not self.alter.get("table_properties"):
+                self.alter["table_properties"] = []
+            self.alter["table_properties"].append(alter_entry)
+
     def set_unique_columns_from_alter(self, statement: Dict) -> None:
         for column in self.columns:
             if len(statement["unique"]["columns"]) == 1:
@@ -348,15 +375,16 @@ class BaseData:
 
         for modified_column in statement[alter_key]:
             index = None
+            target_name = modified_column.get("old_name") or modified_column["name"]
             for num, column in enumerate(self.columns):
-                if normalize_name(modified_column["name"]) == normalize_name(
-                    column["name"]
-                ):
+                if normalize_name(target_name) == normalize_name(column["name"]):
                     index = num
                     break
             if index is not None:
                 self.alter[table_alter_key].append(self.columns[index])
-                self.columns[index] = modified_column
+                updated_column = dict(modified_column)
+                updated_column.pop("old_name", None)
+                self.columns[index] = updated_column
 
     def alter_drop_columns(self, statement) -> None:
         alter_key = "columns_to_drop"

@@ -174,6 +174,19 @@ class TableSpaces:
 
 class Table:
     @staticmethod
+    def extract_default_charset_properties(data: Dict) -> Dict:
+        normalized = dict(data)
+        default_charset = (
+            normalized.pop("CHARSET", None)
+            or normalized.pop("charset", None)
+            or normalized.pop("CHARACTER", None)
+            or normalized.pop("character", None)
+        )
+        if default_charset:
+            normalized["default_charset"] = default_charset
+        return normalized
+
+    @staticmethod
     def add_if_not_exists(data: Dict, p_list: List):
         if "EXISTS" in p_list:
             data["if_not_exists"] = True
@@ -922,20 +935,80 @@ class AlterTable:
         | alter_column_sql_server
         | alter_column_modify
         | alter_column_modify_oracle
+        | alter_column_change
         """
         p[0] = p[1]
         if len(p) == 3:
             p[0].update(p[2])
 
+    @staticmethod
+    def init_altered_column(column_data: Dict) -> Dict:
+        column = dict(column_data)
+        column.setdefault("references", None)
+        column.setdefault("unique", False)
+        column.setdefault("primary_key", False)
+        column.setdefault("nullable", True)
+        column.setdefault("default", None)
+        column.setdefault("check", None)
+        return column
+
+    @staticmethod
+    def apply_modifier_to_altered_column(column: Dict, modifier: Dict) -> None:
+        if "property" in modifier:
+            for key, value in modifier["property"].items():
+                if key == "SET" and "CHARACTER" in column["type"].upper():
+                    column["type"] = column["type"].split("CHARACTER")[0].strip()
+                    key = "character_set"
+                column[key] = value
+            return
+
+        column.update(modifier)
+
     def p_alter_column_modify(self, p: List) -> None:
-        """alter_column_modify : alt_table MODIFY COLUMN defcolumn
-        | alter_column_modify COMMA MODIFY COLUMN defcolumn
+        """alter_column_modify : alt_table MODIFY COLUMN column
+        | alter_column_modify COMMA MODIFY COLUMN column
+        | alter_column_modify null
+        | alter_column_modify default
+        | alter_column_modify collate
+        | alter_column_modify c_property
+        | alter_column_modify comment
+        | alter_column_modify on_update
+        | alter_column_modify autoincrement
         """
         p[0] = p[1]
         p_list = list(p)
         if not p[0].get("columns_to_modify"):
             p[0]["columns_to_modify"] = []
-        p[0]["columns_to_modify"].append(p_list[-1])
+        if isinstance(p_list[-1], dict) and "name" in p_list[-1]:
+            p[0]["columns_to_modify"].append(self.init_altered_column(p_list[-1]))
+        else:
+            self.apply_modifier_to_altered_column(
+                p[0]["columns_to_modify"][-1], p_list[-1]
+            )
+
+    def p_alter_column_change(self, p: List) -> None:
+        """alter_column_change : alt_table CHANGE id column
+        | alter_column_change COMMA CHANGE id column
+        | alter_column_change null
+        | alter_column_change default
+        | alter_column_change collate
+        | alter_column_change c_property
+        | alter_column_change comment
+        | alter_column_change on_update
+        | alter_column_change autoincrement
+        """
+        p[0] = p[1]
+        p_list = list(p)
+        if not p[0].get("columns_to_modify"):
+            p[0]["columns_to_modify"] = []
+        if isinstance(p_list[-1], dict) and "name" in p_list[-1]:
+            changed_column = self.init_altered_column(p_list[-1])
+            changed_column["old_name"] = p_list[-2]
+            p[0]["columns_to_modify"].append(changed_column)
+        else:
+            self.apply_modifier_to_altered_column(
+                p[0]["columns_to_modify"][-1], p_list[-1]
+            )
 
     def p_alter_drop_column(self, p: List) -> None:
         """alter_drop_column : alt_table DROP COLUMN id
@@ -1021,14 +1094,30 @@ class AlterTable:
 
     def p_alter_default(self, p: List) -> None:
         """alter_default : alt_table DEFAULT id
+        | alt_table DEFAULT id_equals
         | alt_table ADD constraint DEFAULT id
         | alt_table ADD DEFAULT STRING
         | alt_table ADD constraint DEFAULT STRING
         | alter_default id
+        | alter_default collate
         | alter_default FOR pid
         """
+        p_list = list(p)
         p[0] = p[1]
+        if isinstance(p_list[-1], dict):
+            charset_data = self.extract_default_charset_properties(p_list[-1])
+            if charset_data.get("default_charset") or charset_data.get("collate"):
+                p[0].update(charset_data)
+                return
+
         column, value = self.get_column_and_value_from_alter(p)
+        if column is None and isinstance(value, str):
+            charset_match = re.match(
+                r"^CHARACTER\s+SET\s+(.+)$", value, flags=re.IGNORECASE
+            )
+            if charset_match:
+                p[0]["default_charset"] = charset_match.group(1)
+                return
 
         if "default" not in p[0]:
             p[0]["default"] = {
@@ -1043,7 +1132,7 @@ class AlterTable:
                     "value": value or p[0]["default"].get("value"),
                 }
             )
-        if "constraint" in p[3]:
+        if len(p) > 3 and isinstance(p[3], dict) and "constraint" in p[3]:
             p[0]["default"]["constraint_name"] = p[3]["constraint"]["name"]
 
     def p_alter_check(self, p: List) -> None:
@@ -1236,10 +1325,19 @@ class BaseSQL(
         | id EQ ID LP pid RP ID
         | id EQ LP RP
         | id EQ STRING_BASE
+        | id SET id_or_string
+        | id SET EQ id_or_string
+        | id SET id_or_string collate
+        | id SET EQ id_or_string collate
         """
         p_list = list(p)
 
-        if p_list[-1] not in [")", "]"]:
+        if "SET" in p_list:
+            property_name = "CHARSET" if p[1].upper() == "CHARACTER" else p[1]
+            p[0] = {property_name: p_list[-1]}
+            if isinstance(p_list[-1], dict):
+                p[0] = {property_name: p_list[-2], **p_list[-1]}
+        elif p_list[-1] not in [")", "]"]:
             p[0] = {p[1]: p_list[-1]}
         else:
             if len(p_list) > 6 and isinstance(p_list[5], list):
@@ -1412,10 +1510,14 @@ class BaseSQL(
                 p[0].update({"primary_key_enforced": p_list[-1]["enforced"]})
             elif "DEFAULT" in p_list:
                 if isinstance(p_list[-1], dict):
-                    value = p_list[-1].get("CHARSET") or p_list[-1].get("charset")
+                    charset_data = self.extract_default_charset_properties(p_list[-1])
+                    value = charset_data.pop("default_charset", None)
                 else:
                     value = p_list[-1]
+                    charset_data = {}
                 p[0].update({"default_charset": value})
+                if charset_data:
+                    p[0].update(charset_data)
             elif isinstance(p_list[-1], dict):
                 p[0].update(p_list[-1])
 

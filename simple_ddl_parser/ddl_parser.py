@@ -258,6 +258,9 @@ class DDLParser(Parser, Dialects):
 
         if t.type == "ALTER":
             self.lexer.is_alter = True
+        elif t.type in ["CHANGE", "MODIFY"] and self.lexer.is_alter:
+            self.lexer.columns_def = True
+            self.lexer.after_columns = False
         if t.type == "LIKE":
             self.lexer.is_like = True
         elif t.type in ["TYPE", "DOMAIN", "TABLESPACE"]:

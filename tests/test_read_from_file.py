@@ -551,6 +551,38 @@ def test_parse_from_file_issue_146_sqlite_dump_wrappers_are_ignored(tmp_path):
     ]
 
 
+def test_parse_from_file_mysql_alter_default_character_set_and_collate(tmp_path):
+    ddl_file = tmp_path / "issue145.sql"
+    ddl_file.write_text(
+        """
+        CREATE TABLE `pma_bookmark` (
+            `dbase` VARCHAR(255) NOT NULL DEFAULT '',
+            `user` VARCHAR(255) NOT NULL DEFAULT '',
+            `label` VARCHAR(255) NOT NULL DEFAULT '',
+            PRIMARY KEY (`dbase`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+        ALTER TABLE `pma_bookmark`
+          DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+
+        ALTER TABLE `pma_bookmark`
+          CHANGE `dbase` `dbase` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '';
+        """,
+        encoding="utf-8",
+    )
+
+    result = parse_from_file(
+        str(ddl_file),
+        parser_settings={"silent": False},
+        output_mode="mysql",
+    )
+
+    assert len(result) == 1
+    assert result[0]["table_name"] == "`pma_bookmark`"
+    assert result[0]["default_charset"] == "utf8"
+    assert result[0]["table_properties"]["collate"] == "utf8_bin"
+
+
 def test_parse_from_file_issue_146_dump_admin_statements_are_ignored(tmp_path):
     ddl_file = tmp_path / "issue_146_admin_statements.sql"
     ddl_file.write_text(
