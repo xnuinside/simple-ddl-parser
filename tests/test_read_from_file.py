@@ -445,3 +445,49 @@ def test_parse_from_file_issue_148_mediawiki_comments_and_mysql_indexes(tmp_path
     assert result[0]["columns"][1]["unique"] is True
     assert result[0]["index"][0]["columns"] == ["cat_pages"]
     assert result[0]["index"][1]["detailed_columns"][0]["length"] == 32
+
+
+def test_parse_from_file_issue_147_inline_foreign_key_on_delete_set_null(tmp_path):
+    ddl_file = tmp_path / "issue_147_comtccmmncode.sql"
+    ddl_file.write_text(
+        """
+        CREATE TABLE COMTCCMMNCLCODE
+        (
+            CL_CODE               CHAR(3)  NOT NULL,
+            CL_CODE_NM            VARCHAR2(60)  NULL,
+            CONSTRAINT COMTCCMMNCLCODE_PK PRIMARY KEY (CL_CODE)
+        );
+
+        CREATE TABLE COMTCCMMNCODE
+        (
+            CODE_ID               VARCHAR2(6)  NOT NULL,
+            CODE_ID_NM            VARCHAR2(60)  NULL,
+            CODE_ID_DC            VARCHAR2(200)  NULL,
+            USE_AT                CHAR(1)  NULL,
+            CL_CODE               CHAR(3)  NULL,
+            FRST_REGIST_PNTTM     DATE  NULL,
+            FRST_REGISTER_ID      VARCHAR2(20)  NULL,
+            LAST_UPDT_PNTTM       DATE  NULL,
+            LAST_UPDUSR_ID        VARCHAR2(20)  NULL,
+            CONSTRAINT COMTCCMMNCODE_PK PRIMARY KEY (CODE_ID),
+            CONSTRAINT COMTCCMMNCODE_FK1 FOREIGN KEY (CL_CODE)
+                REFERENCES COMTCCMMNCLCODE(CL_CODE) ON DELETE SET NULL
+        );
+        """,
+        encoding="utf-8",
+    )
+
+    result = parse_from_file(str(ddl_file), parser_settings={"silent": False})
+
+    assert len(result) == 2
+    assert result[1]["table_name"] == "COMTCCMMNCODE"
+    assert result[1]["columns"][4]["name"] == "CL_CODE"
+    assert result[1]["columns"][4]["references"] == {
+        "table": "COMTCCMMNCLCODE",
+        "schema": None,
+        "on_delete": "SET NULL",
+        "on_update": None,
+        "deferrable_initially": None,
+        "constraint_name": "COMTCCMMNCODE_FK1",
+        "column": "CL_CODE",
+    }

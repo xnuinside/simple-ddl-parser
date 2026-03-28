@@ -18,6 +18,7 @@
 
 ## Tests
 - If changes affect behavior, run targeted tests when practical.
+- Before reporting results, always run tests via `tox`; all tests must be green.
 - Report test commands and results; do not fabricate.
 - Always run linters before committing (ruff and black).
 
