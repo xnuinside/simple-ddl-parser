@@ -783,6 +783,15 @@ class Drop:
         if "IF" in p_list and "EXISTS" in p_list:
             p[0]["if_exists"] = True
 
+    def p_expression_drop_database(self, p: List) -> None:
+        """expr : DROP DATABASE id
+        | DROP DATABASE IF EXISTS id
+        """
+        p_list = list(p)
+        p[0] = {"drop_database_name": p_list[-1]}
+        if "IF" in p_list and "EXISTS" in p_list:
+            p[0]["if_exists"] = True
+
 
 class Type:
     def p_multiple_column_names(self, p: List) -> None:

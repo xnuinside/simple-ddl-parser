@@ -300,6 +300,8 @@ class BaseData:
         elif "default" in statement:
             self.set_alter_to_table_data("default", statement)
             self.set_default_columns_from_alter(statement)
+        elif "auto_increment" in statement:
+            self.set_auto_increment_from_alter(statement)
         elif "primary_key" in statement:
             self.set_alter_to_table_data("primary_key", statement)
         elif "comment_on" in statement:
@@ -395,3 +397,12 @@ class BaseData:
         if "using" in statement:
             statement[key]["using"] = statement["using"]
         self.alter[key + "s"].append(statement[key])
+
+    def set_auto_increment_from_alter(self, statement: Dict) -> None:
+        if not self.alter.get("auto_increments"):
+            self.alter["auto_increments"] = []
+        self.alter["auto_increments"].append(statement["auto_increment"])
+        if hasattr(self, "auto_increment"):
+            self.auto_increment = statement["auto_increment"]
+        if isinstance(self.init_data, dict):
+            self.init_data["auto_increment"] = statement["auto_increment"]

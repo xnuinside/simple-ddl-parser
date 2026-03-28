@@ -60,3 +60,18 @@ def test_create_database_if_not_exists():
         "databases": [{"database_name": "`employees`", "if_not_exists": True}],
     }
     assert result == expected
+
+
+def test_drop_database():
+    ddl = "DROP DATABASE IF EXISTS `employees`;"
+    result = DDLParser(ddl).run(group_by_type=True)
+    expected = {
+        "tables": [],
+        "types": [],
+        "sequences": [],
+        "domains": [],
+        "schemas": [],
+        "ddl_properties": [],
+        "drop_databases": [{"drop_database_name": "`employees`", "if_exists": True}],
+    }
+    assert result == expected
