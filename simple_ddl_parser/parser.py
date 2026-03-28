@@ -62,8 +62,6 @@ DROP_VIEW_RE = re.compile(
     flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
 
-PARTITION_BY_RE = re.compile(r"\bPARTITION\s+BY\b", flags=re.IGNORECASE)
-
 
 def set_logging_config(
     log_level: Union[str, int], log_file: Optional[str] = None
@@ -238,50 +236,6 @@ class Parser:
         for placeholder, comment in self.inner_type_comments.items():
             value = value.replace(placeholder, comment)
         return value
-
-    def strip_partition_definitions(self, statement: str) -> str:
-        match = PARTITION_BY_RE.search(statement)
-        if not match:
-            return statement
-
-        idx = match.end()
-        paren_depth = 0
-        while idx < len(statement):
-            char = statement[idx]
-            if char == "(":
-                paren_depth += 1
-            elif char == ")" and paren_depth > 0:
-                paren_depth -= 1
-                if paren_depth == 0:
-                    probe = idx + 1
-                    while probe < len(statement) and statement[probe].isspace():
-                        probe += 1
-                    if probe >= len(statement) or statement[probe] != "(":
-                        break
-
-                    token_probe = probe + 1
-                    while (
-                        token_probe < len(statement)
-                        and statement[token_probe].isspace()
-                    ):
-                        token_probe += 1
-                    if statement[token_probe : token_probe + 9].upper() != "PARTITION":
-                        break
-
-                    nested_depth = 1
-                    token_probe += 1
-                    while token_probe < len(statement) and nested_depth > 0:
-                        if statement[token_probe] == "(":
-                            nested_depth += 1
-                        elif statement[token_probe] == ")":
-                            nested_depth -= 1
-                        token_probe += 1
-                    if nested_depth == 0:
-                        return statement[:probe] + statement[token_probe:]
-                    break
-            idx += 1
-
-        return statement
 
     def catch_comment_or_process_line(self) -> str:
         if self.multi_line_comment:
@@ -797,7 +751,6 @@ class Parser:
     def parse_statement(self) -> None:
         if any(regex.match(self.statement) for regex in self.skip_statement_regexes):
             return
-        self.statement = self.strip_partition_definitions(self.statement)
         create_table_as_select_statement = self.parse_create_table_as_select_statement(
             self.statement
         )
