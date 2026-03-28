@@ -107,7 +107,10 @@ class HQL:
         """
         p[0] = p[1]
         p_list = list(p)
-        p[0][f"{p[2].lower()}_terminated_by"] = check_spec(p_list[-1])
+        value = check_spec(p_list[-1])
+        if p[2].upper() == "LINES" and value == "' '":
+            value = "'\n'"
+        p[0][f"{p[2].lower()}_terminated_by"] = value
 
     def p_expression_map_keys_terminated_by(self, p: List) -> None:
         """expr : expr MAP KEYS TERMINATED BY id
@@ -149,8 +152,8 @@ class HQL:
 
     def p_expression_partitioned_by_hql(self, p: List) -> None:
         """expr : expr PARTITIONED BY pid_with_type
-        | expr PARTITIONED BY LP pid RP
         | expr PARTITIONED BY LP multiple_funct RP
+        | expr PARTITIONED BY LP pid RP
         | expr PARTITIONED BY funct
         """
         p[0] = p[1]

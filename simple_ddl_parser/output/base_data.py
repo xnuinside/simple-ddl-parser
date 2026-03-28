@@ -90,6 +90,7 @@ class BaseData:
         self.set_unique_columns()
         self.populate_keys()
         self.normalize_ref_columns_in_final_output()
+        self.normalize_indexes_in_final_output()
         self.post_process()
 
     def set_unique_columns(self) -> None:
@@ -120,6 +121,26 @@ class BaseData:
                 if name == column["name"]:
                     del col_ref["name"]
                     column["references"] = col_ref
+
+    def normalize_indexes_in_final_output(self) -> None:
+        for index in self.index:
+            columns = index.get("columns") or []
+            if not columns or not isinstance(columns[0], str):
+                continue
+            if self.output_mode == "mysql":
+                continue
+            if index.get("index_name") is not None and self.output_mode != "snowflake":
+                continue
+            detailed_columns = index.get("detailed_columns") or []
+            index["columns"] = [[deepcopy(column)] for column in detailed_columns]
+            index["detailed_columns"] = [
+                {
+                    "name": [deepcopy(column)],
+                    "nulls": column["nulls"],
+                    "order": column["order"],
+                }
+                for column in detailed_columns
+            ]
 
     def populate_keys(self) -> None:
         """primary_key - list of column names, example: "primary_key": ["data_sync_id", "sync_start"],"""

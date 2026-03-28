@@ -35,25 +35,45 @@ class AfterColumns:
         | expr PARTITION BY id LP pid COMMA f_call RP
         """
         p[0] = p[1]
-        p_list = remove_par(list(p))
         _type, range, trunc_by = None, None, None
 
-        if isinstance(p_list[4], list):
-            columns = p_list[4]
-        elif "_TRUNC" in p_list[4]:
-            # bigquery
-            _type = p_list[4]
-            trunc_by = p_list[5][-1]
-            p_list[5].pop(-1)
-            columns = p_list[5]
-        elif p_list[4].upper() == "RANGE_BUCKET":
-            # bigquery RANGE_BUCKET with GENERATE_ARRAY
-            _type = p_list[4]
-            columns, range = self._parse_range_bucket(p_list[5:])
+        if len(p) == 5:
+            columns = p[4]
+        elif len(p) == 6:
+            _type = p[4]
+            columns = p[5]
+        elif len(p) == 7:
+            columns = p[5]
+        elif len(p) == 8:
+            _type = p[4]
+            columns = p[6]
+            if isinstance(_type, str) and "_TRUNC" in _type:
+                trunc_by = columns[-1]
+                columns = columns[:-1]
+            elif isinstance(_type, str) and _type.upper() == "RANGE_BUCKET":
+                columns, range = self._parse_range_bucket(columns)
+        elif len(p) == 10:
+            _type = p[4]
+            if isinstance(p[4], str) and "_TRUNC" in p[4]:
+                trunc_by = p[7][-1]
+                p[6].pop(-1)
+                columns = p[6]
+            elif isinstance(p[4], str) and p[4].upper() == "RANGE_BUCKET":
+                columns, range = self._parse_range_bucket([p[6], ",", p[8]])
+            else:
+                columns = p[6]
         else:
-            columns = p_list[-1]
-        if not _type and isinstance(p_list[4], str):
-            _type = p_list[4]
+            columns = p[len(p) - 1]
+        if (
+            _type is None
+            and isinstance(columns, list)
+            and len(columns) == 1
+            and isinstance(columns[0], dict)
+            and columns[0].get("func_name")
+            and columns[0].get("args")
+        ):
+            _type = columns[0]["func_name"]
+            columns = [columns[0]["args"][1:-1]]
         p[0]["partition_by"] = {"columns": columns, "type": _type}
         if range:
             p[0]["partition_by"]["range"] = range
@@ -1073,7 +1093,7 @@ class Comment:
         if isinstance(p[1], str) and p[1].upper() == "NULL":
             p[0] = None
         else:
-            p[0] = p[1][1:-1].replace("''", "'")
+            p[0] = check_spec(p[1]).replace("pars_m_n", r"\n")[1:-1].replace("''", "'")
 
     def p_expression_comment_on(self, p: List):
         """expr : COMMENT ON TABLE id IS comment_value
@@ -1253,7 +1273,11 @@ class BaseSQL(
             p[0] = p_list[1]
             p[0]["details"] = {p_list[-1].lower(): True}
         else:
-            if len(p_list) in {3, 4}:
+            if len(p) in {5, 6} and p[1] in {"INDEX", "KEY"}:
+                name = p[2] if len(p) == 6 else None
+            elif p[1] == "UNIQUE":
+                name = p[3] if len(p) == 7 else None
+            elif len(p_list) in {3, 4}:
                 name = None
             else:
                 name = p_list[3] if p_list[1] == "UNIQUE" else p_list[2]
@@ -1263,6 +1287,7 @@ class BaseSQL(
                 "columns": p_list[-1]["columns"],
                 "detailed_columns": p_list[-1]["detailed_columns"],
                 "unique": "UNIQUE" in p_list,
+                "keyword": p[1] if p[1] != "UNIQUE" else "INDEX",
             }
 
     def p_create_index(self, p: List) -> None:
@@ -2031,7 +2056,10 @@ class BaseSQL(
         if len(p_list) == 4 and isinstance(p[1], str):
             p[0] = ["".join(p[1:])]
         elif len(p_list) == 5 and isinstance(p[1], str):
-            p[0] = [p[1]]
+            if str(p[3]).isnumeric():
+                p[0] = [p[1]]
+            else:
+                p[0] = [{"func_name": p[1], "args": f"({p[3]})"}]
         elif not isinstance(p_list[1], list):
             p[0] = [p_list[1]]
         else:
