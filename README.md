@@ -388,6 +388,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - ALTER TABLE STATEMENTS: ADD CHECK (with CONSTRAINT), ADD FOREIGN KEY (with CONSTRAINT), MySQL-style `ADD CONSTRAINT ... FOREIGN KEY constraint_name (...)`, DROP FOREIGN KEY, ADD UNIQUE, ADD DEFAULT FOR, ALTER TABLE ONLY, ALTER TABLE IF EXISTS; ALTER .. PRIMARY KEY; ALTER .. USING INDEX TABLESPACE; ALTER .. ADD; ALTER .. MODIFY; ALTER .. ALTER COLUMN; multiple ADD / DROP / MODIFY operations in one statement; etc
 
 - PARTITION BY statement
+  - Includes PostgreSQL/Greenplum-style child partition definitions after `PARTITION BY`, for example `PARTITION BY col(id) (PARTITION a VALUES('12') WITH (...), ...)`
 
 - CREATE SEQUENCE with words: INCREMENT [BY], START [WITH], MINVALUE, MAXVALUE, CACHE
 
@@ -593,10 +594,21 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
+- None.
+
+## [1.13.0] - 2026-03-29
+### Added
+- None.
+
+### Changed
+- None.
+
+### Fixed
 - HQL/Spark SQL nested complex types like `ARRAY<STRUCT<... COMMENT '...'>` now parse correctly when inner `STRUCT` fields include `COMMENT '...'`, instead of failing in strict mode. https://github.com/xnuinside/simple-ddl-parser/issues/137
 - MySQL-style `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY constraint_name (...) REFERENCES ...` statements now parse correctly instead of failing on the duplicated foreign key name. `ALTER TABLE ... DROP FOREIGN KEY ...` is also supported, and simple `DROP VIEW` / `CREATE VIEW ... AS ...` statements are now recognized in parser output. https://github.com/xnuinside/simple-ddl-parser/issues/149
 - HQL primitive generic array types like `array<string>` now parse without failing on the closing `>` token. https://github.com/xnuinside/simple-ddl-parser/issues/192
 - `TRUNCATE TABLE schema.table` statements now return the affected table in parser output instead of being skipped. https://github.com/xnuinside/simple-ddl-parser/issues/190
+- PostgreSQL/Greenplum-style `PARTITION BY ... (PARTITION ... VALUES(...) WITH (...))` table definitions no longer return an empty result when partition definitions follow `PARTITION BY`. https://github.com/xnuinside/simple-ddl-parser/issues/118
 
 ## [1.12.0] - 2026-03-27
 ### Added
@@ -779,7 +791,8 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 Older versions are documented in ARCHIVE_CHANGELOG.txt.
 
-[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...HEAD
+[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.13.0...HEAD
+[1.13.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...1.13.0
 [1.12.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.11.0...1.12.0
 [1.11.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.9.0...1.10.0

@@ -33,37 +33,45 @@ class AfterColumns:
         | expr PARTITION BY pid
         | expr PARTITION BY id pid
         | expr PARTITION BY id LP pid COMMA f_call RP
+        | expr PARTITION BY LP pid RP partition_definition_block
+        | expr PARTITION BY id LP pid RP partition_definition_block
+        | expr PARTITION BY pid partition_definition_block
+        | expr PARTITION BY id pid partition_definition_block
+        | expr PARTITION BY id LP pid COMMA f_call RP partition_definition_block
         """
         p[0] = p[1]
+        p_list = list(p)
+        if isinstance(p_list[-1], dict) and p_list[-1].get("partition_definitions"):
+            p_list = p_list[:-1]
         _type, range, trunc_by = None, None, None
 
-        if len(p) == 5:
-            columns = p[4]
-        elif len(p) == 6:
-            _type = p[4]
-            columns = p[5]
-        elif len(p) == 7:
-            columns = p[5]
-        elif len(p) == 8:
-            _type = p[4]
-            columns = p[6]
+        if len(p_list) == 5:
+            columns = p_list[4]
+        elif len(p_list) == 6:
+            _type = p_list[4]
+            columns = p_list[5]
+        elif len(p_list) == 7:
+            columns = p_list[5]
+        elif len(p_list) == 8:
+            _type = p_list[4]
+            columns = p_list[6]
             if isinstance(_type, str) and "_TRUNC" in _type:
                 trunc_by = columns[-1]
                 columns = columns[:-1]
             elif isinstance(_type, str) and _type.upper() == "RANGE_BUCKET":
                 columns, range = self._parse_range_bucket(columns)
-        elif len(p) == 10:
-            _type = p[4]
-            if isinstance(p[4], str) and "_TRUNC" in p[4]:
-                trunc_by = p[7][-1]
-                p[6].pop(-1)
-                columns = p[6]
-            elif isinstance(p[4], str) and p[4].upper() == "RANGE_BUCKET":
-                columns, range = self._parse_range_bucket([p[6], ",", p[8]])
+        elif len(p_list) == 10:
+            _type = p_list[4]
+            if isinstance(p_list[4], str) and "_TRUNC" in p_list[4]:
+                trunc_by = p_list[7][-1]
+                p_list[6].pop(-1)
+                columns = p_list[6]
+            elif isinstance(p_list[4], str) and p_list[4].upper() == "RANGE_BUCKET":
+                columns, range = self._parse_range_bucket([p_list[6], ",", p_list[8]])
             else:
-                columns = p[6]
+                columns = p_list[6]
         else:
-            columns = p[len(p) - 1]
+            columns = p_list[-1]
         if (
             _type is None
             and isinstance(columns, list)
@@ -79,6 +87,26 @@ class AfterColumns:
             p[0]["partition_by"]["range"] = range
         if trunc_by:
             p[0]["partition_by"]["trunc_by"] = trunc_by
+
+    def p_partition_definition_block(self, p: List) -> None:
+        """partition_definition_block : LP partition_definition_items RP"""
+        p[0] = {"partition_definitions": True}
+
+    def p_partition_definition_items(self, p: List) -> None:
+        """partition_definition_items : partition_definition_item
+        | partition_definition_items partition_definition_item
+        """
+        p[0] = None
+
+    def p_partition_definition_item(self, p: List) -> None:
+        """partition_definition_item : id
+        | STRING
+        | WITH
+        | EQ
+        | COMMA
+        | LP partition_definition_items RP
+        """
+        p[0] = None
 
 
 class Database:

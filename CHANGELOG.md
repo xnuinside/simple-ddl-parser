@@ -11,6 +11,16 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - None.
 
 ### Fixed
+- None.
+
+## [1.13.0] - 2026-03-29
+### Added
+- None.
+
+### Changed
+- None.
+
+### Fixed
 - HQL/Spark SQL nested complex types like `ARRAY<STRUCT<... COMMENT '...'>` now parse correctly when inner `STRUCT` fields include `COMMENT '...'`, instead of failing in strict mode. https://github.com/xnuinside/simple-ddl-parser/issues/137
 - MySQL dump-style DDL files now parse more reliably: `DROP TABLE IF EXISTS` is supported in parser output and no longer fails in strict mode, inline `/*...*/` comment placeholders inside identifiers are handled, and table-level `KEY` / `UNIQUE KEY` definitions with prefix lengths like `column(32)` are supported. https://github.com/xnuinside/simple-ddl-parser/issues/148
 - MySQL-style `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY constraint_name (...) REFERENCES ...` statements now parse correctly instead of failing on the duplicated foreign key name. `ALTER TABLE ... DROP FOREIGN KEY ...` is also supported, and simple `DROP VIEW` / `CREATE VIEW ... AS ...` statements are now recognized in parser output. https://github.com/xnuinside/simple-ddl-parser/issues/149
@@ -18,6 +28,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 - `TRUNCATE TABLE schema.table` statements now return the affected table in parser output instead of being skipped. https://github.com/xnuinside/simple-ddl-parser/issues/190
 - Mixed SQLite/MySQL dump files now ignore wrapper/admin statements such as `PRAGMA`, `BEGIN TRANSACTION`, `LOCK/UNLOCK TABLES`, and `CREATE/DROP USER` instead of failing in strict mode. `DROP DATABASE [IF EXISTS]` is now parsed as its own output statement, and MySQL `ALTER TABLE ... AUTO_INCREMENT = ...` updates table output plus `alter["auto_increments"]`. https://github.com/xnuinside/simple-ddl-parser/issues/146
 - MySQL issue-style upgrade scripts now parse `ALTER TABLE ... DEFAULT CHARACTER SET ... COLLATE ...` without failing in strict mode, and MySQL `ALTER TABLE ... CHANGE old_col new_col type ...` applies modified column metadata in parser output. https://github.com/xnuinside/simple-ddl-parser/issues/145
+- PostgreSQL/Greenplum-style `PARTITION BY ... (PARTITION ... VALUES(...) WITH (...))` table definitions no longer return an empty result when partition definitions follow `PARTITION BY`. https://github.com/xnuinside/simple-ddl-parser/issues/118
 
 ## [1.12.0] - 2026-03-27
 ### Added
@@ -200,7 +211,8 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 Older versions are documented in ARCHIVE_CHANGELOG.txt.
 
-[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...HEAD
+[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.13.0...HEAD
+[1.13.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...1.13.0
 [1.12.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.11.0...1.12.0
 [1.11.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.9.0...1.10.0
