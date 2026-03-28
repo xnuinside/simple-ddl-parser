@@ -596,7 +596,7 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 ### Fixed
 - None.
 
-## [1.12.1] - 2026-03-29
+## [1.13.0] - 2026-03-29
 ### Added
 - None.
 
@@ -791,8 +791,8 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 Older versions are documented in ARCHIVE_CHANGELOG.txt.
 
-[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.1...HEAD
-[1.12.1]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...1.12.1
+[Unreleased]: https://github.com/xnuinside/simple-ddl-parser/compare/1.13.0...HEAD
+[1.13.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.12.0...1.13.0
 [1.12.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.11.0...1.12.0
 [1.11.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/xnuinside/simple-ddl-parser/compare/1.9.0...1.10.0
