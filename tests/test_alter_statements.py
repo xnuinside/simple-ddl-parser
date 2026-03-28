@@ -2301,3 +2301,18 @@ def test_alter_multiple_alter_column_sql_server():
     assert len(modified) == 2
     assert modified[0]["name"] == "col1"
     assert modified[1]["name"] == "col2"
+
+
+def test_alter_table_auto_increment_property():
+    ddl = """
+    CREATE TABLE t (
+        id int NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (id)
+    ) ENGINE=InnoDB;
+    ALTER TABLE t AUTO_INCREMENT = 101;
+    """
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mysql")
+    table = result["tables"][0]
+
+    assert table["auto_increment"] == "101"
+    assert table["alter"]["auto_increments"] == ["101"]

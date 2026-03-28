@@ -159,6 +159,17 @@ class Parser:
         self.in_comment = re.compile(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+")
         self.set_statement = re.compile(r"SET ")
         self.skip_regex = re.compile(r"^(GO|USE|INSERT|GRANT|DELETE|COMMIT)\b")
+        self.skip_statement_regexes = [
+            re.compile(pattern, flags=re.IGNORECASE | re.DOTALL)
+            for pattern in [
+                r"^\s*PRAGMA\b.*$",
+                r"^\s*BEGIN(?:\s+TRANSACTION)?\b.*$",
+                r"^\s*LOCK\s+TABLES\b.*$",
+                r"^\s*UNLOCK\s+TABLES\b.*$",
+                r"^\s*DROP\s+USER\b.*$",
+                r"^\s*CREATE\s+USER\b.*$",
+            ]
+        ]
 
     def catch_comment_or_process_line(self) -> str:
         if self.multi_line_comment:
@@ -672,6 +683,8 @@ class Parser:
                 )
 
     def parse_statement(self) -> None:
+        if any(regex.match(self.statement) for regex in self.skip_statement_regexes):
+            return
         create_table_as_select_statement = self.parse_create_table_as_select_statement(
             self.statement
         )

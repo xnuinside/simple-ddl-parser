@@ -491,3 +491,132 @@ def test_parse_from_file_issue_147_inline_foreign_key_on_delete_set_null(tmp_pat
         "constraint_name": "COMTCCMMNCODE_FK1",
         "column": "CL_CODE",
     }
+
+
+def test_parse_from_file_issue_146_sqlite_dump_wrappers_are_ignored(tmp_path):
+    ddl_file = tmp_path / "issue_146_sqlite_dump.sql"
+    ddl_file.write_text(
+        """
+        PRAGMA foreign_keys=OFF;
+        BEGIN TRANSACTION;
+        CREATE TABLE meta(
+            key LONGVARCHAR NOT NULL UNIQUE PRIMARY KEY,
+            value LONGVARCHAR
+        );
+        INSERT INTO "meta" VALUES('version','30');
+        COMMIT;
+        """,
+        encoding="utf-8",
+    )
+
+    result = parse_from_file(
+        str(ddl_file),
+        parser_settings={"silent": False},
+        output_mode="mysql",
+    )
+
+    assert result == [
+        {
+            "table_name": "meta",
+            "schema": None,
+            "primary_key": ["key"],
+            "columns": [
+                {
+                    "name": "key",
+                    "type": "LONGVARCHAR",
+                    "size": None,
+                    "references": None,
+                    "unique": True,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+                {
+                    "name": "value",
+                    "type": "LONGVARCHAR",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": True,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "alter": {},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "tablespace": None,
+        }
+    ]
+
+
+def test_parse_from_file_issue_146_dump_admin_statements_are_ignored(tmp_path):
+    ddl_file = tmp_path / "issue_146_admin_statements.sql"
+    ddl_file.write_text(
+        """
+        DROP USER 'php'@'localhost';
+        DROP DATABASE mood;
+        CREATE DATABASE mood;
+
+        CREATE TABLE mood.users (
+            id int unsigned NOT NULL AUTO_INCREMENT,
+            uname char(24) UNIQUE NOT NULL,
+            PRIMARY KEY (id)
+        );
+
+        CREATE USER 'php'@'localhost'
+            IDENTIFIED BY 'secret';
+        GRANT SELECT, INSERT, UPDATE ON mood.* TO 'php'@'localhost';
+        LOCK TABLES mood.users WRITE;
+        ALTER TABLE mood.users AUTO_INCREMENT = 2;
+        INSERT INTO mood.users VALUES (1, 'demo');
+        UNLOCK TABLES;
+        """,
+        encoding="utf-8",
+    )
+
+    result = parse_from_file(
+        str(ddl_file),
+        parser_settings={"silent": False},
+        output_mode="mysql",
+    )
+
+    assert result == [
+        {"drop_database_name": "mood"},
+        {"database_name": "mood"},
+        {
+            "table_name": "users",
+            "schema": "mood",
+            "auto_increment": "2",
+            "primary_key": ["id"],
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "int unsigned",
+                    "size": None,
+                    "references": None,
+                    "unique": False,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                    "autoincrement": True,
+                },
+                {
+                    "name": "uname",
+                    "type": "char",
+                    "size": 24,
+                    "references": None,
+                    "unique": True,
+                    "nullable": False,
+                    "default": None,
+                    "check": None,
+                },
+            ],
+            "alter": {"auto_increments": ["2"]},
+            "checks": [],
+            "index": [],
+            "partitioned_by": [],
+            "tablespace": None,
+        },
+    ]

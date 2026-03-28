@@ -104,6 +104,7 @@ class Output:
             "schemas": [],
             "views": [],
             "drop_views": [],
+            "drop_databases": [],
             "ddl_properties": [],
             "comments": [],
             "comment_on": [],
@@ -116,6 +117,7 @@ class Output:
             "schema_name": "schemas",
             "view_name": "views",
             "drop_view_name": "drop_views",
+            "drop_database_name": "drop_databases",
             "tablespace_name": "tablespaces",
             "database_name": "databases",
             "value": "ddl_properties",
@@ -142,6 +144,8 @@ class Output:
             del result_as_dict["views"]
         if not result_as_dict["drop_views"]:
             del result_as_dict["drop_views"]
+        if not result_as_dict["drop_databases"]:
+            del result_as_dict["drop_databases"]
 
         self.final_result = result_as_dict
 

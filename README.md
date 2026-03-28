@@ -438,6 +438,9 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - INDEX statements in table definitions, including VISIBLE / INVISIBLE indexes
 - `UNIQUE KEY (...)`, named or unnamed `KEY (...)` / `INDEX (...)`, and MySQL index prefix lengths such as `column(32)` inside table definitions
 - `DROP TABLE IF EXISTS` is parsed as a statement in output, and MySQL dump-style inline comments like `/*$wgDBprefix*/table_name` are handled in DDL files
+- `DROP DATABASE [IF EXISTS]` is parsed as a statement in output
+- `ALTER TABLE ... AUTO_INCREMENT = ...` updates MySQL table output and is tracked in `alter["auto_increments"]`
+- Common dump/admin statements such as `PRAGMA`, `BEGIN TRANSACTION`, `LOCK/UNLOCK TABLES`, and `CREATE/DROP USER` are ignored so mixed schema dump files parse without strict-mode errors
 
 #### MSSQL 
 
