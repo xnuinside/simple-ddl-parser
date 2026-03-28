@@ -672,21 +672,6 @@ class Parser:
         )
 
     @staticmethod
-    def normalize_alter_column_type_sizes(statement: str) -> str:
-        patterns = [
-            r"(\bMODIFY\s+COLUMN\s+\S+\s+[A-Za-z_][A-Za-z0-9_]*)\s+\(\s*([^)]+?)\s*\)",
-            r"(\bCHANGE\s+\S+\s+\S+\s+[A-Za-z_][A-Za-z0-9_]*)\s+\(\s*([^)]+?)\s*\)",
-        ]
-        for pattern in patterns:
-            statement = re.sub(
-                pattern,
-                lambda match: f"{match.group(1)}({''.join(match.group(2).split())})",
-                statement,
-                flags=re.IGNORECASE,
-            )
-        return statement
-
-    @staticmethod
     def restore_generated_always_identity(statement: Dict) -> None:
         for column in statement.get("columns", []):
             generated_by = column.get("generated_by")
@@ -700,7 +685,6 @@ class Parser:
     def parse_statement(self) -> None:
         if any(regex.match(self.statement) for regex in self.skip_statement_regexes):
             return
-        self.statement = self.normalize_alter_column_type_sizes(self.statement)
         create_table_as_select_statement = self.parse_create_table_as_select_statement(
             self.statement
         )
@@ -816,6 +800,7 @@ class Parser:
             "last_par",
             "lp_open",
             "is_alter",
+            "in_alter_column_definition",
             "is_like",
             "is_comment",
         ]
