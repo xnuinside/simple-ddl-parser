@@ -1014,3 +1014,49 @@ def test_partition_by_without_parths():
     """
     result = DDLParser(ddl).run(group_by_type=True)
     assert expected == result
+
+
+def test_partition_by_with_partition_definitions():
+    expected = {
+        "domains": [],
+        "ddl_properties": [],
+        "schemas": [],
+        "sequences": [],
+        "tables": [
+            {
+                "alter": {},
+                "checks": [],
+                "columns": [
+                    {
+                        "check": None,
+                        "default": None,
+                        "name": "id",
+                        "nullable": True,
+                        "references": None,
+                        "size": None,
+                        "type": "int",
+                        "unique": False,
+                    }
+                ],
+                "index": [],
+                "partition_by": {"columns": ["id"], "type": "col"},
+                "partitioned_by": [],
+                "primary_key": [],
+                "schema": None,
+                "table_name": "t",
+                "tablespace": None,
+            }
+        ],
+        "types": [],
+    }
+
+    ddl = """
+    CREATE TABLE t (
+        id int
+    ) PARTITION BY col(id) (
+        PARTITION a VALUES('12') WITH (appendonly='false'),
+        PARTITION b VALUES('9') WITH (appendonly='false')
+    );
+    """
+    result = DDLParser(ddl).run(group_by_type=True)
+    assert expected == result
