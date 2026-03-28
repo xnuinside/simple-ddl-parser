@@ -61,6 +61,7 @@ DROP_VIEW_RE = re.compile(
     flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
 
+
 def set_logging_config(
     log_level: Union[str, int], log_file: Optional[str] = None
 ) -> None:
