@@ -745,20 +745,23 @@ class Schema:
 class Drop:
     def p_expression_drop_table(self, p: List) -> None:
         """expr : DROP TABLE id
+        | DROP TABLE IF EXISTS id
         | DROP TABLE id DOT id
+        | DROP TABLE IF EXISTS id DOT id
         | TRUNCATE TABLE id
         | TRUNCATE TABLE id DOT id
         """
         # get schema & table name
         p_list = list(p)
         schema = None
-        if len(p) > 4:
-            if "." in p:
-                schema = p_list[-3]
-                table_name = p_list[-1]
+        if "." in p:
+            schema = p_list[-3]
+            table_name = p_list[-1]
         else:
             table_name = p_list[-1]
         p[0] = {"schema": schema, "table_name": table_name}
+        if "IF" in p_list and "EXISTS" in p_list:
+            p[0]["if_exists"] = True
 
 
 class Type:
@@ -1239,6 +1242,10 @@ class BaseSQL(
     def p_c_index(self, p: List) -> None:
         """c_index : INDEX LP index_pid RP
         | INDEX id LP index_pid RP
+        | KEY LP index_pid RP
+        | KEY id LP index_pid RP
+        | UNIQUE INDEX LP index_pid RP
+        | UNIQUE INDEX id LP index_pid RP
         | c_index INVISIBLE
         | c_index VISIBLE"""
         p_list = remove_par(p_list=list(p))
@@ -1246,14 +1253,16 @@ class BaseSQL(
             p[0] = p_list[1]
             p[0]["details"] = {p_list[-1].lower(): True}
         else:
-            if len(p_list) == 3:
+            if len(p_list) in {3, 4}:
                 name = None
             else:
-                name = p_list[2]
+                name = p_list[3] if p_list[1] == "UNIQUE" else p_list[2]
             p[0] = {
                 "index_stmt": True,
                 "name": name,
-                "columns": p_list[-1]["detailed_columns"],
+                "columns": p_list[-1]["columns"],
+                "detailed_columns": p_list[-1]["detailed_columns"],
+                "unique": "UNIQUE" in p_list,
             }
 
     def p_create_index(self, p: List) -> None:
@@ -1332,22 +1341,9 @@ class BaseSQL(
                     p[0]["index"] = []
                 index_data = p_list[-1]
                 index_columns = index_data["columns"]
-                if (
-                    isinstance(index_columns, list)
-                    and index_columns
-                    and isinstance(index_columns[0], dict)
-                ):
-                    columns = [index_columns]
-                    detailed_columns = [
-                        {
-                            "name": index_columns,
-                            "nulls": "LAST",
-                            "order": "ASC",
-                        }
-                    ]
-                elif isinstance(index_columns, list):
+                if isinstance(index_columns, list):
                     columns = index_columns
-                    detailed_columns = [
+                    detailed_columns = index_data.get("detailed_columns") or [
                         {"name": col, "nulls": "LAST", "order": "ASC"}
                         for col in index_columns
                     ]
@@ -1365,7 +1361,7 @@ class BaseSQL(
                     "columns": columns,
                     "detailed_columns": detailed_columns,
                     "index_name": index_data["name"],
-                    "unique": False,
+                    "unique": index_data.get("unique", False),
                 }
                 _index.update(index_data.get("details", {}))
                 p[0]["index"].append(_index)
@@ -2021,25 +2017,33 @@ class BaseSQL(
     def p_pid(self, p: List) -> None:
         """pid :  id
         | STRING
+        | id LP id RP
         | pid id
         | pid STRING
         | STRING LP RP
         | id LP RP
         | pid COMMA id
+        | pid COMMA id LP id RP
         | pid COMMA STRING
         """
         p_list = list(p)
 
         if len(p_list) == 4 and isinstance(p[1], str):
             p[0] = ["".join(p[1:])]
+        elif len(p_list) == 5 and isinstance(p[1], str):
+            p[0] = [p[1]]
         elif not isinstance(p_list[1], list):
             p[0] = [p_list[1]]
         else:
             p[0] = p_list[1]
-            p[0].append(p_list[-1])
+            if len(p_list) == 7:
+                p[0].append(p_list[3])
+            else:
+                p[0].append(p_list[-1])
 
     def p_index_pid(self, p: List) -> None:
         """index_pid :  id
+        | id LP id RP
         | index_pid id
         | index_pid COMMA index_pid
         """
@@ -2048,6 +2052,14 @@ class BaseSQL(
             detailed_column = {"name": p_list[1], "order": "ASC", "nulls": "LAST"}
             column = p_list[1]
             p[0] = {"detailed_columns": [detailed_column], "columns": [column]}
+        elif len(p_list) == 5:
+            detailed_column = {
+                "name": p_list[1],
+                "order": "ASC",
+                "nulls": "LAST",
+                "length": int(p_list[3]) if str(p_list[3]).isnumeric() else p_list[3],
+            }
+            p[0] = {"detailed_columns": [detailed_column], "columns": [p_list[1]]}
         else:
             p[0] = p[1]
             if len(p) == 3:
@@ -2139,6 +2151,7 @@ class BaseSQL(
     def p_uniq(self, p: List) -> None:
         """uniq : UNIQUE LP pid RP
         | UNIQUE id LP pid RP
+        | UNIQUE KEY LP pid RP
         | UNIQUE KEY id LP pid RP
         """
         p_list = remove_par(list(p))

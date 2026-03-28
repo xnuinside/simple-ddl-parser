@@ -61,6 +61,16 @@ DROP_VIEW_RE = re.compile(
     flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
 
+DROP_TABLE_RE = re.compile(
+    r"""
+    ^\s*DROP\s+TABLE\s+
+    (?:IF\s+EXISTS\s+)?
+    (?P<target>[^\s;]+)
+    \s*$
+    """,
+    flags=re.IGNORECASE | re.VERBOSE,
+)
+
 
 def set_logging_config(
     log_level: Union[str, int], log_file: Optional[str] = None
@@ -157,7 +167,7 @@ class Parser:
         self.equal_without_space = re.compile(r"(\b)=")
         self.in_comment = re.compile(r"((\")|(\'))+(.)*(--)+(.)*((\")|(\'))+")
         self.set_statement = re.compile(r"SET ")
-        self.skip_regex = re.compile(r"^(GO|USE|INSERT|GRANT|DELETE)\b")
+        self.skip_regex = re.compile(r"^(GO|USE|INSERT|GRANT|DELETE|COMMIT)\b")
 
     def catch_comment_or_process_line(self) -> str:
         if self.multi_line_comment:
@@ -194,20 +204,26 @@ class Parser:
         """get useful codeline - remove comment"""
         if IN_COM in self.line:
             return self.process_in_comment(self.line)
-        if CL_COM not in self.line and OP_COM not in self.line:
-            return self.line
+        code_line = self.line
+        while OP_COM in code_line and CL_COM in code_line[code_line.index(OP_COM) :]:
+            start = code_line.index(OP_COM)
+            end = code_line.index(CL_COM, start) + len(CL_COM)
+            self.comments.append(code_line[start + len(OP_COM) : end - len(CL_COM)])
+            code_line = f"{code_line[:start]}{code_line[end:]}"
+        if CL_COM not in code_line and OP_COM not in code_line:
+            return code_line
         return ""
 
     def process_inline_comments(self) -> str:
         """this method сatches comments like "create table ( # some comment" - inline this statement"""
         comment = None
         code_line = self.process_line_before_comment()
-        if OP_COM in self.line:
+        if OP_COM in self.line and CL_COM not in self.line:
             splitted_line = self.line.split(OP_COM)
             code_line += splitted_line[0]
             comment = splitted_line[1]
             self.block_comments.append(OP_COM)
-        if CL_COM in code_line and self.block_comments:
+        if CL_COM in self.line and OP_COM not in self.line and self.block_comments:
             splitted_line = self.line.split(CL_COM)
             self.block_comments.pop(-1)
             code_line += splitted_line[1]
@@ -263,10 +279,22 @@ class Parser:
         # todo: not sure how to workaround ',' normal way
         if "input.regex" in data:
             data = self.process_regex_input(data)
+        data = re.sub(
+            r"(?i)(?<!FOREIGN\s)(?<!PRIMARY\s)(?<!UNIQUE\s)\bKEY\s+([^\s(]+)\s*(?=\()",
+            r"INDEX \1 ",
+            data,
+        )
+        data = re.sub(
+            r"(?i)(?<!FOREIGN\s)(?<!PRIMARY\s)(?<!UNIQUE\s)\bKEY\s+(?=\()",
+            "INDEX ",
+            data,
+        )
 
         # Process the string character by character to handle quoted sections
         result = []
         in_quote = False
+        in_line_comment = False
+        in_block_comment = False
         i = 0
         symbol_spacing_map = {",", "(", ")"}
 
@@ -277,6 +305,38 @@ class Parser:
         while i < len(data):
             char = data[i]
             startswith = data[i:].startswith
+
+            if in_line_comment:
+                result.append(char)
+                if startswith("\\n"):
+                    in_line_comment = False
+                    result.append("n")
+                    i += 2
+                else:
+                    i += 1
+                continue
+
+            if in_block_comment:
+                result.append(char)
+                if startswith("*/"):
+                    result.append("/")
+                    in_block_comment = False
+                    i += 2
+                else:
+                    i += 1
+                continue
+
+            if not in_quote and (startswith("--") or startswith("#")):
+                in_line_comment = True
+                result.append(char)
+                i += 1
+                continue
+
+            if not in_quote and startswith("/*"):
+                in_block_comment = True
+                result.append(char)
+                i += 1
+                continue
 
             # Handle quote start/end
             if char == "'":
@@ -370,10 +430,8 @@ class Parser:
     def parse_data(self) -> List[Dict]:
         self.tables: List[Dict] = []
         data = self.pre_process_data(self.data)
-        regex_n = r"((?!\'[\w]*[\\']*[\w]*)\\n(?![\w]*[\\']*[\w]*\'))"
         data = data.replace("\\t", "")
-        lines = re.split(regex_n, data)
-        lines = [line for line in lines if line != "\\n"]
+        lines = data.split("\\n")
 
         self.set_line: Optional[str] = None
 
@@ -469,6 +527,9 @@ class Parser:
 
         schema, view_name = self.split_table_identifier(match.group("target"))
         return {"schema": schema, "drop_view_name": view_name}
+
+    def parse_drop_table_statement(self, statement: str) -> bool:
+        return bool(DROP_TABLE_RE.match(statement))
 
     @staticmethod
     def clone_create_table_as_select_columns(
@@ -635,6 +696,8 @@ class Parser:
         drop_view_statement = self.parse_drop_view_statement(self.statement)
         if drop_view_statement:
             self.tables.append(drop_view_statement)
+            return
+        if self.parse_drop_table_statement(self.statement):
             return
         _parse_result = yacc.parse(self.statement)
         if _parse_result:
