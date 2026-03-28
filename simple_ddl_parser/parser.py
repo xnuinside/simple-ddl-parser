@@ -699,7 +699,7 @@ class Parser:
         if drop_view_statement:
             self.tables.append(drop_view_statement)
             return
-        _parse_result = yacc.parse(self.statement)
+        _parse_result = self.yacc.parse(self.statement, lexer=self.lexer)
         if _parse_result:
             self.restore_range_bucket_partition_data(_parse_result)
             self.restore_mysql_index_prefix_lengths(_parse_result)
@@ -800,6 +800,7 @@ class Parser:
             "last_par",
             "lp_open",
             "is_alter",
+            "in_alter_column_definition",
             "is_like",
             "is_comment",
         ]

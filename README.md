@@ -440,6 +440,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - `DROP TABLE IF EXISTS` is parsed as a statement in output, and MySQL dump-style inline comments like `/*$wgDBprefix*/table_name` are handled in DDL files
 - `DROP DATABASE [IF EXISTS]` is parsed as a statement in output
 - `ALTER TABLE ... AUTO_INCREMENT = ...` updates MySQL table output and is tracked in `alter["auto_increments"]`
+- `ALTER TABLE ... DEFAULT CHARACTER SET ... COLLATE ...` updates MySQL table charset/collation, and `ALTER TABLE ... CHANGE old_col new_col type ...` applies MySQL column changes from upgrade/dump scripts
 - Common dump/admin statements such as `PRAGMA`, `BEGIN TRANSACTION`, `LOCK/UNLOCK TABLES`, and `CREATE/DROP USER` are ignored so mixed schema dump files parse without strict-mode errors
 
 #### MSSQL 
