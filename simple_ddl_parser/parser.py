@@ -62,18 +62,6 @@ DROP_VIEW_RE = re.compile(
     flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
 
-ALTER_TABLE_AUTO_INCREMENT_RE = re.compile(
-    r"""
-    ^\s*ALTER\s+TABLE\s+
-    (?P<if_exists>IF\s+EXISTS\s+)?
-    (?P<target>[^\s;]+)
-    \s+AUTO_INCREMENT\s*=\s*
-    (?P<value>[^\s;]+)
-    \s*$
-    """,
-    flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
-)
-
 
 def set_logging_config(
     log_level: Union[str, int], log_file: Optional[str] = None
@@ -548,21 +536,6 @@ class Parser:
         schema, view_name = self.split_table_identifier(match.group("target"))
         return {"schema": schema, "drop_view_name": view_name}
 
-    def parse_alter_auto_increment_statement(self, statement: str) -> Optional[Dict]:
-        match = ALTER_TABLE_AUTO_INCREMENT_RE.match(statement)
-        if not match:
-            return None
-
-        schema, table_name = self.split_table_identifier(match.group("target"))
-        result = {
-            "schema": schema,
-            "alter_table_name": table_name,
-            "auto_increment": match.group("value"),
-        }
-        if match.group("if_exists"):
-            result["if_exists"] = True
-        return result
-
     @staticmethod
     def clone_create_table_as_select_columns(
         source_table: Dict, select_columns: Union[str, List[Dict[str, str]]]
@@ -725,12 +698,6 @@ class Parser:
         drop_view_statement = self.parse_drop_view_statement(self.statement)
         if drop_view_statement:
             self.tables.append(drop_view_statement)
-            return
-        alter_auto_increment_statement = self.parse_alter_auto_increment_statement(
-            self.statement
-        )
-        if alter_auto_increment_statement:
-            self.tables.append(alter_auto_increment_statement)
             return
         _parse_result = yacc.parse(self.statement)
         if _parse_result:

@@ -917,6 +917,7 @@ class AlterTable:
         | alter_primary_key
         | alter_primary_key using_tablespace
         | alter_column_add
+        | alter_auto_increment
         | alter_rename_column
         | alter_column_sql_server
         | alter_column_modify
@@ -975,6 +976,11 @@ class AlterTable:
         if not p[0].get("columns"):
             p[0]["columns"] = []
         p[0]["columns"].append(p_list[-1])
+
+    def p_alter_auto_increment(self, p: List) -> None:
+        """alter_auto_increment : alt_table AUTOINCREMENT EQ id"""
+        p[0] = p[1]
+        p[0]["auto_increment"] = p[4]
 
     def p_alter_primary_key(self, p: List) -> None:
         """alter_primary_key : alt_table ADD PRIMARY KEY LP pid RP
@@ -1079,7 +1085,7 @@ class AlterTable:
     def p_alt_table_name(self, p: List) -> None:
         """alt_table : ALTER TABLE t_name
         | ALTER TABLE IF EXISTS t_name
-        | ALTER TABLE ID t_name"""
+        | ALTER TABLE ONLY t_name"""
         p_list = list(p)
         table_data = p_list[-1]
         p[0] = {
