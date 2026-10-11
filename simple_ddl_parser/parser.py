@@ -10,6 +10,10 @@ from ply import lex, yacc
 from simple_ddl_parser.exception import SimpleDDLParserException
 from simple_ddl_parser.output.core import Output, dump_data_to_file
 from simple_ddl_parser.output.dialects import dialect_by_name
+from simple_ddl_parser.query_statements import (
+    parse_create_dynamic_table,
+    parse_create_view,
+)
 from simple_ddl_parser.utils import (
     find_first_unpair_closed_par,
     get_table_id,
@@ -36,19 +40,6 @@ CREATE_TABLE_AS_SELECT_RE = re.compile(
     \s+FROM\s+
     (?P<source>[^\s;]+)
     (?P<tail>\s+.*)?$
-    """,
-    flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
-)
-
-CREATE_VIEW_RE = re.compile(
-    r"""
-    ^\s*CREATE\s+
-    (?P<replace>OR\s+REPLACE\s+)?
-    VIEW\s+
-    (?P<target>[^\s(]+)
-    \s+AS\s+
-    (?P<definition>.+?)
-    \s*$
     """,
     flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
@@ -581,18 +572,23 @@ class Parser:
             }
         }
 
-    def parse_create_view_statement(self, statement: str) -> Optional[Dict]:
-        match = CREATE_VIEW_RE.match(statement)
-        if not match:
+    @staticmethod
+    def parse_create_view_statement(statement: str) -> Optional[Dict]:
+        if not re.match(r"^\s*CREATE\s", statement, flags=re.IGNORECASE):
             return None
+        if not re.search(r"\bVIEW\b", statement, flags=re.IGNORECASE):
+            return None
+        return parse_create_view(statement)
 
-        schema, view_name = self.split_table_identifier(match.group("target"))
-        return {
-            "schema": schema,
-            "view_name": view_name,
-            "definition": match.group("definition").strip(),
-            "replace": bool(match.group("replace")),
-        }
+    @staticmethod
+    def parse_create_dynamic_table_statement(statement: str) -> Optional[Dict]:
+        if not re.match(
+            r"^\s*CREATE\s+(?:OR\s+REPLACE\s+)?(?:TRANSIENT\s+)?DYNAMIC\s+TABLE\b",
+            statement,
+            flags=re.IGNORECASE,
+        ):
+            return None
+        return parse_create_dynamic_table(statement)
 
     def parse_drop_view_statement(self, statement: str) -> Optional[Dict]:
         match = DROP_VIEW_RE.match(statement)
@@ -760,6 +756,12 @@ class Parser:
         create_view_statement = self.parse_create_view_statement(self.statement)
         if create_view_statement:
             self.tables.append(create_view_statement)
+            return
+        create_dynamic_table_statement = self.parse_create_dynamic_table_statement(
+            self.statement
+        )
+        if create_dynamic_table_statement:
+            self.tables.append(create_dynamic_table_statement)
             return
         drop_view_statement = self.parse_drop_view_statement(self.statement)
         if drop_view_statement:

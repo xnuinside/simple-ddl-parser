@@ -1651,3 +1651,329 @@ def test_add_clustered_by_before_columns_statement():
         }
     ]
     assert result == expected
+
+
+def test_create_secure_view_with_columns_and_properties():
+    ddl = """
+    CREATE OR REPLACE SECURE VIEW IF NOT EXISTS analytics.mart.v_orders (
+        order_id WITH MASKING POLICY gov.policies.mask_id COMMENT 'Order id',
+        region WITH TAG (gov.tags.pii = 'none'),
+        amount
+    )
+      WITH ROW ACCESS POLICY gov.policies.rap_region ON (region)
+      CHANGE_TRACKING = TRUE
+      COPY GRANTS
+      COMMENT = 'Orders view'
+    AS SELECT o.order_id, o.region, o.amount
+    FROM raw.sales.orders o
+    WHERE o.amount > 0;
+    """
+    result = DDLParser(ddl, silent=False).run(
+        output_mode="snowflake", group_by_type=True
+    )
+    order_source = {"database": "raw", "schema": "sales", "table_name": "orders"}
+    assert result["tables"] == []
+    assert result["views"] == [
+        {
+            "schema": "mart",
+            "view_name": "v_orders",
+            "database": "analytics",
+            "replace": True,
+            "if_not_exists": True,
+            "secure": True,
+            "columns": [
+                {
+                    "name": "order_id",
+                    "with_masking_policy": "gov.policies.mask_id",
+                    "comment": "'Order id'",
+                    "expression": "o.order_id",
+                    "source": {**order_source, "column": "order_id"},
+                },
+                {
+                    "name": "region",
+                    "with_tag": "gov.tags.pii='none'",
+                    "expression": "o.region",
+                    "source": {**order_source, "column": "region"},
+                },
+                {
+                    "name": "amount",
+                    "expression": "o.amount",
+                    "source": {**order_source, "column": "amount"},
+                },
+            ],
+            "with_row_access_policy": "gov.policies.rap_region",
+            "row_access_policy_on": ["region"],
+            "change_tracking": True,
+            "copy_grants": True,
+            "comment": "'Orders view'",
+            "definition": "SELECT o.order_id, o.region, o.amount "
+            "FROM raw.sales.orders o WHERE o.amount > 0",
+            "source_tables": [order_source],
+        }
+    ]
+
+
+def test_create_view_query_lineage_with_ctes_joins_and_subqueries():
+    ddl = """
+    CREATE VIEW mart.v_customer_sales AS
+    WITH orders_cte AS (
+        SELECT customer_id, amount, order_date
+        FROM raw.sales.orders
+        WHERE EXTRACT(YEAR FROM order_date) > 2020
+    )
+    SELECT c.customer_id,
+           c.name customer_name,
+           SUM(oc.amount) AS total_amount,
+           MIN(oc.order_date)::DATE first_order,
+           CASE WHEN c.vip THEN 'Y' ELSE 'N' END vip_flag,
+           (SELECT COUNT(*) FROM raw.sales.returns rt
+            WHERE rt.customer_id = c.customer_id) AS returns
+    FROM raw.crm.customers AS c
+    JOIN orders_cte oc ON oc.customer_id = c.customer_id,
+    LATERAL FLATTEN(input => c.tags) f
+    GROUP BY 1, 2;
+    """
+    view = DDLParser(ddl, silent=False).run(group_by_type=True)["views"][0]
+    customers = {"database": "raw", "schema": "crm", "table_name": "customers"}
+    assert view["source_tables"] == [
+        {"database": "raw", "schema": "sales", "table_name": "orders"},
+        {"database": "raw", "schema": "sales", "table_name": "returns"},
+        customers,
+    ]
+    assert view["columns"] == [
+        {
+            "name": "customer_id",
+            "expression": "c.customer_id",
+            "source": {**customers, "column": "customer_id"},
+        },
+        {
+            "name": "customer_name",
+            "expression": "c.name",
+            "source": {**customers, "column": "name"},
+        },
+        {"name": "total_amount", "expression": "SUM(oc.amount)", "source": None},
+        {
+            "name": "first_order",
+            "expression": "MIN(oc.order_date)::DATE",
+            "source": None,
+        },
+        {
+            "name": "vip_flag",
+            "expression": "CASE WHEN c.vip THEN 'Y' ELSE 'N' END",
+            "source": None,
+        },
+        {
+            "name": "returns",
+            "expression": "(SELECT COUNT(*) FROM raw.sales.returns rt "
+            "WHERE rt.customer_id = c.customer_id)",
+            "source": None,
+        },
+    ]
+
+
+def test_create_dynamic_table():
+    ddl = """
+    CREATE OR REPLACE TRANSIENT DYNAMIC TABLE db.sch.dt_orders (
+        order_id NUMBER(38, 0),
+        amount NUMBER(10, 2) COMMENT 'Amount'
+    )
+      TARGET_LAG = '20 minutes'
+      WAREHOUSE = compute_wh
+      REFRESH_MODE = INCREMENTAL
+      INITIALIZE = ON_CREATE
+      CLUSTER BY (order_id)
+      DATA_RETENTION_TIME_IN_DAYS = 7
+      COMMENT = 'Dynamic orders'
+    AS SELECT order_id, amount FROM db.sch.orders;
+    """
+    result = DDLParser(ddl, silent=False).run(output_mode="snowflake")
+    order_source = {"database": "db", "schema": "sch", "table_name": "orders"}
+    assert result == [
+        {
+            "alter": {},
+            "checks": [],
+            "clone": None,
+            "cluster_by": ["order_id"],
+            "columns": [
+                {
+                    "check": None,
+                    "default": None,
+                    "name": "order_id",
+                    "nullable": True,
+                    "references": None,
+                    "size": (38, 0),
+                    "type": "NUMBER",
+                    "unique": False,
+                    "expression": "order_id",
+                    "source": {**order_source, "column": "order_id"},
+                },
+                {
+                    "check": None,
+                    "comment": "'Amount'",
+                    "default": None,
+                    "name": "amount",
+                    "nullable": True,
+                    "references": None,
+                    "size": (10, 2),
+                    "type": "NUMBER",
+                    "unique": False,
+                    "expression": "amount",
+                    "source": {**order_source, "column": "amount"},
+                },
+            ],
+            "comment": "'Dynamic orders'",
+            "dynamic": True,
+            "external": False,
+            "index": [],
+            "initialize": "ON_CREATE",
+            "partitioned_by": [],
+            "primary_key": [],
+            "primary_key_enforced": None,
+            "query": "SELECT order_id, amount FROM db.sch.orders",
+            "refresh_mode": "INCREMENTAL",
+            "replace": True,
+            "schema": "sch",
+            "source_tables": [order_source],
+            "table_name": "dt_orders",
+            "table_properties": {"data_retention_time_in_days": 7, "project": "db"},
+            "tablespace": None,
+            "target_lag": "20 minutes",
+            "transient": True,
+            "warehouse": "compute_wh",
+        }
+    ]
+
+
+def test_create_dynamic_table_without_column_types():
+    ddl = """
+    CREATE DYNAMIC TABLE IF NOT EXISTS dt_simple (id COMMENT 'pk', label)
+      TARGET_LAG = DOWNSTREAM
+      WAREHOUSE = wh
+      WITH TAG (a.b.c = 'x', a.b.d = 'y')
+      AS (SELECT id, UPPER(label) AS label FROM src);
+    """
+    table = DDLParser(ddl, silent=False).run(output_mode="snowflake")[0]
+    assert table["dynamic"] is True
+    assert table["if_not_exists"] is True
+    assert table["target_lag"] == "DOWNSTREAM"
+    assert table["warehouse"] == "wh"
+    assert table["with_tag"] == ["a.b.c='x'", "a.b.d='y'"]
+    assert [(c["name"], c["type"], c.get("comment")) for c in table["columns"]] == [
+        ("id", None, "'pk'"),
+        ("label", None, None),
+    ]
+    assert table["query"] == "(SELECT id, UPPER(label) AS label FROM src)"
+    assert [(c["expression"], c["source"]) for c in table["columns"]] == [
+        ("id", {"table_name": "src", "schema": None, "column": "id"}),
+        ("UPPER(label)", None),
+    ]
+    assert table["source_tables"] == [{"table_name": "src", "schema": None}]
+
+
+def test_create_dynamic_table_columns_from_query():
+    ddl = """
+    CREATE DYNAMIC TABLE dt_from_query
+      TARGET_LAG = '1 hour'
+      WAREHOUSE = wh
+      AS SELECT s.id, s.amount * 2 AS double_amount FROM sch.src s;
+    """
+    table = DDLParser(ddl, silent=False).run(output_mode="snowflake")[0]
+    src = {"schema": "sch", "table_name": "src"}
+    assert table["columns"] == [
+        {
+            "name": "id",
+            "type": None,
+            "size": None,
+            "references": None,
+            "unique": False,
+            "nullable": True,
+            "default": None,
+            "check": None,
+            "expression": "s.id",
+            "source": {**src, "column": "id"},
+        },
+        {
+            "name": "double_amount",
+            "type": None,
+            "size": None,
+            "references": None,
+            "unique": False,
+            "nullable": True,
+            "default": None,
+            "check": None,
+            "expression": "s.amount * 2",
+            "source": None,
+        },
+    ]
+
+
+def test_create_materialized_view():
+    ddl = """
+    CREATE OR REPLACE SECURE MATERIALIZED VIEW IF NOT EXISTS db.mart.mv_daily_sales
+      COPY GRANTS
+      (sale_date COMMENT 'Day', total_amount WITH TAG (gov.tags.level = 'fin'))
+      COMMENT = 'Daily sales'
+      CLUSTER BY (sale_date)
+    AS SELECT s.sale_date, SUM(s.amount)
+    FROM db.raw.sales s
+    GROUP BY s.sale_date;
+
+    CREATE MATERIALIZED VIEW mv_all AS SELECT * FROM t;
+    """
+    result = DDLParser(ddl, silent=False).run(
+        output_mode="snowflake", group_by_type=True
+    )
+    sales = {"database": "db", "schema": "raw", "table_name": "sales"}
+    assert result["tables"] == []
+    assert result["views"] == [
+        {
+            "schema": "mart",
+            "view_name": "mv_daily_sales",
+            "database": "db",
+            "replace": True,
+            "if_not_exists": True,
+            "secure": True,
+            "materialized": True,
+            "copy_grants": True,
+            "comment": "'Daily sales'",
+            "cluster_by": ["sale_date"],
+            "columns": [
+                {
+                    "name": "sale_date",
+                    "comment": "'Day'",
+                    "expression": "s.sale_date",
+                    "source": {**sales, "column": "sale_date"},
+                },
+                {
+                    "name": "total_amount",
+                    "with_tag": "gov.tags.level='fin'",
+                    "expression": "SUM(s.amount)",
+                    "source": None,
+                },
+            ],
+            "definition": "SELECT s.sale_date, SUM(s.amount) "
+            "FROM db.raw.sales s GROUP BY s.sale_date",
+            "source_tables": [sales],
+        },
+        {
+            "schema": None,
+            "view_name": "mv_all",
+            "replace": False,
+            "materialized": True,
+            "columns": [
+                {
+                    "name": "*",
+                    "expression": "*",
+                    "source": {"table_name": "t", "schema": None, "column": "*"},
+                }
+            ],
+            "definition": "SELECT * FROM t",
+            "source_tables": [{"table_name": "t", "schema": None}],
+        },
+    ]
+
+
+def test_create_transient_table_keeps_transient_flag():
+    ddl = "CREATE TRANSIENT TABLE sch.t (id NUMBER);"
+    result = DDLParser(ddl, silent=False).run(output_mode="snowflake")
+    assert result[0]["transient"] is True

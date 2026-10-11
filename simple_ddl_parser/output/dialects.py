@@ -250,6 +250,35 @@ class Snowflake(Dialect):
         default=None,
         metadata={"exclude_if_not_provided": True},
     )
+    # create dynamic table https://docs.snowflake.com/en/sql-reference/sql/create-dynamic-table
+    dynamic: Optional[bool] = field(
+        default=False,
+        metadata={"exclude_if_not_provided": True},
+    )
+    target_lag: Optional[str] = field(
+        default=None,
+        metadata={"exclude_if_not_provided": True},
+    )
+    warehouse: Optional[str] = field(
+        default=None,
+        metadata={"exclude_if_not_provided": True},
+    )
+    refresh_mode: Optional[str] = field(
+        default=None,
+        metadata={"exclude_if_not_provided": True},
+    )
+    initialize: Optional[str] = field(
+        default=None,
+        metadata={"exclude_if_not_provided": True},
+    )
+    query: Optional[str] = field(
+        default=None,
+        metadata={"exclude_if_not_provided": True},
+    )
+    source_tables: Optional[list] = field(
+        default_factory=list,
+        metadata={"exclude_if_not_provided": True},
+    )
 
 
 @dataclass
@@ -336,7 +365,7 @@ class CommonDialectsFieldsMixin(Dialect):
     transient: Optional[bool] = field(
         default=False,
         metadata={
-            "output_modes": add_dialects([HQL, Databricks, Athena]),
+            "output_modes": add_dialects([HQL, Databricks, Athena, Snowflake]),
             "exclude_if_not_provided": True,
         },
     )

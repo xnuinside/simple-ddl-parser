@@ -82,8 +82,25 @@ def test_create_and_drop_view_statements():
         {
             "schema": "reporting",
             "view_name": "user_ip_address_view",
-            "definition": "SELECT id ,  name FROM users",
+            "definition": "SELECT id, name FROM users",
             "replace": False,
+            "columns": [
+                {
+                    "name": "id",
+                    "expression": "id",
+                    "source": {"table_name": "users", "schema": None, "column": "id"},
+                },
+                {
+                    "name": "name",
+                    "expression": "name",
+                    "source": {
+                        "table_name": "users",
+                        "schema": None,
+                        "column": "name",
+                    },
+                },
+            ],
+            "source_tables": [{"table_name": "users", "schema": None}],
         }
     ]
 
