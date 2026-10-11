@@ -1202,8 +1202,13 @@ class AlterTable:
     def p_alt_table_name(self, p: list) -> None:
         """alt_table : ALTER TABLE t_name
         | ALTER TABLE IF EXISTS t_name
-        | ALTER TABLE ONLY t_name"""
+        | ALTER TABLE ONLY t_name
+        | ALTER TABLE t_name WITH CHECK
+        | ALTER TABLE t_name WITH id"""
         p_list = list(p)
+        if "WITH" in p_list:
+            # mssql: ALTER TABLE t WITH CHECK | NOCHECK ADD ...
+            p_list = p_list[:-2]
         table_data = p_list[-1]
         p[0] = {
             "alter_table_name": table_data["table_name"],

@@ -164,6 +164,11 @@ class Parser:
                 r"^\s*UNLOCK\s+TABLES\b.*$",
                 r"^\s*DROP\s+USER\b.*$",
                 r"^\s*CREATE\s+USER\b.*$",
+                # mssql: ALTER TABLE t [WITH CHECK] CHECK | NOCHECK CONSTRAINT c
+                (
+                    r"^\s*ALTER\s+TABLE\s+(?:\[[^\]]+\]|\S)+"
+                    r"(?:\s+WITH\s+(?:NO)?CHECK)?\s+(?:NO)?CHECK\s+CONSTRAINT\b.*$"
+                ),
             ]
         ]
 

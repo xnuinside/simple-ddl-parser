@@ -3214,3 +3214,65 @@ def test_primary_key_clustered():
         "types": [],
     }
     assert expected == result
+
+
+def test_alter_table_with_check_add_foreign_key():
+    ddl = """CREATE TABLE [dbo].[T_MOTIF_PERSONNALISATION] (
+    [PK_MOTIF_PERSONNALISATION_MPE] [int] NOT NULL
+)
+GO
+CREATE TABLE [dbo].[T_PERSONNALISATION] (
+    [FK_MOTIF_PERSONNALISATION_MPE] [int] NULL
+)
+GO
+ALTER TABLE [dbo].[T_PERSONNALISATION]  WITH CHECK ADD  CONSTRAINT [FK_T_PERSON_FK_PERSON_T_MOTIF_] FOREIGN KEY([FK_MOTIF_PERSONNALISATION_MPE]) REFERENCES [dbo].[T_MOTIF_PERSONNALISATION] ([PK_MOTIF_PERSONNALISATION_MPE])
+GO
+ALTER TABLE [dbo].[T_PERSONNALISATION] CHECK CONSTRAINT [FK_T_PERSON_FK_PERSON_T_MOTIF_]
+GO"""
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
+    assert result["tables"][1]["alter"] == {
+        "columns": [
+            {
+                "constraint_name": "[FK_T_PERSON_FK_PERSON_T_MOTIF_]",
+                "name": "[FK_MOTIF_PERSONNALISATION_MPE]",
+                "references": {
+                    "column": "[PK_MOTIF_PERSONNALISATION_MPE]",
+                    "deferrable_initially": None,
+                    "on_delete": None,
+                    "on_update": None,
+                    "schema": "[dbo]",
+                    "table": "[T_MOTIF_PERSONNALISATION]",
+                },
+            }
+        ]
+    }
+
+
+def test_alter_table_with_nocheck_and_check_constraint_statements():
+    ddl = """CREATE TABLE [dbo].[T] ([A] [int] NULL, [B] [int] NULL)
+GO
+ALTER TABLE [dbo].[T] WITH NOCHECK ADD CONSTRAINT [FK_X] FOREIGN KEY([A]) REFERENCES [dbo].[M] ([B])
+GO
+ALTER TABLE [dbo].[T] NOCHECK CONSTRAINT [FK_X]
+GO
+ALTER TABLE [dbo].[T] WITH CHECK CHECK CONSTRAINT ALL
+GO
+ALTER TABLE [dbo].[T] WITH CHECK ADD CONSTRAINT [CK_X] CHECK ([B] > 0)
+GO"""
+    result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
+    alter = result["tables"][0]["alter"]
+    assert alter["columns"] == [
+        {
+            "constraint_name": "[FK_X]",
+            "name": "[A]",
+            "references": {
+                "column": "[B]",
+                "deferrable_initially": None,
+                "on_delete": None,
+                "on_update": None,
+                "schema": "[dbo]",
+                "table": "[M]",
+            },
+        }
+    ]
+    assert alter["checks"] == [{"constraint_name": "[CK_X]", "statement": "[B] > 0"}]
