@@ -1,5 +1,4 @@
 import re
-from typing import Dict, List, Optional
 
 from ply.lex import LexToken
 
@@ -81,7 +80,7 @@ class DDLParser(Parser, Dialects):
             t.type = tok.sequence_reserved.get(t.value.upper(), "ID")
         return t
 
-    def parse_tags_symbols(self, t) -> Optional[LexToken]:
+    def parse_tags_symbols(self, t) -> LexToken | None:
         """like symbols < >"""
         if not self.lexer.check:
             for key in tok.symbol_tokens_no_check:
@@ -182,9 +181,7 @@ class DDLParser(Parser, Dialects):
         )
 
     def exceptional_cases(self, value: str) -> bool:
-        if value == "TABLESPACE" and self.lexer.last_token == "INDEX":
-            return True
-        return False
+        return bool(value == "TABLESPACE" and self.lexer.last_token == "INDEX")
 
     def t_COLLATE(self, t: LexToken):
         r"(?i:COLLATE|COLLATE)\b"
@@ -218,11 +215,7 @@ class DDLParser(Parser, Dialects):
             and self.lexer.lp_open
             and self.lexer.last_token != "COMMA"
             and self.SIMPLE_GENERIC_TYPE_RE.match(t.value)
-        ):
-            t.type = "ID"
-        elif self.is_token_column_name(t) or self.lexer.last_token == "DOT":
-            t.type = "ID"
-        elif t.type != "DQ_STRING" and self.is_creation_name(t):
+        ) or self.is_token_column_name(t) or self.lexer.last_token == "DOT" or t.type != "DQ_STRING" and self.is_creation_name(t):
             t.type = "ID"
         else:
             t = self.tokens_not_columns_names(t)
@@ -301,7 +294,7 @@ class DDLParser(Parser, Dialects):
         p[0] = "".join(list(p[1:]))
 
     def t_error(self, t: LexToken):
-        raise DDLParserError("Unknown symbol %r" % (t.value[0],))
+        raise DDLParserError(f"Unknown symbol {t.value[0]!r}")
 
     def p_error(self, p):
         if not self.silent:
@@ -310,10 +303,10 @@ class DDLParser(Parser, Dialects):
 
 def parse_from_file(
     file_path: str,
-    encoding: Optional[str] = "utf-8",
-    parser_settings: Optional[dict] = None,
+    encoding: str | None = "utf-8",
+    parser_settings: dict | None = None,
     **kwargs,
-) -> List[Dict]:
+) -> list[dict]:
     """get useful data from ddl"""
     with open(file_path, "r", encoding=encoding) as df:
         return DDLParser(df.read(), **(parser_settings or {})).run(

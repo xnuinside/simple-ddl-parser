@@ -1,12 +1,13 @@
 import re
-from typing import Callable, Dict, Iterable, List, Optional, Union
+from collections.abc import Callable, Iterable
+from typing import Union
 
 from simple_ddl_parser.exception import SimpleDDLParserException
 
-OutputPayload = Union[List[Dict], Dict]
-CustomSchemaFunc = Callable[[OutputPayload], List[Dict]]
+OutputPayload = Union[list[dict], dict]  # noqa: UP007 - python 3.9 support
+CustomSchemaFunc = Callable[[OutputPayload], list[dict]]
 
-_CUSTOM_OUTPUT_SCHEMAS: Dict[str, CustomSchemaFunc] = {}
+_CUSTOM_OUTPUT_SCHEMAS: dict[str, CustomSchemaFunc] = {}
 
 
 def register_custom_output_schema(name: str, handler: CustomSchemaFunc) -> None:
@@ -23,13 +24,13 @@ def unregister_custom_output_schema(name: str) -> None:
     _CUSTOM_OUTPUT_SCHEMAS.pop(name.lower(), None)
 
 
-def list_custom_output_schemas() -> List[str]:
+def list_custom_output_schemas() -> list[str]:
     return sorted(_CUSTOM_OUTPUT_SCHEMAS.keys())
 
 
 def apply_custom_output_schema(
-    custom_output_schema: Union[str, CustomSchemaFunc], output: OutputPayload
-) -> List[Dict]:
+    custom_output_schema: str | CustomSchemaFunc, output: OutputPayload
+) -> list[dict]:
     if callable(custom_output_schema):
         return custom_output_schema(output)
     schema_name = custom_output_schema.lower()
@@ -77,7 +78,7 @@ _ARRAY_RE = re.compile(r"^ARRAY<(.+)>$", re.IGNORECASE)
 _STRUCT_RE = re.compile(r"^STRUCT<(.+)>$", re.IGNORECASE)
 
 
-def _normalize_type(type_value: Optional[str]) -> str:
+def _normalize_type(type_value: str | None) -> str:
     if not type_value:
         return "STRING"
     base = type_value.strip().upper()
@@ -86,13 +87,13 @@ def _normalize_type(type_value: Optional[str]) -> str:
     return re.sub(r"\s+", " ", base)
 
 
-def _extract_tables(output: OutputPayload) -> Iterable[Dict]:
+def _extract_tables(output: OutputPayload) -> Iterable[dict]:
     if isinstance(output, dict):
         return output.get("tables", [])
     return [item for item in output if isinstance(item, dict) and "table_name" in item]
 
 
-def _to_bigquery_schema(output: OutputPayload) -> List[Dict]:
+def _to_bigquery_schema(output: OutputPayload) -> list[dict]:
     result = []
     for table in _extract_tables(output):
         fields = []

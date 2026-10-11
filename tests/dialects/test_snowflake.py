@@ -392,9 +392,8 @@ def test_table_with_tag():
             "external": False,
         }
     ]
-    f = open("payload.json", "a")
-    f.write(str(result_tagged))
-    f.close()
+    with open("payload.json", "a") as f:
+        f.write(str(result_tagged))
 
     assert result_tagged == expected_tagged
 
@@ -438,9 +437,8 @@ def test_column_with_multiple_tag():
             "external": False,
         }
     ]
-    f = open("payload.json", "a")
-    f.write(str(result_tagged))
-    f.close()
+    with open("payload.json", "a") as f:
+        f.write(str(result_tagged))
 
     assert result_tagged == expected_tagged
 
@@ -484,9 +482,8 @@ def test_table_with_multiple_tag():
             "external": False,
         }
     ]
-    f = open("payload.json", "a")
-    f.write(str(result_tagged))
-    f.close()
+    with open("payload.json", "a") as f:
+        f.write(str(result_tagged))
 
     assert result_tagged == expected_tagged
 

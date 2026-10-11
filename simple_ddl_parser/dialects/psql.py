@@ -1,10 +1,9 @@
-from typing import List
 
 from simple_ddl_parser.utils import remove_par
 
 
 class PSQL:
-    def p_expr_inherits(self, p: List) -> None:
+    def p_expr_inherits(self, p: list) -> None:
         """expr : expr INHERITS LP t_name RP"""
         p_list = remove_par(list(p))
         p[0] = p[1]
@@ -14,7 +13,7 @@ class PSQL:
         }
         p[1].update({"inherits": table_identifier})
 
-    def p_timezone(self, p: List) -> None:
+    def p_timezone(self, p: list) -> None:
         """timezone : WITH id id
         | WITHOUT id id"""
         p_list = remove_par(list(p))

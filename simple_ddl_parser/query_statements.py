@@ -8,21 +8,19 @@ walker and the query is kept as text plus a best-effort lineage extraction
 """
 
 import re
-from typing import Dict, List, NamedTuple, Optional, Tuple
+from typing import NamedTuple
 
 _IDENT_PART = r'(?:"(?:[^"]|"")*"|`[^`]*`|\[[^\]]*\]|[\w$@#]+)'
 
 TOKEN_RE = re.compile(
-    r"""
+    rf"""
     (?P<str>'(?:[^'\\]|\\.|'')*')
-    |(?P<word>{part}(?:\s*\.\s*(?:{part}|\*))*)
+    |(?P<word>{_IDENT_PART}(?:\s*\.\s*(?:{_IDENT_PART}|\*))*)
     |(?P<lp>\()
     |(?P<rp>\))
     |(?P<comma>,)
     |(?P<op>::|<=|>=|<>|!=|\|\||=>|->>|->|\S)
-    """.format(
-        part=_IDENT_PART
-    ),
+    """,
     flags=re.VERBOSE,
 )
 
@@ -128,7 +126,7 @@ _COLUMN_OPTION_WORDS = {
 }
 
 
-def tokenize(text: str) -> List[Token]:
+def tokenize(text: str) -> list[Token]:
     tokens = []
     for match in TOKEN_RE.finditer(text):
         kind = match.lastgroup
@@ -136,15 +134,13 @@ def tokenize(text: str) -> List[Token]:
     return tokens
 
 
-def normalize_sql_text(tokens: List[Token]) -> str:
+def normalize_sql_text(tokens: list[Token]) -> str:
     """rebuild text from tokens with readable spacing: no spaces inside
     parentheses, "a, b" for commas, "f(x)" for function calls"""
     result = ""
-    prev: Optional[Token] = None
+    prev: Token | None = None
     for token in tokens:
-        if prev is None:
-            sep = ""
-        elif token.kind in ("rp", "comma") or prev.kind == "lp":
+        if prev is None or token.kind in ("rp", "comma") or prev.kind == "lp":
             sep = ""
         elif token.kind == "lp":
             sep = " " if prev.upper in _KEEP_SPACE_BEFORE_LP else ""
@@ -159,7 +155,7 @@ def normalize_sql_text(tokens: List[Token]) -> str:
     return result
 
 
-def _matching_rp(tokens: List[Token], lp_index: int) -> int:
+def _matching_rp(tokens: list[Token], lp_index: int) -> int:
     depth = 0
     for index in range(lp_index, len(tokens)):
         if tokens[index].kind == "lp":
@@ -171,8 +167,8 @@ def _matching_rp(tokens: List[Token], lp_index: int) -> int:
     return len(tokens) - 1
 
 
-def _split_by_comma(tokens: List[Token]) -> List[List[Token]]:
-    items: List[List[Token]] = [[]]
+def _split_by_comma(tokens: list[Token]) -> list[list[Token]]:
+    items: list[list[Token]] = [[]]
     depth = 0
     for token in tokens:
         if token.kind == "lp":
@@ -186,14 +182,14 @@ def _split_by_comma(tokens: List[Token]) -> List[List[Token]]:
     return [item for item in items if item]
 
 
-def split_identifier(identifier: str) -> List[str]:
+def split_identifier(identifier: str) -> list[str]:
     return [
         part.strip()
         for part in re.findall(r'"(?:[^"]|"")*"|`[^`]*`|\[[^\]]*\]|[^.\s]+', identifier)
     ]
 
 
-def _identifier_dict(identifier: str, name_key: str = "table_name") -> Dict:
+def _identifier_dict(identifier: str, name_key: str = "table_name") -> dict:
     parts = split_identifier(identifier)
     data = {name_key: parts[-1], "schema": None}
     if len(parts) > 1:
@@ -209,7 +205,7 @@ def _unquote(value: str) -> str:
     return value
 
 
-def _find_query_start(tokens: List[Token]) -> Optional[int]:
+def _find_query_start(tokens: list[Token]) -> int | None:
     """index of the first token of the query: the token after the first
     top level AS that is followed by SELECT, WITH or ("""
     depth = 0
@@ -225,13 +221,13 @@ def _find_query_start(tokens: List[Token]) -> Optional[int]:
     return None
 
 
-def _format_tags(tokens: List[Token]):
+def _format_tags(tokens: list[Token]):
     """WITH TAG (a.b = 'x', c = 'y') -> "a.b='x'" or ["a.b='x'", "c='y'"]"""
     tags = ["".join(token.value for token in item) for item in _split_by_comma(tokens)]
     return tags[0] if len(tags) == 1 else tags
 
 
-def _parse_size(tokens: List[Token]):
+def _parse_size(tokens: list[Token]):
     values = []
     for item in _split_by_comma(tokens):
         value = "".join(token.value for token in item)
@@ -244,11 +240,11 @@ def _parse_size(tokens: List[Token]):
 class _HeaderParser:
     """walks tokens of the statement header (everything before AS <query>)"""
 
-    def __init__(self, tokens: List[Token]) -> None:
+    def __init__(self, tokens: list[Token]) -> None:
         self.tokens = tokens
         self.pos = 0
 
-    def peek(self, offset: int = 0) -> Optional[Token]:
+    def peek(self, offset: int = 0) -> Token | None:
         index = self.pos + offset
         if index < len(self.tokens):
             return self.tokens[index]
@@ -266,7 +262,7 @@ class _HeaderParser:
         self.pos += len(words)
         return True
 
-    def next(self) -> Optional[Token]:
+    def next(self) -> Token | None:
         token = self.peek()
         if token is not None:
             self.pos += 1
@@ -275,17 +271,17 @@ class _HeaderParser:
     def done(self) -> bool:
         return self.pos >= len(self.tokens)
 
-    def take_parens(self) -> Optional[List[Token]]:
+    def take_parens(self) -> list[Token] | None:
         """consume "( ... )" and return inner tokens"""
         token = self.peek()
         if token is None or token.kind != "lp":
             return None
         end = _matching_rp(self.tokens, self.pos)
-        inner = self.tokens[self.pos + 1 : end]  # noqa: E203
+        inner = self.tokens[self.pos + 1 : end]
         self.pos = end + 1
         return inner
 
-    def take_value(self) -> Optional[str]:
+    def take_value(self) -> str | None:
         """value after optional '=': string, word or (...) group"""
         self.accept("=")
         token = self.peek()
@@ -299,7 +295,7 @@ class _HeaderParser:
         return token.value
 
 
-def _parse_column_options(parser: _HeaderParser, column: Dict) -> bool:
+def _parse_column_options(parser: _HeaderParser, column: dict) -> bool:
     """parse one column option; return False if no option was recognized"""
     if parser.accept("COMMENT"):
         parser.accept("=")
@@ -351,8 +347,8 @@ _TYPED_COLUMN_DEFAULTS = {
 
 
 def _merge_columns(
-    declared: List[Dict], query_columns: List[Dict], with_types: bool
-) -> List[Dict]:
+    declared: list[dict], query_columns: list[dict], with_types: bool
+) -> list[dict]:
     """one entry per output column: declared column attributes + expression and
     source of the matching select item. Declared columns are matched by
     position, only when the select list has no star and the same length."""
@@ -379,12 +375,12 @@ def _merge_columns(
     return declared
 
 
-def _parse_columns(tokens: List[Token], with_types: bool) -> Optional[List[Dict]]:
+def _parse_columns(tokens: list[Token], with_types: bool) -> list[dict] | None:
     columns = []
     for item in _split_by_comma(tokens):
         parser = _HeaderParser(item)
         name = parser.next()
-        column: Dict = {"name": name.value}
+        column: dict = {"name": name.value}
         if with_types:
             column.update(_TYPED_COLUMN_DEFAULTS)
             token = parser.peek()
@@ -411,12 +407,12 @@ _INT_PROPERTIES = {
 
 
 def _parse_columns_and_properties(
-    parser: _HeaderParser, data: Dict, with_types: bool
-) -> Optional[List[Dict]]:
+    parser: _HeaderParser, data: dict, with_types: bool
+) -> list[dict] | None:
     """parse the optional column list and object properties after the name;
     the column list can follow properties (MATERIALIZED VIEW ... COPY GRANTS (...))
     return declared columns or None if the header is not supported"""
-    columns: List[Dict] = []
+    columns: list[dict] = []
     columns_parsed = False
     while not parser.done():
         token = parser.peek()
@@ -431,7 +427,7 @@ def _parse_columns_and_properties(
     return columns
 
 
-def _parse_property(parser: _HeaderParser, data: Dict) -> bool:
+def _parse_property(parser: _HeaderParser, data: dict) -> bool:
     """parse one object property; return False if it was not recognized"""
     if parser.accept("COPY", "GRANTS"):
         data["copy_grants"] = True
@@ -492,12 +488,12 @@ def _parse_property(parser: _HeaderParser, data: Dict) -> bool:
 
 
 def _parse_create_header(
-    tokens: List[Token], object_words: Tuple[str, ...], modifiers: set
-) -> Optional[Tuple[Dict, List[str], _HeaderParser]]:
+    tokens: list[Token], object_words: tuple[str, ...], modifiers: set
+) -> tuple[dict, list[str], _HeaderParser] | None:
     parser = _HeaderParser(tokens)
     if not parser.accept("CREATE"):
         return None
-    data: Dict = {}
+    data: dict = {}
     data["replace"] = parser.accept("OR", "REPLACE")
     found_modifiers = []
     while parser.peek_upper() in modifiers:
@@ -513,7 +509,7 @@ def _parse_create_header(
     return data, found_modifiers, parser
 
 
-def parse_create_view(statement: str) -> Optional[Dict]:
+def parse_create_view(statement: str) -> dict | None:
     """CREATE [OR REPLACE] [SECURE] [TEMPORARY] [RECURSIVE] [MATERIALIZED]
     VIEW [IF NOT EXISTS] name [(columns)] [properties] AS query"""
     tokens = tokenize(statement)
@@ -561,7 +557,7 @@ def parse_create_view(statement: str) -> Optional[Dict]:
     return view
 
 
-def parse_create_dynamic_table(statement: str) -> Optional[Dict]:
+def parse_create_dynamic_table(statement: str) -> dict | None:
     """CREATE [OR REPLACE] [TRANSIENT] DYNAMIC TABLE [IF NOT EXISTS] name
     [(columns)] TARGET_LAG = ... WAREHOUSE = ... [properties] AS query"""
     tokens = tokenize(statement)
@@ -612,7 +608,7 @@ def parse_create_dynamic_table(statement: str) -> Optional[Dict]:
     return table
 
 
-def _skip_ctes(tokens: List[Token]) -> Tuple[int, List[str]]:
+def _skip_ctes(tokens: list[Token]) -> tuple[int, list[str]]:
     """return index of the main query after WITH ... clauses and CTE names"""
     if not tokens or tokens[0].upper != "WITH":
         return 0, []
@@ -636,11 +632,11 @@ def _skip_ctes(tokens: List[Token]) -> Tuple[int, List[str]]:
     return pos, names
 
 
-def _query_depths(tokens: List[Token]) -> List[Optional[int]]:
+def _query_depths(tokens: list[Token]) -> list[int | None]:
     """for each token: paren depth if the token is in a query context
     (top level or a subquery), None if inside a function call / expression"""
     stack = [True]
-    result: List[Optional[int]] = []
+    result: list[int | None] = []
     for index, token in enumerate(tokens):
         if token.kind == "lp":
             result.append(len(stack) - 1 if stack[-1] else None)
@@ -660,8 +656,8 @@ _TABLE_REF_END = RESERVED_WORDS | {"LIMIT", "SAMPLE", "AT", "BEFORE", "CHANGES"}
 
 
 def _extract_table_refs(
-    tokens: List[Token], depths: List[Optional[int]]
-) -> List[Tuple[str, Optional[str], Optional[int]]]:
+    tokens: list[Token], depths: list[int | None]
+) -> list[tuple[str, str | None, int | None]]:
     """(identifier, alias, depth) for each table after FROM / JOIN"""
     refs = []
     index = 0
@@ -707,8 +703,8 @@ def _extract_table_refs(
 
 
 def _select_items(
-    tokens: List[Token], start: int, depths: List[Optional[int]]
-) -> List[List[Token]]:
+    tokens: list[Token], start: int, depths: list[int | None]
+) -> list[list[Token]]:
     """tokens of each item of the select list of SELECT at index start"""
     depth = depths[start]
     pos = start + 1
@@ -721,18 +717,21 @@ def _select_items(
     while end < len(tokens):
         if depths[end] == depth and tokens[end].upper in stop_words:
             break
-        if tokens[end].kind == "rp" and depths[end] is not None:
-            if depths[end] < depth:
-                break
+        if (
+            tokens[end].kind == "rp"
+            and depths[end] is not None
+            and depths[end] < depth
+        ):
+            break
         end += 1
     return _split_by_comma(tokens[pos:end])
 
 
 def _select_item_to_column(
-    item: List[Token],
-    aliases: Dict[str, str],
-    main_tables: List[str],
-) -> Dict:
+    item: list[Token],
+    aliases: dict[str, str],
+    main_tables: list[str],
+) -> dict:
     alias = None
     expression_tokens = item
     if len(item) >= 3 and item[-2].upper == "AS":
@@ -771,7 +770,7 @@ def _select_item_to_column(
     return {"name": name, "expression": expression, "source": source}
 
 
-def extract_query_lineage(tokens: List[Token]) -> Tuple[List[Dict], List[Dict]]:
+def extract_query_lineage(tokens: list[Token]) -> tuple[list[dict], list[dict]]:
     """best-effort extraction of the output columns of the main SELECT and of
     the physical tables read by the query"""
     if not tokens:
@@ -781,8 +780,8 @@ def extract_query_lineage(tokens: List[Token]) -> Tuple[List[Dict], List[Dict]]:
     cte_lower = {name.lower() for name in cte_names}
 
     refs = _extract_table_refs(tokens, depths)
-    aliases: Dict[str, str] = {}
-    source_tables: List[Dict] = []
+    aliases: dict[str, str] = {}
+    source_tables: list[dict] = []
     seen = set()
     for identifier, alias, _ in refs:
         last_part = split_identifier(identifier)[-1].lower()

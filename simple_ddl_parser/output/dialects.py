@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import Field, dataclass, field
-from typing import Callable, Dict, List, Optional
 
 from simple_ddl_parser.output.base_data import BaseData
 
@@ -11,7 +11,7 @@ def update_bigquery_output(statement: dict) -> dict:
     return statement
 
 
-def dialects_clean_up(output_mode: str, table_data) -> Dict:
+def dialects_clean_up(output_mode: str, table_data) -> dict:
     update_mappers_for_table_properties = {"bigquery": update_bigquery_output}
     update_table_prop = update_mappers_for_table_properties.get(output_mode)
     if update_table_prop:
@@ -50,20 +50,20 @@ class Dialect(BaseData):
 @dialect(name="redshift")
 class Redshift(Dialect):
     # create external https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    sortkey: Optional[dict] = field(
+    sortkey: dict | None = field(
         default_factory=lambda: {"type": None, "keys": []},
     )
-    diststyle: Optional[str] = field(
+    diststyle: str | None = field(
         default=None,
     )
-    distkey: Optional[str] = field(
+    distkey: str | None = field(
         default=None,
     )
-    encode: Optional[str] = field(
+    encode: str | None = field(
         default=None,
     )
 
-    def add_additional_keys_in_column_redshift(self, column_data: Dict) -> Dict:
+    def add_additional_keys_in_column_redshift(self, column_data: dict) -> dict:
         column_data["encode"] = column_data.get("encode", None)
         if column_data.get("distkey"):
             self.distkey = column_data["name"]
@@ -86,13 +86,13 @@ class SparkSQL(Dialect):
 @dataclass
 @dialect(name="mysql")
 class MySQL(Dialect):
-    engine: Optional[str] = field(
+    engine: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    default_charset: Optional[str] = field(
+    default_charset: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    auto_increment: Optional[str] = field(
+    auto_increment: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
 
@@ -111,13 +111,13 @@ class MySQL(Dialect):
 @dataclass
 @dialect(name="bigquery")
 class BigQuery(Dialect):
-    dataset: Optional[str] = field(default=None)
-    project: Optional[str] = field(
+    dataset: str | None = field(default=None)
+    project: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
 
     @staticmethod
-    def prepare_ref_statement(ref_statement: Dict):
+    def prepare_ref_statement(ref_statement: dict):
         ref_statement["dataset"] = ref_statement["schema"]
         del ref_statement["schema"]
 
@@ -135,17 +135,17 @@ class BigQuery(Dialect):
 @dataclass
 @dialect(name="mssql")
 class MSSQL(Dialect):
-    _with: Optional[dict] = field(
+    _with: dict | None = field(
         default=None, metadata={"exclude_if_not_provided": True, "alias": "with"}
     )
-    clustered_primary_key: Optional[list] = field(
+    clustered_primary_key: list | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    on: Optional[str] = field(default=None, metadata={"exclude_if_not_provided": True})
-    textimage_on: Optional[str] = field(
+    on: str | None = field(default=None, metadata={"exclude_if_not_provided": True})
+    textimage_on: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    period_for_system_time: Optional[List[str]] = field(
+    period_for_system_time: list[str] | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
 
@@ -153,7 +153,7 @@ class MSSQL(Dialect):
 @dataclass
 @dialect(name="databricks")
 class Databricks(Dialect):
-    property_key: Optional[str] = field(default=None)
+    property_key: str | None = field(default=None)
 
 
 @dataclass
@@ -171,10 +171,10 @@ class Vertica(Dialect):
 @dataclass
 @dialect(name="ibm_db2")
 class IbmDB2(Dialect):
-    organize_by: Optional[str] = field(
+    organize_by: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    index_in: Optional[str] = field(
+    index_in: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
 
@@ -183,10 +183,10 @@ class IbmDB2(Dialect):
 @dialect(name="postgres")
 class PostgreSQL(Dialect):
     # todo: https://www.postgresql.org/docs/current/sql-createtable.html
-    partition_by: Optional[str] = field(
+    partition_by: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    inherits: Optional[dict] = field(
+    inherits: dict | None = field(
         default_factory=dict, metadata={"exclude_if_not_provided": True}
     )
 
@@ -196,11 +196,11 @@ class PostgreSQL(Dialect):
 class Oracle(Dialect):
     # https://oracle-base.com/articles/8i/index-organized-tables
 
-    is_global: Optional[bool] = field(default=False)
-    organization_index: Optional[bool] = field(
+    is_global: bool | None = field(default=False)
+    organization_index: bool | None = field(
         default=False, metadata={"exclude_if_not_provided": True}
     )
-    storage: Optional[dict] = field(
+    storage: dict | None = field(
         default_factory=dict, metadata={"exclude_if_not_provided": True}
     )
 
@@ -209,7 +209,7 @@ class Oracle(Dialect):
             column = self.add_additional_oracle_keys_in_column(column)
 
     @staticmethod
-    def add_additional_oracle_keys_in_column(column_data: Dict) -> Dict:
+    def add_additional_oracle_keys_in_column(column_data: dict) -> dict:
         column_data.update({"encrypt": None})
         return column_data
 
@@ -217,17 +217,17 @@ class Oracle(Dialect):
 @dataclass
 @dialect(name="hql")
 class HQL(Dialect):
-    skewed_by: Optional[dict] = field(
+    skewed_by: dict | None = field(
         default_factory=dict,
         metadata={"exclude_if_not_provided": True},
     )
-    transient: Optional[bool] = field(
+    transient: bool | None = field(
         default=False, metadata={"exclude_if_not_provided": True}
     )
-    into_buckets: Optional[str] = field(
+    into_buckets: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    clustered_on: Optional[list] = field(
+    clustered_on: list | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
 
@@ -236,46 +236,46 @@ class HQL(Dialect):
 @dialect(name="snowflake")
 class Snowflake(Dialect):
     # create external https://docs.snowflake.com/en/sql-reference/sql/create-external-table
-    primary_key_enforced: Optional[bool] = field(
+    primary_key_enforced: bool | None = field(
         default=None,
     )
-    clone: Optional[dict] = field(
+    clone: dict | None = field(
         default=None,
     )
-    with_tag: Optional[list] = field(
+    with_tag: list | None = field(
         default_factory=list,
         metadata={"exclude_if_not_provided": True},
     )
-    with_row_access_policy: Optional[str] = field(
+    with_row_access_policy: str | None = field(
         default=None,
         metadata={"exclude_if_not_provided": True},
     )
     # create dynamic table https://docs.snowflake.com/en/sql-reference/sql/create-dynamic-table
-    dynamic: Optional[bool] = field(
+    dynamic: bool | None = field(
         default=False,
         metadata={"exclude_if_not_provided": True},
     )
-    target_lag: Optional[str] = field(
+    target_lag: str | None = field(
         default=None,
         metadata={"exclude_if_not_provided": True},
     )
-    warehouse: Optional[str] = field(
+    warehouse: str | None = field(
         default=None,
         metadata={"exclude_if_not_provided": True},
     )
-    refresh_mode: Optional[str] = field(
+    refresh_mode: str | None = field(
         default=None,
         metadata={"exclude_if_not_provided": True},
     )
-    initialize: Optional[str] = field(
+    initialize: str | None = field(
         default=None,
         metadata={"exclude_if_not_provided": True},
     )
-    query: Optional[str] = field(
+    query: str | None = field(
         default=None,
         metadata={"exclude_if_not_provided": True},
     )
-    source_tables: Optional[list] = field(
+    source_tables: list | None = field(
         default_factory=list,
         metadata={"exclude_if_not_provided": True},
     )
@@ -284,7 +284,7 @@ class Snowflake(Dialect):
 @dataclass
 @dialect(name="athena")
 class Athena(HQL):
-    escaped_by: Optional[str] = field(
+    escaped_by: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
 
@@ -296,7 +296,7 @@ dialect_by_name = {
 }
 
 
-def add_dialects(dialects: List[Dialect]) -> List[str]:
+def add_dialects(dialects: list[Dialect]) -> list[str]:
     return [dialect.__d_name__ for dialect in dialects]
 
 
@@ -304,75 +304,75 @@ def add_dialects(dialects: List[Dialect]) -> List[str]:
 class CommonDialectsFieldsMixin(Dialect):
     """base fields & mixed between dialects"""
 
-    temp: Optional[bool] = field(
+    temp: bool | None = field(
         default=False,
         metadata={"output_modes": add_dialects([HQL, Redshift, Oracle, Athena])},
     )
-    tblproperties: Optional[dict] = field(
+    tblproperties: dict | None = field(
         default_factory=dict,
         metadata={
             "exclude_if_not_provided": True,
             "output_modes": add_dialects([SparkSQL, HQL, Redshift, Athena]),
         },
     )
-    stored_as: Optional[str] = field(
+    stored_as: str | None = field(
         default=None,
         metadata={
             "output_modes": add_dialects([SparkSQL, HQL, Databricks, Redshift, Athena])
         },
     )
 
-    row_format: Optional[dict] = field(
+    row_format: dict | None = field(
         default=None,
         metadata={
             "output_modes": add_dialects([SparkSQL, HQL, Databricks, Redshift, Athena])
         },
     )
-    location: Optional[str] = field(
+    location: str | None = field(
         default=None,
         metadata={
             "output_modes": add_dialects([HQL, SparkSQL, Snowflake, Databricks]),
             "exclude_if_not_provided": True,
         },
     )
-    fields_terminated_by: Optional[str] = field(
+    fields_terminated_by: str | None = field(
         default=None,
         metadata={"output_modes": add_dialects([HQL, Databricks, Athena])},
     )
-    lines_terminated_by: Optional[str] = field(
+    lines_terminated_by: str | None = field(
         default=None, metadata={"output_modes": add_dialects([HQL, Databricks, Athena])}
     )
-    map_keys_terminated_by: Optional[str] = field(
+    map_keys_terminated_by: str | None = field(
         default=None, metadata={"output_modes": add_dialects([HQL, Databricks, Athena])}
     )
-    collection_items_terminated_by: Optional[str] = field(
+    collection_items_terminated_by: str | None = field(
         default=None, metadata={"output_modes": add_dialects([HQL, Databricks, Athena])}
     )
-    clustered_by: Optional[list] = field(
+    clustered_by: list | None = field(
         default=None,
         metadata={
             "exclude_if_not_provided": True,
             "output_modes": add_dialects([HQL, SparkSQL]),
         },
     )
-    options: Optional[list] = field(
+    options: list | None = field(
         default=None,
         metadata={
             "exclude_if_not_provided": True,
             "output_modes": add_dialects([BigQuery, SparkSQL]),
         },
     )
-    transient: Optional[bool] = field(
+    transient: bool | None = field(
         default=False,
         metadata={
             "output_modes": add_dialects([HQL, Databricks, Athena, Snowflake]),
             "exclude_if_not_provided": True,
         },
     )
-    external: Optional[bool] = field(
+    external: bool | None = field(
         default=False, metadata={"output_modes": add_dialects([HQL, Snowflake, Athena])}
     )
-    cluster_by: Optional[list] = field(
+    cluster_by: list | None = field(
         default_factory=list,
         metadata={
             "exclude_if_not_provided": True,

@@ -121,9 +121,7 @@ def test_alter_drop_foreign_key_statement():
 
 
 def test_flag_normalize_names():
-    ddl = (
-        ddl
-    ) = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
+    ddl = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
     SET ANSI_NULLS ON
     GO
     SET QUOTED_IDENTIFIER ON
@@ -135,8 +133,8 @@ def test_flag_normalize_names():
     result = DDLParser(ddl, silent=False, normalize_names=True).run(group_by_type=True)
     expected = {
         "comments": [
-            "***** Object:  Table [dbo].[TO_Requests]    Script Date: "
-            "9/29/2021 9:55:26 PM ******/"
+            ("***** Object:  Table [dbo].[TO_Requests]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/")
         ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},

@@ -1,10 +1,9 @@
-from typing import List, Union
 
 from simple_ddl_parser.utils import check_spec, remove_par
 
 
 # todo: move to utils module
-def convert_to_python_bool(value: str) -> Union[bool, str]:
+def convert_to_python_bool(value: str) -> bool | str:
     value = value.lower().strip()
     if value == "true":
         return True
@@ -13,33 +12,33 @@ def convert_to_python_bool(value: str) -> Union[bool, str]:
     return value
 
 
-def convert_to_python_int(value: str) -> Union[int, str]:
+def convert_to_python_int(value: str) -> int | str:
     try:
         return int(value)
-    except Exception:
+    except (TypeError, ValueError):
         return value
 
 
 class Snowflake:
-    def p_clone(self, p: List) -> None:
+    def p_clone(self, p: list) -> None:
         """clone : CLONE id"""
         p_list = list(p)
         p[0] = {"clone": {"from": p_list[-1]}}
 
-    def p_expression_cluster_by(self, p: List) -> None:
+    def p_expression_cluster_by(self, p: list) -> None:
         """expr : expr cluster_by"""
         p_list = list(p)
         p[0] = p[1]
         p[0].update(p_list[-1])
 
-    def p_cluster_by(self, p: List) -> None:
+    def p_cluster_by(self, p: list) -> None:
         """cluster_by : CLUSTER BY LP pid RP
         | CLUSTER BY pid
         """
         p_list = remove_par(list(p))
         p[0] = {"cluster_by": p_list[-1]}
 
-    def p_multi_id_or_string(self, p: List) -> None:
+    def p_multi_id_or_string(self, p: list) -> None:
         """multi_id_or_string : id_or_string
         | EQ id_or_string
         | id DOT multi_id_or_string
@@ -53,7 +52,7 @@ class Snowflake:
             p[0] = totrim.replace(" = ", "=").replace("= ", "").replace(" . ", ".")
 
     # todo: need to review & maybe simplify / remove
-    def p_table_property_equals(self, p: List) -> None:
+    def p_table_property_equals(self, p: list) -> None:
         """table_property_equals : id EQ id_or_string
         | EQ id_or_string
         | id id_or_string
@@ -68,32 +67,32 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0] = str(p_list[-1])
 
-    def p_expression_data_retention_time_in_days(self, p: List) -> None:
+    def p_expression_data_retention_time_in_days(self, p: list) -> None:
         """expr : expr DATA_RETENTION_TIME_IN_DAYS EQ ID"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["data_retention_time_in_days"] = convert_to_python_int(p_list[-1])
 
-    def p_expression_max_data_extension_time_in_days(self, p: List) -> None:
+    def p_expression_max_data_extension_time_in_days(self, p: list) -> None:
         """expr : expr MAX_DATA_EXTENSION_TIME_IN_DAYS table_property_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["max_data_extension_time_in_days"] = p_list[-1]
 
-    def p_expression_change_tracking(self, p: List) -> None:
+    def p_expression_change_tracking(self, p: list) -> None:
         """expr : expr CHANGE_TRACKING EQ ID"""
         p[0] = p[1]
         p_list = remove_par(list(p))
 
         p[0]["change_tracking"] = convert_to_python_bool(p_list[-1])
 
-    def p_comment_equals(self, p: List) -> None:
+    def p_comment_equals(self, p: list) -> None:
         """expr : expr option_comment"""
         p[0] = p[1]
         if p[2]:
             p[0].update(p[2])
 
-    def p_option_comment(self, p: List) -> None:
+    def p_option_comment(self, p: list) -> None:
         """option_comment : EQ STRING
         | EQ DQ_STRING
         | COMMENT EQ STRING
@@ -103,26 +102,26 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0] = {"comment": p_list[-1]}
 
-    def p_option_comment_equals(self, p: List) -> None:
+    def p_option_comment_equals(self, p: list) -> None:
         """option_comment_equals : STRING
         | option_comment_equals DQ_STRING
         """
         p_list = remove_par(list(p))
         p[0] = str(p_list[-1])
 
-    def p_tag(self, p: List) -> None:
+    def p_tag(self, p: list) -> None:
         """expr : expr option_with_tag"""
         p[0] = p[1]
         if p[2]:
             p[0].update(p[2])
 
-    def p_row_access_policy(self, p: List) -> None:
+    def p_row_access_policy(self, p: list) -> None:
         """expr : expr option_with_row_access_policy"""
         p[0] = p[1]
         if p[2]:
             p[0].update(p[2])
 
-    def p_tag_equals(self, p: List) -> None:
+    def p_tag_equals(self, p: list) -> None:
         """tag_equals : id EQ id_or_string
         | id id_or_string
         | dot_id EQ id_or_string
@@ -132,7 +131,7 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0] = ["".join(p_list[1:])]
 
-    def p_multiple_tag_equals(self, p: List) -> None:
+    def p_multiple_tag_equals(self, p: list) -> None:
         """multiple_tag_equals : tag_equals
         | multiple_tag_equals COMMA tag_equals
         """
@@ -141,14 +140,14 @@ class Snowflake:
             p[1].extend(p[3])
         p[0] = p[1]
 
-    def p_option_order_noorder(self, p: List) -> None:
+    def p_option_order_noorder(self, p: list) -> None:
         """option_order_noorder : ORDER
         | NOORDER
         """
         p_list = remove_par(list(p))
-        p[0] = {"increment_order": True if p_list[1] == "ORDER" else False}
+        p[0] = {"increment_order": p_list[1] == "ORDER"}
 
-    def p_option_with_tag(self, p: List) -> None:
+    def p_option_with_tag(self, p: list) -> None:
         """option_with_tag : TAG LP id RP
         | TAG LP dot_id DOT id RP
         | TAG LP multiple_tag_equals RP
@@ -159,27 +158,27 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0] = {"with_tag": p_list[-1] if len(p_list[-1]) > 1 else p_list[-1][0]}
 
-    def p_option_with_masking_policy(self, p: List) -> None:
+    def p_option_with_masking_policy(self, p: list) -> None:
         """option_with_masking_policy : MASKING POLICY id DOT id DOT id
         | WITH MASKING POLICY id DOT id DOT id
         """
         p_list = remove_par(list(p))
         p[0] = {"with_masking_policy": f"{p_list[-5]}.{p_list[-3]}.{p_list[-1]}"}
 
-    def p_option_with_row_access_policy(self, p: List) -> None:
+    def p_option_with_row_access_policy(self, p: list) -> None:
         """option_with_row_access_policy : WITH ROW ACCESS POLICY dot_id_or_id
         | ROW ACCESS POLICY dot_id_or_id
         """
         p_list = remove_par(list(p))
         p[0] = {"with_row_access_policy": p_list[-1]}
 
-    def p_expression_catalog(self, p: List) -> None:
+    def p_expression_catalog(self, p: list) -> None:
         """expr : expr CATALOG table_property_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["catalog"] = p_list[-1]
 
-    def p_expression_file_format(self, p: List) -> None:
+    def p_expression_file_format(self, p: list) -> None:
         """expr : expr FILE_FORMAT EQ LP multi_id_equals RP
         | expr FILE_FORMAT EQ ID
         """
@@ -187,33 +186,33 @@ class Snowflake:
         p_list = remove_par(list(p))
         p[0]["file_format"] = p_list[-1]
 
-    def p_expression_stage_file_format(self, p: List) -> None:
+    def p_expression_stage_file_format(self, p: list) -> None:
         """expr : expr STAGE_FILE_FORMAT EQ LP multi_id_equals RP
         | expr STAGE_FILE_FORMAT EQ ID"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["stage_file_format"] = p_list[-1] if len(p_list[-1]) > 1 else p_list[-1][0]
 
-    def p_expression_table_format(self, p: List) -> None:
+    def p_expression_table_format(self, p: list) -> None:
         """expr : expr TABLE_FORMAT table_property_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["table_format"] = p_list[-1]
 
-    def p_expression_auto_refresh(self, p: List) -> None:
+    def p_expression_auto_refresh(self, p: list) -> None:
         """expr : expr AUTO_REFRESH EQ ID"""
         p[0] = p[1]
         p_list = remove_par(list(p))
 
         p[0]["auto_refresh"] = convert_to_python_bool(p_list[-1])
 
-    def p_expression_pattern(self, p: List) -> None:
+    def p_expression_pattern(self, p: list) -> None:
         """expr : expr PATTERN table_property_equals"""
         p[0] = p[1]
         p_list = remove_par(list(p))
         p[0]["pattern"] = p_list[-1]
 
-    def p_recursive_pid(self, p: List) -> None:
+    def p_recursive_pid(self, p: list) -> None:
         """recursive_pid : pid
         | multi_id
         | id LP RP
@@ -232,7 +231,7 @@ class Snowflake:
         ]
         p[0] = "".join(items)
 
-    def p_as_virtual(self, p: List):
+    def p_as_virtual(self, p: list):
         """as_virtual : AS LP id RP
         | AS LP recursive_pid RP
         | AS LP id LP id LP multi_id COMMA pid RP AS recursive_pid RP RP"""
@@ -241,6 +240,6 @@ class Snowflake:
         if len(p) == 5:
             _as = p[3]
         else:
-            for i in p[3 : len(p) - 1]:  # noqa: E203
+            for i in p[3 : len(p) - 1]:
                 _as += i if isinstance(i, str) else ",".join(i)
         p[0] = {"generated": {"as": check_spec(_as)}}

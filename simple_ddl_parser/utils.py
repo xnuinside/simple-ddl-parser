@@ -1,22 +1,22 @@
 import re
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any
 
 # Backward compatibility import
 from simple_ddl_parser.exception import SimpleDDLParserException
 
 __all__ = [
-    "remove_par",
+    "SimpleDDLParserException",
     "check_spec",
     "find_first_unpair_closed_par",
-    "normalize_name",
     "get_table_id",
-    "SimpleDDLParserException",
+    "normalize_name",
+    "remove_par",
 ]
 
 _parentheses = ("(", ")")
 
 
-def remove_par(p_list: List[Union[str, Any]]) -> List[Union[str, Any]]:
+def remove_par(p_list: list[str | Any]) -> list[str | Any]:
     """
     Remove the parentheses from the given list
 
@@ -53,7 +53,7 @@ def check_spec(string: str) -> str:
     return string
 
 
-def find_first_unpair_closed_par(str_: str) -> Optional[int]:
+def find_first_unpair_closed_par(str_: str) -> int | None:
     """
     Returns index of first unpair close parentheses.
     Or returns None, if there is no one.
@@ -77,7 +77,7 @@ def normalize_name(name: str) -> str:
     return re.sub(clean_up_re, "", name).lower()
 
 
-def get_table_id(schema_name: str, table_name: str) -> Tuple[str, str]:
+def get_table_id(schema_name: str, table_name: str) -> tuple[str, str]:
     table_name = normalize_name(table_name)
     if schema_name:
         schema_name = normalize_name(schema_name)

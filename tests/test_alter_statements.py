@@ -1006,7 +1006,7 @@ CREATE TABLE employees (
             CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
         );
         Alter Table Persons ADD CONSTRAINT fk_group FOREIGN KEY (id, Age, birth_date) REFERENCES employees (id, Age, birth_date);
-"""  # noqa E501
+"""
     ).run()
     expected = [
         {

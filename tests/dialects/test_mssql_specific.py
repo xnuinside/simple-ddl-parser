@@ -2001,8 +2001,8 @@ def test_constraint_with_with():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
-            "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
-            "9/29/2021 9:55:26 PM ******/"
+            ("***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/")
         ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
@@ -2500,8 +2500,8 @@ def test_with_on_table_level():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
-            "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
-            "9/29/2021 9:55:26 PM ******/"
+            ("***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/")
         ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
@@ -2591,8 +2591,8 @@ SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[users_WorkScheduleHistory] )
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
-            "***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
-            "9/29/2021 9:55:26 PM ******/"
+            ("***** Object:  Table [dbo].[users_WorkSchedule]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/")
         ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
@@ -2738,12 +2738,12 @@ GO"""
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
-            "***** Object:  Table [dbo].[TO_Requests]    Script Date: "
-            "9/29/2021 9:55:26 PM ******/",
-            "***** Object:  Table [dbo].[ToDo]    Script Date: 9/29/2021 "
-            "9:55:26 PM ******/",
-            "***** Object:  Table [dbo].[ToDoComments]    Script Date: "
-            "9/29/2021 9:55:26 PM ******/",
+            ("***** Object:  Table [dbo].[TO_Requests]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/"),
+            ("***** Object:  Table [dbo].[ToDo]    Script Date: 9/29/2021 "
+            "9:55:26 PM ******/"),
+            ("***** Object:  Table [dbo].[ToDoComments]    Script Date: "
+            "9/29/2021 9:55:26 PM ******/"),
         ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
@@ -3117,8 +3117,8 @@ def test_primary_key_clustered():
     result = DDLParser(ddl).run(group_by_type=True, output_mode="mssql")
     expected = {
         "comments": [
-            "***** Object:  Table [aud].[tcal_tgt]    Script Date: "
-            "11/11/2021 11:18:41 AM ******/"
+            ("***** Object:  Table [aud].[tcal_tgt]    Script Date: "
+            "11/11/2021 11:18:41 AM ******/")
         ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},
