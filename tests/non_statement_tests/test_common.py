@@ -82,8 +82,25 @@ def test_create_and_drop_view_statements():
         {
             "schema": "reporting",
             "view_name": "user_ip_address_view",
-            "definition": "SELECT id ,  name FROM users",
+            "definition": "SELECT id, name FROM users",
             "replace": False,
+            "columns": [
+                {
+                    "name": "id",
+                    "expression": "id",
+                    "source": {"table_name": "users", "schema": None, "column": "id"},
+                },
+                {
+                    "name": "name",
+                    "expression": "name",
+                    "source": {
+                        "table_name": "users",
+                        "schema": None,
+                        "column": "name",
+                    },
+                },
+            ],
+            "source_tables": [{"table_name": "users", "schema": None}],
         }
     ]
 
@@ -104,9 +121,7 @@ def test_alter_drop_foreign_key_statement():
 
 
 def test_flag_normalize_names():
-    ddl = (
-        ddl
-    ) = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
+    ddl = """/****** Object:  Table [dbo].[TO_Requests]    Script Date: 9/29/2021 9:55:26 PM ******/
     SET ANSI_NULLS ON
     GO
     SET QUOTED_IDENTIFIER ON
@@ -118,8 +133,10 @@ def test_flag_normalize_names():
     result = DDLParser(ddl, silent=False, normalize_names=True).run(group_by_type=True)
     expected = {
         "comments": [
-            "***** Object:  Table [dbo].[TO_Requests]    Script Date: "
-            "9/29/2021 9:55:26 PM ******/"
+            (
+                "***** Object:  Table [dbo].[TO_Requests]    Script Date: "
+                "9/29/2021 9:55:26 PM ******/"
+            )
         ],
         "ddl_properties": [
             {"name": "ANSI_NULLS", "value": "ON"},

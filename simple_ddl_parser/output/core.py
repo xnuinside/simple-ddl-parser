@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-from typing import Dict, List
 
 from simple_ddl_parser.output.dialects import dialects_clean_up
 from simple_ddl_parser.output.table_data import TableData
@@ -14,7 +13,7 @@ class Output:
     """class implements logic to format final output after parser"""
 
     def __init__(
-        self, parser_output: List[Dict], output_mode: str, group_by_type: bool
+        self, parser_output: list[dict], output_mode: str, group_by_type: bool
     ) -> None:
         self.output_mode = output_mode
         if output_mode == "bigquery":
@@ -27,7 +26,7 @@ class Output:
         self.final_result = []
         self.tables_dict = {}
 
-    def get_table_from_tables_data(self, schema: str, table_name: str) -> Dict:
+    def get_table_from_tables_data(self, schema: str, table_name: str) -> dict:
         """get table by name and schema or rise exception"""
         table_id = get_table_id(schema, table_name)
         target_table = self.tables_dict.get(table_id)
@@ -37,7 +36,7 @@ class Output:
             )
         return target_table
 
-    def clean_up_index_statement(self, statement: Dict) -> None:
+    def clean_up_index_statement(self, statement: dict) -> None:
         try:
             del statement[self.schema_key]
         except KeyError:
@@ -47,7 +46,7 @@ class Output:
         if self.output_mode != "mssql":
             del statement["clustered"]
 
-    def add_index_to_table(self, statement: Dict) -> None:
+    def add_index_to_table(self, statement: dict) -> None:
         """populate 'index' key in output data"""
 
         target_table = self.get_table_from_tables_data(
@@ -57,14 +56,14 @@ class Output:
         self.clean_up_index_statement(statement)
         target_table.index.append(statement)
 
-    def add_alter_to_table(self, statement: Dict) -> None:
+    def add_alter_to_table(self, statement: dict) -> None:
         """add 'alter' statement to the table"""
         target_table = self.get_table_from_tables_data(
             statement["schema"], statement["alter_table_name"]
         )
         target_table.append_statement_information_to_table(statement)
 
-    def process_statement_data(self, statement_data: Dict) -> Dict:
+    def process_statement_data(self, statement_data: dict) -> dict:
         """process tables, types, sequence and etc. data"""
 
         if statement_data.get("table_name"):
@@ -82,13 +81,13 @@ class Output:
             dialects_clean_up(self.output_mode, data)
         return data
 
-    def process_comments(self, statement: Dict):
+    def process_comments(self, statement: dict):
         table_name = statement["comment_on"]["table_name"]
         schema = statement.get(self.schema_key) or statement["comment_on"].get("schema")
         target_table = self.get_table_from_tables_data(schema, table_name)
         target_table.append_statement_information_to_table(statement)
 
-    def process_alter_and_index_result(self, table: Dict):
+    def process_alter_and_index_result(self, table: dict):
         if table.get("index_name"):
             self.add_index_to_table(table)
 
@@ -149,7 +148,7 @@ class Output:
 
         self.final_result = result_as_dict
 
-    def format(self) -> List[Dict]:
+    def format(self) -> list[dict]:
         for statement in self.parser_output:
             # process each item in parser output
             if "index_name" in statement or "alter_table_name" in statement:
@@ -178,9 +177,9 @@ class Output:
         return self.final_result
 
 
-def dump_data_to_file(table_name: str, dump_path: str, data: List[Dict]) -> None:
+def dump_data_to_file(table_name: str, dump_path: str, data: list[dict]) -> None:
     """method to dump json schema"""
     if not os.path.isdir(dump_path):
         os.makedirs(dump_path, exist_ok=True)
-    with open("{}/{}_schema.json".format(dump_path, table_name), "w+") as schema_file:
+    with open(f"{dump_path}/{table_name}_schema.json", "w+") as schema_file:
         json.dump(data, schema_file, indent=1)

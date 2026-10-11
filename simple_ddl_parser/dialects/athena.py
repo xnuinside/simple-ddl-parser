@@ -1,8 +1,5 @@
-from typing import List
-
-
 class Athena:
-    def p_escaped_by(self, p: List) -> None:
+    def p_escaped_by(self, p: list) -> None:
         """expr : expr ESCAPED BY STRING_BASE"""
         p[0] = p[1]
         p_list = list(p)

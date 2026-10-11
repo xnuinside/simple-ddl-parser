@@ -1,6 +1,9 @@
+from __future__ import annotations
+
+from collections.abc import Hashable
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Dict, Hashable, List, Optional
+from typing import Any
 
 from simple_ddl_parser.utils import normalize_name
 
@@ -21,49 +24,47 @@ class BaseData:
     # final output field set - dialect
     output_mode: str = field(default="sql", metadata={"exclude_always": True})
     # optional fields
-    schema: Optional[str] = field(default=None)
-    primary_key: Optional[List[str]] = field(default=None)
-    columns: Optional[List[dict]] = field(default_factory=list)
-    alter: Optional[Dict] = field(default_factory=dict)
-    checks: Optional[List] = field(default_factory=list)
-    index: Optional[List] = field(default_factory=list)
-    partitioned_by: Optional[List] = field(default_factory=list)
-    constraints: Optional[Dict] = field(
+    schema: str | None = field(default=None)
+    primary_key: list[str] | None = field(default=None)
+    columns: list[dict] | None = field(default_factory=list)
+    alter: dict | None = field(default_factory=dict)
+    checks: list | None = field(default_factory=list)
+    index: list | None = field(default_factory=list)
+    partitioned_by: list | None = field(default_factory=list)
+    constraints: dict | None = field(
         default_factory=dict, metadata={"exclude_if_not_provided": True}
     )
-    tablespace: Optional[str] = None
-    if_not_exists: Optional[bool] = field(
+    tablespace: str | None = None
+    if_not_exists: bool | None = field(
         default=False, metadata={"exclude_if_not_provided": True}
     )
-    if_exists: Optional[bool] = field(
+    if_exists: bool | None = field(
         default=False, metadata={"exclude_if_not_provided": True}
     )
-    partition_by: Optional[dict] = field(
+    partition_by: dict | None = field(
         default_factory=dict, metadata={"exclude_if_not_provided": True}
     )
-    table_properties: Optional[dict] = field(
+    table_properties: dict | None = field(
         default_factory=dict, metadata={"exclude_if_empty": True}
     )
 
-    replace: Optional[bool] = field(
+    replace: bool | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )
-    comment: Optional[str] = field(default=None, metadata={"exclude_if_empty": True})
-    like: Optional[dict] = field(
+    comment: str | None = field(default=None, metadata={"exclude_if_empty": True})
+    like: dict | None = field(
         default_factory=dict,
         metadata={"exclude_if_not_provided": True},
     )
     # parser-only fields -- start
-    unique: Optional[list] = field(
+    unique: list | None = field(default_factory=list, metadata={"exclude_always": True})
+    unique_statement: list | None = field(
         default_factory=list, metadata={"exclude_always": True}
     )
-    unique_statement: Optional[list] = field(
+    ref_columns: list[dict] | None = field(
         default_factory=list, metadata={"exclude_always": True}
     )
-    ref_columns: Optional[List[Dict]] = field(
-        default_factory=list, metadata={"exclude_always": True}
-    )
-    references: Optional[List[Dict]] = field(
+    references: list[dict] | None = field(
         default_factory=list, metadata={"exclude_always": True}
     )
 
@@ -83,8 +84,7 @@ class BaseData:
                 self.__dict__[key] = value
 
     def __iter__(self):
-        for x in self.__dict__:
-            yield x
+        yield from self.__dict__
 
     def __post_init__(self):
         self.set_unique_columns()
@@ -179,8 +179,7 @@ class BaseData:
                 column["unique"] = True
 
     def iter_class_fields(self):
-        for key, value in self.__dataclass_fields__.items():
-            yield key, value
+        yield from self.__dataclass_fields__.items()
 
     def filter_out_output(self, field: str) -> bool:
         exclude_always_keys = set()
@@ -206,9 +205,7 @@ class BaseData:
             return False
         if field in exclude_if_empty and not self.get(field):
             return False
-        if field in exclude_by_dialect_filter:
-            return False
-        return True
+        return field not in exclude_by_dialect_filter
 
     def get_alias_if_exists(self, key: str) -> str:
         for class_field, value in self.iter_class_fields():
@@ -226,7 +223,7 @@ class BaseData:
                 output[name] = value
         return output
 
-    def prepare_alter_columns(self, statement: Dict) -> None:
+    def prepare_alter_columns(self, statement: dict) -> None:
         """prepare alters column metadata"""
         alter_columns = []
         for num, column in enumerate(statement["columns"]):
@@ -250,16 +247,16 @@ class BaseData:
             if normalize_name(column["name"]) not in table_columns:
                 self.columns.append(column)
 
-    def get_normalized_table_columns_names(self) -> List[str]:
+    def get_normalized_table_columns_names(self) -> list[str]:
         return [normalize_name(column["name"]) for column in self.columns]
 
     @staticmethod
-    def prepare_ref_statement(ref_statement: Dict):
+    def prepare_ref_statement(ref_statement: dict):
         pass
 
     def create_alter_column_references(
-        self, index: int, column: Dict, ref_statement: Dict
-    ) -> Dict:
+        self, index: int, column: dict, ref_statement: dict
+    ) -> dict:
         """create alter column metadata"""
         column_reference = ref_statement["columns"][index]
         alter_column = {
@@ -279,7 +276,7 @@ class BaseData:
             statement["check"]["statement"] = " ".join(statement["check"]["statement"])
         self.alter["checks"].append(statement["check"])
 
-    def append_statement_information_to_table(self, statement: Dict) -> None:
+    def append_statement_information_to_table(self, statement: dict) -> None:
         if "columns" in statement:
             self.prepare_alter_columns(statement)
         elif "columns_to_rename" in statement:
@@ -309,31 +306,31 @@ class BaseData:
         elif "comment_on" in statement:
             self.set_object_comment(statement)
 
-    def set_object_comment(self, statement: Dict) -> None:
+    def set_object_comment(self, statement: dict) -> None:
         if statement["comment_on"]["object_type"] == "TABLE":
             self.set_table_comment(statement)
         elif statement["comment_on"]["object_type"] == "COLUMN":
             self.set_column_comments(statement)
 
-    def set_table_comment(self, statement: Dict) -> None:
+    def set_table_comment(self, statement: dict) -> None:
         comment = statement["comment_on"]
         self.comment = comment["comment"]
 
-    def set_column_comments(self, statement: Dict) -> None:
+    def set_column_comments(self, statement: dict) -> None:
         comment = statement["comment_on"]
         for column in self.columns:
             if column["name"] == comment["column_name"]:
                 column["comment"] = comment["comment"]
                 break
 
-    def set_default_columns_from_alter(self, statement: Dict) -> None:
+    def set_default_columns_from_alter(self, statement: dict) -> None:
         for column in self.columns:
             if statement["default"]["columns"]:
                 for column_name in statement["default"]["columns"]:
                     if column["name"] == column_name:
                         column["default"] = statement["default"]["value"]
 
-    def set_table_properties_from_alter(self, statement: Dict) -> None:
+    def set_table_properties_from_alter(self, statement: dict) -> None:
         alter_entry = {}
 
         if "default_charset" in statement:
@@ -358,7 +355,7 @@ class BaseData:
                 self.alter["table_properties"] = []
             self.alter["table_properties"].append(alter_entry)
 
-    def set_unique_columns_from_alter(self, statement: Dict) -> None:
+    def set_unique_columns_from_alter(self, statement: dict) -> None:
         for column in self.columns:
             if len(statement["unique"]["columns"]) == 1:
                 # if unique index only on one column
@@ -419,14 +416,14 @@ class BaseData:
 
         self.alter[table_alter_key].extend(statement[alter_key])
 
-    def set_alter_to_table_data(self, key: str, statement: Dict) -> None:
+    def set_alter_to_table_data(self, key: str, statement: dict) -> None:
         if not self.alter.get(key + "s"):
             self.alter[key + "s"] = []
         if "using" in statement:
             statement[key]["using"] = statement["using"]
         self.alter[key + "s"].append(statement[key])
 
-    def set_auto_increment_from_alter(self, statement: Dict) -> None:
+    def set_auto_increment_from_alter(self, statement: dict) -> None:
         if not self.alter.get("auto_increments"):
             self.alter["auto_increments"] = []
         self.alter["auto_increments"].append(statement["auto_increment"])

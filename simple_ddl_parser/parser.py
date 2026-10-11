@@ -1,15 +1,22 @@
+from __future__ import annotations
+
 import json
 import logging
 import os
 import re
+from collections.abc import Callable
 from copy import deepcopy
-from typing import Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import cast
 
 from ply import lex, yacc
 
 from simple_ddl_parser.exception import SimpleDDLParserException
 from simple_ddl_parser.output.core import Output, dump_data_to_file
 from simple_ddl_parser.output.dialects import dialect_by_name
+from simple_ddl_parser.query_statements import (
+    parse_create_dynamic_table,
+    parse_create_view,
+)
 from simple_ddl_parser.utils import (
     find_first_unpair_closed_par,
     get_table_id,
@@ -40,19 +47,6 @@ CREATE_TABLE_AS_SELECT_RE = re.compile(
     flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
 
-CREATE_VIEW_RE = re.compile(
-    r"""
-    ^\s*CREATE\s+
-    (?P<replace>OR\s+REPLACE\s+)?
-    VIEW\s+
-    (?P<target>[^\s(]+)
-    \s+AS\s+
-    (?P<definition>.+?)
-    \s*$
-    """,
-    flags=re.IGNORECASE | re.DOTALL | re.VERBOSE,
-)
-
 DROP_VIEW_RE = re.compile(
     r"""
     ^\s*DROP\s+VIEW\s+
@@ -63,9 +57,7 @@ DROP_VIEW_RE = re.compile(
 )
 
 
-def set_logging_config(
-    log_level: Union[str, int], log_file: Optional[str] = None
-) -> None:
+def set_logging_config(log_level: str | int, log_file: str | None = None) -> None:
     if log_file:
         logging.basicConfig(
             level=log_level,
@@ -106,8 +98,8 @@ class Parser:
         silent: bool = True,
         debug: bool = False,
         normalize_names: bool = False,
-        log_file: Optional[str] = None,
-        log_level: Union[str, int] = logging.INFO,
+        log_file: str | None = None,
+        log_level: str | int = logging.INFO,
     ) -> None:
         """
         content: is a file content for processing
@@ -172,6 +164,11 @@ class Parser:
                 r"^\s*UNLOCK\s+TABLES\b.*$",
                 r"^\s*DROP\s+USER\b.*$",
                 r"^\s*CREATE\s+USER\b.*$",
+                # mssql: ALTER TABLE t [WITH CHECK] CHECK | NOCHECK CONSTRAINT c
+                (
+                    r"^\s*ALTER\s+TABLE\s+(?:\[[^\]]+\]|\S)+"
+                    r"(?:\s+WITH\s+(?:NO)?CHECK)?\s+(?:NO)?CHECK\s+CONSTRAINT\b.*$"
+                ),
             ]
         ]
 
@@ -325,7 +322,7 @@ class Parser:
             )
 
     @staticmethod
-    def extract_column_name_from_line(line: str) -> Optional[str]:
+    def extract_column_name_from_line(line: str) -> str | None:
         stripped = line.strip().lstrip(",").strip()
         if not stripped or stripped.startswith(")"):
             return None
@@ -500,13 +497,13 @@ class Parser:
             else:
                 self.statement += f" {self.line}"
 
-    def parse_data(self) -> List[Dict]:
-        self.tables: List[Dict] = []
+    def parse_data(self) -> list[dict]:
+        self.tables: list[dict] = []
         data = self.pre_process_data(self.data)
         data = data.replace("\\t", "")
         lines = data.split("\\n")
 
-        self.set_line: Optional[str] = None
+        self.set_line: str | None = None
 
         self.set_was_in_line: bool = False
 
@@ -521,7 +518,7 @@ class Parser:
         return self.tables
 
     @staticmethod
-    def split_table_identifier(identifier: str) -> Tuple[Optional[str], str]:
+    def split_table_identifier(identifier: str) -> tuple[str | None, str]:
         parts = [part.strip() for part in identifier.split(".") if part.strip()]
         if not parts:
             return None, identifier
@@ -530,9 +527,7 @@ class Parser:
         return parts[-2], parts[-1]
 
     @classmethod
-    def parse_select_column_definition(
-        cls, raw_column: str
-    ) -> Optional[Dict[str, str]]:
+    def parse_select_column_definition(cls, raw_column: str) -> dict[str, str] | None:
         match = re.match(
             r"""
             ^\s*
@@ -549,7 +544,7 @@ class Parser:
         alias = match.group("alias")
         return {"source_name": source_name, "alias": alias}
 
-    def parse_create_table_as_select_statement(self, statement: str) -> Optional[Dict]:
+    def parse_create_table_as_select_statement(self, statement: str) -> dict | None:
         match = CREATE_TABLE_AS_SELECT_RE.match(statement)
         if not match:
             return None
@@ -581,20 +576,25 @@ class Parser:
             }
         }
 
-    def parse_create_view_statement(self, statement: str) -> Optional[Dict]:
-        match = CREATE_VIEW_RE.match(statement)
-        if not match:
+    @staticmethod
+    def parse_create_view_statement(statement: str) -> dict | None:
+        if not re.match(r"^\s*CREATE\s", statement, flags=re.IGNORECASE):
             return None
+        if not re.search(r"\bVIEW\b", statement, flags=re.IGNORECASE):
+            return None
+        return parse_create_view(statement)
 
-        schema, view_name = self.split_table_identifier(match.group("target"))
-        return {
-            "schema": schema,
-            "view_name": view_name,
-            "definition": match.group("definition").strip(),
-            "replace": bool(match.group("replace")),
-        }
+    @staticmethod
+    def parse_create_dynamic_table_statement(statement: str) -> dict | None:
+        if not re.match(
+            r"^\s*CREATE\s+(?:OR\s+REPLACE\s+)?(?:TRANSIENT\s+)?DYNAMIC\s+TABLE\b",
+            statement,
+            flags=re.IGNORECASE,
+        ):
+            return None
+        return parse_create_dynamic_table(statement)
 
-    def parse_drop_view_statement(self, statement: str) -> Optional[Dict]:
+    def parse_drop_view_statement(self, statement: str) -> dict | None:
         match = DROP_VIEW_RE.match(statement)
         if not match:
             return None
@@ -604,8 +604,8 @@ class Parser:
 
     @staticmethod
     def clone_create_table_as_select_columns(
-        source_table: Dict, select_columns: Union[str, List[Dict[str, str]]]
-    ) -> Optional[List[Dict]]:
+        source_table: dict, select_columns: str | list[dict[str, str]]
+    ) -> list[dict] | None:
         source_columns = {
             normalize_name(column["name"]): column
             for column in source_table.get("columns", [])
@@ -627,8 +627,8 @@ class Parser:
         return cloned_columns
 
     def build_create_table_as_select_statement(
-        self, statement: Dict, source_table: Dict
-    ) -> Optional[Dict]:
+        self, statement: dict, source_table: dict
+    ) -> dict | None:
         data = statement["__create_table_as_select__"]
         columns = self.clone_create_table_as_select_columns(
             source_table, data["select_columns"]
@@ -692,7 +692,7 @@ class Parser:
     def process_line(
         self,
         last_line: bool,
-    ) -> Tuple[Optional[str], bool]:
+    ) -> tuple[str | None, bool]:
         self.pre_process_line()
 
         # Remove whitespace, while preserving newlines in quotes
@@ -738,7 +738,7 @@ class Parser:
         )
 
     @staticmethod
-    def restore_generated_always_identity(statement: Dict) -> None:
+    def restore_generated_always_identity(statement: dict) -> None:
         for column in statement.get("columns", []):
             generated_by = column.get("generated_by")
             if generated_by and generated_by.startswith("DEFAULT AS IDENTITY("):
@@ -760,6 +760,12 @@ class Parser:
         create_view_statement = self.parse_create_view_statement(self.statement)
         if create_view_statement:
             self.tables.append(create_view_statement)
+            return
+        create_dynamic_table_statement = self.parse_create_dynamic_table_statement(
+            self.statement
+        )
+        if create_dynamic_table_statement:
+            self.tables.append(create_dynamic_table_statement)
             return
         drop_view_statement = self.parse_drop_view_statement(self.statement)
         if drop_view_statement:
@@ -783,7 +789,7 @@ class Parser:
             self.apply_inline_comments_to_statement(_parse_result)
             self.tables.append(_parse_result)
 
-    def restore_range_bucket_partition_data(self, statement: Dict) -> None:
+    def restore_range_bucket_partition_data(self, statement: dict) -> None:
         partition_by = statement.get("partition_by")
         if (
             not isinstance(partition_by, dict)
@@ -804,7 +810,7 @@ class Parser:
             item.strip() for item in match.group(2).split(",") if item.strip()
         ]
 
-    def restore_mysql_index_prefix_lengths(self, statement: Dict) -> None:
+    def restore_mysql_index_prefix_lengths(self, statement: dict) -> None:
         indexes = statement.get("index") or []
         if not indexes:
             return
@@ -835,7 +841,7 @@ class Parser:
         comment = " ".join(comment.strip().split())
         return comment.replace(" ,", ",")
 
-    def apply_inline_comments_to_statement(self, statement: Dict) -> None:
+    def apply_inline_comments_to_statement(self, statement: dict) -> None:
         if (
             getattr(self, "output_mode", "sql") not in {"sql", "postgres", "psql"}
             or not self.statement_inline_comments
@@ -879,12 +885,12 @@ class Parser:
         *,
         dump: bool = False,
         dump_path="schemas",
-        file_path: Optional[str] = None,
+        file_path: str | None = None,
         output_mode: str = "sql",
         group_by_type: bool = False,
         json_dump=False,
-        custom_output_schema: Optional[Union[str, Callable]] = None,
-    ) -> List[Dict]:
+        custom_output_schema: str | Callable | None = None,
+    ) -> list[dict]:
         """
         self.output_mode = output_mode
         dump: provide 'True' if you need to dump output in file

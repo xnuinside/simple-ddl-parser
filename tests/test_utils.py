@@ -20,7 +20,7 @@ from simple_ddl_parser import utils
         (["A", "(", "(", "B", "C", "("], ["A", "B", "C"]),
         (["A", ")", "B", ")", "(", "C"], ["A", "B", "C"]),
         (["(", "A", ")", "B", "C", ")"], ["A", "B", "C"]),
-        ([dict()], [dict()]),  # Edge case (unhashable types)
+        ([{}], [{}]),  # Edge case (unhashable types)
     ],
 )
 def test_remove_par(expression, expected_result):

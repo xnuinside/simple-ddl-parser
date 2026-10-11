@@ -40,10 +40,9 @@ class TableData:
 
     @classmethod
     def pre_load_mods(cls, main_cls, kwargs) -> dict:
-        if kwargs.get("output_mode") == "bigquery":
-            if kwargs.get("schema"):
-                kwargs["dataset"] = kwargs["schema"]
-                del kwargs["schema"]
+        if kwargs.get("output_mode") == "bigquery" and kwargs.get("schema"):
+            kwargs["dataset"] = kwargs["schema"]
+            del kwargs["schema"]
         cls_fields = {
             field: value for field, value in main_cls.__dataclass_fields__.items()
         }

@@ -410,7 +410,7 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 
 - CREATE DATABASE [IF NOT EXISTS] + Properties parsing
 
-- DROP VIEW and simple CREATE VIEW ... AS ... statements
+- DROP VIEW and CREATE [OR REPLACE] VIEW ... AS ... statements (with query lineage in `columns` and `source_tables`)
 
 ### SparkSQL Dialect statements
 
@@ -496,6 +496,9 @@ In output you will have names like 'dbo' and 'TO_Requests', not '[dbo]' and '[TO
 - DATA_RETENTION_TIME_IN_DAYS
 - MAX_DATA_EXTENSION_TIME_IN_DAYS
 - CHANGE_TRACKING
+- CREATE [OR REPLACE] [SECURE] [TEMPORARY] [RECURSIVE] [MATERIALIZED] VIEW [IF NOT EXISTS] .. [(columns)] .. AS query (output in `views`)
+- CREATE [OR REPLACE] [TRANSIENT] DYNAMIC TABLE [IF NOT EXISTS] .. TARGET_LAG = .. WAREHOUSE = .. [REFRESH_MODE] [INITIALIZE] .. AS query (output in `tables` with `dynamic: True`)
+- Query lineage for views and dynamic tables: `columns` entries carry the `expression` and `source` table/column of the main SELECT item (columns are inferred from the SELECT when no column list is declared), plus `source_tables`
 
 ### BigQuery
 
@@ -588,13 +591,15 @@ The format is based on Keep a Changelog 1.0.0, and this project adheres to Seman
 
 ## [Unreleased]
 ### Added
-- None.
+- Snowflake `CREATE [OR REPLACE] [SECURE] [TEMPORARY] [RECURSIVE] [MATERIALIZED] VIEW [IF NOT EXISTS] ... [(columns)] ... AS query` statements are parsed into `views`: database, modifiers (`materialized: True` for materialized views), column list (comments, masking policies, tags), row access policy, tags, `CLUSTER BY`, `CHANGE_TRACKING`, `COPY GRANTS` and `COMMENT =`.
+- Snowflake `CREATE [OR REPLACE] [TRANSIENT] DYNAMIC TABLE ... TARGET_LAG = ... WAREHOUSE = ... AS query` statements are parsed into `tables` with `dynamic: True`, `target_lag`, `warehouse`, `refresh_mode`, `initialize`, `query`, column definitions (with or without data types) and the usual table properties (`CLUSTER BY`, `COMMENT =`, `WITH TAG`, `DATA_RETENTION_TIME_IN_DAYS`...).
+- Views and dynamic tables expose a best-effort query lineage: each entry of `columns` gets the `expression` and `source` table/column of the matching item of the main `SELECT` (columns are inferred from the `SELECT` when no column list is declared), and `source_tables` lists the tables read by the query (CTE names excluded).
 
 ### Changed
-- None.
+- `CREATE VIEW` `definition` is now returned with normalized spacing (`SELECT id, name FROM users` instead of `SELECT id ,  name FROM users`).
 
 ### Fixed
-- None.
+- Snowflake output mode now keeps `transient: True` for `CREATE TRANSIENT TABLE` statements.
 
 ## [1.13.0] - 2026-03-29
 ### Added

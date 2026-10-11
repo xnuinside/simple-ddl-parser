@@ -545,7 +545,7 @@ def partitioned_by_multiple_tables_hql():
         field_long      bigint
     ) PARTITIONED BY (batch_id int, batch_id2 string, batch_32 some_type) STORED AS PARQUET LOCATION 's3://datalake/table_name/v1'
 
-    """  # noqa E501
+    """
 
     result = DDLParser(ddl).run(output_mode="hql")
     expected = [
@@ -1046,7 +1046,7 @@ def test_complex_structure_test_hql():
             column_map_no_spaces MAP<STRING,STRUCT<year:INT,place:STRING,details:STRING>>,
             column_struct STRUCT < street_address: STRUCT <street_number: INT, street_name: STRING, street_type: STRING>, country: STRING, postal_code: STRING > not null
             )
-    """  # noqa E501
+    """
 
     result = DDLParser(ddl).run(output_mode="hql", group_by_type=True)
     expected = {
