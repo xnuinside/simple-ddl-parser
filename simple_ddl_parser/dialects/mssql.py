@@ -1,5 +1,3 @@
-
-
 class MSSQL:
     def p_alter_column_sql_server(self, p: list) -> None:
         """alter_column_sql_server : alt_table ALTER COLUMN defcolumn

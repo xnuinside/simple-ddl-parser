@@ -86,9 +86,7 @@ class SparkSQL(Dialect):
 @dataclass
 @dialect(name="mysql")
 class MySQL(Dialect):
-    engine: str | None = field(
-        default=None, metadata={"exclude_if_not_provided": True}
-    )
+    engine: str | None = field(default=None, metadata={"exclude_if_not_provided": True})
     default_charset: str | None = field(
         default=None, metadata={"exclude_if_not_provided": True}
     )

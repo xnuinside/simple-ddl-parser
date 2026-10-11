@@ -211,11 +211,17 @@ class DDLParser(Parser, Dialects):
             self.lexer.last_token = "LP"
             return t
         elif (
-            self.lexer.is_table
-            and self.lexer.lp_open
-            and self.lexer.last_token != "COMMA"
-            and self.SIMPLE_GENERIC_TYPE_RE.match(t.value)
-        ) or self.is_token_column_name(t) or self.lexer.last_token == "DOT" or t.type != "DQ_STRING" and self.is_creation_name(t):
+            (
+                self.lexer.is_table
+                and self.lexer.lp_open
+                and self.lexer.last_token != "COMMA"
+                and self.SIMPLE_GENERIC_TYPE_RE.match(t.value)
+            )
+            or self.is_token_column_name(t)
+            or self.lexer.last_token == "DOT"
+            or t.type != "DQ_STRING"
+            and self.is_creation_name(t)
+        ):
             t.type = "ID"
         else:
             t = self.tokens_not_columns_names(t)

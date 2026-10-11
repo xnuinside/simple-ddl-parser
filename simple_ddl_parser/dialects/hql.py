@@ -1,4 +1,3 @@
-
 from simple_ddl_parser.utils import check_spec, remove_par
 
 

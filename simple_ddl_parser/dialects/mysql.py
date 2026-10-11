@@ -1,5 +1,3 @@
-
-
 class MySQL:
     def p_engine(self, p: list) -> None:
         """expr : expr ENGINE EQ id"""

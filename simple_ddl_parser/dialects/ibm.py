@@ -1,5 +1,3 @@
-
-
 class IBMDb2:
     def p_expr_index_in(self, p: list) -> None:
         """expr : expr INDEX IN id"""

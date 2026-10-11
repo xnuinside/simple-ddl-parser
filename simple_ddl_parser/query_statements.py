@@ -717,11 +717,7 @@ def _select_items(
     while end < len(tokens):
         if depths[end] == depth and tokens[end].upper in stop_words:
             break
-        if (
-            tokens[end].kind == "rp"
-            and depths[end] is not None
-            and depths[end] < depth
-        ):
+        if tokens[end].kind == "rp" and depths[end] is not None and depths[end] < depth:
             break
         end += 1
     return _split_by_comma(tokens[pos:end])

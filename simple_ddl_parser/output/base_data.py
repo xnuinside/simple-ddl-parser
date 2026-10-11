@@ -55,9 +55,7 @@ class BaseData:
         metadata={"exclude_if_not_provided": True},
     )
     # parser-only fields -- start
-    unique: list | None = field(
-        default_factory=list, metadata={"exclude_always": True}
-    )
+    unique: list | None = field(default_factory=list, metadata={"exclude_always": True})
     unique_statement: list | None = field(
         default_factory=list, metadata={"exclude_always": True}
     )

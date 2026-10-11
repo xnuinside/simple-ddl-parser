@@ -1,5 +1,3 @@
-
-
 class Redshift:
     def p_expression_distkey(self, p: list) -> None:
         """expr : expr id LP id RP"""

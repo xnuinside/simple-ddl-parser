@@ -1,5 +1,3 @@
-
-
 class SparkSQL:
     def p_expression_using(self, p: list) -> None:
         """expr : expr using"""

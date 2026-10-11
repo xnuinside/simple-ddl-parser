@@ -5,4 +5,3 @@ __all__ = [
 
 class SimpleDDLParserException(Exception):
     """Base exception in simple ddl parser library"""
-

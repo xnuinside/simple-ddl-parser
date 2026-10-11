@@ -55,9 +55,7 @@ DROP_VIEW_RE = re.compile(
 )
 
 
-def set_logging_config(
-    log_level: str | int, log_file: str | None = None
-) -> None:
+def set_logging_config(log_level: str | int, log_file: str | None = None) -> None:
     if log_file:
         logging.basicConfig(
             level=log_level,
@@ -522,9 +520,7 @@ class Parser:
         return parts[-2], parts[-1]
 
     @classmethod
-    def parse_select_column_definition(
-        cls, raw_column: str
-    ) -> dict[str, str] | None:
+    def parse_select_column_definition(cls, raw_column: str) -> dict[str, str] | None:
         match = re.match(
             r"""
             ^\s*
