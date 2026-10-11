@@ -7,6 +7,8 @@ walker and the query is kept as text plus a best-effort lineage extraction
 (output columns and source tables).
 """
 
+from __future__ import annotations
+
 import re
 from typing import NamedTuple
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from simple_ddl_parser.utils import check_spec, remove_par
 
 

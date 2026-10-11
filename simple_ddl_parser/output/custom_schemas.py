@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import re
 from collections.abc import Callable, Iterable
 from typing import Union
 
 from simple_ddl_parser.exception import SimpleDDLParserException
 
-OutputPayload = Union[list[dict], dict]  # noqa: UP007 - python 3.9 support
+OutputPayload = Union[list[dict], dict]
 CustomSchemaFunc = Callable[[OutputPayload], list[dict]]
 
 _CUSTOM_OUTPUT_SCHEMAS: dict[str, CustomSchemaFunc] = {}
