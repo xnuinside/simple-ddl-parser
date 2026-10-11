@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Iterable
-from typing import Union
+from typing import TYPE_CHECKING
 
 from simple_ddl_parser.exception import SimpleDDLParserException
 
-OutputPayload = Union[list[dict], dict]
-CustomSchemaFunc = Callable[[OutputPayload], list[dict]]
+if TYPE_CHECKING:
+    OutputPayload = list[dict] | dict
+    CustomSchemaFunc = Callable[[OutputPayload], list[dict]]
 
 _CUSTOM_OUTPUT_SCHEMAS: dict[str, CustomSchemaFunc] = {}
 
