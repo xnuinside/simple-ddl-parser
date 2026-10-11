@@ -174,3 +174,42 @@ def test_generated_always_identity_with_options_issue_257():
     )
     assert result[0]["columns"][0]["nullable"] is False
     assert result[0]["columns"][1]["name"] == "hall_name"
+
+
+def test_default_with_extra_parens_in_nested_call():
+    ddl = """CREATE TABLE public.demo_parens (
+    d date DEFAULT date(date_trunc('month', (CURRENT_DATE))) NOT NULL
+);"""
+    result = DDLParser(ddl).run(output_mode="postgres")
+    column = result[0]["columns"][0]
+    assert column["default"] == "date(date_trunc('month',(CURRENT_DATE)))"
+    assert column["nullable"] is False
+
+
+def test_table_check_with_case_any_array():
+    ddl = """CREATE TABLE public.demo_check (
+    k text NOT NULL,
+    CONSTRAINT chk_demo CHECK (
+        CASE WHEN k = ANY (ARRAY['a'::text]) THEN true ELSE true END
+    )
+);"""
+    result = DDLParser(ddl).run(output_mode="postgres")
+    assert result[0]["constraints"]["checks"] == [
+        {
+            "constraint_name": "chk_demo",
+            "statement": "CASE WHEN k = ANY (ARRAY['a'::text]) THEN true ELSE true END",
+        }
+    ]
+
+
+def test_default_with_cast_to_timestamp_with_time_zone():
+    ddl = """CREATE TABLE public.demo_cast (
+    d date DEFAULT date_trunc('day', CURRENT_DATE::timestamp with time zone) NOT NULL,
+    e date DEFAULT CURRENT_DATE::timestamp without time zone NOT NULL
+);"""
+    result = DDLParser(ddl).run(output_mode="postgres")
+    d, e = result[0]["columns"]
+    assert d["default"] == "date_trunc('day',CURRENT_DATE::timestamp with time zone)"
+    assert e["default"] == "CURRENT_DATE::timestamp without time zone"
+    assert "with_time_zone" not in e
+    assert d["nullable"] is False and e["nullable"] is False

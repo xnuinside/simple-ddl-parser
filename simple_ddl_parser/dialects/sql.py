@@ -621,7 +621,17 @@ class Column:
             p_list
         )
 
-        self.set_property(p)
+        if (
+            isinstance(p_list[-1], dict)
+            and "with_time_zone" in p_list[-1]
+            and isinstance(p[0].get("default"), str)
+            and "::" in p[0]["default"]
+        ):
+            # psql: DEFAULT CURRENT_DATE::timestamp with time zone
+            timezone = "with" if p_list[-1]["with_time_zone"] else "without"
+            p[0]["default"] += f" {timezone} time zone"
+        else:
+            self.set_property(p)
 
         p[0]["references"] = p[0].get("references", references)
         p[0]["unique"] = unique or p[0].get("unique", unique)
@@ -2102,8 +2112,18 @@ class BaseSQL(
         | multi_id_statement id_or_string
         | multi_id_statement EQ id_or_string
         | multi_id_statement in_statement
+        | multi_id_statement LP check_pid RP
         """
         p_list = list(p)
+        if len(p_list) == 5:
+            # psql: k = ANY (ARRAY['a'::text])
+            nested = " ".join(p_list[3])
+            nested = re.sub(r"\s*::\s*", "::", nested)
+            nested = re.sub(r"\s*,\s*", ", ", nested)
+            nested = re.sub(r"\[\s+", "[", nested)
+            nested = re.sub(r"\s+\]", "]", nested)
+            p[0] = f"{p_list[1]} ({nested})"
+            return
         p[0] = " ".join(p_list[1:])
 
     def p_check_st(self, p: list) -> None:
@@ -2199,8 +2219,20 @@ class BaseSQL(
         | pid COMMA id
         | pid COMMA id LP id RP
         | pid COMMA STRING
+        | pid COMMA LP id RP
+        | pid timezone
         """
         p_list = list(p)
+        if isinstance(p_list[-1], dict) and "with_time_zone" in p_list[-1]:
+            # psql: CURRENT_DATE::timestamp with time zone
+            p[0] = p_list[1]
+            timezone = "with" if p_list[-1]["with_time_zone"] else "without"
+            p[0][-1] = f"{p[0][-1]} {timezone} time zone"
+            return
+        if len(p_list) == 6 and p_list[3] == "(":
+            p[0] = p_list[1]
+            p[0].append(f"({p_list[4]})")
+            return
 
         if len(p_list) == 4 and isinstance(p[1], str):
             p[0] = ["".join(p[1:])]
